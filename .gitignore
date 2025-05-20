@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Denarius.Web/appsettings.json
+/Denarius.Web/appsettings.Development.json

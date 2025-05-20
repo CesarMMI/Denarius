@@ -2,7 +2,7 @@
 
 namespace Denarius.Application.Shared.Command;
 
-public class BaseQuery
+public class Query
 {
     public int UserId { get; set; }
 
