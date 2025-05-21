@@ -10,8 +10,6 @@ public class RefreshQuery : Query
 
     public override void Validate()
     {
-        base.Validate();
-
         if (!RefreshToken.IsValidString())
             throw new BadRequestException("Refresh token is required");
     }

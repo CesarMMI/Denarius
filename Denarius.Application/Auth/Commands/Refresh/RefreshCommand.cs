@@ -8,24 +8,23 @@ namespace Denarius.Application.Auth.Commands.Refresh;
 
 internal class RefreshCommand(ITokenService tokenService, IUserRepository userRepository) : IRefreshCommand
 {
-    public async Task<AuthResult> Execute(RefreshQuery request)
+    public async Task<AuthResult> Execute(RefreshQuery query)
     {
-        request.Validate();
+        query.Validate();
 
-        int userId;
         try
         {
-            var claims = tokenService.VerifyRefreshToken(request.RefreshToken);
+            var claims = tokenService.VerifyRefreshToken(query.RefreshToken);
             var sub = claims.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            userId = int.Parse(sub?.Value ?? string.Empty);
+            query.UserId = int.Parse(sub?.Value ?? string.Empty);
         }
         catch (Exception)
         {
             throw new UnauthorizedException("Invalid token");
         }
 
-        var user = await userRepository.FindByIdAsync(request.UserId);
-        if (user is null || userId != user.Id)
+        var user = await userRepository.FindByIdAsync(query.UserId);
+        if (user is null)
         {
             throw new UnauthorizedException("Invalid token");
         }
@@ -36,7 +35,7 @@ internal class RefreshCommand(ITokenService tokenService, IUserRepository userRe
         {
             User = user.ToUserResult(),
             AccessToken = accessToken,
-            RefreshToken = request.RefreshToken
+            RefreshToken = query.RefreshToken
         };
     }
 }

@@ -7,13 +7,13 @@ namespace Denarius.Application.Auth.Commands.Login;
 
 internal class LoginCommand(IPasswordService passwordService, ITokenService tokenService, IUserRepository userRepository) : ILoginCommand
 {
-    public async Task<AuthResult> Execute(LoginQuery request)
+    public async Task<AuthResult> Execute(LoginQuery query)
     {
-        request.Validate();
+        query.Validate();
 
-        var user = await userRepository.FindByEmailAsync(request.Email);
+        var user = await userRepository.FindByEmailAsync(query.Email);
 
-        if (user is null || !passwordService.Verify(user.HashedPassword, request.Password))
+        if (user is null || !passwordService.Verify(user.HashedPassword, query.Password))
         {
             throw new UnauthorizedException("Invalid email or password");
         }

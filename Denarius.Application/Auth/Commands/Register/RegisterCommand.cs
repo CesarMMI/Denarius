@@ -8,20 +8,20 @@ namespace Denarius.Application.Auth.Commands.Register;
 
 internal class RegisterCommand(IPasswordService passwordService, ITokenService tokenService, IUserRepository userRepository) : IRegisterCommand
 {
-    public async Task<AuthResult> Execute(RegisterQuery request)
+    public async Task<AuthResult> Execute(RegisterQuery query)
     {
-        request.Validate();
+        query.Validate();
 
-        if (await userRepository.FindByEmailAsync(request.Email) is not null)
+        if (await userRepository.FindByEmailAsync(query.Email) is not null)
         {
             throw new BadRequestException("Email already in use");
         }
 
         var user = new User
         {
-            Name = request.Name,
-            Email = request.Email,
-            HashedPassword = passwordService.Hash(request.Password)
+            Name = query.Name,
+            Email = query.Email,
+            HashedPassword = passwordService.Hash(query.Password)
         };
 
         user = await userRepository.CreateAsync(user);
