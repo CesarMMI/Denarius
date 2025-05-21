@@ -2,5 +2,5 @@
 
 public interface ICommand<TQuery, TResult> where TQuery : Query
 {
-    Task<TResult> Execute(TQuery request);
+    Task<TResult> Execute(TQuery query);
 }

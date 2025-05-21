@@ -1,14 +1,15 @@
 ﻿using Denarius.Application.Shared.Exceptions;
+using Denarius.Application.Shared.Validators;
 
 namespace Denarius.Application.Shared.Command;
 
-public class Query
+public abstract class Query
 {
     public int UserId { get; set; }
 
     public virtual void Validate()
     {
-        if (UserId < 1)
-            throw new BadRequestException("User id is required");
+        if (!UserId.IsValidInt())
+            throw new BadRequestException("User Id is required");
     }
 }

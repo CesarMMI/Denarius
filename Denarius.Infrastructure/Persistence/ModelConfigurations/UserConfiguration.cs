@@ -21,6 +21,10 @@ internal static class UserConfiguration
         modelBuilder.Entity<User>()
             .Property(u => u.HashedPassword)
             .IsRequired();
+        // Account Relation
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Accounts)
+            .WithOne(s => s.User);
         // Timestamps
         modelBuilder.Entity<User>()
             .Property(u => u.CreatedAt)

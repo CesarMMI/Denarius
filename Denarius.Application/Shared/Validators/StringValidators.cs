@@ -5,7 +5,7 @@ namespace Denarius.Application.Shared.Validators;
 
 internal static class StringValidators
 {
-    private static readonly Regex _hexColorRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    private static readonly Regex _hexColorRegex = new(@"^#(?:[0-9a-fA-F]{3}){1,2}$");
 
     public static bool IsValidString(this string value)
     {
