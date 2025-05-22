@@ -9,6 +9,7 @@ public class User
     public string HashedPassword { get; set; } = string.Empty;
 
     public ICollection<Account> Accounts { get; set; } = [];
+    public ICollection<Category> Categories { get; set; } = [];
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

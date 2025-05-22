@@ -25,6 +25,10 @@ internal static class UserConfiguration
         modelBuilder.Entity<User>()
             .HasMany(u => u.Accounts)
             .WithOne(s => s.User);
+        // Category Relation
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Categories)
+            .WithOne(s => s.User);
         // Timestamps
         modelBuilder.Entity<User>()
             .Property(u => u.CreatedAt)

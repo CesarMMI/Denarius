@@ -6,6 +6,11 @@ using Denarius.Application.Accounts.Commands.Update;
 using Denarius.Application.Auth.Commands.Login;
 using Denarius.Application.Auth.Commands.Refresh;
 using Denarius.Application.Auth.Commands.Register;
+using Denarius.Application.Categories.Commands.Create;
+using Denarius.Application.Categories.Commands.Delete;
+using Denarius.Application.Categories.Commands.GetAll;
+using Denarius.Application.Categories.Commands.GetById;
+using Denarius.Application.Categories.Commands.Update;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Denarius.Application;
@@ -16,7 +21,8 @@ public static class DependencyInjection
     {
         return services
             .AddAuth()
-            .AddAccounts();
+            .AddAccounts()
+            .AddCategories();
     }
 
     private static IServiceCollection AddAuth(this IServiceCollection services)
@@ -34,6 +40,16 @@ public static class DependencyInjection
         services.AddScoped<IGetAllAccountsCommand, GetAllAccountsCommand>();
         services.AddScoped<IGetAccountByIdCommand, GetAccountByIdCommand>();
         services.AddScoped<IUpdateAccountCommand, UpdateAccountCommand>();
+        return services;
+    }
+
+    private static IServiceCollection AddCategories(this IServiceCollection services)
+    {
+        services.AddScoped<ICreateCategoryCommand, CreateCategoryCommand>();
+        services.AddScoped<IDeleteCategoryCommand, DeleteCategoryCommand>();
+        services.AddScoped<IGetAllCategoriesCommand, GetAllCategoriesCommand>();
+        services.AddScoped<IGetCategoryByIdCommand, GetCategoryByIdCommand>();
+        services.AddScoped<IUpdateCategoryCommand, UpdateCategoryCommand>();
         return services;
     }
 }
