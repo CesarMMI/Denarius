@@ -9,7 +9,7 @@ internal static class AccountConfiguration
     {
         // PK
         modelBuilder.Entity<Account>()
-            .HasKey(u => u.Id);
+            .HasKey(a => a.Id);
         // Fields
         modelBuilder.Entity<Account>()
             .Property(a => a.Name)
@@ -23,6 +23,10 @@ internal static class AccountConfiguration
             .Property(a => a.Balance)
             .IsRequired(true)
             .HasColumnType("DECIMAL(18, 2)");
+        // Transaction Relation
+        modelBuilder.Entity<Account>()
+            .HasMany(a => a.Transactions)
+            .WithOne(t => t.Account);
         // User Relation
         modelBuilder.Entity<Account>()
             .Property(a => a.UserId)
@@ -34,10 +38,10 @@ internal static class AccountConfiguration
             .OnDelete(DeleteBehavior.Cascade);
         // Timestamps
         modelBuilder.Entity<Account>()
-            .Property(u => u.CreatedAt)
+            .Property(a => a.CreatedAt)
             .IsRequired();
         modelBuilder.Entity<Account>()
-            .Property(u => u.UpdatedAt)
+            .Property(a => a.UpdatedAt)
             .IsRequired();
         return modelBuilder;
     }

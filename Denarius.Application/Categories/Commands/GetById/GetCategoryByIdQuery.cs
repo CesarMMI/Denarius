@@ -12,7 +12,7 @@ public class GetCategoryByIdQuery : Query
     {
         base.Validate();
 
-        if (!Id.IsValidInt())
+        if (!Id.IsValidId())
             throw new BadRequestException("Category Id is required");
     }
 }

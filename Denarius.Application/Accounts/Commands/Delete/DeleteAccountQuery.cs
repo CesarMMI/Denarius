@@ -12,7 +12,7 @@ public class DeleteAccountQuery : Query
     {
         base.Validate();
 
-        if (!Id.IsValidInt())
+        if (!Id.IsValidId())
             throw new BadRequestException("Account Id is required");
     }
 }

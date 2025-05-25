@@ -2,9 +2,9 @@
 using Denarius.Application.Shared.Exceptions;
 using Denarius.Application.Shared.Validators;
 
-namespace Denarius.Application.Accounts.Commands.GetById;
+namespace Denarius.Application.Transactions.Commands.Delete;
 
-public class GetAccountByIdQuery : Query
+public class DeleteTransactionQuery : Query
 {
     public int Id { get; set; }
 
@@ -13,6 +13,6 @@ public class GetAccountByIdQuery : Query
         base.Validate();
 
         if (!Id.IsValidId())
-            throw new BadRequestException("Account Id is required");
+            throw new BadRequestException("Transaction Id is required");
     }
 }

@@ -1,9 +1,11 @@
 ﻿using Denarius.Application.Auth.Services;
+using Denarius.Application.Shared.Services;
 using Denarius.Domain.Repositories;
 using Denarius.Infrastructure.Identity.Password;
 using Denarius.Infrastructure.Identity.Token;
 using Denarius.Infrastructure.Persistence;
 using Denarius.Infrastructure.Persistence.Repositories;
+using Denarius.Infrastructure.Persistence.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,6 +29,9 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+        services.AddScoped<IDbTransactionService, DbTransactionService>();
 
         return services;
     }

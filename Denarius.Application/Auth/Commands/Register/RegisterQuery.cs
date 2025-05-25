@@ -12,21 +12,11 @@ public class RegisterQuery : Query
 
     public override void Validate()
     {
-        if (!Name.IsValidString())
-            throw new BadRequestException("Name is required");
-        if (Name.Length < 3)
-            throw new BadRequestException("Name length can't be lower than 3");
-        if (Name.Length > 50)
-            throw new BadRequestException("Name length can't be greater than 50");
+        ValidateString(Name, nameof(Name), 3, 50);
 
         if (!Email.IsValidEmail())
             throw new BadRequestException("Invalid email");
 
-        if (!Password.IsValidString())
-            throw new BadRequestException("Password is required");
-        if (Password.Length < 5)
-            throw new BadRequestException("Password length can't be lower than 5");
-        if (Password.Length > 100)
-            throw new BadRequestException("Password length can't be greater than 100");
+        ValidateString(Password, nameof(Password), 5, 100);
     }
 }

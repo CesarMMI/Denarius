@@ -9,34 +9,38 @@ internal static class CategoryConfiguration
     {
         // PK
         modelBuilder.Entity<Category>()
-            .HasKey(u => u.Id);
+            .HasKey(c => c.Id);
         // Fields
         modelBuilder.Entity<Category>()
-            .Property(a => a.Name)
+            .Property(c => c.Name)
             .IsRequired()
             .HasMaxLength(50);
         modelBuilder.Entity<Category>()
-            .Property(a => a.Type)
+            .Property(c => c.Type)
             .IsRequired();
         modelBuilder.Entity<Category>()
-            .Property(a => a.Color)
+            .Property(c => c.Color)
             .IsRequired(false)
             .HasMaxLength(7);
+        // Transaction Relation
+        modelBuilder.Entity<Category>()
+            .HasMany(c => c.Transactions)
+            .WithOne(t => t.Category);
         // User Relation
         modelBuilder.Entity<Category>()
-            .Property(a => a.UserId)
+            .Property(c => c.UserId)
             .IsRequired();
         modelBuilder.Entity<Category>()
-            .HasOne(a => a.User)
+            .HasOne(c => c.User)
             .WithMany(u => u.Categories)
-            .HasForeignKey(a => a.UserId)
+            .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         // Timestamps
         modelBuilder.Entity<Category>()
-            .Property(u => u.CreatedAt)
+            .Property(c => c.CreatedAt)
             .IsRequired();
         modelBuilder.Entity<Category>()
-            .Property(u => u.UpdatedAt)
+            .Property(c => c.UpdatedAt)
             .IsRequired();
         return modelBuilder;
     }

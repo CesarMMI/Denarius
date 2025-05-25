@@ -2,6 +2,7 @@
 using Denarius.Application.Categories.Commands.Delete;
 using Denarius.Application.Categories.Commands.GetAll;
 using Denarius.Application.Categories.Commands.GetById;
+using Denarius.Application.Categories.Commands.GetTypes;
 using Denarius.Application.Categories.Commands.Update;
 using Denarius.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,8 @@ public class CategoriesController(
     IDeleteCategoryCommand deleteCategoryCommand,
     IGetAllCategoriesCommand getAllCategoriesCommand,
     IGetCategoryByIdCommand getCategoryByIdCommand,
-    IUpdateCategoryCommand updateCategoryCommand
+    IUpdateCategoryCommand updateCategoryCommand,
+    IGetCategoryTypesCommand getCategoryTypesCommand
 ) : ControllerBase
 {
     [HttpPost]
@@ -63,5 +65,11 @@ public class CategoriesController(
         body.Id = id;
         body.SetRequestUserId(HttpContext);
         return Ok(await updateCategoryCommand.Execute(body));
+    }
+
+    [HttpGet("types")]
+    public async Task<IActionResult> GetTypes()
+    {
+        return Ok(await getCategoryTypesCommand.Execute(new()));
     }
 }

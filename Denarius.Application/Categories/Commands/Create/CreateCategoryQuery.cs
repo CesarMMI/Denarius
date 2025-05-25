@@ -15,12 +15,7 @@ public class CreateCategoryQuery : Query
     {
         base.Validate();
 
-        if (!Name.IsValidString())
-            throw new BadRequestException("Name is required");
-        if (Name.Length < 3)
-            throw new BadRequestException("Name length can't be lower than 3");
-        if (Name.Length > 50)
-            throw new BadRequestException("Name length can't be greater than 50");
+        ValidateString(Name, nameof(Name), 3, 50);
 
         if (Color is not null && !Color.IsValidColor())
             throw new BadRequestException("Invalid color");

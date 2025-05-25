@@ -9,6 +9,7 @@ internal class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(
     public DbSet<User> Users { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -16,6 +17,7 @@ internal class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(
         modelBuilder
             .ConfigureUserModel()
             .ConfigureAccountModel()
-            .ConfigureCategoryModel();
+            .ConfigureCategoryModel()
+            .ConfigureTransactionModel();
     }
 }

@@ -2,8 +2,13 @@
 
 internal static class NumberValidators
 {
-    public static bool IsValidInt(this int value)
+    public static bool IsValidId(this int value)
     {
-        return value >= 0;
+        return value > 0;
+    }
+
+    public static bool IsValidId(this int? value)
+    {
+        return !value.HasValue || value > 0;
     }
 }
