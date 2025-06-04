@@ -15,7 +15,7 @@ public class UpdateAccountQuery : Query
         base.Validate();
 
         if (!Id.IsValidId())
-            throw new BadRequestException("Account Id is required");
+            throw new BadRequestException("Account id is required");
 
         if (!Name.IsValidString())
             throw new BadRequestException("Name is required");

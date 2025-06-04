@@ -13,6 +13,6 @@ public class GetAccountByIdQuery : Query
         base.Validate();
 
         if (!Id.IsValidId())
-            throw new BadRequestException("Account Id is required");
+            throw new BadRequestException("Account id is required");
     }
 }
