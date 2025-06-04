@@ -38,7 +38,6 @@ public class LoginCommandTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(userMock.Id, result.User.Id);
         Assert.Equal(userMock.Name, result.User.Name);
         Assert.Equal(userMock.Email, result.User.Email);
     }
@@ -53,7 +52,7 @@ public class LoginCommandTests
             Name = "User Test",
             Email = "user@test.com",
             HashedPassword = "hashedPassword"
-        }; 
+        };
         var query = new LoginQuery() { Email = "invalid@test.com", Password = "password123" };
 
         var command = new LoginCommand(passwordServiceMock.Object, tokenServiceMock.Object, userRepositoryMock.Object);
@@ -61,7 +60,8 @@ public class LoginCommandTests
         userRepositoryMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(userMock);
 
         // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedException>(() => command.Execute(query));
+        var ex = await Assert.ThrowsAsync<UnauthorizedException>(() => command.Execute(query));
+        Assert.Equal("Invalid email or password", ex.Message);
     }
 
     [Fact]
@@ -83,6 +83,7 @@ public class LoginCommandTests
         userRepositoryMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(userMock);
 
         // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedException>(() => command.Execute(query));
+        var ex = await Assert.ThrowsAsync<UnauthorizedException>(() => command.Execute(query));
+        Assert.Equal("Invalid email or password", ex.Message);
     }
 }

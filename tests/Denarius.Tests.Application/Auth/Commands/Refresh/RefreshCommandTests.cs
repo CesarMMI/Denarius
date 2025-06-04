@@ -36,7 +36,6 @@ public class RefreshCommandTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(userMock.Id, result.User.Id);
         Assert.Equal(userMock.Name, result.User.Name);
         Assert.Equal(userMock.Email, result.User.Email);
         Assert.Equal(query.RefreshToken, result.RefreshToken);
@@ -61,6 +60,7 @@ public class RefreshCommandTests
         userRepositoryMock.Setup(x => x.FindByIdAsync(It.IsAny<int>())).ReturnsAsync((User)null);
 
         // Act & Assert
-        await Assert.ThrowsAsync<UnauthorizedException>(() => command.Execute(query));
+        var ex = await Assert.ThrowsAsync<UnauthorizedException>(() => command.Execute(query));
+        Assert.Equal("Invalid token", ex.Message);
     }
 }

@@ -39,7 +39,6 @@ public class RegisterCommandTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(userMock.Id, result.User.Id);
         Assert.Equal(userMock.Name, result.User.Name);
         Assert.Equal(userMock.Email, result.User.Email);
     }
@@ -62,6 +61,7 @@ public class RegisterCommandTests
         userRepositoryMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(userMock);
 
         // Act & Assert
-        await Assert.ThrowsAsync<BadRequestException>(() => command.Execute(query));
+        var ex = await Assert.ThrowsAsync<BadRequestException>(() => command.Execute(query));
+        Assert.Equal("Email already in use", ex.Message);
     }
 }

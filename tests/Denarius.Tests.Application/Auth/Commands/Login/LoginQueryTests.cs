@@ -25,6 +25,20 @@ public class LoginQueryTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("   ")]
+    public void Validate_ThrowsBadRequest_WhenEmailIsEmpty(string email)
+    {
+        // Arrange
+        var query = new LoginQuery
+        {
+            Email = email,
+            Password = "validPassword"
+        };
+        // Act & Assert
+        var ex = Assert.Throws<BadRequestException>(query.Validate);
+        Assert.Equal("Email is required", ex.Message);
+    }
+
+    [Theory]
     [InlineData("user")]
     [InlineData("user@")]
     [InlineData("user.com")]
@@ -37,7 +51,8 @@ public class LoginQueryTests
             Password = "validPassword"
         };
         // Act & Assert
-        Assert.Throws<BadRequestException>(query.Validate);
+        var ex = Assert.Throws<BadRequestException>(query.Validate);
+        Assert.Equal("Invalid email", ex.Message);
     }
 
     [Theory]
@@ -54,7 +69,8 @@ public class LoginQueryTests
             Password = password
         };
         // Act & Assert
-        Assert.Throws<BadRequestException>(query.Validate);
+        var ex = Assert.Throws<BadRequestException>(query.Validate);
+        Assert.Equal("Password is required", ex.Message);
     }
 
     [Fact]
@@ -67,7 +83,8 @@ public class LoginQueryTests
             Password = "123"
         };
         // Act & Assert
-        Assert.Throws<BadRequestException>(query.Validate);
+        var ex = Assert.Throws<BadRequestException>(query.Validate);
+        Assert.Equal("Password length can't be lower than 5", ex.Message);
     }
 
     [Fact]
@@ -80,6 +97,7 @@ public class LoginQueryTests
             Password = new('a', 101)
         };
         // Act & Assert
-        Assert.Throws<BadRequestException>(query.Validate);
+        var ex = Assert.Throws<BadRequestException>(query.Validate);
+        Assert.Equal("Password length can't be greater than 100", ex.Message);
     }
 }

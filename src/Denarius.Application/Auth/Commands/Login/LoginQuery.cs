@@ -11,6 +11,8 @@ public class LoginQuery : Query
 
     public override void Validate()
     {
+        if (!Email.IsValidString())
+            throw new BadRequestException("Email is required");
         if (!Email.IsValidEmail())
             throw new BadRequestException("Invalid email");
 

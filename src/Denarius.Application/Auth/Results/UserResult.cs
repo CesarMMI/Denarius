@@ -4,7 +4,6 @@ namespace Denarius.Application.Auth.Results;
 
 public class UserResult
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
 }
@@ -15,7 +14,6 @@ public static class UserResultExtensions
     {
         return new UserResult
         {
-            Id = user.Id,
             Name = user.Name,
             Email = user.Email
         };

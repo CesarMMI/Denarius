@@ -19,6 +19,8 @@ public class RegisterQuery : Query
         if (Name.Length > 50)
             throw new BadRequestException("Name length can't be greater than 50");
 
+        if (!Email.IsValidString())
+            throw new BadRequestException("Email is required");
         if (!Email.IsValidEmail())
             throw new BadRequestException("Invalid email");
 

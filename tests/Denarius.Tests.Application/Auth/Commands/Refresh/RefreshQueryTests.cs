@@ -21,11 +21,12 @@ public class RefreshQueryTests
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("   ")]
-    public void Validate_ThrowsBadRequest_WhenRefreshTokenIsInvalid(string refreshToken)
+    public void Validate_ThrowsBadRequest_WhenRefreshTokenIsEmpty(string refreshToken)
     {
         // Arrange
         var query = new RefreshQuery { RefreshToken = refreshToken };
         // Act & Assert
-        Assert.Throws<BadRequestException>(query.Validate);
+        var ex = Assert.Throws<BadRequestException>(query.Validate);
+        Assert.Equal("Refresh token is required", ex.Message);
     }
 }
