@@ -13,6 +13,6 @@ public class GetCategoryByIdQuery : Query
         base.Validate();
 
         if (!Id.IsValidId())
-            throw new BadRequestException("Category Id is required");
+            throw new BadRequestException("Category id is required");
     }
 }

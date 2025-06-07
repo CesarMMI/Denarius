@@ -4,4 +4,7 @@ namespace Denarius.Application.Categories.Commands.GetTypes;
 
 public class GetCategoryTypesQuery : Query
 {
+    public override void Validate()
+    {
+    }
 }

@@ -15,7 +15,7 @@ public class UpdateCategoryQuery : Query
         base.Validate();
 
         if (!Id.IsValidId())
-            throw new BadRequestException("Category Id is required");
+            throw new BadRequestException("Category id is required");
 
         if (!Name.IsValidString())
             throw new BadRequestException("Name is required");

@@ -2,7 +2,7 @@
 
 namespace Denarius.Application.Categories.Commands.GetTypes;
 
-internal class GetCategoryTypesCommand : IGetCategoryTypesCommand
+public class GetCategoryTypesCommand : IGetCategoryTypesCommand
 {
     public async Task<IList<GetCategoryTypesResult>> Execute(GetCategoryTypesQuery query)
     {
