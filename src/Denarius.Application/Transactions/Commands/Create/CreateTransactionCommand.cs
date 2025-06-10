@@ -1,5 +1,5 @@
 ﻿using Denarius.Application.Shared.Exceptions;
-using Denarius.Application.Shared.Services;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Application.Transactions.Results;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
@@ -7,7 +7,7 @@ using Denarius.Domain.Repositories;
 namespace Denarius.Application.Transactions.Commands.Create;
 
 public class CreateTransactionCommand(
-    IDbTransactionService dbTransactionService,
+    IUnitOfWork unitOfWork,
     IAccountRepository accountRepository,
     ICategoryRepository categoryRepository,
     ITransactionRepository transactionRepository
@@ -24,42 +24,37 @@ public class CreateTransactionCommand(
             Description = query.Description,
         };
 
-        transaction = await dbTransactionService.ExecuteAsync(async () =>
-        {
-            transaction = await AddTransactionAccount(query.AccountId, query.UserId, transaction);
-
-            if (query.CategoryId.HasValue) transaction = await AddTransactionCategory(query.CategoryId.Value, query.UserId, transaction);
-
-            transaction = await transactionRepository.CreateAsync(transaction);
-
-            return transaction;
-        });
-
-        return transaction.ToTransactionResult();
-    }
-
-    private async Task<Transaction> AddTransactionAccount(int accountId, int userId, Transaction transaction)
-    {
-        var account = await accountRepository.GetByIdAsync(accountId, userId);
+        var account = await accountRepository.GetByIdAsync(query.AccountId, query.UserId);
         if (account is null) throw new NotFoundException("Account not found");
-
-        account.Balance += transaction.Amount;
-        await accountRepository.UpdateAsync(account);
 
         transaction.Account = account;
         transaction.AccountId = account.Id;
 
-        return transaction;
-    }
+        await unitOfWork.BeginTransactionAsync();
+        try
+        {
+            account.Balance += transaction.Amount;
+            await accountRepository.UpdateAsync(account);
 
-    private async Task<Transaction> AddTransactionCategory(int categoryId, int userId, Transaction transaction)
-    {
-        var category = await categoryRepository.GetByIdAsync(categoryId, userId);
-        if (category is null) throw new NotFoundException("Category not found");
+            if (query.CategoryId.HasValue)
+            {
+                var category = await categoryRepository.GetByIdAsync(query.CategoryId.Value, query.UserId);
+                if (category is null) throw new NotFoundException("Category not found");
 
-        transaction.Category = category;
-        transaction.CategoryId = category.Id;
+                transaction.Category = category;
+                transaction.CategoryId = category.Id;
+            }
 
-        return transaction;
+            transaction = await transactionRepository.CreateAsync(transaction);
+
+            await unitOfWork.CommitAsync();
+        }
+        catch
+        {
+            await unitOfWork.RollbackAsync();
+            throw;
+        }
+
+        return transaction.ToTransactionResult();
     }
 }

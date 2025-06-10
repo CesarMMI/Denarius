@@ -1,4 +1,5 @@
 ﻿using Denarius.Application.Categories.Commands.Create;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Enums;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
@@ -8,6 +9,7 @@ namespace Denarius.Tests.Application.Categories.Commands.Create;
 
 public class CreateCategoryCommandTests
 {
+    private static readonly Mock<IUnitOfWork> unitOfWorkMock = new();
     private static readonly Mock<ICategoryRepository> categoryRepositoryMock = new();
 
     [Fact]
@@ -29,7 +31,7 @@ public class CreateCategoryCommandTests
             Type = categoryMock.Type,
             UserId = 1
         };
-        var command = new CreateCategoryCommand(categoryRepositoryMock.Object);
+        var command = new CreateCategoryCommand(unitOfWorkMock.Object, categoryRepositoryMock.Object);
 
         categoryRepositoryMock.Setup(x => x.CreateAsync(It.IsAny<Category>())).ReturnsAsync(categoryMock);
 

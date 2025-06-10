@@ -21,15 +21,15 @@ public class CreateTransactionQuery : Query
 
         if (!Description.IsValidString())
             throw new BadRequestException("Description is required");
-        if (Description.Length < 1)
-            throw new BadRequestException("Description length can't be lower than 1");
+        if (Description.Length < 3)
+            throw new BadRequestException("Description length can't be lower than 3");
         if (Description.Length > 50)
             throw new BadRequestException("Description length can't be greater than 50");
 
         if (!AccountId.IsValidId())
-            throw new BadRequestException("Account Id is required");
+            throw new BadRequestException("Account id is required");
 
         if (!CategoryId.IsValidId())
-            throw new BadRequestException("Invalid category Id");
+            throw new BadRequestException("Invalid category id");
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Denarius.Application.Accounts.Commands.Delete;
 using Denarius.Application.Shared.Exceptions;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
 using Moq;
@@ -8,6 +9,7 @@ namespace Denarius.Tests.Application.Accounts.Commands.Delete;
 
 public class DeleteAccountCommandTests
 {
+    private static readonly Mock<IUnitOfWork> unitOfWorkMock = new();
     private static readonly Mock<IAccountRepository> accountRepositoryMock = new();
 
     [Fact]
@@ -27,7 +29,7 @@ public class DeleteAccountCommandTests
             UserId = accountMock.UserId,
             Id = accountMock.Id
         };
-        var command = new DeleteAccountCommand(accountRepositoryMock.Object);
+        var command = new DeleteAccountCommand(unitOfWorkMock.Object, accountRepositoryMock.Object);
 
         accountRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(accountMock);
         accountRepositoryMock.Setup(x => x.DeleteAsync(It.IsAny<Account>())).ReturnsAsync(accountMock);
@@ -52,7 +54,7 @@ public class DeleteAccountCommandTests
             UserId = 1,
             Id = 1
         };
-        var command = new DeleteAccountCommand(accountRepositoryMock.Object);
+        var command = new DeleteAccountCommand(unitOfWorkMock.Object, accountRepositoryMock.Object);
 
         accountRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((Account)null);
 

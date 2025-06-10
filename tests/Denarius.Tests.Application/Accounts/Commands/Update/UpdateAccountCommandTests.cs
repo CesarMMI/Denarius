@@ -1,5 +1,6 @@
 ﻿using Denarius.Application.Accounts.Commands.Update;
 using Denarius.Application.Shared.Exceptions;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
 using Moq;
@@ -8,6 +9,7 @@ namespace Denarius.Tests.Application.Accounts.Commands.Update;
 
 public class UpdateAccountCommandTests
 {
+    private static readonly Mock<IUnitOfWork> unitOfWorkMock = new();
     private static readonly Mock<IAccountRepository> accountRepositoryMock = new();
 
     [Fact]
@@ -29,7 +31,7 @@ public class UpdateAccountCommandTests
             Color = "#000",
             UserId = accountMock.UserId
         };
-        var command = new UpdateAccountCommand(accountRepositoryMock.Object);
+        var command = new UpdateAccountCommand(unitOfWorkMock.Object, accountRepositoryMock.Object);
 
         accountRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(accountMock);
         accountRepositoryMock.Setup(x => x.UpdateAsync(It.IsAny<Account>())).ReturnsAsync(accountMock);
@@ -56,7 +58,7 @@ public class UpdateAccountCommandTests
             Color = "#FFFFFF",
             UserId = 1,
         };
-        var command = new UpdateAccountCommand(accountRepositoryMock.Object);
+        var command = new UpdateAccountCommand(unitOfWorkMock.Object, accountRepositoryMock.Object);
 
         accountRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((Account)null);
 

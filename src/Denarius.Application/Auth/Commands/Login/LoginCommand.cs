@@ -5,7 +5,11 @@ using Denarius.Domain.Repositories;
 
 namespace Denarius.Application.Auth.Commands.Login;
 
-public class LoginCommand(IPasswordService passwordService, ITokenService tokenService, IUserRepository userRepository) : ILoginCommand
+public class LoginCommand(
+    IPasswordService passwordService,
+    ITokenService tokenService,
+    IUserRepository userRepository
+) : ILoginCommand
 {
     public async Task<AuthResult> Execute(LoginQuery query)
     {

@@ -1,6 +1,7 @@
 ﻿using Denarius.Application.Auth.Commands.Register;
 using Denarius.Application.Auth.Services;
 using Denarius.Application.Shared.Exceptions;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
 using Moq;
@@ -9,6 +10,7 @@ namespace Denarius.Tests.Application.Auth.Commands.Register;
 
 public class RegisterCommandTests
 {
+    private static readonly Mock<IUnitOfWork> unitOfWorkMock = new();
     private static readonly Mock<IPasswordService> passwordServiceMock = new();
     private static readonly Mock<ITokenService> tokenServiceMock = new();
     private static readonly Mock<IUserRepository> userRepositoryMock = new();
@@ -26,7 +28,12 @@ public class RegisterCommandTests
         };
         var query = new RegisterQuery { Name = userMock.Name, Email = userMock.Email, Password = "password12345" };
 
-        var command = new RegisterCommand(passwordServiceMock.Object, tokenServiceMock.Object, userRepositoryMock.Object);
+        var command = new RegisterCommand(
+            unitOfWorkMock.Object,
+            passwordServiceMock.Object,
+            tokenServiceMock.Object,
+            userRepositoryMock.Object
+        );
 
         passwordServiceMock.Setup(x => x.Hash(It.IsAny<string>())).Returns("hashedPassword");
         tokenServiceMock.Setup(x => x.GenerateAccessToken(It.IsAny<int>(), It.IsAny<string>())).Returns("access-token");
@@ -56,7 +63,12 @@ public class RegisterCommandTests
         };
         var query = new RegisterQuery { Name = userMock.Name, Email = userMock.Email, Password = "password12345" };
 
-        var command = new RegisterCommand(passwordServiceMock.Object, tokenServiceMock.Object, userRepositoryMock.Object);
+        var command = new RegisterCommand(
+            unitOfWorkMock.Object,
+            passwordServiceMock.Object,
+            tokenServiceMock.Object,
+            userRepositoryMock.Object
+        );
 
         userRepositoryMock.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(userMock);
 

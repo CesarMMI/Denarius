@@ -1,5 +1,6 @@
 ﻿using Denarius.Application.Categories.Commands.Delete;
 using Denarius.Application.Shared.Exceptions;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Enums;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
@@ -9,6 +10,7 @@ namespace Denarius.Tests.Application.Categories.Commands.Delete;
 
 public class DeleteCategoryCommandTests
 {
+    private static readonly Mock<IUnitOfWork> unitOfWorkMock = new();
     private static readonly Mock<ICategoryRepository> categoryRepositoryMock = new();
 
     [Fact]
@@ -28,7 +30,7 @@ public class DeleteCategoryCommandTests
             Id = categoryMock.Id,
             UserId = categoryMock.UserId,
         };
-        var command = new DeleteCategoryCommand(categoryRepositoryMock.Object);
+        var command = new DeleteCategoryCommand(unitOfWorkMock.Object, categoryRepositoryMock.Object);
 
         categoryRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(categoryMock);
         categoryRepositoryMock.Setup(x => x.DeleteAsync(It.IsAny<Category>())).ReturnsAsync(categoryMock);
@@ -53,7 +55,7 @@ public class DeleteCategoryCommandTests
             Id = 1,
             UserId = 1,
         };
-        var command = new DeleteCategoryCommand(categoryRepositoryMock.Object);
+        var command = new DeleteCategoryCommand(unitOfWorkMock.Object, categoryRepositoryMock.Object);
 
         categoryRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync((Category)null);
 

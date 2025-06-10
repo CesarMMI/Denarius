@@ -13,6 +13,6 @@ public class DeleteTransactionQuery : Query
         base.Validate();
 
         if (!Id.IsValidId())
-            throw new BadRequestException("Transaction Id is required");
+            throw new BadRequestException("Transaction id is required");
     }
 }

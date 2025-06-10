@@ -9,7 +9,6 @@ public class GetCategoryTypesCommand : IGetCategoryTypesCommand
         var list = Enum.GetValues<ECategoryType>()
          .Select(e => new GetCategoryTypesResult { Label = e.ToString(), Value = (int)e })
          .ToList();
-
         return await Task.FromResult(list);
     }
 }

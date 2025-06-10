@@ -1,10 +1,14 @@
 ﻿using Denarius.Application.Categories.Results;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
 
 namespace Denarius.Application.Categories.Commands.Create;
 
-public class CreateCategoryCommand(ICategoryRepository categoryRepository) : ICreateCategoryCommand
+public class CreateCategoryCommand(
+    IUnitOfWork unitOfWork, 
+    ICategoryRepository categoryRepository
+) : ICreateCategoryCommand
 {
     public async Task<CategoryResult> Execute(CreateCategoryQuery query)
     {
@@ -18,7 +22,17 @@ public class CreateCategoryCommand(ICategoryRepository categoryRepository) : ICr
             UserId = query.UserId
         };
 
-        category = await categoryRepository.CreateAsync(category);
+        await unitOfWork.BeginTransactionAsync();
+        try
+        {
+            category = await categoryRepository.CreateAsync(category);
+            await unitOfWork.CommitAsync();
+        }
+        catch
+        {
+            await unitOfWork.RollbackAsync();
+            throw;
+        }
 
         return category.ToCategoryResult();
     }

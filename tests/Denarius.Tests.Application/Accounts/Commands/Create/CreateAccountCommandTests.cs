@@ -1,4 +1,5 @@
 ﻿using Denarius.Application.Accounts.Commands.Create;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
 using Moq;
@@ -7,6 +8,7 @@ namespace Denarius.Tests.Application.Accounts.Commands.Create;
 
 public class CreateAccountCommandTests
 {
+    private static readonly Mock<IUnitOfWork> unitOfWorkMock = new();
     private static readonly Mock<IAccountRepository> accountRepositoryMock = new();
 
     [Fact]
@@ -28,7 +30,7 @@ public class CreateAccountCommandTests
             Balance = accountMock.Balance,
             UserId = accountMock.UserId
         };
-        var command = new CreateAccountCommand(accountRepositoryMock.Object);
+        var command = new CreateAccountCommand(unitOfWorkMock.Object, accountRepositoryMock.Object);
 
         accountRepositoryMock.Setup(x => x.CreateAsync(It.IsAny<Account>())).ReturnsAsync(accountMock);
 
