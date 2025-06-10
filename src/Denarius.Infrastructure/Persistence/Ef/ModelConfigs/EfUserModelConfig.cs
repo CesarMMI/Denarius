@@ -1,9 +1,9 @@
 ﻿using Denarius.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Denarius.Infrastructure.Persistence.ModelConfigurations;
+namespace Denarius.Infrastructure.Persistence.Ef.ModelConfigs;
 
-internal static class UserConfiguration
+internal static class EfUserModelConfig
 {
     public static ModelBuilder ConfigureUserModel(this ModelBuilder modelBuilder)
     {

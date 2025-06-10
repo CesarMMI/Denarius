@@ -1,9 +1,9 @@
 ﻿using Denarius.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Denarius.Infrastructure.Persistence.ModelConfigurations;
+namespace Denarius.Infrastructure.Persistence.Ef.ModelConfigs;
 
-internal static class CategoryConfiguration
+internal static class EfCategoryModelConfig
 {
     public static ModelBuilder ConfigureCategoryModel(this ModelBuilder modelBuilder)
     {

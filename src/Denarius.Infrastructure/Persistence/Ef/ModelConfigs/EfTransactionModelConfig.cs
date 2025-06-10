@@ -1,9 +1,9 @@
 ﻿using Denarius.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Denarius.Infrastructure.Persistence.ModelConfigurations;
+namespace Denarius.Infrastructure.Persistence.Ef.ModelConfigs;
 
-internal static class TransactionConfiguration
+internal static class EfTransactionModelConfig
 {
     public static ModelBuilder ConfigureTransactionModel(this ModelBuilder modelBuilder)
     {

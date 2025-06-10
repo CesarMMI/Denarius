@@ -1,10 +1,10 @@
 ﻿using Denarius.Domain.Models;
-using Denarius.Infrastructure.Persistence.ModelConfigurations;
+using Denarius.Infrastructure.Persistence.Ef.ModelConfigs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Denarius.Infrastructure.Persistence;
+namespace Denarius.Infrastructure.Persistence.Ef.UnitOfWork;
 
-internal class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+internal class EfDbContext(DbContextOptions<EfDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Account> Accounts { get; set; }

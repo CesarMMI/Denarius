@@ -1,11 +1,10 @@
 ﻿using Denarius.Application.Auth.Services;
-using Denarius.Application.Shared.Services;
+using Denarius.Application.Shared.UnitOfWork;
 using Denarius.Domain.Repositories;
 using Denarius.Infrastructure.Identity.Password;
 using Denarius.Infrastructure.Identity.Token;
-using Denarius.Infrastructure.Persistence;
-using Denarius.Infrastructure.Persistence.Repositories;
-using Denarius.Infrastructure.Persistence.Services;
+using Denarius.Infrastructure.Persistence.Ef.Repositories;
+using Denarius.Infrastructure.Persistence.Ef.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,14 +23,17 @@ public static class DependencyInjection
 
     private static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddDbContext<EfDbContext>(options =>
+        {
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        });
 
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IAccountRepository, AccountRepository>();
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<ITransactionRepository, TransactionRepository>();
+        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
-        services.AddScoped<IDbTransactionService, DbTransactionService>();
+        services.AddScoped<IUserRepository, EfUserRepository>();
+        services.AddScoped<IAccountRepository, EfAccountRepository>();
+        services.AddScoped<ICategoryRepository, EfCategoryRepository>();
+        services.AddScoped<ITransactionRepository, EfTransactionRepository>();
 
         return services;
     }
@@ -43,11 +45,12 @@ public static class DependencyInjection
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
         {
+            options.Events = new TokenEventsHandler();
+            options.MapInboundClaims = false;
             options.TokenValidationParameters = TokenServiceExtensions.GetValidationParameters(
                 configuration["JWT:Issuer"]!,
                 configuration["JWT:AccessSecret"]!
             );
-            options.Events = new TokenEventsHandler();
         });
         services.AddAuthorization();
 
