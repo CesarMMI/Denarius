@@ -1,7 +1,6 @@
 ﻿using Denarius.Application.Accounts.Commands.Create;
 using Denarius.Application.Accounts.Commands.Delete;
 using Denarius.Application.Accounts.Commands.GetAll;
-using Denarius.Application.Accounts.Commands.GetById;
 using Denarius.Application.Accounts.Commands.Update;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,6 @@ public class AccountsController(
     ICreateAccountCommand createAccountCommand,
     IDeleteAccountCommand deleteAccountCommand,
     IGetAllAccountsCommand getAllAccountsCommand,
-    IGetAccountByIdCommand getAccountByIdCommand,
     IUpdateAccountCommand updateAccountCommand
 ) : Controller
 {
@@ -37,13 +35,6 @@ public class AccountsController(
     public Task<IActionResult> GetAll()
     {
         return HandleCommand(getAllAccountsCommand, new());
-    }
-
-    [HttpGet("{id:int}")]
-    [Authorize]
-    public Task<IActionResult> GetById([FromRoute] int id)
-    {
-        return HandleCommand(getAccountByIdCommand, new() { Id = id });
     }
 
     [HttpPut("{id:int}")]

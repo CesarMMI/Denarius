@@ -1,7 +1,6 @@
 ﻿using Denarius.Application.Transactions.Commands.Create;
 using Denarius.Application.Transactions.Commands.Delete;
 using Denarius.Application.Transactions.Commands.GetAll;
-using Denarius.Application.Transactions.Commands.GetById;
 using Denarius.Application.Transactions.Commands.Update;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,6 @@ public class TransactionsController(
     ICreateTransactionCommand createTransactionCommand,
     IDeleteTransactionCommand deleteTransactionCommand,
     IGetAllTransactionsCommand getAllTransactionsCommand,
-    IGetTransactionByIdCommand getTransactionByIdCommand,
     IUpdateTransactionCommand updateTransactionCommand
 ) : Controller
 {
@@ -37,13 +35,6 @@ public class TransactionsController(
     public Task<IActionResult> GetAll()
     {
         return HandleCommand(getAllTransactionsCommand, new());
-    }
-
-    [HttpGet("{id:int}")]
-    [Authorize]
-    public Task<IActionResult> GetById([FromRoute] int id)
-    {
-        return HandleCommand(getTransactionByIdCommand, new() { Id = id });
     }
 
     [HttpPut("{id:int}")]

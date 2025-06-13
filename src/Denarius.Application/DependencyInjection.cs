@@ -1,7 +1,6 @@
 ﻿using Denarius.Application.Accounts.Commands.Create;
 using Denarius.Application.Accounts.Commands.Delete;
 using Denarius.Application.Accounts.Commands.GetAll;
-using Denarius.Application.Accounts.Commands.GetById;
 using Denarius.Application.Accounts.Commands.Update;
 using Denarius.Application.Auth.Commands.Login;
 using Denarius.Application.Auth.Commands.Refresh;
@@ -9,13 +8,11 @@ using Denarius.Application.Auth.Commands.Register;
 using Denarius.Application.Categories.Commands.Create;
 using Denarius.Application.Categories.Commands.Delete;
 using Denarius.Application.Categories.Commands.GetAll;
-using Denarius.Application.Categories.Commands.GetById;
 using Denarius.Application.Categories.Commands.GetTypes;
 using Denarius.Application.Categories.Commands.Update;
 using Denarius.Application.Transactions.Commands.Create;
 using Denarius.Application.Transactions.Commands.Delete;
 using Denarius.Application.Transactions.Commands.GetAll;
-using Denarius.Application.Transactions.Commands.GetById;
 using Denarius.Application.Transactions.Commands.Update;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -45,7 +42,6 @@ public static class DependencyInjection
         services.AddScoped<ICreateAccountCommand, CreateAccountCommand>();
         services.AddScoped<IDeleteAccountCommand, DeleteAccountCommand>();
         services.AddScoped<IGetAllAccountsCommand, GetAllAccountsCommand>();
-        services.AddScoped<IGetAccountByIdCommand, GetAccountByIdCommand>();
         services.AddScoped<IUpdateAccountCommand, UpdateAccountCommand>();
         return services;
     }
@@ -55,7 +51,6 @@ public static class DependencyInjection
         services.AddScoped<ICreateCategoryCommand, CreateCategoryCommand>();
         services.AddScoped<IDeleteCategoryCommand, DeleteCategoryCommand>();
         services.AddScoped<IGetAllCategoriesCommand, GetAllCategoriesCommand>();
-        services.AddScoped<IGetCategoryByIdCommand, GetCategoryByIdCommand>();
         services.AddScoped<IUpdateCategoryCommand, UpdateCategoryCommand>();
         services.AddScoped<IGetCategoryTypesCommand, GetCategoryTypesCommand>();
         return services;
@@ -66,7 +61,6 @@ public static class DependencyInjection
         services.AddScoped<ICreateTransactionCommand, CreateTransactionCommand>();
         services.AddScoped<IDeleteTransactionCommand, DeleteTransactionCommand>();
         services.AddScoped<IGetAllTransactionsCommand, GetAllTransactionsCommand>();
-        services.AddScoped<IGetTransactionByIdCommand, GetTransactionByIdCommand>();
         services.AddScoped<IUpdateTransactionCommand, UpdateTransactionCommand>();
         return services;
     }
