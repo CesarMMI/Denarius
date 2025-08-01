@@ -4,9 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Denarius.Infrastructure.Identity.Token;
 
-internal class TokenEventsHandler : JwtBearerEvents
+internal class JwtBearerEventsHandler : JwtBearerEvents
 {
-    public TokenEventsHandler()
+    public JwtBearerEventsHandler()
     {
         OnAuthenticationFailed = OnAuthenticationFailedEvent;
     }

@@ -1,11 +1,11 @@
 ﻿using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
-using Denarius.Infrastructure.Persistence.Ef.UnitOfWork;
+using Denarius.Infrastructure.Persistence.Ef.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace Denarius.Infrastructure.Persistence.Ef.Repositories;
 
-internal class EfTransactionRepository(EfDbContext context) : ITransactionRepository
+internal class EfTransactionRepository(EfAppDbContext context) : ITransactionRepository
 {
     private readonly DbSet<Transaction> dbSet = context.Set<Transaction>();
 

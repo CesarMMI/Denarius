@@ -1,11 +1,11 @@
 ﻿using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
-using Denarius.Infrastructure.Persistence.Ef.UnitOfWork;
+using Denarius.Infrastructure.Persistence.Ef.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace Denarius.Infrastructure.Persistence.Ef.Repositories;
 
-internal class EfAccountRepository(EfDbContext context) : IAccountRepository
+internal class EfAccountRepository(EfAppDbContext context) : IAccountRepository
 {
     private readonly DbSet<Account> _dbSet = context.Set<Account>();
 

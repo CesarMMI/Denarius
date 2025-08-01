@@ -1,6 +1,0 @@
-@Denarius.Web_HostAddress = http://localhost:5207
-
-GET {{Denarius.Web_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

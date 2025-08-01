@@ -1,11 +1,11 @@
 ﻿using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
-using Denarius.Infrastructure.Persistence.Ef.UnitOfWork;
+using Denarius.Infrastructure.Persistence.Ef.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 
 namespace Denarius.Infrastructure.Persistence.Ef.Repositories;
 
-internal class EfCategoryRepository(EfDbContext context) : ICategoryRepository
+internal class EfCategoryRepository(EfAppDbContext context) : ICategoryRepository
 {
     private readonly DbSet<Category> dbSet = context.Set<Category>();
 

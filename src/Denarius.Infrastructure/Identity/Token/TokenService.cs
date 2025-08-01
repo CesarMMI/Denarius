@@ -58,7 +58,7 @@ internal class TokenService : ITokenService
         }
         catch (Exception ex)
         {
-            var message = TokenEventsHandler.GetExceptionMessage(ex);
+            var message = JwtBearerEventsHandler.GetExceptionMessage(ex);
             throw new UnauthorizedException(message);
         }
     }

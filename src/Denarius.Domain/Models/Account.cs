@@ -9,8 +9,6 @@ public class Account
     public string? Color { get; set; }
     public decimal Balance { get; set; } = 0;
 
-    public ICollection<Transaction> Transactions { get; set; } = [];
-
     public int UserId { get; set; }
     public User User { get; set; }
 

@@ -1,9 +1,10 @@
 ﻿using Denarius.Application.Shared.UnitOfWork;
+using Denarius.Infrastructure.Persistence.Ef.AppDbContext;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Denarius.Infrastructure.Persistence.Ef.UnitOfWork;
 
-internal class EfUnitOfWork(EfDbContext context) : IUnitOfWork
+internal class EfUnitOfWork(EfAppDbContext context) : IUnitOfWork
 {
     private IDbContextTransaction? transaction;
 

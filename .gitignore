@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /Denarius.Web/appsettings.json
 /Denarius.Web/appsettings.Development.json
+/src/Denarius.Web/appsettings.json
+/src/Denarius.Web/appsettings.Development.json
