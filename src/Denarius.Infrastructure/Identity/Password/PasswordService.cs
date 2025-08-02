@@ -1,5 +1,5 @@
-﻿using Denarius.Application.Auth.Services;
-using Denarius.Domain.Models;
+﻿using Denarius.Domain.Models;
+using Denarius.Domain.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace Denarius.Infrastructure.Identity.Password;

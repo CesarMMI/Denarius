@@ -1,19 +1,11 @@
-﻿using Denarius.Application.Accounts.Commands.Create;
-using Denarius.Application.Accounts.Commands.Delete;
-using Denarius.Application.Accounts.Commands.GetAll;
-using Denarius.Application.Accounts.Commands.Update;
-using Denarius.Application.Auth.Commands.Login;
-using Denarius.Application.Auth.Commands.Refresh;
-using Denarius.Application.Auth.Commands.Register;
-using Denarius.Application.Categories.Commands.Create;
-using Denarius.Application.Categories.Commands.Delete;
-using Denarius.Application.Categories.Commands.GetAll;
-using Denarius.Application.Categories.Commands.GetTypes;
-using Denarius.Application.Categories.Commands.Update;
-using Denarius.Application.Transactions.Commands.Create;
-using Denarius.Application.Transactions.Commands.Delete;
-using Denarius.Application.Transactions.Commands.GetAll;
-using Denarius.Application.Transactions.Commands.Update;
+﻿using Denarius.Application.Commands.Accounts;
+using Denarius.Application.Commands.Auth;
+using Denarius.Application.Commands.Categories;
+using Denarius.Application.Commands.Transactions;
+using Denarius.Application.Domain.Commands.Accounts;
+using Denarius.Application.Domain.Commands.Auth;
+using Denarius.Application.Domain.Commands.Categories;
+using Denarius.Application.Domain.Commands.Transactions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Denarius.Application;

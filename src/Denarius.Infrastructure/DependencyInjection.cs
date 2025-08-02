@@ -1,6 +1,6 @@
-﻿using Denarius.Application.Auth.Services;
-using Denarius.Application.Shared.UnitOfWork;
-using Denarius.Domain.Repositories;
+﻿using Denarius.Domain.Repositories;
+using Denarius.Domain.Services;
+using Denarius.Domain.UnitOfWork;
 using Denarius.Infrastructure.Identity.Password;
 using Denarius.Infrastructure.Identity.Token;
 using Denarius.Infrastructure.Persistence.Ef.AppDbContext;

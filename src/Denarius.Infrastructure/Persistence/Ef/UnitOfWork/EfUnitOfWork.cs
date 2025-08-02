@@ -1,4 +1,4 @@
-﻿using Denarius.Application.Shared.UnitOfWork;
+﻿using Denarius.Domain.UnitOfWork;
 using Denarius.Infrastructure.Persistence.Ef.AppDbContext;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -19,17 +19,21 @@ internal class EfUnitOfWork(EfAppDbContext context) : IUnitOfWork
 
     public void Commit()
     {
-        transaction?.Commit();
+        if (transaction is null) return;
+        context.SaveChanges();
+        transaction.Commit();
     }
     public async Task CommitAsync()
     {
         if (transaction is null) return;
+        await context.SaveChangesAsync();
         await transaction.CommitAsync();
     }
 
     public void Rollback()
     {
-        transaction?.Rollback();
+        if (transaction is null) return;
+        transaction.Rollback();
     }
     public async Task RollbackAsync()
     {

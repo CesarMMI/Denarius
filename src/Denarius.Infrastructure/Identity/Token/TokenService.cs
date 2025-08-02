@@ -1,5 +1,5 @@
-﻿using Denarius.Application.Auth.Services;
-using Denarius.Application.Shared.Exceptions;
+﻿using Denarius.Domain.Exceptions;
+using Denarius.Domain.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

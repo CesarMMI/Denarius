@@ -1,5 +1,4 @@
-﻿
-namespace Denarius.Domain.Models;
+﻿namespace Denarius.Domain.Models;
 
 public class Account
 {
