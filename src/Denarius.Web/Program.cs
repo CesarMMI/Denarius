@@ -12,6 +12,7 @@ builder.Services
     .AddApplication();
 
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

@@ -1,7 +1,6 @@
-﻿using Denarius.Application.Accounts.Commands.Create;
-using Denarius.Application.Accounts.Commands.Delete;
-using Denarius.Application.Accounts.Commands.GetAll;
-using Denarius.Application.Accounts.Commands.Update;
+﻿using Denarius.Application.Domain.Commands.Accounts;
+using Denarius.Application.Domain.Queries.Accounts;
+using Denarius.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,34 +13,35 @@ public class AccountsController(
     IDeleteAccountCommand deleteAccountCommand,
     IGetAllAccountsCommand getAllAccountsCommand,
     IUpdateAccountCommand updateAccountCommand
-) : Controller
+) : ControllerBase
 {
-    [HttpPost]
     [Authorize]
-    public Task<IActionResult> Create([FromBody] CreateAccountQuery body)
-    {
-        return HandleCommand(createAccountCommand, body, account => Created(HttpContext.Request.Path + "/" + account.Id, account));
-    }
-
-    [HttpDelete("{id:int}")]
-    [Authorize]
-    public Task<IActionResult> Delete([FromRoute] int id)
-    {
-        return HandleCommand(deleteAccountCommand, new() { Id = id }, _ => NoContent());
-    }
-
     [HttpGet]
-    [Authorize]
-    public Task<IActionResult> GetAll()
-    {
-        return HandleCommand(getAllAccountsCommand, new());
-    }
+    public Task<IActionResult> GetAll() => getAllAccountsCommand
+        .Execute(new GetAllAccountsQuery()
+            .WithUserId(HttpContext))
+        .Ok();
 
-    [HttpPut("{id:int}")]
     [Authorize]
-    public Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateAccountQuery body)
-    {
-        body.Id = id;
-        return HandleCommand(updateAccountCommand, body);
-    }
+    [HttpPost]
+    public Task<IActionResult> Create([FromBody] CreateAccountQuery body) => createAccountCommand
+        .Execute(body
+            .WithUserId(HttpContext))
+        .Created();
+
+    [Authorize]
+    [HttpPut("{id:int}")]
+    public Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateAccountQuery body) => updateAccountCommand
+       .Execute(body
+           .WithId(id)
+           .WithUserId(HttpContext))
+       .Ok();
+
+    [Authorize]
+    [HttpDelete("{id:int}")]
+    public Task<IActionResult> Delete([FromRoute] int id) => deleteAccountCommand
+        .Execute(new DeleteAccountQuery()
+            .WithId(id)
+            .WithUserId(HttpContext))
+        .NoContent();    
 }

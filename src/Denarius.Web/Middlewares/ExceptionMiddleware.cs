@@ -1,4 +1,4 @@
-﻿using Denarius.Application.Shared.Exceptions;
+﻿using Denarius.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Denarius.Web.Middlewares;
