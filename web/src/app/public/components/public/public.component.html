@@ -1,0 +1,20 @@
+<mat-card>
+  <mat-card-title>Login</mat-card-title>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-form-field>
+      <mat-label>Email</mat-label>
+      <input matInput type="email" name="email" id="email" formControlName="email" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Password</mat-label>
+      <input matInput [type]="passType()" name="password" id="password" formControlName="password" />
+      <button matIconSuffix mat-icon-button type="button" (click)="togglePassVisibility($event)">
+        <mat-icon>{{ passIcon() }}</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button mat-flat-button type="submit">Submit</button>
+  </form>
+</mat-card>

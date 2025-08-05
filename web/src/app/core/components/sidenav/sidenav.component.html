@@ -1,0 +1,7 @@
+<mat-drawer-container class="container" autosize>
+  <mat-drawer #drawer class="sidenav" mode="side" [opened]="authenticated()">
+    <p>Auto-resizing sidenav</p>
+  </mat-drawer>
+
+  <div class="content"><ng-content /></div>
+</mat-drawer-container>

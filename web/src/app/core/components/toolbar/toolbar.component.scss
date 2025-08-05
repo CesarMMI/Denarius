@@ -1,0 +1,10 @@
+.mat-toolbar {
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  .brand {
+    cursor: default;
+    user-select: none;
+  }
+  .spacer {
+    flex: 1 1 auto;
+  }
+}

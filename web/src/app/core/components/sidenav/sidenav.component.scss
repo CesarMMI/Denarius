@@ -1,0 +1,13 @@
+.container {
+  height: 100%;
+
+  .sidenav {
+    width: min(300px, 20%);
+    border-radius: 0;
+    border-right: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  .content {
+    height: 100%;
+  }
+}
