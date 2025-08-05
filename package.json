@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start:web:dev": "npm run start:dev --prefix web",
+    "start:api:dev": "dotnet run --project api/src/Denarius.Web/Denarius.Web.csproj  --launch-profile https",
+    "start:dev": "concurrently \"npm run start:api:dev\" \"npm run start:web:dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
