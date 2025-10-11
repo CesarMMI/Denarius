@@ -13,7 +13,6 @@ internal static class TransactionExtensions
             Amount = transaction.Amount,
             Date = transaction.Date,
             Description = transaction.Description,
-            AccountId = transaction.AccountId,
             CategoryId = transaction.CategoryId,
             CreatedAt = transaction.CreatedAt,
             UpdatedAt = transaction.UpdatedAt

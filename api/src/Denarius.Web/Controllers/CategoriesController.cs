@@ -25,29 +25,29 @@ public class CategoriesController(
     [HttpGet]
     public Task<IActionResult> GetAll() => getAllCategoriesCommand
         .Execute(new GetAllCategoriesQuery()
-            .WithUserId(HttpContext))
+        .WithUserId(HttpContext))
         .Ok();
 
     [Authorize]
     [HttpPost]
     public Task<IActionResult> Create([FromBody] CreateCategoryQuery body) => createCategoryCommand
         .Execute(body
-            .WithUserId(HttpContext))
+        .WithUserId(HttpContext))
         .Created();
 
     [Authorize]
     [HttpPut("{id:int}")]
     public Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCategoryQuery body) => updateCategoryCommand
         .Execute(body
-            .WithId(id)
-            .WithUserId(HttpContext))
+        .WithId(id)
+        .WithUserId(HttpContext))
         .Ok();
 
     [Authorize]
     [HttpDelete("{id:int}")]
     public Task<IActionResult> Delete([FromRoute] int id) => deleteCategoryCommand
         .Execute(new DeleteCategoryQuery()
-            .WithId(id)
-            .WithUserId(HttpContext))
+        .WithId(id)
+        .WithUserId(HttpContext))
         .NoContent();
 }

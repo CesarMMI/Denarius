@@ -21,19 +21,19 @@ internal class EfTransactionConfiguration : IEntityTypeConfiguration<Transaction
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.Property(t => t.AccountId)
-            .IsRequired();
-        builder.HasOne(t => t.Account)
-            .WithMany()
-            .HasForeignKey(t => t.AccountId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.Property(t => t.CategoryId)
             .IsRequired(false);
         builder.HasOne(t => t.Category)
             .WithMany()
             .HasForeignKey(t => t.CategoryId)
             .OnDelete(DeleteBehavior.ClientSetNull);
+
+        builder.Property(t => t.UserId)
+            .IsRequired();
+        builder.HasOne(t => t.User)
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(t => t.CreatedAt)
             .IsRequired();

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Denarius.Web.Middlewares;
 
-
 public class ExceptionMiddleware(RequestDelegate next)
 {
     private readonly RequestDelegate _next = next;

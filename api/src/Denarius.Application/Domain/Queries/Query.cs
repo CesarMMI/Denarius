@@ -9,7 +9,6 @@ public abstract class Query
 
     public virtual void Validate()
     {
-        if (!UserId.IsValidId())
-            throw new BadRequestException("User id is required");
+        if (!UserId.IsValidId()) throw new BadRequestException("User id is required");
     }
 }

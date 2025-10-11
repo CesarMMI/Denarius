@@ -11,7 +11,7 @@ internal class GetAllTransactionsCommand(ITransactionRepository transactionRepos
     public async Task<IEnumerable<TransactionResult>> Execute(GetAllTransactionsQuery query)
     {
         query.Validate();
-        var transactions = await transactionRepository.FindManyAsync(tra => tra.Account.UserId == query.UserId);
+        var transactions = await transactionRepository.FindManyAsync(t => t.UserId == query.UserId);
         return transactions.Select(a => a.ToResult());
     }
 }

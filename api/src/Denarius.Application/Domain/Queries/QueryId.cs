@@ -11,7 +11,6 @@ public abstract class QueryId : Query
     {
         base.Validate();
 
-        if (!Id.IsValidId())
-            throw new BadRequestException("Id is required");
+        if (!Id.IsValidId()) throw new BadRequestException("Id is required");
     }
 }

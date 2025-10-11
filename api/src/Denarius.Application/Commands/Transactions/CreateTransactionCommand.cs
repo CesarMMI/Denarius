@@ -11,7 +11,6 @@ namespace Denarius.Application.Commands.Transactions;
 
 internal class CreateTransactionCommand(
     IUnitOfWork unitOfWork,
-    IAccountRepository accountRepository,
     ICategoryRepository categoryRepository,
     ITransactionRepository transactionRepository
 ) : ICreateTransactionCommand
@@ -27,13 +26,17 @@ internal class CreateTransactionCommand(
             Description = query.Description,
         };
 
-        var account = await AttachAccount(query, transaction);
-        await AttachCategory(query, transaction);
+        if (query.CategoryId.HasValue)
+        {
+            var category = await categoryRepository.FindOneAsync(c => c.Id == query.CategoryId.Value && c.UserId == query.UserId);
+            if (category is null) throw new NotFoundException("Category not found");
+            transaction.Category = category;
+            transaction.CategoryId = category.Id;
+        }
 
         await unitOfWork.BeginTransactionAsync();
         try
         {
-            accountRepository.Update(account);
             transaction = await transactionRepository.CreateAsync(transaction);
             await unitOfWork.CommitAsync();
         }
@@ -44,28 +47,5 @@ internal class CreateTransactionCommand(
         }
 
         return transaction.ToResult();
-    }
-
-    private async Task<Account> AttachAccount(CreateTransactionQuery query, Transaction transaction)
-    {
-        var account = await accountRepository.FindOneAsync(acc => acc.Id == query.AccountId && acc.UserId == query.UserId);
-        if (account is null) throw new NotFoundException("Account not found");
-
-        account.Balance += transaction.Amount;
-        transaction.Account = account;
-        transaction.AccountId = account.Id;
-
-        return account;
-    }
-
-    private async Task AttachCategory(CreateTransactionQuery query, Transaction transaction)
-    {
-        if (!query.CategoryId.HasValue) return;
-
-        var category = await categoryRepository.FindOneAsync(cat => cat.Id == query.CategoryId.Value && cat.UserId == query.UserId);
-        if (category is null) throw new NotFoundException("Category not found");
-
-        transaction.Category = category;
-        transaction.CategoryId = category.Id;
     }
 }

@@ -51,7 +51,6 @@ public static class DependencyInjection
     private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, EfUserRepository>();
-        services.AddScoped<IAccountRepository, EfAccountRepository>();
         services.AddScoped<ICategoryRepository, EfCategoryRepository>();
         services.AddScoped<ITransactionRepository, EfTransactionRepository>();
         return services;

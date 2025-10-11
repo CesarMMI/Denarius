@@ -1,8 +1,6 @@
-﻿using Denarius.Application.Commands.Accounts;
-using Denarius.Application.Commands.Auth;
+﻿using Denarius.Application.Commands.Auth;
 using Denarius.Application.Commands.Categories;
 using Denarius.Application.Commands.Transactions;
-using Denarius.Application.Domain.Commands.Accounts;
 using Denarius.Application.Domain.Commands.Auth;
 using Denarius.Application.Domain.Commands.Categories;
 using Denarius.Application.Domain.Commands.Transactions;
@@ -16,7 +14,6 @@ public static class DependencyInjection
     {
         return services
             .AddAuth()
-            .AddAccounts()
             .AddCategories()
             .AddTransactions();
     }
@@ -26,15 +23,6 @@ public static class DependencyInjection
         services.AddScoped<ILoginCommand, LoginCommand>();
         services.AddScoped<IRegisterCommand, RegisterCommand>();
         services.AddScoped<IRefreshCommand, RefreshCommand>();
-        return services;
-    }
-
-    private static IServiceCollection AddAccounts(this IServiceCollection services)
-    {
-        services.AddScoped<ICreateAccountCommand, CreateAccountCommand>();
-        services.AddScoped<IDeleteAccountCommand, DeleteAccountCommand>();
-        services.AddScoped<IGetAllAccountsCommand, GetAllAccountsCommand>();
-        services.AddScoped<IUpdateAccountCommand, UpdateAccountCommand>();
         return services;
     }
 
