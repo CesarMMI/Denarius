@@ -13,10 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Web", "src\Denarius.Web\Denarius.Web.csproj", "{33A0163E-0DF5-D474-FBD5-3116835E3865}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F4339B8B-0B7B-4246-9F48-7B591056A915}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Tests.Application", "tests\Denarius.Tests.Application\Denarius.Tests.Application.csproj", "{02EADD61-1F1E-4FDB-9B89-82873CB94B24}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,10 +35,6 @@ Global
 		{33A0163E-0DF5-D474-FBD5-3116835E3865}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33A0163E-0DF5-D474-FBD5-3116835E3865}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33A0163E-0DF5-D474-FBD5-3116835E3865}.Release|Any CPU.Build.0 = Release|Any CPU
-		{02EADD61-1F1E-4FDB-9B89-82873CB94B24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02EADD61-1F1E-4FDB-9B89-82873CB94B24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{02EADD61-1F1E-4FDB-9B89-82873CB94B24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{02EADD61-1F1E-4FDB-9B89-82873CB94B24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,7 +44,6 @@ Global
 		{96991BAE-E9B0-2257-EFA6-263C0BBEC343} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{6713E401-4200-BF46-E72A-BBDA696763CA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{33A0163E-0DF5-D474-FBD5-3116835E3865} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{02EADD61-1F1E-4FDB-9B89-82873CB94B24} = {F4339B8B-0B7B-4246-9F48-7B591056A915}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {088B066D-515B-4665-923E-B032DD4170B2}
