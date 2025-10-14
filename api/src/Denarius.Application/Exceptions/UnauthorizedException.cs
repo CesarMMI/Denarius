@@ -1,4 +1,4 @@
-﻿namespace Denarius.Domain.Exceptions;
+﻿namespace Denarius.Application.Exceptions;
 
 public class UnauthorizedException(string message) : AppException(message)
 {

@@ -5,13 +5,17 @@ using Denarius.Domain.Enums;
 
 namespace Denarius.Application.Commands.Categories;
 
-public class GetCategoryTypesCommand : IGetCategoryTypesCommand
+internal class GetCategoryTypesCommand : Command<GetCategoryTypesQuery, IEnumerable<CategoryTypeResult>>, IGetCategoryTypesCommand
 {
-    public async Task<IEnumerable<CategoryTypeResult>> Execute(GetCategoryTypesQuery query)
+    protected override async Task<IEnumerable<CategoryTypeResult>> Handle(GetCategoryTypesQuery query)
     {
         var list = Enum.GetValues<ECategoryType>()
          .Select(e => new CategoryTypeResult { Label = e.ToString(), Value = (int)e })
          .ToList();
         return await Task.FromResult(list);
+    }
+
+    protected override void Validate(GetCategoryTypesQuery query)
+    {
     }
 }

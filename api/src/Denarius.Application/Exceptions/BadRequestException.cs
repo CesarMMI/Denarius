@@ -1,4 +1,4 @@
-﻿namespace Denarius.Domain.Exceptions;
+﻿namespace Denarius.Application.Exceptions;
 
 public class BadRequestException(string message) : AppException(message)
 {

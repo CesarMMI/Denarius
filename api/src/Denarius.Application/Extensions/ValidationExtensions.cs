@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Denarius.Application.Extensions;
 
-internal static class StringExtensions
+internal static class ValidationExtensions
 {
     private static readonly Regex _hexColorRegex = new(@"^#(?:[0-9a-fA-F]{3}){1,2}$");
 
@@ -30,5 +30,20 @@ internal static class StringExtensions
     {
         if (!value.IsValidString()) return false;
         return _hexColorRegex.IsMatch(value);
+    }
+
+    public static bool IsValidId(this int value)
+    {
+        return value > 0;
+    }
+
+    public static bool IsValidId(this int? value)
+    {
+        return !value.HasValue || value > 0;
+    }
+
+    public static bool IsValidEnum<TEnum>(this TEnum value) where TEnum : struct, Enum
+    {
+        return Enum.IsDefined(value);
     }
 }

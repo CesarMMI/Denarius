@@ -1,4 +1,4 @@
-﻿namespace Denarius.Domain.Exceptions;
+﻿namespace Denarius.Application.Exceptions;
 
 public class NotFoundException(string message) : AppException(message)
 {

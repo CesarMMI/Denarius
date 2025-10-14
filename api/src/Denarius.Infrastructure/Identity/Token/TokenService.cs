@@ -1,4 +1,4 @@
-﻿using Denarius.Domain.Exceptions;
+﻿using Denarius.Application.Exceptions;
 using Denarius.Domain.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;

@@ -1,5 +1,5 @@
 ﻿namespace Denarius.Application.Domain.Queries.Categories;
 
-public class DeleteCategoryQuery : QueryId
+public  class DeleteCategoryQuery : QueryId
 {
 }

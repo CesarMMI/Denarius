@@ -1,11 +1,9 @@
 ﻿using Denarius.Domain.Repositories;
 using Denarius.Domain.Services;
-using Denarius.Domain.UnitOfWork;
 using Denarius.Infrastructure.Identity.Password;
 using Denarius.Infrastructure.Identity.Token;
 using Denarius.Infrastructure.Persistence.Ef.AppDbContext;
 using Denarius.Infrastructure.Persistence.Ef.Repositories;
-using Denarius.Infrastructure.Persistence.Ef.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +42,6 @@ public static class DependencyInjection
         {
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         });
-        services.AddScoped<IUnitOfWork, EfUnitOfWork>();
         return services;
     }
 

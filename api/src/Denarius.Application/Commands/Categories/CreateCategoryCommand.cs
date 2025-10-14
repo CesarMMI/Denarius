@@ -1,22 +1,17 @@
 ﻿using Denarius.Application.Domain.Commands.Categories;
 using Denarius.Application.Domain.Queries.Categories;
 using Denarius.Application.Domain.Results.Categories;
+using Denarius.Application.Exceptions;
 using Denarius.Application.Extensions;
 using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
-using Denarius.Domain.UnitOfWork;
 
 namespace Denarius.Application.Commands.Categories;
 
-internal class CreateCategoryCommand(
-    IUnitOfWork unitOfWork, 
-    ICategoryRepository categoryRepository
-) : ICreateCategoryCommand
+internal class CreateCategoryCommand(ICategoryRepository categoryRepository) : Command<CreateCategoryQuery, CategoryResult>, ICreateCategoryCommand
 {
-    public async Task<CategoryResult> Execute(CreateCategoryQuery query)
+    protected override async Task<CategoryResult> Handle(CreateCategoryQuery query)
     {
-        query.Validate();
-
         var category = new Category
         {
             Name = query.Name,
@@ -24,19 +19,21 @@ internal class CreateCategoryCommand(
             Type = query.Type,
             UserId = query.UserId
         };
-
-        await unitOfWork.BeginTransactionAsync();
-        try
-        {
-            category = await categoryRepository.CreateAsync(category);
-            await unitOfWork.CommitAsync();
-        }
-        catch
-        {
-            await unitOfWork.RollbackAsync();
-            throw;
-        }
+        category = await categoryRepository.CreateAsync(category);
 
         return category.ToResult();
+    }
+
+    protected override void Validate(CreateCategoryQuery query)
+    {
+        if (!query.UserId.IsValidId()) throw new BadRequestException("User id is required");
+
+        if (!query.Name.IsValidString()) throw new BadRequestException("Name is required");
+        if (query.Name.Length < 3) throw new BadRequestException("Name length can't be lower than 3");
+        if (query.Name.Length > 50) throw new BadRequestException("Name length can't be greater than 50");
+
+        if (query.Color is not null && !query.Color.IsValidColor()) throw new BadRequestException("Invalid color");
+
+        if (!query.Type.IsValidEnum()) throw new BadRequestException("Invalid type");
     }
 }

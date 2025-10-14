@@ -1,5 +1,5 @@
 ﻿namespace Denarius.Application.Domain.Queries.Categories;
 
-public class GetAllCategoriesQuery : Query 
-{ 
+public class GetAllCategoriesQuery : Query
+{
 }

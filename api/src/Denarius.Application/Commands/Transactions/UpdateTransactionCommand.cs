@@ -1,24 +1,16 @@
 ﻿using Denarius.Application.Domain.Commands.Transactions;
 using Denarius.Application.Domain.Queries.Transactions;
 using Denarius.Application.Domain.Results.Transactions;
+using Denarius.Application.Exceptions;
 using Denarius.Application.Extensions;
-using Denarius.Domain.Exceptions;
-using Denarius.Domain.Models;
 using Denarius.Domain.Repositories;
-using Denarius.Domain.UnitOfWork;
 
 namespace Denarius.Application.Commands.Transactions;
 
-internal class UpdateTransactionCommand(
-    IUnitOfWork unitOfWork,
-    ICategoryRepository categoryRepository,
-    ITransactionRepository transactionRepository
-) : IUpdateTransactionCommand
+internal class UpdateTransactionCommand(ICategoryRepository categoryRepository, ITransactionRepository transactionRepository) : Command<UpdateTransactionQuery, TransactionResult>, IUpdateTransactionCommand
 {
-    public async Task<TransactionResult> Execute(UpdateTransactionQuery query)
+    protected override async Task<TransactionResult> Handle(UpdateTransactionQuery query)
     {
-        query.Validate();
-
         var transaction = await transactionRepository.FindOneAsync(t => t.Id == query.Id && t.UserId == query.UserId);
         if (transaction is null) throw new NotFoundException("Transaction not found");
 
@@ -30,6 +22,7 @@ internal class UpdateTransactionCommand(
         {
             var category = await categoryRepository.FindOneAsync(c => c.Id == query.CategoryId.Value && c.UserId == query.UserId);
             if (category is null) throw new NotFoundException("Category not found");
+
             transaction.Category = category;
             transaction.CategoryId = category.Id;
         }
@@ -39,18 +32,22 @@ internal class UpdateTransactionCommand(
             transaction.CategoryId = null;
         }
 
-        await unitOfWork.BeginTransactionAsync();
-        try
-        {
-            transaction = transactionRepository.Update(transaction);
-            await unitOfWork.CommitAsync();
-        }
-        catch
-        {
-            await unitOfWork.RollbackAsync();
-            throw;
-        }
+        transaction = transactionRepository.Update(transaction);
 
         return transaction.ToResult();
+    }
+
+    protected override void Validate(UpdateTransactionQuery query)
+    {
+        if (!query.UserId.IsValidId()) throw new BadRequestException("User id is required");
+        if (!query.Id.IsValidId()) throw new BadRequestException("Transaction id is required");
+
+        if (query.Amount == decimal.Zero) throw new BadRequestException("Amount can't be equal to 0");
+
+        if (!query.Description.IsValidString()) throw new BadRequestException("Description is required");
+        if (query.Description.Length < 3) throw new BadRequestException("Description length can't be lower than 3");
+        if (query.Description.Length > 50) throw new BadRequestException("Description length can't be greater than 50");
+
+        if (!query.CategoryId.IsValidId()) throw new BadRequestException("Invalid category id");
     }
 }
