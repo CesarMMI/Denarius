@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Web", "src\Denarius.Web\Denarius.Web.csproj", "{33A0163E-0DF5-D474-FBD5-3116835E3865}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{C8EEFF77-07B5-4AC8-B87C-92B38F11187C}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\add-migration.bat = scripts\add-migration.bat
+		scripts\update-db.bat = scripts\update-db.bat
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
