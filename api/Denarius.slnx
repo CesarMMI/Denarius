@@ -5,5 +5,6 @@
   <Folder Name="/src/">
     <Project Path="src/Denarius.Application/Denarius.Application.csproj" Id="5063700d-75f3-4f1c-b5ca-5f09f08d16ee" />
     <Project Path="src/Denarius.Domain/Denarius.Domain.csproj" />
+    <Project Path="src/Denarius.Infrastructure/Denarius.Infrastructure.csproj" Id="19b41a37-6c2f-4486-83bb-b51fdc32f52b" />
   </Folder>
 </Solution>
