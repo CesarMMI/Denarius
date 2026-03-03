@@ -7,7 +7,7 @@ using Denarius.Domain.ValueObjects;
 
 namespace Denarius.Application.UseCases.Accounts;
 
-public class CreateAccountUseCase(IAccountRepository accountRepository) : ICreateAccountUseCase
+internal class CreateAccountUseCase(IAccountRepository accountRepository) : ICreateAccountUseCase
 {
     public async Task<AccountResult> Execute(CreateAccountCommand command)
     {

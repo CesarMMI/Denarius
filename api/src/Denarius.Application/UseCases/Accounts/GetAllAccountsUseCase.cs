@@ -5,7 +5,7 @@ using Denarius.Domain.Interfaces;
 
 namespace Denarius.Application.UseCases.Accounts;
 
-public class GetAllAccountsUseCase(IAccountRepository accountRepository) : IGetAllAccountsUseCase
+internal class GetAllAccountsUseCase(IAccountRepository accountRepository) : IGetAllAccountsUseCase
 {
     public IEnumerable<AccountResult> Execute(Command command)
     {

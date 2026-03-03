@@ -7,7 +7,7 @@ using Denarius.Domain.ValueObjects;
 
 namespace Denarius.Application.UseCases.Tags;
 
-public class CreateTagUseCase(ITagRepository tagRepository) : ICreateTagUseCase
+internal class CreateTagUseCase(ITagRepository tagRepository) : ICreateTagUseCase
 {
     public async Task<TagResult> Execute(CreateTagCommand command)
     {

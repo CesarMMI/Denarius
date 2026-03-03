@@ -5,7 +5,7 @@ using Denarius.Domain.Interfaces;
 
 namespace Denarius.Application.UseCases.Tags;
 
-public class GetAllTagsUseCase(ITagRepository tagRepository) : IGetAllTagsUseCase
+internal class GetAllTagsUseCase(ITagRepository tagRepository) : IGetAllTagsUseCase
 {
     public IEnumerable<TagResult> Execute(Command command)
     {

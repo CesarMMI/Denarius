@@ -7,18 +7,20 @@ using Denarius.Domain.ValueObjects;
 
 namespace Denarius.Application.UseCases.Accounts;
 
-public class UpdateAccountUseCase(IAccountRepository accountRepository) : IUpdateAccountUseCase
+internal class UpdateAccountUseCase(IAccountRepository accountRepository) : IUpdateAccountUseCase
 {
     public async Task<AccountResult> Execute(UpdateAccountCommand command)
     {
         var id = new Identifier(command.Id);
         var account = await accountRepository.FindByIdAsync(id);
-        if (account is null) throw new NotFoundException("Account not found.");
+        
+        if (account is null)
+            throw new NotFoundException("Account not found.");
 
         account.Rename(new Name(command.Name ?? string.Empty, "account name"));
         account.ChangeColor(new Color(command.Color ?? string.Empty));
 
-        await accountRepository.UpdateAsync(account);
+        accountRepository.Update(account);
 
         return new AccountResult(account);
     }

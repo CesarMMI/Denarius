@@ -7,15 +7,17 @@ using Denarius.Domain.ValueObjects;
 
 namespace Denarius.Application.UseCases.Transactions;
 
-public class DeleteTransactionUseCase(ITransactionRepository transactionRepository) : IDeleteTransactionUseCase
+internal class DeleteTransactionUseCase(ITransactionRepository transactionRepository) : IDeleteTransactionUseCase
 {
     public async Task<TransactionResult> Execute(IdCommand command)
     {
         var id = new Identifier(command.Id);
         var transaction = await transactionRepository.FindByIdAsync(id);
-        if (transaction is null) throw new NotFoundException("Transaction not found.");
+        
+        if (transaction is null)
+            throw new NotFoundException("Transaction not found.");
 
-        await transactionRepository.DeleteAsync(transaction.Id);
+        transactionRepository.Delete(transaction);
 
         return new TransactionResult(transaction);
     }
