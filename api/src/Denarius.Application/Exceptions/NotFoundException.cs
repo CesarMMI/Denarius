@@ -1,7 +1,5 @@
 ﻿namespace Denarius.Application.Exceptions;
 
-public class NotFoundException(string message) : AppException(message)
+public sealed class NotFoundException(string message) : ApplicationException(message)
 {
-    public override int StatusCode => 404;
-    public override string Title => "Not Found";
 }
