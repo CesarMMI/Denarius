@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Denarius.Application/Denarius.Application.csproj" Id="5063700d-75f3-4f1c-b5ca-5f09f08d16ee" />
     <Project Path="src/Denarius.Domain/Denarius.Domain.csproj" />
