@@ -12,18 +12,21 @@ public sealed partial class Color : ValueObject
 
     public string Value { get; init; }
 
-    public Color(string value)
+    public static Color New(string value)
     {
         if (string.IsNullOrWhiteSpace(value)) throw new EmptyColorException();
+        
         if (!value.StartsWith('#')) value = '#' + value;
+        
         if (!ColorRegex.IsMatch(value)) throw new InvalidColorException();
-        Value = NormalizeHexCode(value);
+        
+        return new Color { Value = NormalizeHexCode(value) };
     }
 
     private static string NormalizeHexCode(string value)
     {
         var hex = value.Replace("#", "");
-        
+
         if (hex.Length <= 4)
         {
             var chars = hex.ToCharArray();

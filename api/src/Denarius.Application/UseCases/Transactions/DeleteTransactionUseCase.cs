@@ -3,7 +3,6 @@ using Denarius.Application.Exceptions;
 using Denarius.Application.Interfaces.Transactions;
 using Denarius.Application.Results;
 using Denarius.Domain.Interfaces;
-using Denarius.Domain.ValueObjects;
 
 namespace Denarius.Application.UseCases.Transactions;
 
@@ -11,13 +10,12 @@ internal class DeleteTransactionUseCase(ITransactionRepository transactionReposi
 {
     public async Task<TransactionResult> Execute(IdCommand command)
     {
-        var id = new Identifier(command.Id);
-        var transaction = await transactionRepository.FindByIdAsync(id);
-        
-        if (transaction is null)
-            throw new NotFoundException("Transaction not found.");
+        var transaction = await transactionRepository.FindByIdAsync(command.Id);
+
+        if (transaction is null) throw new NotFoundException("Transaction not found.");
 
         transactionRepository.Delete(transaction);
+        await transactionRepository.SaveAsync();
 
         return new TransactionResult(transaction);
     }

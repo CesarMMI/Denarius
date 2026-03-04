@@ -5,9 +5,9 @@ namespace Denarius.Domain.Interfaces;
 
 public interface ITransactionRepository : IRepository<Transaction>
 {
-    IEnumerable<Transaction> FindByAccount(Identifier accountId);
-    Task<IEnumerable<Transaction>> FindByAccountAsync(Identifier accountId);
+    IEnumerable<Transaction> FindByAccount(Guid accountId);
+    Task<IEnumerable<Transaction>> FindByAccountAsync(Guid accountId);
     
-    IEnumerable<Transaction> FindByTag(Identifier tagId);
-    Task<IEnumerable<Transaction>> FindByTagAsync(Identifier tagId);
+    IEnumerable<Transaction> FindByTag(Guid tagId);
+    Task<IEnumerable<Transaction>> FindByTagAsync(Guid tagId);
 }

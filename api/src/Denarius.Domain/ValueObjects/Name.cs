@@ -9,15 +9,15 @@ public sealed class Name : ValueObject
 
     public string Value { get; init; }
 
-    public Name(string value, string errorMessageName = "name")
+    public static Name New(string value, string errorMessageName = "name")
     {
         if (string.IsNullOrWhiteSpace(value)) throw new EmptyNameException(errorMessageName);
 
-        Value = value.Length switch
+        return value.Length switch
         {
             < MinLength => throw new MinLengthNameException(errorMessageName, MinLength),
             > MaxLength => throw new MaxLengthNameException(errorMessageName, MaxLength),
-            _ => value
+            _ => new Name { Value = value },
         };
     }
 

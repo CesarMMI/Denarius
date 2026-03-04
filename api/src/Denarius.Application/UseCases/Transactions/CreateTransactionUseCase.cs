@@ -17,34 +17,31 @@ internal class CreateTransactionUseCase(
     {
         var tag = await FindTag(command.TagId);
         var account = await FindAccount(command.AccountId);
-        
-        if (account is null)
-            throw new NotFoundException("Account not found.");
 
-        var transaction = new Transaction(
-            Identifier.New(),
-            new Name(command.Title, "transaction title"),
+        if (account is null) throw new NotFoundException("Account not found.");
+
+        var transaction = Transaction.New(
+            Name.New(command.Title, "transaction title"),
             DateOnly.FromDateTime(command.Date),
-            new Money(command.Amount, account.InitialBalance.Code),
+            Money.New(command.Amount, account.InitialBalance.Code),
             command.Type,
             account,
             tag);
 
         await transactionRepository.AddAsync(transaction);
-        
+        await transactionRepository.SaveAsync();
+
         return new TransactionResult(transaction);
     }
 
-    private async Task<Account?> FindAccount(string accountId)
+    private async Task<Account?> FindAccount(Guid accountId)
     {
-        return await acountRepository.FindByIdAsync(new Identifier(accountId));
+        return await acountRepository.FindByIdAsync(accountId);
     }
 
-    private async Task<Tag?> FindTag(string? tagId)
+    private async Task<Tag?> FindTag(Guid? tagId)
     {
-        if (tagId is null)
-            return null;
-
-        return await tagRepository.FindByIdAsync(new Identifier(tagId));
+        if (!tagId.HasValue) return null;
+        return await tagRepository.FindByIdAsync(tagId.Value);
     }
 }

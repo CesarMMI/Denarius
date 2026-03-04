@@ -11,16 +11,15 @@ internal class UpdateAccountUseCase(IAccountRepository accountRepository) : IUpd
 {
     public async Task<AccountResult> Execute(UpdateAccountCommand command)
     {
-        var id = new Identifier(command.Id);
-        var account = await accountRepository.FindByIdAsync(id);
-        
-        if (account is null)
-            throw new NotFoundException("Account not found.");
+        var account = await accountRepository.FindByIdAsync(command.Id);
 
-        account.Rename(new Name(command.Name ?? string.Empty, "account name"));
-        account.ChangeColor(new Color(command.Color ?? string.Empty));
+        if (account is null) throw new NotFoundException("Account not found.");
+
+        account.Rename(Name.New(command.Name, "account name"));
+        account.ChangeColor(Color.New(command.Color));
 
         accountRepository.Update(account);
+        await accountRepository.SaveAsync();
 
         return new AccountResult(account);
     }

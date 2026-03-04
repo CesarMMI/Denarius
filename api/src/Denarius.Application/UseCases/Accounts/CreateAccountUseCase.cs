@@ -11,13 +11,13 @@ internal class CreateAccountUseCase(IAccountRepository accountRepository) : ICre
 {
     public async Task<AccountResult> Execute(CreateAccountCommand command)
     {
-        var account = new Account(
-            Identifier.New(),
-            new Name(command.Name ?? string.Empty, "account name"),
-            new Color(command.Color ?? string.Empty),
-            new Money(command.Balance ?? 0, command.CurrencyCode ?? string.Empty));
+        var account = Account.New(
+            Name.New(command.Name, "account name"),
+            Color.New(command.Color),
+            Money.New(command.Balance ?? 0, command.CurrencyCode));
 
         await accountRepository.AddAsync(account);
+        await accountRepository.SaveAsync();
 
         return new AccountResult(account);
     }

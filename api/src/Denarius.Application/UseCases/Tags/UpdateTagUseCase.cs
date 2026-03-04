@@ -11,16 +11,15 @@ internal class UpdateTagUseCase(ITagRepository tagRepository) : IUpdateTagUseCas
 {
     public async Task<TagResult> Execute(UpdateTagCommand command)
     {
-        var id = new Identifier(command.Id);
-        var tag = await tagRepository.FindByIdAsync(id);
-        
-        if (tag is null)
-            throw new NotFoundException("Tag not found.");
+        var tag = await tagRepository.FindByIdAsync(command.Id);
 
-        tag.Rename(new Name(command.Name ?? string.Empty, "tag name"));
-        tag.ChangeColor(new Color(command.Color ?? string.Empty));
+        if (tag is null) throw new NotFoundException("Tag not found.");
+
+        tag.Rename(Name.New(command.Name, "tag name"));
+        tag.ChangeColor(Color.New(command.Color));
 
         tagRepository.Update(tag);
+        await tagRepository.SaveAsync();
 
         return new TagResult(tag);
     }

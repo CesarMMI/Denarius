@@ -13,18 +13,21 @@ public sealed class Transaction : Entity
     public Account Account { get; private set; }
     public Tag? Tag { get; private set; }
 
-    public Transaction(Identifier id, Name title, DateOnly date, Money amount, ETransactionType type, Account account,
-        Tag? tag) : base(id)
+    public static Transaction New(Name title, DateOnly date, Money amount, ETransactionType type, Account account, Tag? tag)
     {
         if (amount.Value <= 0) throw new ZeroOrNegativeTransactionAmountException();
         if (!Enum.IsDefined(type)) throw new InvalidTransactionTypeException();
 
-        Title = title;
-        Date = date;
-        Amount = amount;
-        Type = type;
-        Account = account;
-        Tag = tag;
+        return new Transaction()
+        {
+            Id = Guid.NewGuid(),
+            Title = title,
+            Date = date,
+            Amount = amount,
+            Type = type,
+            Account = account,
+            Tag = tag
+        };
     }
 
     public void Retitle(Name title)

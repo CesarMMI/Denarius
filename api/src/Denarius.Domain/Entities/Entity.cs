@@ -2,9 +2,9 @@
 
 namespace Denarius.Domain.Entities;
 
-public abstract class Entity(Identifier id)
+public abstract class Entity
 {
-    public Identifier Id { get; init; } = id;
+    public Guid Id { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? DeletedAt { get; private set; } = null;

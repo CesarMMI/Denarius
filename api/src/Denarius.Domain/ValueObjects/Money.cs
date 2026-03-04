@@ -7,32 +7,32 @@ public sealed class Money : ValueObject
     public decimal Value { get; init; }
     public string Code { get; init; }
 
-    public Money(decimal value, string code)
+    public static Money New(decimal value, string code)
     {
         if (string.IsNullOrWhiteSpace(code)) throw new EmptyCurrencyCodeException();
-        Value = value;
-        Code = code.ToUpperInvariant();
+
+        return new Money() { Value = value, Code = code.ToUpperInvariant() };
     }
 
     public static Money Zero(string code)
     {
-        return new Money(0m, code);
+        return New(0m, code);
     }
 
     public static Money operator +(Money a, decimal b)
     {
-        return a + new Money(b, a.Code);
+        return a + New(b, a.Code);
     }
 
     public static Money operator +(Money a, Money b)
     {
         if (a.Code != b.Code) throw new CurrencyCodeMismatchException("add");
-        return new Money(a.Value + b.Value, a.Code);
+        return New(a.Value + b.Value, a.Code);
     }
 
     public Money Negate()
     {
-        return new Money(-Value, Code);
+        return New(-Value, Code);
     }
 
     public override string ToString()

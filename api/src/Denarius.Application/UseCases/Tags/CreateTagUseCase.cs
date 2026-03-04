@@ -11,12 +11,12 @@ internal class CreateTagUseCase(ITagRepository tagRepository) : ICreateTagUseCas
 {
     public async Task<TagResult> Execute(CreateTagCommand command)
     {
-        var tag = new Tag(
-            Identifier.New(),
-            new Name(command.Name ?? string.Empty, "tag name"),
-            new Color(command.Color ?? string.Empty));
+        var tag = Tag.New(
+            Name.New(command.Name, "tag name"),
+            Color.New(command.Color));
 
         await tagRepository.AddAsync(tag);
+        await tagRepository.SaveAsync();
 
         return new TagResult(tag);
     }

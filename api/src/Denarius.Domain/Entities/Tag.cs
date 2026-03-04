@@ -2,10 +2,20 @@
 
 namespace Denarius.Domain.Entities;
 
-public sealed class Tag(Identifier id, Name name, Color color) : Entity(id)
+public sealed class Tag : Entity
 {
-    public Name Name { get; private set; } = name;
-    public Color Color { get; private set; } = color;
+    public Name Name { get; private set; }
+    public Color Color { get; private set; }
+
+    public static Tag New(Name name, Color color)
+    {
+        return new Tag()
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Color = color
+        };
+    }
 
     public void Rename(Name name)
     {
