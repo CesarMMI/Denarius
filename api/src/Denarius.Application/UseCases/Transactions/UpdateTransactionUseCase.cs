@@ -25,11 +25,11 @@ internal class UpdateTransactionUseCase(
         if (account is null) throw new NotFoundException("Account not found.");
 
         transaction.Retitle(Name.New(command.Title));
-        transaction.ChangeDate(DateOnly.FromDateTime(command.Date));
+        transaction.ChangeDate(command.Date);
         transaction.ChangeAmount(Money.New(command.Amount, account.InitialBalance.Code));
         transaction.ChangeType(command.Type);
-        transaction.SetAccount(account);
-        transaction.SetTag(tag);
+        transaction.SetAccount(account.Id);
+        transaction.SetTag(tag?.Id);
 
         transactionRepository.Update(transaction);
         await transactionRepository.SaveAsync();

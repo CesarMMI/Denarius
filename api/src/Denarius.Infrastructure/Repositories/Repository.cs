@@ -49,12 +49,12 @@ internal abstract class Repository<T>(DbContext context) : IRepository<T> where 
 
     public T? FindById(Guid id)
     {
-        return DbSet.AsNoTracking().Where(x => x.Id == id).FirstOrDefault();
+        return Find().Where(x => x.Id == id).FirstOrDefault();
     }
 
     public Task<T?> FindByIdAsync(Guid id)
     {
-        return DbSet.AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync();
+        return Find().Where(x => x.Id == id).FirstOrDefaultAsync();
     }
     #endregion
     #region Save

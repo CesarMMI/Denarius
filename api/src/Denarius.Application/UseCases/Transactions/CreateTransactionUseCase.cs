@@ -22,11 +22,11 @@ internal class CreateTransactionUseCase(
 
         var transaction = Transaction.New(
             Name.New(command.Title, "transaction title"),
-            DateOnly.FromDateTime(command.Date),
+            command.Date,
             Money.New(command.Amount, account.InitialBalance.Code),
             command.Type,
-            account,
-            tag);
+            account.Id,
+            tag?.Id);
 
         await transactionRepository.AddAsync(transaction);
         await transactionRepository.SaveAsync();

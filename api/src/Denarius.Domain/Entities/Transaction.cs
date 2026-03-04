@@ -10,10 +10,10 @@ public sealed class Transaction : Entity
     public DateOnly Date { get; private set; }
     public Money Amount { get; private set; }
     public ETransactionType Type { get; private set; }
-    public Account Account { get; private set; }
-    public Tag? Tag { get; private set; }
+    public Guid AccountId { get; private set; }
+    public Guid? TagId { get; private set; }
 
-    public static Transaction New(Name title, DateOnly date, Money amount, ETransactionType type, Account account, Tag? tag)
+    public static Transaction New(Name title, DateOnly date, Money amount, ETransactionType type, Guid accountId, Guid? tagId)
     {
         if (amount.Value <= 0) throw new ZeroOrNegativeTransactionAmountException();
         if (!Enum.IsDefined(type)) throw new InvalidTransactionTypeException();
@@ -25,8 +25,8 @@ public sealed class Transaction : Entity
             Date = date,
             Amount = amount,
             Type = type,
-            Account = account,
-            Tag = tag
+            AccountId = accountId,
+            TagId = tagId
         };
     }
 
@@ -54,15 +54,15 @@ public sealed class Transaction : Entity
         TriggerUpdate();
     }
 
-    public void SetAccount(Account account)
+    public void SetAccount(Guid accountId)
     {
-        Account = account;
+        AccountId = accountId;
         TriggerUpdate();
     }
 
-    public void SetTag(Tag? tag)
+    public void SetTag(Guid? tagId)
     {
-        Tag = tag;
+        TagId = tagId;
         TriggerUpdate();
     }
 }

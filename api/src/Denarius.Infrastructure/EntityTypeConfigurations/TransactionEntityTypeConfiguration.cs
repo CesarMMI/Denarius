@@ -32,13 +32,13 @@ internal class TransactionEntityTypeConfiguration : IEntityTypeConfiguration<Tra
             .Property(x => x.Code)
             .HasMaxLength(3)
             .IsRequired();
-        builder.HasOne(x => x.Account)
+        builder.HasOne<Account>()
             .WithMany()
-            .HasForeignKey("AccountId")
+            .HasForeignKey(x => x.AccountId)
             .IsRequired();
-        builder.HasOne(x => x.Tag)
+        builder.HasOne<Tag>()
             .WithMany()
-            .HasForeignKey("TagId");
+            .HasForeignKey(x => x.TagId);
         builder
             .Property(x => x.CreatedAt)
             .IsRequired();

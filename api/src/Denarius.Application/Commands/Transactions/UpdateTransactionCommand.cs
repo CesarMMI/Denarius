@@ -6,7 +6,7 @@ public sealed record UpdateTransactionCommand
 {
     public Guid Id { get; init; } = Guid.Empty;
     public string Title { get; init; } = string.Empty;
-    public DateTime Date { get; init; }
+    public DateOnly Date { get; init; }
     public decimal Amount { get; init; }
     public ETransactionType Type { get; init; }
     public Guid AccountId { get; init; } = Guid.Empty;

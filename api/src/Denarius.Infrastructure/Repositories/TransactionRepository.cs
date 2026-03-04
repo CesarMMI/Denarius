@@ -8,16 +8,16 @@ namespace Denarius.Infrastructure.Repositories;
 internal class TransactionRepository(AppDbContext context) : Repository<Transaction>(context), ITransactionRepository
 {
     public IEnumerable<Transaction> FindByAccount(Guid accountId) => Find()
-        .Where(t => t.Account.Id == accountId).ToList();
+        .Where(t => t.AccountId == accountId).ToList();
 
     public Task<IEnumerable<Transaction>> FindByAccountAsync(Guid accountId) => Find()
-        .Where(t => t.Account.Id == accountId).ToListAsync()
+        .Where(t => t.AccountId == accountId).ToListAsync()
         .ContinueWith(t => (IEnumerable<Transaction>)t.Result);
 
     public IEnumerable<Transaction> FindByTag(Guid tagId) => Find()
-        .Where(t => t.Tag != null && t.Tag.Id == tagId).ToList();
+        .Where(t => t.TagId != null && t.TagId == tagId).ToList();
 
     public Task<IEnumerable<Transaction>> FindByTagAsync(Guid tagId) => Find()
-        .Where(t => t.Tag != null && t.Tag.Id == tagId).ToListAsync()
+        .Where(t => t.TagId != null && t.TagId == tagId).ToListAsync()
         .ContinueWith(t => (IEnumerable<Transaction>)t.Result);
 }

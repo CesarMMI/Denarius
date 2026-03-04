@@ -5,7 +5,7 @@ namespace Denarius.Application.Commands.Transactions;
 public sealed record CreateTransactionCommand
 {
     public string Title { get; init; } = string.Empty;
-    public DateTime Date { get; init; }
+    public DateOnly Date { get; init; }
     public decimal Amount { get; init; }
     public ETransactionType Type { get; init; }
     public Guid AccountId { get; init; } = Guid.Empty;
