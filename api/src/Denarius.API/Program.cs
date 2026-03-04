@@ -1,6 +1,7 @@
 using Denarius.Infrastructure;
 using Denarius.Application;
 using Scalar.AspNetCore;
+using Denarius.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ if (app.Environment.IsDevelopment())
 
 app
     .UseHttpsRedirection()
+    .UseMiddleware<ExceptionMiddleware>()
     .UseAuthorization();
 
 app.MapControllers();

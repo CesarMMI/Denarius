@@ -1,5 +1,5 @@
 ﻿namespace Denarius.Application.Exceptions;
 
-public sealed class NotFoundException(string message) : ApplicationException(message)
+public sealed class NotFoundException(string message) : AppException(message)
 {
 }
