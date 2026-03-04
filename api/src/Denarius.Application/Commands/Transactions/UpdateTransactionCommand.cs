@@ -2,20 +2,13 @@
 
 namespace Denarius.Application.Commands.Transactions;
 
-public sealed class UpdateTransactionCommand(
-    string id,
-    string title,
-    DateTime date,
-    decimal amount,
-    ETransactionType type,
-    string accountId,
-    string? tagId)
-    : IdCommand(id)
+public sealed record UpdateTransactionCommand
 {
-    public string Title { get; private set; } = title;
-    public DateTime Date { get; private set; } = date;
-    public decimal Amount { get; private set; } = amount;
-    public ETransactionType Type { get; private set; } = type;
-    public string AccountId { get; set; } = accountId;
-    public string? TagId { get; private set; } = tagId;
+    public Guid Id { get; init; } = Guid.Empty;
+    public string Title { get; init; } = string.Empty;
+    public DateTime Date { get; init; }
+    public decimal Amount { get; init; }
+    public ETransactionType Type { get; init; }
+    public Guid AccountId { get; init; } = Guid.Empty;
+    public Guid? TagId { get; init; }
 }

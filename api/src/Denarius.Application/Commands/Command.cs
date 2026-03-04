@@ -1,5 +1,5 @@
 ﻿namespace Denarius.Application.Commands;
 
-public abstract class Command
+public sealed record Command
 {
 }

@@ -1,6 +1,6 @@
 ﻿namespace Denarius.Application.Commands;
 
-public class IdCommand(string id) : Command
+public sealed record IdCommand
 {
-    public string Id { get; init; } = id;
+    public Guid Id { get; init; } = Guid.Empty;
 };

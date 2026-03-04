@@ -1,9 +1,9 @@
 ﻿namespace Denarius.Application.Commands.Accounts;
 
-public sealed class CreateAccountCommand(string? name, string? color, decimal? balance, string? currencyCode) : Command
+public sealed record CreateAccountCommand
 {
-    public string? Name { get; init; } = name;
-    public string? Color { get; init; } = color;
-    public decimal? Balance { get; init; } = balance;
-    public string? CurrencyCode { get; init; } = currencyCode;
+    public string Name { get; init; } = string.Empty;
+    public string Color { get; init; } = string.Empty;
+    public decimal? Balance { get; init; }
+    public string CurrencyCode { get; init; } = string.Empty;
 }
