@@ -23,7 +23,7 @@ internal class AccountEntityTypeConfiguration : IEntityTypeConfiguration<Account
         builder
             .OwnsOne(x => x.InitialBalance)
             .Property(x => x.Value)
-            .HasPrecision(18,2)
+            .HasPrecision(18, 2)
             .IsRequired();
         builder
             .OwnsOne(x => x.InitialBalance)

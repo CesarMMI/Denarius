@@ -1,31 +1,94 @@
 ﻿using Denarius.Domain.Entities;
 using Denarius.Domain.Interfaces;
-using Denarius.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Denarius.Infrastructure.Repositories;
 
-internal abstract class Repository<T>(DbSet<T> context) : IRepository<T> where T : Entity
+internal abstract class Repository<T>(DbContext context) : IRepository<T> where T : Entity
 {
-    public T Add(T entity) => context.Add(entity).Entity;
+    bool disposed = false;
+    DbSet<T> DbSet => context.Set<T>();
 
-    public Task<T> AddAsync(T entity) => context.AddAsync(entity).AsTask().ContinueWith(x => x.Result.Entity);
+    #region Add
+    public T Add(T entity)
+    {
+        return DbSet.Add(entity).Entity;
+    }
 
-    public void AddBatch(IEnumerable<T> entities) => context.AddRange(entities);
+    public Task<T> AddAsync(T entity)
+    {
+        return DbSet.AddAsync(entity).AsTask().ContinueWith(x => x.Result.Entity);
+    }
 
-    public Task AddBatchAsync(IEnumerable<T> entities) => context.AddRangeAsync(entities);
+    public void AddBatch(IEnumerable<T> entities)
+    {
+        DbSet.AddRange(entities);
+    }
 
-    public T Delete(T entity) => context.Remove(entity).Entity;
+    public Task AddBatchAsync(IEnumerable<T> entities)
+    {
+        return DbSet.AddRangeAsync(entities);
+    }
+    #endregion
+    #region Delete
+    public T Delete(T entity)
+    {
+        return DbSet.Remove(entity).Entity;
+    }
 
-    public void DeleteBatch(IEnumerable<T> entities) => context.RemoveRange(entities);
+    public void DeleteBatch(IEnumerable<T> entities)
+    {
+        DbSet.RemoveRange(entities);
+    }
+    #endregion
+    #region Find
+    public IQueryable<T> Find()
+    {
+        return DbSet.AsNoTracking();
+    }
 
-    public IQueryable<T> Find() => context.AsNoTracking();
+    public T? FindById(Guid id)
+    {
+        return DbSet.AsNoTracking().Where(x => x.Id == id).FirstOrDefault();
+    }
 
-    public T? FindById(Identifier id) => context.AsNoTracking().Where(x => x.Id == id).FirstOrDefault();
+    public Task<T?> FindByIdAsync(Guid id)
+    {
+        return DbSet.AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync();
+    }
+    #endregion
+    #region Save
+    public void Save()
+    {
+        context.SaveChanges();
+    }
 
-    public Task<T?> FindByIdAsync(Identifier id) => context.AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync();
+    public Task SaveAsync()
+    {
+        return context.SaveChangesAsync();
+    }
+    #endregion
+    #region Update
+    public T Update(T entity)
+    {
+        return DbSet.Update(entity).Entity;
+    }
 
-    public T Update(T entity) => context.Update(entity).Entity;
+    public void UpdateBatch(IEnumerable<T> entities)
+    {
+        DbSet.UpdateRange(entities);
+    }
+    #endregion
 
-    public void UpdateBatch(IEnumerable<T> entities) => context.UpdateRange(entities);
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed && disposing) context.Dispose();
+        disposed = true;
+    }
 }

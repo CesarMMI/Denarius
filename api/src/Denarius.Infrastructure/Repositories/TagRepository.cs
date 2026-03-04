@@ -1,9 +1,9 @@
 ﻿using Denarius.Domain.Entities;
 using Denarius.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Denarius.Infrastructure.Contexts;
 
 namespace Denarius.Infrastructure.Repositories;
 
-internal class AccountRepository(DbContext context) : Repository<Account>(context.Set<Account>()), IAccountRepository
+internal class AccountRepository(AppDbContext context) : Repository<Account>(context), IAccountRepository
 {
 }

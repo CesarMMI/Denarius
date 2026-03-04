@@ -1,9 +1,9 @@
 ﻿using Denarius.Domain.Entities;
 using Denarius.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Denarius.Infrastructure.Contexts;
 
 namespace Denarius.Infrastructure.Repositories;
 
-internal class TagRepository(DbContext context) : Repository<Tag>(context.Set<Tag>()), ITagRepository
+internal class TagRepository(AppDbContext context) : Repository<Tag>(context), ITagRepository
 {
 }
