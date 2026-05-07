@@ -54,6 +54,68 @@ public class CategoryTests
     }
 
     // -------------------------------------------------------------------------
+    // Update — happy path
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void Update_WithValidFields_UpdatesNameAndColor()
+    {
+        var category = ValidIncomeCategory();
+
+        category.Update("Freelance", "#0000FF");
+
+        Assert.Equal("Freelance", category.Name);
+        Assert.Equal("#0000FF", category.Color);
+    }
+
+    [Fact]
+    public void Update_DoesNotChangeType()
+    {
+        var category = ValidIncomeCategory();
+
+        category.Update("Freelance", "#0000FF");
+
+        Assert.Equal(CategoryType.Income, category.Type);
+    }
+
+    [Fact]
+    public void Update_SetsUpdatedAt()
+    {
+        var category = ValidIncomeCategory();
+        var before = DateTime.UtcNow;
+
+        category.Update("Freelance", "#0000FF");
+
+        Assert.True(category.UpdatedAt >= before);
+    }
+
+    // -------------------------------------------------------------------------
+    // Update — errors
+    // -------------------------------------------------------------------------
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void Update_WithInvalidName_Throws(string? name)
+    {
+        var category = ValidIncomeCategory();
+
+        Assert.Throws<InvalidNameException>(() => category.Update(name!, "#000000"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(null)]
+    public void Update_WithInvalidColor_Throws(string? color)
+    {
+        var category = ValidIncomeCategory();
+
+        Assert.Throws<InvalidColorException>(() => category.Update("Freelance", color!));
+    }
+
+    // -------------------------------------------------------------------------
     // AcceptsTransactionType
     // -------------------------------------------------------------------------
 

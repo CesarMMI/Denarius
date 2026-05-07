@@ -1,5 +1,5 @@
 using Denarius.Domain.Enums;
-using Denarius.Domain.Exceptions;
+using Denarius.Domain.Exceptions.Transactions;
 
 namespace Denarius.Domain.Entities;
 
@@ -18,6 +18,7 @@ public class Transaction
     public DateTime UpdatedAt { get; private set; }
 
     public bool IsTransfer => Type == TransactionType.Transfer;
+    public bool IsIncomingTransfer { get; private set; }
 
     public Transaction(
         Guid userId,
@@ -59,6 +60,22 @@ public class Transaction
         Description = description;
         Date = date;
         CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void MarkAsIncoming()
+    {
+        if (!IsTransfer)
+            throw new InvalidOperationException("Only Transfer transactions can be marked as incoming.");
+        IsIncomingTransfer = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void LinkTransferPeer(Guid peerId)
+    {
+        if (!IsTransfer)
+            throw new InvalidOperationException("Only Transfer transactions can have a peer.");
+        TransferPeerId = peerId;
         UpdatedAt = DateTime.UtcNow;
     }
 

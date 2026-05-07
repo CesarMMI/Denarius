@@ -30,6 +30,19 @@ public class Category
         UpdatedAt = DateTime.UtcNow;
     }
 
+    public void Update(string name, string color)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new InvalidNameException();
+
+        if (string.IsNullOrWhiteSpace(color))
+            throw new InvalidColorException();
+
+        Name = name;
+        Color = color;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public bool AcceptsTransactionType(TransactionType transactionType) =>
         transactionType switch
         {

@@ -1,6 +1,6 @@
 using Denarius.Domain.Entities;
 using Denarius.Domain.Enums;
-using Denarius.Domain.Exceptions;
+using Denarius.Domain.Exceptions.Transactions;
 
 namespace Denarius.Domain.Tests.Entities;
 

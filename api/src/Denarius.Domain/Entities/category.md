@@ -32,6 +32,9 @@ Permite ao usuário organizar suas receitas e despesas por natureza (ex: Aliment
 
 ### Alteração
 
+- `Name` e `Color` podem ser alterados via `Update(name, color)`
+- `Name` não pode ser vazio
+- `Color` deve ser informada
 - `Type` nunca pode ser alterado após a criação — mudar o tipo invalidaria o histórico de transações já classificadas com essa categoria
 
 ### Compatibilidade com transações

@@ -1,4 +1,5 @@
 using Denarius.Domain.Exceptions;
+using Denarius.Domain.Exceptions.Accounts;
 
 namespace Denarius.Domain.Entities;
 
@@ -33,6 +34,19 @@ public class Account
         Color = color;
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Update(string name, string color)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new InvalidNameException();
+
+        if (string.IsNullOrWhiteSpace(color))
+            throw new InvalidColorException();
+
+        Name = name;
+        Color = color;
         UpdatedAt = DateTime.UtcNow;
     }
 

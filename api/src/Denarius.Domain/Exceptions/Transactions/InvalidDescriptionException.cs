@@ -1,4 +1,6 @@
-namespace Denarius.Domain.Exceptions;
+using Denarius.Domain.Exceptions;
+
+namespace Denarius.Domain.Exceptions.Transactions;
 
 public class InvalidDescriptionException : DomainException
 {
