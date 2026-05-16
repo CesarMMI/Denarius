@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Infrastructure.Tests", "tests\Denarius.Infrastructure.Tests\Denarius.Infrastructure.Tests.csproj", "{34836232-8109-4313-9A80-A8FD5FD6DC74}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denarius.Api", "src\Denarius.Api\Denarius.Api.csproj", "{D673E779-7A44-48AF-9C30-B8914CE0C6DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,18 @@ Global
 		{34836232-8109-4313-9A80-A8FD5FD6DC74}.Release|x64.Build.0 = Release|Any CPU
 		{34836232-8109-4313-9A80-A8FD5FD6DC74}.Release|x86.ActiveCfg = Release|Any CPU
 		{34836232-8109-4313-9A80-A8FD5FD6DC74}.Release|x86.Build.0 = Release|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Debug|x64.Build.0 = Debug|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Debug|x86.Build.0 = Debug|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Release|x64.ActiveCfg = Release|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Release|x64.Build.0 = Release|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Release|x86.ActiveCfg = Release|Any CPU
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,5 +126,6 @@ Global
 		{A3A26BDF-557A-437B-99E4-2F1CC042D155} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{FCAEB8EA-8765-4C3C-99E7-8B1B14932F56} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{34836232-8109-4313-9A80-A8FD5FD6DC74} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{D673E779-7A44-48AF-9C30-B8914CE0C6DC} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal
