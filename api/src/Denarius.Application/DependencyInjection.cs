@@ -1,7 +1,9 @@
 using Denarius.Application.Interfaces.UseCases.Accounts;
+using Denarius.Application.Interfaces.UseCases.Auth;
 using Denarius.Application.Interfaces.UseCases.Categories;
 using Denarius.Application.Interfaces.UseCases.Transactions;
 using Denarius.Application.UseCases.Accounts;
+using Denarius.Application.UseCases.Auth;
 using Denarius.Application.UseCases.Categories;
 using Denarius.Application.UseCases.Transactions;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +32,9 @@ public static class DependencyInjection
         services.AddScoped<IListTransactionsUseCase, ListTransactionsUseCase>();
         services.AddScoped<IUpdateTransactionUseCase, UpdateTransactionUseCase>();
         services.AddScoped<IDeleteTransactionUseCase, DeleteTransactionUseCase>();
+
+        services.AddScoped<IRegisterUserUseCase, RegisterUserUseCase>();
+        services.AddScoped<ILoginUseCase, LoginUseCase>();
 
         return services;
     }

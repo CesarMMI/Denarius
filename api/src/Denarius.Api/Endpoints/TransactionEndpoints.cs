@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Denarius.Application.Inputs.Transactions;
 using Denarius.Application.Interfaces.UseCases.Transactions;
+using Denarius.Api.Extensions;
 using Denarius.Api.Requests.Transactions;
 using Denarius.Domain.Enums;
 
@@ -9,7 +11,7 @@ public static class TransactionEndpoints
 {
     public static IEndpointRouteBuilder MapTransactionEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/transactions");
+        var group = app.MapGroup("/api/transactions").RequireAuthorization();
 
         group.MapGet("/", async (
             Guid? accountId,
@@ -17,23 +19,24 @@ public static class TransactionEndpoints
             TransactionType? type,
             DateTime? startDate,
             DateTime? endDate,
+            ClaimsPrincipal user,
             IListTransactionsUseCase useCase) =>
         {
             var result = await useCase.Execute(new ListTransactionsInput(
-                CurrentUser.Id, accountId, categoryId, type, startDate, endDate));
+                user.GetUserId(), accountId, categoryId, type, startDate, endDate));
             return Results.Ok(result);
         });
 
-        group.MapGet("/{id:guid}", async (Guid id, IGetTransactionByIdUseCase useCase) =>
+        group.MapGet("/{id:guid}", async (Guid id, ClaimsPrincipal user, IGetTransactionByIdUseCase useCase) =>
         {
-            var result = await useCase.Execute(new GetTransactionByIdInput(CurrentUser.Id, id));
+            var result = await useCase.Execute(new GetTransactionByIdInput(user.GetUserId(), id));
             return Results.Ok(result);
         });
 
-        group.MapPost("/", async (CreateTransactionRequest request, ICreateTransactionUseCase useCase) =>
+        group.MapPost("/", async (CreateTransactionRequest request, ClaimsPrincipal user, ICreateTransactionUseCase useCase) =>
         {
             var result = await useCase.Execute(new CreateTransactionInput(
-                CurrentUser.Id,
+                user.GetUserId(),
                 request.AccountId,
                 request.CategoryId,
                 request.Type,
@@ -43,10 +46,10 @@ public static class TransactionEndpoints
             return Results.Created($"/api/transactions/{result.Id}", result);
         });
 
-        group.MapPost("/transfers", async (CreateTransferRequest request, ICreateTransferUseCase useCase) =>
+        group.MapPost("/transfers", async (CreateTransferRequest request, ClaimsPrincipal user, ICreateTransferUseCase useCase) =>
         {
             var result = await useCase.Execute(new CreateTransferInput(
-                CurrentUser.Id,
+                user.GetUserId(),
                 request.SourceAccountId,
                 request.DestinationAccountId,
                 request.Amount,
@@ -55,16 +58,16 @@ public static class TransactionEndpoints
             return Results.Created($"/api/transactions/{result.Outgoing.Id}", result);
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, UpdateTransactionRequest request, IUpdateTransactionUseCase useCase) =>
+        group.MapPut("/{id:guid}", async (Guid id, UpdateTransactionRequest request, ClaimsPrincipal user, IUpdateTransactionUseCase useCase) =>
         {
             var result = await useCase.Execute(new UpdateTransactionInput(
-                CurrentUser.Id, id, request.Amount, request.Description, request.CategoryId));
+                user.GetUserId(), id, request.Amount, request.Description, request.CategoryId));
             return Results.Ok(result);
         });
 
-        group.MapDelete("/{id:guid}", async (Guid id, IDeleteTransactionUseCase useCase) =>
+        group.MapDelete("/{id:guid}", async (Guid id, ClaimsPrincipal user, IDeleteTransactionUseCase useCase) =>
         {
-            await useCase.Execute(new DeleteTransactionInput(CurrentUser.Id, id));
+            await useCase.Execute(new DeleteTransactionInput(user.GetUserId(), id));
             return Results.NoContent();
         });
 

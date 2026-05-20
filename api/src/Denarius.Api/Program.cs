@@ -1,27 +1,32 @@
 using Denarius.Application;
 using Denarius.Infrastructure;
-using Denarius.Api.Middleware;
 using Denarius.Api.Endpoints;
+using Denarius.Api.Extensions;
+using Denarius.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddJwtAuthentication(builder.Configuration)
+    .AddAuthorization()
     .AddOpenApi()
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
-app.UseHttpsRedirection();
-app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpsRedirection()
+    .UseMiddleware<ExceptionMiddleware>()
+    .UseAuthentication()
+    .UseAuthorization();
 
-app.MapAccountEndpoints();
-app.MapCategoryEndpoints();
-app.MapTransactionEndpoints();
+app.MapAuthEndpoints()
+    .MapAccountEndpoints()
+    .MapCategoryEndpoints()
+    .MapTransactionEndpoints();
 
 app.Run();
+
+public partial class Program { }

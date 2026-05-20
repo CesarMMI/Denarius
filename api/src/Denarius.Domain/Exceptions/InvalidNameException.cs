@@ -2,5 +2,5 @@ namespace Denarius.Domain.Exceptions;
 
 public class InvalidNameException : DomainException
 {
-    public InvalidNameException() : base("Name cannot be null or empty.") { }
+    public InvalidNameException(string message = "Name cannot be null or empty.") : base(message) { }
 }
