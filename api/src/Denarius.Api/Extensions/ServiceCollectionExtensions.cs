@@ -1,11 +1,65 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace Denarius.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services)
+    {
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                document.Info = new() { Title = "Denarius API", Version = "v1" };
+                document.Components ??= new();
+                document.Components.SecuritySchemes = new Dictionary<string, OpenApiSecurityScheme>
+                {
+                    ["Bearer"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        Description = "JWT token obtained from POST /api/auth/login"
+                    }
+                };
+                return Task.CompletedTask;
+            });
+
+            options.AddOperationTransformer((operation, context, _) =>
+            {
+                var requiresAuth = context.Description.ActionDescriptor.EndpointMetadata
+                    .OfType<IAuthorizeData>().Any();
+
+                if (requiresAuth)
+                {
+                    operation.Security =
+                    [
+                        new OpenApiSecurityRequirement
+                        {
+                            [new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            }] = []
+                        }
+                    ];
+                }
+
+                return Task.CompletedTask;
+            });
+        });
+
+        return services;
+    }
+
+
     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var jwtSecret = configuration["Jwt:Secret"]

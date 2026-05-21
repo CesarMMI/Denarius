@@ -4,11 +4,23 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)\..\..</OpenApiDocumentsDirectory>
   </PropertyGroup>
+
+  <Target Name="RenameOpenApiDocument" AfterTargets="GenerateOpenApiDocuments">
+    <Move SourceFiles="$(OpenApiDocumentsDirectory)\Denarius.Api.json"
+          DestinationFiles="$(OpenApiDocumentsDirectory)\openapi.json"
+          Condition="Exists('$(OpenApiDocumentsDirectory)\Denarius.Api.json')" />
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.*" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.16" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="9.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

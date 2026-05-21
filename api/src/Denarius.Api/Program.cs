@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddJwtAuthentication(builder.Configuration)
     .AddAuthorization()
-    .AddOpenApi()
+    .AddOpenApiDocumentation()
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
