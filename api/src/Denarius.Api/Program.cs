@@ -7,6 +7,7 @@ using Denarius.Api.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
+    .AddCorsPolicy(builder.Configuration)
     .AddJwtAuthentication(builder.Configuration)
     .AddAuthorization()
     .AddOpenApiDocumentation()
@@ -18,6 +19,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection()
+    .UseCors(ServiceCollectionExtensions.CorsPolicyName)
     .UseMiddleware<ExceptionMiddleware>()
     .UseAuthentication()
     .UseAuthorization();

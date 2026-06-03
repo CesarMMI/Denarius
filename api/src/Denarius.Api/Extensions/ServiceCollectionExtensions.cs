@@ -8,6 +8,38 @@ namespace Denarius.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public const string CorsPolicyName = "DenariusPolicy";
+
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
+    {
+        var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        var methods = configuration.GetSection("Cors:AllowedMethods").Get<string[]>() ?? [];
+        var headers = configuration.GetSection("Cors:AllowedHeaders").Get<string[]>() ?? [];
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy(CorsPolicyName, policy =>
+            {
+                if (origins.Length > 0)
+                    policy.WithOrigins(origins);
+                else
+                    policy.AllowAnyOrigin();
+
+                if (methods.Length > 0)
+                    policy.WithMethods(methods);
+                else
+                    policy.AllowAnyMethod();
+
+                if (headers.Length > 0)
+                    policy.WithHeaders(headers);
+                else
+                    policy.AllowAnyHeader();
+            });
+        });
+
+        return services;
+    }
+
     public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services)
     {
         services.AddOpenApi(options =>

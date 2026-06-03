@@ -160,5 +160,14 @@
     "verified": true,
     "docs": [".claude/use-cases/use-cases-transaction.md"],
     "notes": "Em transferências, exclui o par (TransferPeer) automaticamente e reverte o saldo de ambas as contas; a reversão usa ToDelta() negado"
+  },
+  {
+    "id": "cors",
+    "description": "Configura política CORS com origens, métodos e headers permitidos via appsettings.json",
+    "context": "Api",
+    "status": "done",
+    "verified": true,
+    "docs": [],
+    "notes": "Arrays vazios em Cors:AllowedOrigins/Methods/Headers ativam AllowAny* (permissivo); arrays populados restringem com WithOrigins/Methods/Headers. Testes usam FixedCorsPolicyProvider para isolar a política por cenário."
   }
 ]

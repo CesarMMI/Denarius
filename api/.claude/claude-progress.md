@@ -2,11 +2,11 @@
 
 ## Estado atual do projeto
 
-O backend está funcionalmente completo: todas as 18 features documentadas estão implementadas, expostas via Minimal API e cobertas por testes nas quatro camadas (Domain, Application, Infrastructure, Api — 361 testes, 0 falhas aferidos em 2026-05-28). O projeto encontra-se em estado pronto para integração com um cliente (front-end ou mobile), sem features pendentes ou em andamento.
+O backend está funcionalmente completo: todas as 18 features de domínio estão implementadas, expostas via Minimal API e cobertas por testes nas quatro camadas. CORS foi adicionado como feature de infraestrutura (368 testes, 0 falhas aferidos em 2026-06-02). O projeto encontra-se em estado pronto para integração com um cliente (front-end ou mobile).
 
 ---
 
-## Última sessão — 2026-05-28
+## Última sessão — 2026-06-02
 
 - ✅ `auth-register-user` — Registra um novo usuário com e-mail, senha e nome
 - ✅ `auth-login` — Autentica e retorna token JWT
@@ -26,6 +26,7 @@ O backend está funcionalmente completo: todas as 18 features documentadas estã
 - ✅ `transaction-list` — Lista transações com filtros por conta, categoria, tipo e período
 - ✅ `transaction-update` — Atualiza valor, descrição e categoria
 - ✅ `transaction-delete` — Exclui transação e reverte saldo (exclui par em transferências)
+- ✅ `cors` — Política CORS configurável via `appsettings.json` (origins, methods, headers)
 
 Nenhuma feature `in-progress` ou `done` + `verified: false` existe no momento.
 
@@ -33,7 +34,7 @@ Nenhuma feature `in-progress` ou `done` + `verified: false` existe no momento.
 
 ## Próxima sessão
 
-- **Tarefa prioritária:** Não há features `pending` ou `in-progress` no `feature_list.json`. A próxima tarefa deve ser definida pelo desenvolvedor — candidatos naturais são: relatórios/dashboard (ex: saldo consolidado por período, totais por categoria), exportação de dados, ou integração com cliente front-end/mobile.
+- **Tarefa prioritária:** Não há features `pending` ou `in-progress` no `feature_list.json`. A próxima tarefa deve ser definida pelo desenvolvedor — candidatos naturais são: relatórios/dashboard (ex: saldo consolidado por período, totais por categoria), exportação de dados, ou integração com cliente front-end/mobile. Antes de iniciar o front-end, popular `Cors:AllowedOrigins` em `appsettings.Development.json` com a URL local do cliente.
 - **Contexto necessário:** Ao definir a próxima feature, ler o markdown da entidade/aggregate correspondente em `.claude/entities/` e `.claude/use-cases/` antes de implementar. Se a feature envolver `Transaction`, ler também `.claude/entities/transaction.md` e `.claude/use-cases/use-cases-transaction.md` — é o aggregate mais complexo do domínio.
 
 ---
