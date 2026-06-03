@@ -1,0 +1,164 @@
+[
+  {
+    "id": "auth-register-user",
+    "description": "Registra um novo usuário no sistema com e-mail, senha e nome",
+    "context": "Auth",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-auth.md"],
+    "notes": null
+  },
+  {
+    "id": "auth-login",
+    "description": "Autentica um usuário e retorna um token JWT",
+    "context": "Auth",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-auth.md"],
+    "notes": null
+  },
+  {
+    "id": "account-create",
+    "description": "Cria uma nova conta financeira para o usuário autenticado",
+    "context": "Account",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-account.md"],
+    "notes": null
+  },
+  {
+    "id": "account-get-by-id",
+    "description": "Busca uma conta pelo identificador, restrita ao usuário autenticado",
+    "context": "Account",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-account.md"],
+    "notes": null
+  },
+  {
+    "id": "account-list",
+    "description": "Lista todas as contas do usuário autenticado, incluindo inativas",
+    "context": "Account",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-account.md"],
+    "notes": null
+  },
+  {
+    "id": "account-update",
+    "description": "Atualiza nome e cor de uma conta existente do usuário autenticado",
+    "context": "Account",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-account.md"],
+    "notes": null
+  },
+  {
+    "id": "account-deactivate",
+    "description": "Desativa uma conta (soft delete) sem excluir transações vinculadas",
+    "context": "Account",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-account.md"],
+    "notes": null
+  },
+  {
+    "id": "category-create",
+    "description": "Cria uma nova categoria do tipo Income ou Expense para o usuário autenticado",
+    "context": "Category",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-category.md"],
+    "notes": null
+  },
+  {
+    "id": "category-get-by-id",
+    "description": "Busca uma categoria pelo identificador, restrita ao usuário autenticado",
+    "context": "Category",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-category.md"],
+    "notes": null
+  },
+  {
+    "id": "category-list",
+    "description": "Lista categorias do usuário autenticado com filtro opcional por tipo",
+    "context": "Category",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-category.md"],
+    "notes": null
+  },
+  {
+    "id": "category-update",
+    "description": "Atualiza nome e cor de uma categoria existente (tipo não pode ser alterado)",
+    "context": "Category",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-category.md"],
+    "notes": null
+  },
+  {
+    "id": "category-delete",
+    "description": "Exclui uma categoria; transações vinculadas ficam sem categoria",
+    "context": "Category",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-category.md"],
+    "notes": null
+  },
+  {
+    "id": "transaction-create",
+    "description": "Cria uma transação do tipo Income ou Expense e atualiza o saldo da conta",
+    "context": "Transaction",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-transaction.md"],
+    "notes": null
+  },
+  {
+    "id": "transaction-create-transfer",
+    "description": "Cria uma transferência entre duas contas gerando um par de transações vinculadas",
+    "context": "Transaction",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-transaction.md"],
+    "notes": "Cria par Outgoing+Incoming com TransferPeerId mútuo; valida CurrencyCode idêntico entre contas; perna destino recebe MarkAsIncoming(); retorna CreateTransferOutput (não TransactionOutput)"
+  },
+  {
+    "id": "transaction-get-by-id",
+    "description": "Busca uma transação pelo identificador, restrita ao usuário autenticado",
+    "context": "Transaction",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-transaction.md"],
+    "notes": null
+  },
+  {
+    "id": "transaction-list",
+    "description": "Lista transações do usuário com filtros opcionais por conta, categoria, tipo e período",
+    "context": "Transaction",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-transaction.md"],
+    "notes": null
+  },
+  {
+    "id": "transaction-update",
+    "description": "Atualiza valor, descrição e categoria de uma transação existente",
+    "context": "Transaction",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-transaction.md"],
+    "notes": "Ao alterar Amount de uma Transfer, o par (TransferPeer) é atualizado automaticamente com o mesmo valor; delta de saldo recalculado pela diferença (novoAmount - valorAnterior)"
+  },
+  {
+    "id": "transaction-delete",
+    "description": "Exclui uma transação e reverte seu efeito no saldo; exclui o par automaticamente em transferências",
+    "context": "Transaction",
+    "status": "done",
+    "verified": true,
+    "docs": [".claude/use-cases/use-cases-transaction.md"],
+    "notes": "Em transferências, exclui o par (TransferPeer) automaticamente e reverte o saldo de ambas as contas; a reversão usa ToDelta() negado"
+  }
+]

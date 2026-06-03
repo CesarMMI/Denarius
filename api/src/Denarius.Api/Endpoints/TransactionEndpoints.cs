@@ -62,7 +62,7 @@ public static class TransactionEndpoints
         .ProducesProblem(400)
         .ProducesProblem(401);
 
-        group.MapPost("/transfers", async (CreateTransferRequest request, ClaimsPrincipal user, ICreateTransferUseCase useCase) =>
+        group.MapPost("/transfer", async (CreateTransferRequest request, ClaimsPrincipal user, ICreateTransferUseCase useCase) =>
         {
             var result = await useCase.Execute(new CreateTransferInput(
                 user.GetUserId(),

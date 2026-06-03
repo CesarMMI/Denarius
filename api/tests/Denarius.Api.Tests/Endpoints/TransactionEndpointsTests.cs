@@ -101,7 +101,7 @@ public class TransactionEndpointsTests : IClassFixture<WebApplicationFactory<Pro
             .Execute(Arg.Any<CreateTransferInput>())
             .Returns(Task.FromResult(new CreateTransferOutput(SampleTransaction(outgoingId), SampleTransaction())));
 
-        var response = await _client.PostAsJsonAsync("/api/transactions/transfers", new CreateTransferRequest(
+        var response = await _client.PostAsJsonAsync("/api/transactions/transfer", new CreateTransferRequest(
             Guid.NewGuid(), Guid.NewGuid(), 100m, "Transfer", DateTime.UtcNow));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);

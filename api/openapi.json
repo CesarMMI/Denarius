@@ -966,7 +966,7 @@
         ]
       }
     },
-    "/api/transactions/transfers": {
+    "/api/transactions/transfer": {
       "post": {
         "tags": [
           "Transactions"

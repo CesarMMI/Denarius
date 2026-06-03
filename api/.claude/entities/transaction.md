@@ -11,8 +11,9 @@ Pode ser uma entrada de valor (receita), uma saída (despesa), ou uma transferê
 | `UserId`         | Identificador do usuário dono da transação                                |
 | `AccountId`      | Conta à qual a transação pertence                                         |
 | `CategoryId`     | Categoria da transação — obrigatória para `Income` e `Expense`, ausente em `Transfer` |
-| `TransferPeerId` | Identificador da transação espelho — presente apenas em `Transfer`        |
-| `Type`           | Tipo da transação: `Income`, `Expense` ou `Transfer`                      |
+| `TransferPeerId`      | Identificador da transação espelho — presente apenas em `Transfer`                     |
+| `Type`               | Tipo da transação: `Income`, `Expense` ou `Transfer`                                   |
+| `IsIncomingTransfer` | `true` quando a transação é a perna de **entrada** de uma transferência (conta destino) |
 | `Amount`         | Valor da transação — sempre positivo                                      |
 | `Description`    | Descrição ou observação sobre a transação                                 |
 | `Date`           | Data da transação — pode ser passada ou futura                            |
@@ -39,6 +40,11 @@ Pode ser uma entrada de valor (receita), uma saída (despesa), ou uma transferê
 - Uma transferência deve sempre ser criada em par — a transação de saída na conta de origem e a transação de entrada na conta de destino existem juntas ou não existem
 - A conta de origem e a conta de destino de uma transferência devem ser diferentes
 - A conta de origem e a conta de destino de uma transferência devem ter o mesmo `CurrencyCode` — transferências entre moedas diferentes não são suportadas
+
+### Marcação de transferência de entrada
+
+- `IsIncomingTransfer` começa `false`; é definido como `true` pelo método `MarkAsIncoming()` na perna de destino de uma transferência
+- `IsTransfer` é uma propriedade computada (`Type == TransactionType.Transfer`) — não persiste no banco
 
 ### Alteração
 
