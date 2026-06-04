@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Claude Code skills storage (tracked via skills-lock.json)
+.agents/
