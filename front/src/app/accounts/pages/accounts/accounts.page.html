@@ -1,0 +1,94 @@
+<header class="mb-6 pr-4 flex justify-between items-center">
+	<h1 class="text-4xl m-0">Contas</h1>
+	<div class="flex justify-between items-center">
+		<button
+			pButton
+			type="button"
+			severity="secondary"
+			pTooltip="Criar conta"
+			tooltipPosition="left"
+			[text]="true"
+			[rounded]="true"
+		>
+			<svg data-p-icon="plus" pButtonIcon></svg>
+		</button>
+		<p-divider layout="vertical" />
+		<button
+			pButton
+			type="button"
+			severity="secondary"
+			pTooltip="Recarregar"
+			tooltipPosition="left"
+			[text]="true"
+			[rounded]="true"
+			(click)="accountsResource.reload()"
+		>
+			<svg data-p-icon="refresh" pButtonIcon></svg>
+		</button>
+		<button
+			pButton
+			type="button"
+			severity="secondary"
+			pTooltip="Filtros"
+			tooltipPosition="left"
+			[text]="true"
+			[rounded]="true"
+		>
+			<svg data-p-icon="filter" pButtonIcon></svg>
+		</button>
+	</div>
+</header>
+
+<p-table [value]="accountsResource.value() ?? []">
+	<ng-template #header>
+		<tr>
+			<th></th>
+			<th>Nome</th>
+			<th class="text-right!">Saldo</th>
+			<th class="text-sm text-neutral-500!">Moeda</th>
+			<th class="w-1"></th>
+		</tr>
+	</ng-template>
+	<ng-template #body let-account>
+		<tr>
+			<td class="w-5 pr-0!">
+				<div class="rounded-full w-5 h-5" [style.background-color]="account.color"></div>
+			</td>
+			<td>
+				{{ account.name }}
+			</td>
+			<td class="text-right!">{{ account.balance | currency: account.currencyCode }}</td>
+			<td class="text-sm text-neutral-500">{{ account.currencyCode }}</td>
+			<td class="w-1">
+				<div class="flex justify-end">
+					<button
+						pButton
+						type="button"
+						severity="secondary"
+						pTooltip="Editar"
+						tooltipPosition="left"
+						[text]="true"
+						[rounded]="true"
+						[attr.aria-label]="'Editar ' + account.name"
+						(click)="editAccount(account)"
+					>
+						<svg data-p-icon="pencil" pButtonIcon></svg>
+					</button>
+					<button
+						pButton
+						type="button"
+						severity="danger"
+						pTooltip="Excluir"
+						tooltipPosition="left"
+						[text]="true"
+						[rounded]="true"
+						[attr.aria-label]="'Excluir ' + account.name"
+						(click)="deleteAccount(account)"
+					>
+						<svg data-p-icon="trash" pButtonIcon></svg>
+					</button>
+				</div>
+			</td>
+		</tr>
+	</ng-template>
+</p-table>
