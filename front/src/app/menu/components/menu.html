@@ -1,0 +1,16 @@
+<div class="flex min-h-screen">
+	<p-menu [model]="menuItems" styleClass="w-xs h-full rounded-none! border-none!" />
+	<div class="flex-1">
+		<p-breadcrumb [model]="breadcrumbItems" styleClass="py-2!">
+			<ng-template #separator>
+				<span class="text-xs">/</span>
+			</ng-template>
+		</p-breadcrumb>
+		@if (currentUser(); as user) {
+			<div class="px-4 py-2 text-sm text-neutral-500">{{ user.name }}</div>
+		}
+		<div class="p-4">
+			<router-outlet />
+		</div>
+	</div>
+</div>
