@@ -146,7 +146,7 @@ Infrastructure → Domain + Application
 
 Documentação detalhada de cada entidade e aggregate em `.claude/entities/` e `.claude/use-cases/`.
 
-Lista completa de features com status de implementação: [`.claude/feature_list.json`](.claude/feature_list.json)
+Lista completa de features com status de implementação: [`harness/feature_list.json`](harness/feature_list.json)
 
 ### Entidades
 
