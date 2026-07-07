@@ -1,0 +1,9 @@
+# Visual Studio Code
+**/.vscode/*
+!**/.vscode/tasks.json
+!**/.vscode/launch.json
+!**/.vscode/extensions.json
+!**/.vscode/mcp.json
+
+# Claude
+**/.claude/settings.local.json
