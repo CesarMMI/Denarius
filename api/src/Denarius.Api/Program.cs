@@ -16,6 +16,8 @@ builder.Services
 
 var app = builder.Build();
 
+app.ApplyPendingMigrations();
+
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection()

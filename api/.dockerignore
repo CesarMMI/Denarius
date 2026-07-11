@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/publish/
+**/.vs/
+**/.vscode/
+**/.idea/
+tests/
+.agents/
+.claude/
+harness/
+Dockerfile
+docker-compose*.yml
+.dockerignore
+.env
+**/appsettings.Development.json
+*.md

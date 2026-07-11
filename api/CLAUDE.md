@@ -28,35 +28,42 @@ dotnet test
 ```
 
 **Rodar localmente**
+
+Sempre via Docker (não há mais fluxo `dotnet run` local — ver `api/docker-compose.yml`/`api/docker-compose.override.yml`). O front (quando dockerizado) roda em um compose próprio, separado — cada projeto sobe independente, nunca via um compose compartilhado:
 ```
-dotnet run --project src/Denarius.Api
+docker compose up
 ```
-A API sobe em HTTPS. O spec OpenAPI fica disponível em `GET /openapi/v1.json` quando `ASPNETCORE_ENVIRONMENT=Development`.
+Rodado a partir de `api/`, sobe a API (container `api`, porta `${API_PORT:-8080}`, padrão `8080`) e o MariaDB (container `mariadb`) juntos, com migrations aplicadas automaticamente no startup — `docker-compose.override.yml` é mesclado automaticamente e aplica os ajustes de dev. Copie `api/.env.example` para `api/.env` (e preencha os valores) antes da primeira execução. A API sobe só em HTTP dentro do container (TLS é responsabilidade de um proxy externo, se necessário). Em produção, roda-se `docker compose -f docker-compose.yml up` (só o base, sem o override).
 
 **Migrations (EF Core)**
+
+Criar uma migration ainda é feito localmente com a CLI do `dotnet ef`, mas como não existe mais `appsettings.Development.json`, a connection string precisa ser passada via variável de ambiente. Suba o MariaDB primeiro (`docker compose up`, que expõe a porta 3306 ao host em dev) e rode:
 ```
+$env:ConnectionStrings__DefaultConnection = "Server=localhost;Port=3306;Database=denarius;User=root;Password=<MARIADB_ROOT_PASSWORD do seu api/.env>;"
 dotnet ef migrations add <NomeDaMigration> \
   --project src/Denarius.Infrastructure \
   --startup-project src/Denarius.Api
 ```
-```
-dotnet ef database update \
-  --project src/Denarius.Infrastructure \
-  --startup-project src/Denarius.Api
-```
+Não é necessário rodar `dotnet ef database update` manualmente — as migrations são aplicadas automaticamente pelo container `api` no startup (guardado pela env var `RUN_MIGRATIONS_ON_STARTUP`, ver `Extensions/DatabaseMigrationExtensions.cs`).
 
-**Variáveis de configuração necessárias** (`appsettings.Development.json`)
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=3306;Database=denarius;User=root;Password=root;"
-  },
-  "Jwt": {
-    "Secret": "<mínimo 32 caracteres>"
-  }
-}
+**Variáveis de configuração necessárias** (`api/.env`, a partir de `api/.env.example`)
 ```
-`Jwt:Issuer`, `Jwt:Audience` e `Jwt:ExpiryMinutes` estão em `appsettings.json`.
+MARIADB_ROOT_PASSWORD=<senha do MariaDB>
+MARIADB_DATABASE=denarius
+JWT_SECRET=<mínimo 32 caracteres>
+JWT_ISSUER=Denarius
+JWT_AUDIENCE=Denarius
+JWT_EXPIRY_MINUTES=60
+API_PORT=8080
+LOGGING_DEFAULT_LEVEL=Information
+LOGGING_ASPNETCORE_LEVEL=Warning
+CORS_ALLOWED_ORIGINS=
+CORS_ALLOWED_METHODS=
+CORS_ALLOWED_HEADERS=
+```
+`Jwt:Issuer`, `Jwt:Audience`, `Jwt:ExpiryMinutes`, `Logging:LogLevel:*` e `Cors:*` também têm defaults em `appsettings.json`, caso as variáveis de ambiente correspondentes não sejam definidas. `AllowedHosts` (`"*"`) é a única configuração que **não** foi movida para env var — raramente precisa variar por ambiente e permanece só em `appsettings.json`.
+
+`Cors:AllowedOrigins`/`AllowedMethods`/`AllowedHeaders` são listas separadas por vírgula (não arrays JSON indexados) — `AddCorsPolicy` (`Extensions/ServiceCollectionExtensions.cs`) faz o split manualmente via `configuration["Cors:AllowedOrigins"]`. Vazio em qualquer uma delas ativa `AllowAny*` (permissivo).
 
 ---
 
@@ -253,7 +260,7 @@ Descrever:
 
 ## 5. O que NÃO fazer
 
-- **Não modificar** `appsettings.json` ou `appsettings.Development.json` sem avisar explicitamente ao usuário.
+- **Não modificar** `appsettings.json` ou `api/.env.example` sem avisar explicitamente ao usuário.
 - **Não instalar pacotes NuGet** (`<PackageReference>`) sem confirmar com o usuário.
 - **Não alterar contratos públicos** — interfaces de use case (`IXxxUseCase`), records de Input/Output e request models da API — sem aprovação explícita. Quebrar um contrato implica reescrever todos os consumidores e potencialmente quebrar clientes da API.
 - **Não usar Controllers** — o projeto usa exclusivamente Minimal APIs com grupos e extensões de `IEndpointRouteBuilder`.

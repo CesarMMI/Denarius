@@ -1,0 +1,42 @@
+services:
+  mariadb:
+    image: mariadb:12.3-noble
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-denarius}
+    volumes:
+      - denarius-mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-p${MARIADB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      RUN_MIGRATIONS_ON_STARTUP: "true"
+      ConnectionStrings__DefaultConnection: "Server=mariadb;Port=3306;Database=${MARIADB_DATABASE:-denarius};User=root;Password=${MARIADB_ROOT_PASSWORD};"
+      Jwt__Secret: ${JWT_SECRET}
+      Jwt__Issuer: ${JWT_ISSUER:-Denarius}
+      Jwt__Audience: ${JWT_AUDIENCE:-Denarius}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES:-60}
+      Logging__LogLevel__Default: ${LOGGING_DEFAULT_LEVEL:-Information}
+      Logging__LogLevel__Microsoft.AspNetCore: ${LOGGING_ASPNETCORE_LEVEL:-Warning}
+      Cors__AllowedOrigins: ${CORS_ALLOWED_ORIGINS:-}
+      Cors__AllowedMethods: ${CORS_ALLOWED_METHODS:-}
+      Cors__AllowedHeaders: ${CORS_ALLOWED_HEADERS:-}
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+volumes:
+  denarius-mariadb-data:

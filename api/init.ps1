@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 $ErrorActionPreference = "Stop"
 
 $OK    = "✅"
@@ -50,36 +50,84 @@ for ($i = 0; $i -lt $TestProjects.Length; $i++) {
   $TestsRun++
 }
 
-# ── 4. Verificação de inicialização (não bloqueante) ─────────────────────────
-Step "Verificando inicialização da aplicação (timeout 10s)..."
-Warn "Este passo requer MySQL disponível. Falha de conexão não é bloqueante."
+# ── 4. Verificação da stack Docker (API + MariaDB) ───────────────────────────
+Step "Verificando stack Docker (API + MariaDB)..."
 
-$StartupLog = [System.IO.Path]::GetTempFileName()
-$StartupErr = [System.IO.Path]::GetTempFileName()
-$AppProc = Start-Process -FilePath "dotnet" `
-  -ArgumentList @("run", "--project", "src/Denarius.Api", "--no-build") `
-  -RedirectStandardOutput $StartupLog `
-  -RedirectStandardError $StartupErr `
-  -PassThru -NoNewWindow
-Start-Sleep -Seconds 10
+$EnvFile    = Join-Path $PSScriptRoot ".env"
+$EnvExample = Join-Path $PSScriptRoot ".env.example"
 
-if (-not $AppProc.HasExited) {
-  $AppProc.Kill()
-  $AppProc.WaitForExit()
-  Ok "Aplicação iniciou e permaneceu ativa por 10s."
-} else {
-  Warn "A aplicação encerrou antes do timeout de 10s."
-  Warn "Provável causa: banco de dados não disponível. Continuando."
-  Write-Host ""
-  Write-Host "  --- Últimas linhas da saída da aplicação ---"
-  $allOutput = @()
-  if (Test-Path $StartupLog) { $allOutput += Get-Content $StartupLog }
-  if (Test-Path $StartupErr) { $allOutput += Get-Content $StartupErr }
-  $allOutput | Select-Object -Last 20 | ForEach-Object { Write-Host "  $_" }
-  Write-Host "  --------------------------------------------"
+docker version | Out-Null
+if ($LASTEXITCODE -ne 0) { Fail "Docker não encontrado ou não está rodando. Instale/inicie o Docker Desktop antes de continuar." }
+
+if (-not (Test-Path $EnvFile)) {
+  Copy-Item $EnvExample $EnvFile
+  Warn "api/.env não existia; criado a partir de api/.env.example (valores de exemplo, ok para este sanity check)."
 }
-Remove-Item $StartupLog -Force -ErrorAction SilentlyContinue
-Remove-Item $StartupErr -Force -ErrorAction SilentlyContinue
+
+$ApiPort = 8080
+$PortLine = Get-Content $EnvFile | Where-Object { $_ -match '^API_PORT=' }
+if ($PortLine) { $ApiPort = ($PortLine -split '=', 2)[1].Trim() }
+
+function FailDocker {
+  param([string]$msg)
+  Write-Host "$FAIL $msg"
+  docker compose down -v
+  Pop-Location
+  exit 1
+}
+
+Push-Location $PSScriptRoot
+
+docker compose build
+if ($LASTEXITCODE -ne 0) { FailDocker "docker compose build falhou." }
+Ok "Imagens Docker construídas."
+
+docker compose up -d
+if ($LASTEXITCODE -ne 0) { FailDocker "docker compose up falhou." }
+
+Step "Aguardando MariaDB ficar healthy (timeout 60s)..."
+$Healthy = $false
+for ($i = 0; $i -lt 30; $i++) {
+  $ContainerId = (docker compose ps -q mariadb).Trim()
+  if ($ContainerId) {
+    $Health = docker inspect --format='{{.State.Health.Status}}' $ContainerId
+    if ($Health -eq "healthy") { $Healthy = $true; break }
+  }
+  Start-Sleep -Seconds 2
+}
+if (-not $Healthy) {
+  Write-Host ""
+  Write-Host "  --- Últimas linhas do log do mariadb ---"
+  docker compose logs mariadb --no-log-prefix | Select-Object -Last 20 | ForEach-Object { Write-Host "  $_" }
+  Write-Host "  -----------------------------------------"
+  FailDocker "MariaDB não ficou healthy a tempo."
+}
+Ok "MariaDB healthy."
+
+Step "Testando endpoint da API (timeout 30s)..."
+$RegisterBody = '{"name":"Sanity Check","email":"sanity-check@denarius.local","password":"Senha123!"}'
+$ApiUp = $false
+for ($i = 0; $i -lt 15; $i++) {
+  try {
+    $Response = Invoke-WebRequest -Uri "http://localhost:$ApiPort/api/auth/register" -Method Post `
+      -ContentType "application/json" -Body $RegisterBody -TimeoutSec 5 -UseBasicParsing
+    if ($Response.StatusCode -eq 201) { $ApiUp = $true; break }
+  } catch {
+    Start-Sleep -Seconds 2
+  }
+}
+if (-not $ApiUp) {
+  Write-Host ""
+  Write-Host "  --- Últimas linhas do log da api ---"
+  docker compose logs api --no-log-prefix | Select-Object -Last 30 | ForEach-Object { Write-Host "  $_" }
+  Write-Host "  --------------------------------------"
+  FailDocker "API não respondeu com sucesso a tempo (registro de usuário de teste falhou)."
+}
+Ok "API respondendo — migrations aplicadas e banco acessível (registro de teste retornou 201)."
+
+docker compose down -v
+Pop-Location
+Ok "Ambiente Docker desligado e limpo (containers e volume removidos)."
 
 # ── Resumo ────────────────────────────────────────────────────────────────────
 Write-Host ""
@@ -88,5 +136,6 @@ Write-Host "  Resumo"
 Write-Host "========================================"
 Write-Host "$OK $TestsRun projetos de teste executados — todos passaram."
 Write-Host "$OK Restore e build concluídos sem erros."
+Write-Host "$OK Stack Docker (API + MariaDB) construída, testada de ponta a ponta e limpa."
 Write-Host ""
 Write-Host "Ambiente pronto para desenvolvimento."

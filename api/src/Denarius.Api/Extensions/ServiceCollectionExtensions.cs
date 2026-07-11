@@ -12,9 +12,9 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
     {
-        var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-        var methods = configuration.GetSection("Cors:AllowedMethods").Get<string[]>() ?? [];
-        var headers = configuration.GetSection("Cors:AllowedHeaders").Get<string[]>() ?? [];
+        var origins = ParseCsv(configuration["Cors:AllowedOrigins"]);
+        var methods = ParseCsv(configuration["Cors:AllowedMethods"]);
+        var headers = ParseCsv(configuration["Cors:AllowedHeaders"]);
 
         services.AddCors(options =>
         {
@@ -39,6 +39,11 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    private static string[] ParseCsv(string? value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? []
+            : value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
     public static IServiceCollection AddOpenApiDocumentation(this IServiceCollection services)
     {

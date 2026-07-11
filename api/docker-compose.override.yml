@@ -1,0 +1,13 @@
+# Mesclado automaticamente pelo Compose quando você roda `docker compose up`
+# de dentro de api/ (sem -f). Não existe "modo prod" via este arquivo — produção
+# roda `docker compose -f docker-compose.yml up` (só o base, sem o override).
+services:
+  mariadb:
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+
+  api:
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
