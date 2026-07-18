@@ -7,7 +7,7 @@
 tests/
 .agents/
 .claude/
-harness/
+specs/
 Dockerfile
 docker-compose*.yml
 .dockerignore
