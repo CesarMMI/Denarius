@@ -13,4 +13,5 @@ docker-compose*.yml
 .dockerignore
 .env
 **/appsettings.Development.json
+**/appsettings.json
 *.md

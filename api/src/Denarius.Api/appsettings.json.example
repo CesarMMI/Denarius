@@ -12,9 +12,13 @@
     "AllowedHeaders": ""
   },
   "Jwt": {
-    "Secret": "",
+    "Secret": "<troque por um segredo com no minimo 32 caracteres>",
     "Issuer": "Denarius",
     "Audience": "Denarius",
     "ExpiryMinutes": 60
-  }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=<host do MariaDB>;Port=3306;Database=denarius;User=root;Password=<MARIADB_ROOT_PASSWORD do seu .env>;"
+  },
+  "RUN_MIGRATIONS_ON_STARTUP": true
 }

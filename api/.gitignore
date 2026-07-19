@@ -142,3 +142,4 @@ _NCrunch*
 .history/*
 
 .env
+src/Denarius.Api/appsettings.json

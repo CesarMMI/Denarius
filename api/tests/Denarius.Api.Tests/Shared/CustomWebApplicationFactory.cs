@@ -23,6 +23,7 @@ public static class WebApplicationFactoryExtensions
                     ["Jwt:Secret"] = "super-secret-test-key-that-is-long-enough-32ch",
                     ["Jwt:Issuer"] = "test-issuer",
                     ["Jwt:Audience"] = "test-audience",
+                    ["RUN_MIGRATIONS_ON_STARTUP"] = "false",
                 });
             });
 
