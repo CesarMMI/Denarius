@@ -1,0 +1,31 @@
+@for (category of categories(); track category.id) {
+	<div class="card">
+		<button type="button" class="card-main" (click)="openCategory.emit(category)">
+			<span class="swatch" [style.background]="softBackground(category.color)" [style.color]="category.color">
+				<mat-icon>sell</mat-icon>
+			</span>
+			<span class="text">
+				<span class="name">{{ category.name }}</span>
+				<span class="meta">
+					<span class="count">
+						@if (category.transactionCount === 0) {
+							Sem transações no período
+						} @else if (category.transactionCount === 1) {
+							1 transação
+						} @else {
+							{{ category.transactionCount }} transações
+						}
+					</span>
+					@if (category.transactionCount > 0) {
+						<span class="balance" [class.positive]="category.balance > 0" [class.negative]="category.balance < 0">
+							{{ formatMoney(category.balance) }}
+						</span>
+					}
+				</span>
+			</span>
+		</button>
+		<button type="button" class="menu-btn" (click)="openMenu.emit(category)">
+			<mat-icon>more_vert</mat-icon>
+		</button>
+	</div>
+}

@@ -1,0 +1,41 @@
+<div class="handle"></div>
+
+<div class="summary">
+	<span class="swatch" [style.background]="softBackground(category.color)" [style.color]="category.color">
+		<mat-icon>sell</mat-icon>
+	</span>
+	<div class="text">
+		<div class="name">{{ category.name }}</div>
+		<div class="sub">
+			@if (category.transactionCount === 0) {
+				Sem transações no período
+			} @else {
+				{{ category.transactionCount === 1 ? '1 transação · ' : category.transactionCount + ' transações · ' }}{{
+					formattedBalance
+				}}
+			}
+		</div>
+	</div>
+</div>
+
+<button type="button" class="item" (click)="select('edit')">
+	<mat-icon>edit</mat-icon>
+	<span>Editar</span>
+</button>
+<button type="button" class="item" (click)="select('view-transactions')">
+	<mat-icon>receipt_long</mat-icon>
+	<span>Ver transações da categoria</span>
+</button>
+<button
+	type="button"
+	class="item"
+	[class.locked]="category.transactionCount > 0"
+	[class.danger]="category.transactionCount === 0"
+	(click)="select('delete')"
+>
+	<mat-icon>delete</mat-icon>
+	<span>{{ category.transactionCount > 0 ? 'Excluir — bloqueado' : 'Excluir' }}</span>
+	@if (category.transactionCount > 0) {
+		<mat-icon class="lock">lock</mat-icon>
+	}
+</button>

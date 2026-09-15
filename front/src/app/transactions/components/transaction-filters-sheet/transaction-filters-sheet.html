@@ -1,0 +1,35 @@
+<div class="handle"></div>
+<div class="header">
+	<h2>Filtros</h2>
+	<button matButton type="button" (click)="clear()">Limpar tudo</button>
+</div>
+
+<div class="search">
+	<mat-icon>search</mat-icon>
+	<input [value]="draft().description" (input)="setDescription($event)" placeholder="Buscar na descrição" />
+</div>
+
+<div class="section-title">Tipo</div>
+<div class="type-row">
+	@for (option of typeOptions; track option.value) {
+		<button type="button" class="option" [class.selected]="draft().type === option.value" (click)="setType(option.value)">
+			{{ option.label }}
+		</button>
+	}
+</div>
+
+<div class="section-title">Categoria</div>
+<div class="chips-row">
+	<button type="button" class="chip" [class.selected]="draft().categoryId === 'all'" (click)="setCategory('all')">
+		<span class="dot all"></span>Todas
+	</button>
+	@for (category of categories; track category.id) {
+		<button type="button" class="chip" [class.selected]="draft().categoryId === category.id" (click)="setCategory(category.id)">
+			<span class="dot" [style.background]="category.color"></span>{{ category.name }}
+		</button>
+	}
+</div>
+
+<button matButton="tonal" type="button" class="apply" (click)="apply()">
+	Ver {{ resultCount() }} {{ resultCount() === 1 ? 'resultado' : 'resultados' }}
+</button>

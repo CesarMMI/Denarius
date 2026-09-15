@@ -1,0 +1,29 @@
+<app-page-header
+	greeting="Classificação"
+	title="Categorias"
+	actionLabel="Categoria"
+	[showSearchIcon]="true"
+	[showFilterButton]="true"
+	[filtersActive]="hasActiveFilters()"
+	[monthLabel]="monthLabel()"
+	monthTag="opcional"
+	[chips]="chipLabels()"
+	(action)="openCreateForm()"
+	(openFilters)="openFilters()"
+	(openMonth)="openMonthPicker()"
+	(removeChip)="removeChip($event)"
+/>
+
+<div class="content">
+	@if (filteredCategories().length > 0) {
+		<app-category-list [categories]="filteredCategories()" (openCategory)="openCategory($event)" (openMenu)="openMenu($event)" />
+	} @else {
+		<app-empty-state
+			icon="sell"
+			title="Nenhuma categoria encontrada"
+			body="Crie uma categoria para começar a classificar seus lançamentos."
+			primaryLabel="Nova categoria"
+			(primaryAction)="openCreateForm()"
+		/>
+	}
+</div>

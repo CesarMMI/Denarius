@@ -1,0 +1,26 @@
+<div class="handle"></div>
+
+<div class="header">
+	<h2>Mês de referência</h2>
+	@if (sheetData.clearable) {
+		<button matButton type="button" (click)="clear()">Limpar</button>
+	}
+</div>
+
+<div class="year-nav">
+	<button matIconButton type="button" (click)="prevYear()">
+		<mat-icon>chevron_left</mat-icon>
+	</button>
+	<span>{{ panelYear() }}</span>
+	<button matIconButton type="button" (click)="nextYear()">
+		<mat-icon>chevron_right</mat-icon>
+	</button>
+</div>
+
+<div class="grid">
+	@for (month of monthIndexes; track month) {
+		<button type="button" [class.selected]="isSelected(month)" (click)="select(month)">
+			{{ monthDates[month] | date: 'MMM' }}
+		</button>
+	}
+</div>

@@ -1,0 +1,12 @@
+<div class="label">Saldo de {{ periodLabel() }}</div>
+<div class="net">{{ formattedNet() }}</div>
+<div class="breakdown">
+	<div class="chip">
+		<div class="chip-label"><mat-icon>south_west</mat-icon>Entradas</div>
+		<div class="chip-value">{{ formattedIn() }}</div>
+	</div>
+	<div class="chip">
+		<div class="chip-label"><mat-icon>north_east</mat-icon>Saídas</div>
+		<div class="chip-value">{{ formattedOut() }}</div>
+	</div>
+</div>

@@ -1,0 +1,103 @@
+:host {
+	display: block;
+}
+
+.mode-toggle {
+	display: flex;
+	gap: 8px;
+
+	button {
+		flex: 1;
+		height: 42px;
+		border: 1px solid var(--mat-sys-outline-variant);
+		border-radius: var(--mat-sys-corner-full);
+		background: none;
+		color: var(--mat-sys-on-surface);
+		font: var(--mat-sys-label-large);
+		cursor: pointer;
+
+		&.selected {
+			border-color: var(--mat-sys-primary);
+			background: var(--mat-sys-secondary-container);
+			color: var(--mat-sys-on-secondary-container);
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+	}
+}
+
+.palette {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 12px;
+	margin-top: 18px;
+}
+
+.swatch {
+	aspect-ratio: 1;
+	border: 3px solid transparent;
+	border-radius: 50%;
+	cursor: pointer;
+	display: grid;
+	place-items: center;
+	color: #fff;
+
+	&.selected {
+		border-color: var(--mat-sys-on-surface);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	mat-icon {
+		font-size: 19px;
+		width: 19px;
+		height: 19px;
+	}
+}
+
+.custom {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin-top: 18px;
+	padding: 14px 16px;
+	border-radius: var(--mat-sys-corner-medium);
+	background: var(--mat-sys-surface-container-high);
+
+	.swatch-input {
+		width: 46px;
+		height: 46px;
+		flex: none;
+		border: none;
+		background: none;
+		cursor: pointer;
+		padding: 0;
+	}
+
+	.hex-field {
+		flex: 1;
+		min-width: 0;
+
+		.label {
+			display: block;
+			font-size: 11px;
+			color: var(--mat-sys-on-surface-variant);
+		}
+
+		input {
+			width: 100%;
+			border: none;
+			outline: none;
+			background: none;
+			color: var(--mat-sys-on-surface);
+			font: 400 16px 'Roboto Mono', monospace;
+			padding: 2px 0 0;
+		}
+	}
+}

@@ -1,0 +1,29 @@
+<app-page-header
+	greeting="Todos os lançamentos"
+	title="Transações"
+	actionLabel="Transação"
+	[showSearchIcon]="true"
+	[showFilterButton]="true"
+	[filtersActive]="hasActiveFilters()"
+	[monthLabel]="monthLabel()"
+	monthTag="opcional"
+	[chips]="chipLabels()"
+	(action)="openCreateForm()"
+	(openFilters)="openFilters()"
+	(openMonth)="openMonthPicker()"
+	(removeChip)="removeChip($event)"
+/>
+
+<div class="content">
+	@if (groups().length > 0) {
+		<app-transaction-list [groups]="groups()" (openTransaction)="openTransaction($event)" />
+	} @else {
+		<app-empty-state
+			icon="receipt_long"
+			title="Nenhuma transação encontrada"
+			body="Lance uma entrada ou saída para este período, ou ajuste os filtros."
+			primaryLabel="Nova transação"
+			(primaryAction)="openCreateForm()"
+		/>
+	}
+</div>

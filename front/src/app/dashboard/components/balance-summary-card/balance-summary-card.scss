@@ -1,0 +1,56 @@
+:host {
+	display: block;
+	padding: 20px;
+	border-radius: var(--mat-sys-corner-extra-large);
+	background: var(--mat-sys-primary);
+	color: var(--mat-sys-on-primary);
+}
+
+.label {
+	font-size: 12px;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	opacity: 0.85;
+}
+
+.net {
+	margin-top: 8px;
+	font: 400 36px 'Roboto Mono', monospace;
+	letter-spacing: -1px;
+}
+
+.breakdown {
+	display: flex;
+	gap: 10px;
+	margin-top: 18px;
+}
+
+.chip {
+	flex: 1;
+	min-width: 0;
+	padding: 12px 14px;
+	border-radius: var(--mat-sys-corner-medium);
+	background: rgba(255, 255, 255, 0.16);
+}
+
+.chip-label {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 11px;
+	letter-spacing: 0.4px;
+	text-transform: uppercase;
+	opacity: 0.9;
+
+	mat-icon {
+		font-size: 15px;
+		width: 15px;
+		height: 15px;
+	}
+}
+
+.chip-value {
+	margin-top: 6px;
+	font: 500 17px 'Roboto Mono', monospace;
+	white-space: nowrap;
+}

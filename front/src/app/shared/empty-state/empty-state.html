@@ -1,0 +1,11 @@
+<div class="illustration">
+	<mat-icon>{{ icon() }}</mat-icon>
+</div>
+<h2>{{ title() }}</h2>
+<p>{{ body() }}</p>
+@if (primaryLabel()) {
+	<button matButton="tonal" type="button" (click)="primaryAction.emit()">{{ primaryLabel() }}</button>
+}
+@if (secondaryLabel()) {
+	<button matButton type="button" (click)="secondaryAction.emit()">{{ secondaryLabel() }}</button>
+}

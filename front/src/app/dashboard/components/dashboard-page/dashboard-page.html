@@ -1,0 +1,21 @@
+<app-page-header
+	[greeting]="greeting()"
+	title="Resumo"
+	actionLabel="Transação"
+	[monthLabel]="monthLabel()"
+	monthTag="obrigatório"
+	(action)="openCreateForm()"
+	(openMonth)="openMonthPicker()"
+/>
+
+<div class="content">
+	<app-balance-summary-card [periodLabel]="monthLabel()" [net]="net()" [totalIn]="totalIn()" [totalOut]="totalOut()" />
+	<app-cashflow-chart />
+	<app-category-breakdown-card />
+	<app-recent-transactions-card
+		[periodLabel]="monthLabel()"
+		[transactions]="recentTransactions()"
+		(viewAll)="viewAllTransactions()"
+		(openTransaction)="openTransaction($event)"
+	/>
+</div>

@@ -1,0 +1,129 @@
+:host {
+	display: block;
+	padding: 10px 20px 24px;
+	max-height: 92vh;
+	overflow-y: auto;
+}
+
+.handle {
+	width: 34px;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--mat-sys-outline);
+	margin: 0 auto 14px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+
+	.title {
+		flex: 1;
+		font: var(--mat-sys-title-large);
+	}
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-top: 8px;
+}
+
+.sign-toggle {
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+.sign-btn {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 52px;
+	border: 1px solid var(--mat-sys-outline-variant);
+	border-radius: var(--mat-sys-corner-small);
+	background: none;
+	color: var(--mat-sys-on-surface);
+	font: var(--mat-sys-label-large);
+	cursor: pointer;
+
+	&.selected {
+		border-color: var(--mat-sys-primary);
+		background: var(--mat-sys-secondary-container);
+		color: var(--mat-sys-on-secondary-container);
+	}
+}
+
+.value-field {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	margin: 18px 0;
+
+	.label {
+		font-size: 11px;
+		letter-spacing: 0.5px;
+		text-transform: uppercase;
+		color: var(--mat-sys-on-surface-variant);
+	}
+
+	.value-input {
+		display: flex;
+		align-items: baseline;
+		justify-content: center;
+		gap: 8px;
+		margin-top: 6px;
+
+		.prefix {
+			font: 400 20px 'Roboto Mono', monospace;
+			color: var(--mat-sys-on-surface-variant);
+		}
+
+		input {
+			width: 200px;
+			border: none;
+			outline: none;
+			background: none;
+			text-align: center;
+			font: 500 40px 'Roboto Mono', monospace;
+			letter-spacing: -1px;
+			color: var(--mat-sys-on-surface);
+
+			&.positive {
+				color: var(--mat-sys-tertiary);
+			}
+
+			&.negative {
+				color: var(--mat-sys-error);
+			}
+		}
+	}
+
+	.hint {
+		font-size: 11px;
+		color: var(--mat-sys-on-surface-variant);
+		margin-top: 6px;
+
+		&.error {
+			color: var(--mat-sys-error);
+		}
+	}
+}
+
+mat-form-field {
+	width: 100%;
+}
+
+.delete {
+	width: 100%;
+	height: 50px;
+	margin-top: 10px;
+	border: 1px solid var(--mat-sys-outline-variant);
+	border-radius: var(--mat-sys-corner-full);
+	color: var(--mat-sys-error);
+}

@@ -1,0 +1,8 @@
+<nav>
+	@for (link of links; track link.route) {
+		<a #rla="routerLinkActive" routerLinkActive [routerLink]="link.route" [class.active]="rla.isActive">
+			<mat-icon>{{ link.icon }}</mat-icon>
+			<span>{{ link.label }}</span>
+		</a>
+	}
+</nav>

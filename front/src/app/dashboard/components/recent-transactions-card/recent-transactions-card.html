@@ -1,0 +1,26 @@
+<div class="header">
+	<div class="text">
+		<div class="title">Últimas transações</div>
+		<div class="subtitle">As 5 mais recentes de {{ periodLabel() }}</div>
+	</div>
+	<button matIconButton type="button" (click)="viewAll.emit()">
+		<mat-icon>arrow_forward</mat-icon>
+	</button>
+</div>
+
+<div class="items">
+	@for (item of transactions(); track item.id) {
+		<app-transaction-row
+			[icon]="item.icon"
+			[iconColor]="item.categoryColor"
+			[iconBackground]="softBackground(item.categoryColor)"
+			[description]="item.description"
+			[descriptionMuted]="item.descriptionMuted"
+			[meta]="item.meta"
+			[value]="item.value"
+			(rowClick)="openTransaction.emit(item.id)"
+		/>
+	} @empty {
+		<p class="empty">Nenhuma transação neste período.</p>
+	}
+</div>

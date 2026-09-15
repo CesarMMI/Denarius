@@ -1,0 +1,44 @@
+<div class="title-row">
+	<div class="text">
+		<div class="greeting">{{ greeting() }}</div>
+		<h1>{{ title() }}</h1>
+	</div>
+	@if (showSearchIcon()) {
+		<button matIconButton type="button" class="search" (click)="openFilters.emit()">
+			<mat-icon>search</mat-icon>
+		</button>
+	}
+	<button matButton="tonal" type="button" (click)="action.emit()">
+		<mat-icon>add</mat-icon>{{ actionLabel() }}
+	</button>
+</div>
+
+<div class="month-row">
+	<button class="month-chip" type="button" (click)="openMonth.emit()">
+		<mat-icon>calendar_month</mat-icon>
+		<span class="label">{{ monthLabel() }}</span>
+		@if (monthTag()) {
+			<span class="tag">{{ monthTag() }}</span>
+		}
+		<mat-icon>expand_more</mat-icon>
+	</button>
+	@if (showFilterButton()) {
+		<button class="filter-btn" type="button" (click)="openFilters.emit()">
+			<mat-icon>tune</mat-icon>
+			@if (filtersActive()) {
+				<span class="dot"></span>
+			}
+		</button>
+	}
+</div>
+
+@if (chips().length > 0) {
+	<div class="chips-row">
+		@for (chip of chips(); track $index) {
+			<button type="button" (click)="removeChip.emit($index)">
+				{{ chip }}
+				<mat-icon>close</mat-icon>
+			</button>
+		}
+	</div>
+}

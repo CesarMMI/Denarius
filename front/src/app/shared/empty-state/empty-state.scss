@@ -1,0 +1,44 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 12px;
+	padding: 48px 16px 24px;
+
+	button {
+		width: 100%;
+		max-width: 260px;
+	}
+}
+
+.illustration {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	background: var(--mat-sys-surface-container-high);
+	color: var(--mat-sys-on-surface-variant);
+	display: grid;
+	place-items: center;
+	margin-bottom: 4px;
+
+	mat-icon {
+		font-size: 40px;
+		width: 40px;
+		height: 40px;
+	}
+}
+
+h2 {
+	margin: 0;
+	font: var(--mat-sys-title-large);
+	font-weight: 400;
+}
+
+p {
+	margin: 0;
+	max-width: 280px;
+	font: var(--mat-sys-body-medium);
+	color: var(--mat-sys-on-surface-variant);
+	line-height: 1.6;
+}

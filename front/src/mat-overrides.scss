@@ -1,0 +1,39 @@
+@use '@angular/material' as mat;
+
+:root {
+	@include mat.button-overrides((
+		text-container-shape: var(--mat-sys-corner-small),
+		outlined-container-shape: var(--mat-sys-corner-small),
+		tonal-container-shape: var(--mat-sys-corner-small),
+		outlined-outline-color: var(--mat-sys-outline-variant),
+		));
+	@include mat.button-toggle-overrides((
+		divider-color: var(--mat-sys-outline-variant),
+		shape: var(--mat-sys-corner-small),
+		label-text-line-height: var(--mat-form-field-container-height)
+	));
+	@include mat.card-overrides((
+    	filled-container-color: var(--mat-sys-surface),
+	));
+	@include mat.form-field-overrides((
+		outlined-container-shape: var(--mat-sys-corner-small),
+		outlined-outline-color: var(--mat-sys-outline-variant),
+	));
+	@include mat.list-overrides((
+    	active-indicator-shape: var(--mat-sys-corner-small),
+		list-item-container-shape: var(--mat-sys-corner-small),
+  	));
+	@include mat.paginator-overrides((
+		container-background-color: transparent,
+	));
+	@include mat.sidenav-overrides((
+		container-background-color: var(--mat-sys-surface-container),
+		scrim-color: rgba(0, 0, 0, 0)
+	));
+  	@include mat.table-overrides((
+    	background-color: transparent,
+		header-headline-color: color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent),
+		header-headline-weight: var(--mat-sys-body-large-weight),
+		row-item-outline-color: var(--mat-sys-outline-variant),
+  	));
+}

@@ -1,0 +1,70 @@
+<div class="handle"></div>
+<div class="header">
+	<button matIconButton type="button" (click)="close()">
+		<mat-icon>close</mat-icon>
+	</button>
+	<div class="title">{{ isEditing ? 'Editar transação' : 'Nova transação' }}</div>
+	<button matButton="tonal" type="button" (click)="submit()">Salvar</button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+	<div class="sign-toggle">
+		<button type="button" class="sign-btn" [class.selected]="sign() === 'in'" (click)="setSign('in')">
+			<mat-icon>south_west</mat-icon>Entrada
+		</button>
+		<button type="button" class="sign-btn" [class.selected]="sign() === 'out'" (click)="setSign('out')">
+			<mat-icon>north_east</mat-icon>Saída
+		</button>
+	</div>
+
+	<div class="value-field">
+		<span class="label">Valor</span>
+		<div class="value-input">
+			<span class="prefix">R$</span>
+			<input
+				formControlName="value"
+				inputmode="decimal"
+				placeholder="0,00"
+				[class.positive]="sign() === 'in'"
+				[class.negative]="sign() === 'out'"
+			/>
+		</div>
+		@if (form.controls.value.invalid && form.controls.value.touched) {
+			<span class="hint error">Informe um valor válido</span>
+		} @else {
+			<span class="hint">{{ sign() === 'in' ? 'Salvo como valor positivo. Nunca zero.' : 'Salvo como valor negativo. Nunca zero.' }}</span>
+		}
+	</div>
+
+	<mat-form-field appearance="outline">
+		<mat-label>Data</mat-label>
+		<input matInput [matDatepicker]="picker" formControlName="date" />
+		<mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+		<mat-datepicker #picker></mat-datepicker>
+		@if (form.controls.date.hasError('required')) {
+			<mat-error>Data é obrigatória</mat-error>
+		}
+	</mat-form-field>
+
+	<mat-form-field appearance="outline">
+		<mat-label>Categoria</mat-label>
+		<mat-select formControlName="categoryId">
+			@for (category of categories; track category.id) {
+				<mat-option [value]="category.id">{{ category.name }}</mat-option>
+			}
+		</mat-select>
+		@if (form.controls.categoryId.hasError('required')) {
+			<mat-error>Categoria é obrigatória</mat-error>
+		}
+	</mat-form-field>
+
+	<mat-form-field appearance="outline">
+		<mat-label>Descrição (opcional)</mat-label>
+		<input matInput type="text" formControlName="description" [maxlength]="descriptionMaxLength" placeholder="Ex.: feira da semana" />
+		<mat-hint align="end">{{ form.controls.description.value.length }}/{{ descriptionMaxLength }}</mat-hint>
+	</mat-form-field>
+
+	@if (isEditing) {
+		<button matButton type="button" class="delete" (click)="askDelete()">Excluir transação</button>
+	}
+</form>

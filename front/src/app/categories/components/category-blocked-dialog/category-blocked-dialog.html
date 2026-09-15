@@ -1,0 +1,9 @@
+<div class="icon">
+	<mat-icon>block</mat-icon>
+</div>
+<h1>Não dá para excluir "{{ data.categoryName }}"</h1>
+<p>{{ blockedPhrase }} a esta categoria no período. Mova essas transações para outra categoria ou exclua-as antes.</p>
+<div class="actions">
+	<button matButton="tonal" type="button" (click)="viewTransactions()">Ver as transações</button>
+	<button matButton type="button" (click)="dismiss()">Entendi</button>
+</div>

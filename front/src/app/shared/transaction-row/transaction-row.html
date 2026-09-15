@@ -1,0 +1,17 @@
+<button type="button" class="row" [class.bordered]="bordered()" (click)="rowClick.emit()">
+	<span class="icon" [style.background]="iconBackground()" [style.color]="iconColor()">
+		<mat-icon>{{ icon() }}</mat-icon>
+	</span>
+	<span class="text">
+		<span class="description" [class.muted]="descriptionMuted()">{{ description() }}</span>
+		<span class="meta">
+			@if (metaDotColor()) {
+				<span class="dot" [style.background]="metaDotColor()"></span>
+			}
+			{{ meta() }}
+		</span>
+	</span>
+	<span class="value" [class.positive]="value() > 0" [class.negative]="value() < 0">
+		{{ formattedValue() }}
+	</span>
+</button>

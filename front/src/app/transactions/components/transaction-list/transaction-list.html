@@ -1,0 +1,24 @@
+@for (group of groups(); track group.label) {
+	<div class="group">
+		<div class="group-header">
+			<span class="label">{{ group.label }}</span>
+			<span class="total">{{ group.total }}</span>
+		</div>
+		<div class="items">
+			@for (item of group.items; track item.id) {
+				<app-transaction-row
+					[icon]="item.icon"
+					[iconColor]="item.categoryColor"
+					[iconBackground]="softBackground(item.categoryColor)"
+					[description]="item.description"
+					[descriptionMuted]="item.descriptionMuted"
+					[meta]="item.categoryName"
+					[metaDotColor]="item.categoryColor"
+					[value]="item.value"
+					[bordered]="true"
+					(rowClick)="openTransaction.emit(item.id)"
+				/>
+			}
+		</div>
+	</div>
+}

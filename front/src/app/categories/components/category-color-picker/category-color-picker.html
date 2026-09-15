@@ -1,0 +1,32 @@
+<div class="mode-toggle">
+	<button type="button" [class.selected]="mode() === 'palette'" [disabled]="disabled()" (click)="setMode('palette')">Paleta</button>
+	<button type="button" [class.selected]="mode() === 'custom'" [disabled]="disabled()" (click)="setMode('custom')">Customizada</button>
+</div>
+
+@if (mode() === 'palette') {
+	<div class="palette">
+		@for (color of palette; track color) {
+			<button
+				type="button"
+				class="swatch"
+				[style.background]="color"
+				[class.selected]="value().toLowerCase() === color.toLowerCase()"
+				[disabled]="disabled()"
+				[attr.aria-label]="color"
+				(click)="select(color)"
+			>
+				@if (value().toLowerCase() === color.toLowerCase()) {
+					<mat-icon>check</mat-icon>
+				}
+			</button>
+		}
+	</div>
+} @else {
+	<div class="custom">
+		<input type="color" class="swatch-input" [value]="value()" [disabled]="disabled()" (input)="onCustomInput($event)" />
+		<div class="hex-field">
+			<span class="label">Hex customizado</span>
+			<input type="text" [value]="value()" [disabled]="disabled()" (input)="onCustomInput($event)" />
+		</div>
+	</div>
+}

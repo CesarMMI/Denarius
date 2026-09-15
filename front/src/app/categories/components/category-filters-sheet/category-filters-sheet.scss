@@ -1,0 +1,115 @@
+:host {
+	display: block;
+	padding: 10px 20px 28px;
+	max-height: 86vh;
+	overflow-y: auto;
+}
+
+.handle {
+	width: 34px;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--mat-sys-outline);
+	margin: 0 auto 16px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	h2 {
+		margin: 0;
+		font: var(--mat-sys-title-large);
+		font-weight: 400;
+	}
+}
+
+.search {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	height: 52px;
+	padding: 0 16px;
+	margin-top: 16px;
+	border-radius: var(--mat-sys-corner-small);
+	background: var(--mat-sys-surface-container-high);
+
+	mat-icon {
+		color: var(--mat-sys-on-surface-variant);
+	}
+
+	input {
+		flex: 1;
+		min-width: 0;
+		border: none;
+		outline: none;
+		background: none;
+		color: var(--mat-sys-on-surface);
+		font: var(--mat-sys-body-large);
+	}
+}
+
+.section-title {
+	font: var(--mat-sys-label-large);
+	margin: 20px 0 10px;
+}
+
+.type-row {
+	display: flex;
+	gap: 8px;
+
+	.option {
+		flex: 1;
+		height: 44px;
+		border: 1px solid var(--mat-sys-outline-variant);
+		border-radius: var(--mat-sys-corner-small);
+		background: none;
+		color: var(--mat-sys-on-surface);
+		font: var(--mat-sys-label-large);
+		cursor: pointer;
+
+		&.selected {
+			border-color: var(--mat-sys-primary);
+			background: var(--mat-sys-secondary-container);
+			color: var(--mat-sys-on-secondary-container);
+		}
+	}
+}
+
+.sort-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	.sort-option {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		height: 48px;
+		padding: 0 16px;
+		border: 1px solid var(--mat-sys-outline-variant);
+		border-radius: var(--mat-sys-corner-small);
+		background: none;
+		color: var(--mat-sys-on-surface);
+		font: var(--mat-sys-label-large);
+		cursor: pointer;
+		text-align: left;
+
+		span {
+			flex: 1;
+		}
+
+		&.selected {
+			border-color: var(--mat-sys-primary);
+			background: var(--mat-sys-secondary-container);
+			color: var(--mat-sys-on-secondary-container);
+		}
+	}
+}
+
+.apply {
+	width: 100%;
+	height: 52px;
+	margin-top: 24px;
+}

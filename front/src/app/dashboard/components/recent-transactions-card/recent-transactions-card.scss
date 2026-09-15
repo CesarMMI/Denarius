@@ -1,0 +1,38 @@
+:host {
+	display: block;
+	padding: 18px 12px;
+	border-radius: var(--mat-sys-corner-extra-large);
+	background: var(--mat-sys-surface);
+	box-shadow: var(--mat-sys-level1);
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 0 6px;
+
+	.title {
+		font: var(--mat-sys-title-medium);
+	}
+
+	.subtitle {
+		font: var(--mat-sys-body-small);
+		color: var(--mat-sys-on-surface-variant);
+		margin-top: 3px;
+	}
+}
+
+.items {
+	margin-top: 6px;
+	padding: 0 4px;
+}
+
+.empty {
+	padding: 16px 6px;
+	margin: 0;
+	font: var(--mat-sys-body-medium);
+	color: var(--mat-sys-on-surface-variant);
+	text-align: center;
+}

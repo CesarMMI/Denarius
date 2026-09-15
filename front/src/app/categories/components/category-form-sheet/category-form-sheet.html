@@ -1,0 +1,30 @@
+<div class="handle"></div>
+<div class="header">
+	<button matIconButton type="button" (click)="close()">
+		<mat-icon>close</mat-icon>
+	</button>
+	<div class="title">{{ isEditing ? 'Editar categoria' : 'Nova categoria' }}</div>
+	<button matButton="tonal" type="button" (click)="submit()">Salvar</button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+	<mat-form-field appearance="outline">
+		<mat-label>Nome</mat-label>
+		<input matInput type="text" formControlName="name" [maxlength]="nameMaxLength" placeholder="Ex.: Mercado" />
+		<mat-hint align="end">{{ form.controls.name.value.length }}/{{ nameMaxLength }}</mat-hint>
+		@if (form.controls.name.hasError('required')) {
+			<mat-error>Nome é obrigatório</mat-error>
+		} @else if (form.controls.name.hasError('maxlength')) {
+			<mat-error>Nome deve ter no máximo {{ nameMaxLength }} caracteres</mat-error>
+		}
+	</mat-form-field>
+
+	<div class="color-field">
+		<span class="label">Cor *</span>
+		<app-category-color-picker formControlName="color" />
+	</div>
+
+	@if (isEditing) {
+		<button matButton type="button" class="delete" (click)="askDelete()">Excluir categoria</button>
+	}
+</form>

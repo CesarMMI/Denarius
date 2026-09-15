@@ -1,0 +1,59 @@
+:host {
+	display: block;
+	padding: 10px 20px 28px;
+}
+
+.handle {
+	width: 34px;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--mat-sys-outline);
+	margin: 0 auto 16px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	h2 {
+		margin: 0;
+		font: var(--mat-sys-title-large);
+		font-weight: 400;
+	}
+}
+
+.year-nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 14px;
+
+	span {
+		font: var(--mat-sys-title-medium);
+	}
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+	margin-top: 14px;
+
+	button {
+		height: 52px;
+		border: 1px solid var(--mat-sys-outline-variant);
+		border-radius: var(--mat-sys-corner-small);
+		background: none;
+		color: var(--mat-sys-on-surface);
+		font: var(--mat-sys-body-large);
+		text-transform: capitalize;
+		cursor: pointer;
+
+		&.selected {
+			border-color: var(--mat-sys-primary);
+			background: var(--mat-sys-primary);
+			color: var(--mat-sys-on-primary);
+		}
+	}
+}

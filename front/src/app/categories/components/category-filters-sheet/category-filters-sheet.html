@@ -1,0 +1,40 @@
+<div class="handle"></div>
+<div class="header">
+	<h2>Filtros</h2>
+	<button matButton type="button" (click)="clear()">Limpar tudo</button>
+</div>
+
+<div class="search">
+	<mat-icon>search</mat-icon>
+	<input [value]="draftFilters().name" (input)="setName($event)" placeholder="Buscar por nome" />
+</div>
+
+<div class="section-title">Transações no período</div>
+<div class="type-row">
+	@for (option of withOptions; track option.label) {
+		<button
+			type="button"
+			class="option"
+			[class.selected]="draftFilters().withTransaction === option.value"
+			(click)="setWithTransaction(option.value)"
+		>
+			{{ option.label }}
+		</button>
+	}
+</div>
+
+<div class="section-title">Ordenar por</div>
+<div class="sort-list">
+	@for (option of sortOptions; track option.label) {
+		<button type="button" class="sort-option" [class.selected]="isSortSelected(option)" (click)="selectSort(option)">
+			<span>{{ option.label }}</span>
+			@if (isSortSelected(option)) {
+				<mat-icon>check</mat-icon>
+			}
+		</button>
+	}
+</div>
+
+<button matButton="tonal" type="button" class="apply" (click)="apply()">
+	Ver {{ resultCount() }} {{ resultCount() === 1 ? 'resultado' : 'resultados' }}
+</button>
