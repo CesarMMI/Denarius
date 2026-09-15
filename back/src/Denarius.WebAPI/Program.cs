@@ -23,11 +23,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app
-    .UseExceptionHandler()
-    .UseHttpsRedirection()
-    .UseCors()
-    .UseAuthorization();
+app.UseExceptionHandler();
+app.UseCors();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseAuthorization();
 
 app.MapControllers();
 

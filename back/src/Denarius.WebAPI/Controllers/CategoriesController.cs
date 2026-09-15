@@ -13,9 +13,14 @@ namespace Denarius.WebAPI.Controllers;
 public class CategoriesController(ICreateCategoryUseCase createCategoryUseCase, IUpdateCategoryUseCase updateCategoryUseCase, IDeleteCategoryUseCase deleteCategoryUseCase, IListCategoriesUseCase listCategoriesUseCase, IGetCategoryByIdUseCase getCategoryByIdUseCase) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryOutput>>> List([FromQuery] string? name, [FromQuery] string? color)
+    public async Task<ActionResult<IEnumerable<CategoryOutput>>> List(
+        [FromQuery] string? name,
+        [FromQuery] bool? withTransaction,
+        [FromQuery] DateTime? dateRef,
+        [FromQuery] CategoryOrderField orderBy = CategoryOrderField.Name,
+        [FromQuery] bool asc = true)
     {
-        var output = await listCategoriesUseCase.Execute(new ListCategoriesInput(name, color));
+        var output = await listCategoriesUseCase.Execute(new ListCategoriesInput(name, withTransaction, dateRef, orderBy, asc));
         return Ok(output);
     }
 
