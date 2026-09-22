@@ -1,0 +1,201 @@
+openapi: 3.0.3
+info:
+  title: Denarius Transactions API
+  description: >
+    Contract for the existing Transaction management endpoints, as implemented by
+    Denarius.WebAPI.Controllers.TransactionsController. Documents shipped behavior; not a
+    proposal. Unlike the Categories API, List takes no query parameters today.
+  version: "1.0.0"
+paths:
+  /api/transactions:
+    get:
+      summary: List transactions
+      operationId: listTransactions
+      description: Returns every recorded transaction. No filtering, sorting, or pagination.
+      responses:
+        '200':
+          description: All recorded transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionOutput'
+    post:
+      summary: Create a transaction
+      operationId: createTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransactionInput'
+      responses:
+        '201':
+          description: Transaction created.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: "/api/transactions/{id}"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionOutput'
+        '400':
+          description: Invalid date, value, or description.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: The referenced category does not exist.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/transactions/{id}:
+    get:
+      summary: Get a transaction by id
+      operationId: getTransactionById
+      parameters:
+        - $ref: '#/components/parameters/TransactionId'
+      responses:
+        '200':
+          description: The transaction.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionOutput'
+        '404':
+          description: No transaction exists with the given id.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    put:
+      summary: Update a transaction
+      operationId: updateTransaction
+      parameters:
+        - $ref: '#/components/parameters/TransactionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTransactionInput'
+      responses:
+        '200':
+          description: Transaction updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionOutput'
+        '400':
+          description: Invalid date, value, or description.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: No transaction exists with the given id, or the referenced category does not exist.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      summary: Delete a transaction
+      operationId: deleteTransaction
+      parameters:
+        - $ref: '#/components/parameters/TransactionId'
+      responses:
+        '204':
+          description: Transaction deleted. Never blocked by other data.
+        '404':
+          description: No transaction exists with the given id.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+components:
+  parameters:
+    TransactionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    TransactionOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date-time
+        value:
+          type: number
+          format: decimal
+          description: Positive (money received) or negative (money spent); never zero.
+        categoryId:
+          type: string
+          format: uuid
+      required: [id, createdAt, updatedAt, date, value, categoryId]
+    CreateTransactionInput:
+      type: object
+      properties:
+        description:
+          type: string
+          nullable: true
+          maxLength: 255
+        date:
+          type: string
+          format: date-time
+        value:
+          type: number
+          format: decimal
+          description: Must not be zero.
+        categoryId:
+          type: string
+          format: uuid
+          description: Must reference an existing category.
+      required: [date, value, categoryId]
+    UpdateTransactionInput:
+      type: object
+      properties:
+        description:
+          type: string
+          nullable: true
+          maxLength: 255
+        date:
+          type: string
+          format: date-time
+        value:
+          type: number
+          format: decimal
+        categoryId:
+          type: string
+          format: uuid
+      required: [date, value, categoryId]
+    ProblemDetails:
+      type: object
+      description: RFC 7807 problem details, as produced by GlobalExceptionHandler.
+      properties:
+        status:
+          type: integer
+        title:
+          type: string
+        detail:
+          type: string
