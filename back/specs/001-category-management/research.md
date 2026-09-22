@@ -67,18 +67,20 @@ below resolves what would otherwise be a `NEEDS CLARIFICATION` in Technical Cont
 - **Alternatives considered**: Per-controller try/catch — rejected; the existing shared handler
   already covers this feature's needs with no changes.
 
-## Test coverage gap (flagged, not a blocking finding)
+## Test coverage gap (flagged, then closed)
 
-- **Observation**: `Denarius.Domain.Tests` and `Denarius.Application.Tests` fully cover the
-  entity and all five use cases; `Denarius.WebAPI.Tests` has no test that exercises
-  `CategoriesController` itself — routing, query-parameter binding for `List`, and the `201`
-  `Location` header on `Create` are untested above the use-case layer.
+- **Observation** (as of the original `/speckit-plan` run): `Denarius.Domain.Tests` and
+  `Denarius.Application.Tests` fully cover the entity and all five use cases;
+  `Denarius.WebAPI.Tests` had no test that exercised `CategoriesController` itself — routing,
+  query-parameter binding for `List`, and the `201` `Location` header on `Create` were untested
+  above the use-case layer.
 - **Impact**: Low. The controller has no branching logic of its own; it only delegates. But a
-  routing or binding regression (e.g., a query parameter renamed) would not be caught by any
-  test that exists today.
-- **Suggested follow-up**: A small `CategoriesController` integration test (via
-  `WebApplicationFactory`, matching the pattern already used for `Cors`/`Middleware` in
-  `Denarius.WebAPI.Tests`). Out of scope for this plan since it changes no behavior — a
-  candidate task for `/speckit-tasks` if the team wants to close the gap.
+  routing or binding regression (e.g., a query parameter renamed) would not have been caught by
+  any test that existed at the time.
+- **Resolution**: Closed by `/speckit-implement` on 2026-09-21 — added
+  `tests/Denarius.WebAPI.Tests/Categories/CategoriesControllerTests.cs` (11 tests), following the
+  same hand-built `HostBuilder`/`TestServer` pattern already used for `Cors`/`Middleware` in
+  `Denarius.WebAPI.Tests` (registers `CategoriesController` via `AddApplicationPart` so no
+  database is required), with hand-written fakes for the five use case interfaces.
 
 **Output**: All Technical Context items above are resolved; no `NEEDS CLARIFICATION` remain.

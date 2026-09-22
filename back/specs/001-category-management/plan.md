@@ -66,7 +66,7 @@ in-memory aggregation are sized for this range, not for large multi-tenant volum
 | I. Public API Compatibility | PASS | This plan documents the existing `api/categories` surface as-is; no change is proposed. |
 | II. Service Boundary Adherence | PASS | Validation lives in `Denarius.Domain` (`Category`, `Color`); orchestration in `Denarius.Application` use cases depending only on `Domain`; EF Core specifics confined to `Denarius.Infrastructure`; `Denarius.WebAPI`'s `CategoriesController` only calls use-case interfaces. No layer is skipped. |
 | III. Migration Rollback Discipline | PASS | The migration that creates the `Categories` table (`20260813225006_InitialCreate`) has a clean, non-destructive `Down()` (`DropTable`). |
-| IV. Test Suite Verification | PASS* | The `Category` entity and all five use cases have dedicated xUnit coverage. *`CategoriesController` itself has no dedicated `Denarius.WebAPI.Tests` coverage — see Research: Test coverage gap for the (non-blocking) detail. |
+| IV. Test Suite Verification | PASS | The `Category` entity and all five use cases have dedicated xUnit coverage; `CategoriesController` itself is covered by `tests/Denarius.WebAPI.Tests/Categories/CategoriesControllerTests.cs` (added by `/speckit-implement` on 2026-09-21, closing the gap Research originally flagged). |
 
 No violations — Complexity Tracking is not needed.
 

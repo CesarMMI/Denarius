@@ -12,9 +12,8 @@ data-model.md (present), contracts/ (present)
 
 **Status**: This is a **retroactive** task list — Category Management is already implemented.
 `[x]` marks a task already satisfied by existing code/tests (with its file path, so the mapping
-from requirement to implementation is traceable); `[ ]` marks the two genuinely outstanding
-items, both already flagged in `research.md`. `/speckit-implement` run against this file should
-only act on the unchecked tasks.
+from requirement to implementation is traceable). `/speckit-implement` ran on 2026-09-21 and
+closed the two items that were still outstanding (T032, T033) — all 33 tasks are now `[x]`.
 
 **Tests**: Test tasks below reflect the automated tests that already exist per story; no new
 test tasks were added beyond the one explicit coverage gap (T032), which `research.md` already
@@ -189,14 +188,22 @@ in-use/not-in-use filter, and each sort option each narrow or reorder the list o
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T032 [P] Add `CategoriesController` integration tests via `WebApplicationFactory` —
-      covering `POST` (201 + `Location` header), `GET`/`GET {id}`, `PUT {id}`, `DELETE {id}`, and
-      the 404/400 mappings — in a new `tests/Denarius.WebAPI.Tests/Categories/` folder, following
-      the existing pattern in `tests/Denarius.WebAPI.Tests/Cors/` and `.../Middleware/`. Closes
-      the gap flagged in `research.md` → Test coverage gap; not required for the feature to work,
-      only for the controller layer to be regression-tested.
-- [ ] T033 Run the `quickstart.md` validation end-to-end (filtered `dotnet test` runs, then the
-      manual curl smoke test) and record the result.
+- [x] T032 [P] Add `CategoriesController` integration tests covering `POST` (201 + `Location`
+      header), `GET`/`GET {id}`, `PUT {id}`, `DELETE {id}`, and the 404/400 mappings, plus the
+      `List` query-parameter binding (`name`/`withTransaction`/`dateRef`/`orderBy`/`asc`) — in
+      `tests/Denarius.WebAPI.Tests/Categories/CategoriesControllerTests.cs` (11 tests). Follows
+      the existing hand-built `HostBuilder`/`TestServer` pattern from
+      `tests/Denarius.WebAPI.Tests/Cors/` and `.../Middleware/` (registers the controller via
+      `AddApplicationPart` instead of the full `Program` composition root, so no database is
+      needed) with hand-written fakes for the five use case interfaces — this test project uses
+      no mocking library. Closes the gap flagged in `research.md` → Test coverage gap.
+- [x] T033 Ran the `quickstart.md` validation end-to-end on 2026-09-21 against .NET SDK
+      10.0.401: `dotnet test` — all three suites, 90/90 passing (Domain.Tests 35, Application.Tests
+      34, WebAPI.Tests 21 including the 11 new T032 tests) — then the full manual curl smoke test
+      (steps 1-10) against `dotnet run --project src/Denarius.WebAPI` on the local dev database,
+      including the delete-guard and month-scoped usage-stats steps against a real
+      `POST /api/transactions`. Every response matched `quickstart.md`'s documented expectations;
+      the categories/transaction created for the manual run were deleted afterward.
 
 ---
 
@@ -208,7 +215,7 @@ in-use/not-in-use filter, and each sort option each narrow or reorder the list o
 - **Foundational (Phase 2)**: Depends on Setup — blocks all user stories. Pre-existing.
 - **User Stories (Phase 3-5)**: All depend on Foundational. Built in priority order (P1 → P2 →
   P3) historically; each remains independently testable today.
-- **Polish (Phase 6)**: Depends on the user stories it covers. Still open.
+- **Polish (Phase 6)**: Depends on the user stories it covers. Complete.
 
 ### User Story Dependencies
 
@@ -259,14 +266,13 @@ a usable increment before usage statistics (US2) or search/sort (US3) existed.
 
 ### What's Left
 
-Only Phase 6: the `CategoriesController` HTTP-layer test gap (T032) and a recorded quickstart
-run (T033). Everything else is shipped and covered.
+Nothing. Phase 6 (the `CategoriesController` HTTP-layer test gap and a recorded quickstart run)
+was closed by `/speckit-implement` on 2026-09-21.
 
 ---
 
 ## Notes
 
-- `[x]` = already implemented and (where applicable) tested; `[ ]` = genuinely outstanding.
+- `[x]` = implemented and (where applicable) tested; all 33 tasks are now complete.
 - File paths are exact — this list doubles as a requirement-to-code traceability map for
   `spec.md`'s FR-001…FR-015.
-- If `/speckit-implement` runs against this file, it should only touch T032 and T033.
