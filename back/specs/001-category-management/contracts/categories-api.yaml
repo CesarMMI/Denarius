@@ -1,0 +1,214 @@
+openapi: 3.0.3
+info:
+  title: Denarius Categories API
+  description: >
+    Contract for the existing Category management endpoints, as implemented by
+    Denarius.WebAPI.Controllers.CategoriesController. Documents shipped behavior; not a proposal.
+  version: "1.0.0"
+paths:
+  /api/categories:
+    get:
+      summary: List categories
+      operationId: listCategories
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Partial, case-sensitivity-dependent-on-database match against Category.Name.
+        - name: withTransaction
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: true = only categories with at least one transaction; false = only categories with none.
+        - name: dateRef
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Any date within the calendar month to scope transactionCount/balance to.
+        - name: orderBy
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/CategoryOrderField'
+            default: Name
+        - name: asc
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Categories matching the given filters, in the requested order.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryOutput'
+    post:
+      summary: Create a category
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryInput'
+      responses:
+        '201':
+          description: Category created.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: "/api/categories/{id}"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutput'
+        '400':
+          description: Invalid name or color.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/categories/{id}:
+    get:
+      summary: Get a category by id
+      operationId: getCategoryById
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: The category.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutput'
+        '404':
+          description: No category exists with the given id.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    put:
+      summary: Update a category
+      operationId: updateCategory
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryInput'
+      responses:
+        '200':
+          description: Category updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryOutput'
+        '400':
+          description: Invalid name or color.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: No category exists with the given id.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      summary: Delete a category
+      operationId: deleteCategory
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '204':
+          description: Category deleted.
+        '400':
+          description: The category has one or more transactions associated with it.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: No category exists with the given id.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+components:
+  parameters:
+    CategoryId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CategoryOrderField:
+      type: string
+      enum: [Name, TransactionCount, Balance]
+    CategoryOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        color:
+          type: string
+          description: Normalized hex color, e.g. "#FF0000".
+        transactionCount:
+          type: integer
+        balance:
+          type: number
+          format: decimal
+      required: [id, createdAt, updatedAt, name, color, transactionCount, balance]
+    CreateCategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+          description: Hex color, with or without leading "#"; 3- or 6-digit.
+      required: [name, color]
+    UpdateCategoryInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+      required: [name, color]
+    ProblemDetails:
+      type: object
+      description: RFC 7807 problem details, as produced by GlobalExceptionHandler.
+      properties:
+        status:
+          type: integer
+        title:
+          type: string
+        detail:
+          type: string
