@@ -36,5 +36,10 @@
 </div>
 
 <button matButton="tonal" type="button" class="apply" (click)="apply()">
-	Ver {{ resultCount() }} {{ resultCount() === 1 ? 'resultado' : 'resultados' }}
+	@let count = resultCount();
+	@if (count === null) {
+		Ver resultados
+	} @else {
+		Ver {{ count }} {{ count === 1 ? 'resultado' : 'resultados' }}
+	}
 </button>

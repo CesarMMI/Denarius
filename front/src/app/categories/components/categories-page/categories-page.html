@@ -15,9 +15,21 @@
 />
 
 <div class="content">
-	@if (filteredCategories().length > 0) {
-		<app-category-list [categories]="filteredCategories()" (openCategory)="openCategory($event)" (openMenu)="openMenu($event)" />
-	} @else {
+	@if (categoriesResource.isLoading()) {
+		<mat-progress-bar mode="indeterminate" class="loading" />
+	}
+
+	@if (categoriesResource.error()) {
+		<app-empty-state
+			icon="cloud_off"
+			title="Não foi possível carregar as categorias"
+			body="Verifique sua conexão e tente novamente."
+			primaryLabel="Tentar novamente"
+			(primaryAction)="reload()"
+		/>
+	} @else if (categories().length > 0) {
+		<app-category-list [categories]="categories()" (openCategory)="openCategory($event)" (openMenu)="openMenu($event)" />
+	} @else if (!categoriesResource.isLoading()) {
 		<app-empty-state
 			icon="sell"
 			title="Nenhuma categoria encontrada"

@@ -1,19 +1,22 @@
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse, httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { BottomSheetService } from '../../../shared/bottom-sheet/services/bottom-sheet.service';
 import { ConfirmDeleteDialog } from '../../../shared/confirm-delete-dialog/confirm-delete-dialog';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
-import { MOCK_CATEGORIES } from '../../../shared/mock-data/mock-data';
 import { MonthPickerSheet } from '../../../shared/month-picker-sheet/month-picker-sheet';
 import { PageHeader } from '../../../shared/page-header/page-header';
 import { MonthRef, monthRefToDate } from '../../../shared/types/month-ref';
 import { SortValue } from '../../../shared/types/sort';
+import { CategoriesService } from '../../services/categories.service';
 import { Category } from '../../types/category';
 import { CategoryFilters, DEFAULT_CATEGORY_FILTERS } from '../../types/category-filters';
-import { CATEGORY_SORT_FIELD, CATEGORY_SORT_OPTIONS, CategorySortField } from '../../types/category-sort';
+import { CategoryFormResult } from '../../types/category-form-result';
+import { CATEGORY_SORT_OPTIONS, CategorySortField } from '../../types/category-sort';
 import { CategoryBlockedDialog, CategoryBlockedDialogResult } from '../category-blocked-dialog/category-blocked-dialog';
 import { CategoryFiltersSheet } from '../category-filters-sheet/category-filters-sheet';
 import { CategoryFormSheet } from '../category-form-sheet/category-form-sheet';
@@ -24,11 +27,12 @@ import { CategoryMenuSheet } from '../category-menu-sheet/category-menu-sheet';
 	selector: 'app-categories-page',
 	templateUrl: './categories-page.html',
 	styleUrl: './categories-page.scss',
-	imports: [PageHeader, CategoryList, EmptyState],
+	imports: [PageHeader, CategoryList, EmptyState, MatProgressBarModule],
 	providers: [DatePipe],
 })
 export class CategoriesPage {
 	private readonly bottomSheetService = inject(BottomSheetService);
+	private readonly categoriesService = inject(CategoriesService);
 	private readonly matDialog = inject(MatDialog);
 	private readonly snackBar = inject(MatSnackBar);
 	private readonly router = inject(Router);
@@ -38,24 +42,14 @@ export class CategoriesPage {
 	protected readonly filters = signal<CategoryFilters>(DEFAULT_CATEGORY_FILTERS);
 	protected readonly sort = signal<SortValue<CategorySortField>>(CATEGORY_SORT_OPTIONS[0]);
 
-	protected readonly filteredCategories = computed(() => {
-		const filters = this.filters();
-		const sort = this.sort();
-		return MOCK_CATEGORIES.filter((c) => c.name.toLowerCase().includes(filters.name.toLowerCase()))
-			.filter(
-				(c) => filters.withTransaction === null || (filters.withTransaction ? c.transactionCount > 0 : c.transactionCount === 0),
-			)
-			.slice()
-			.sort((a, b) => {
-				const diff =
-					sort.orderBy === CATEGORY_SORT_FIELD.Name
-						? a.name.localeCompare(b.name, 'pt-BR')
-						: sort.orderBy === CATEGORY_SORT_FIELD.TransactionCount
-							? a.transactionCount - b.transactionCount
-							: a.balance - b.balance;
-				return sort.ascending ? diff : -diff;
-			});
-	});
+	protected readonly categoriesResource = httpResource<Category[]>(
+		() => this.categoriesService.list(this.filters(), this.sort(), this.monthRef()),
+		{ defaultValue: [] },
+	);
+
+	protected readonly categories = computed(() =>
+		this.categoriesResource.hasValue() ? this.categoriesResource.value() : [],
+	);
 
 	protected readonly monthLabel = computed(() => {
 		const month = this.monthRef();
@@ -81,6 +75,10 @@ export class CategoriesPage {
 		this.chipList()[index]?.reset();
 	}
 
+	protected reload() {
+		this.categoriesResource.reload();
+	}
+
 	protected openMonthPicker() {
 		const current = this.monthRef() ?? { month: new Date().getMonth(), year: new Date().getFullYear() };
 		this.bottomSheetService.open(MonthPickerSheet, {
@@ -94,7 +92,7 @@ export class CategoriesPage {
 
 	protected openFilters() {
 		this.bottomSheetService.open(CategoryFiltersSheet, {
-			data: { filters: this.filters(), sort: this.sort(), categories: MOCK_CATEGORIES },
+			data: { filters: this.filters(), sort: this.sort(), monthRef: this.monthRef() },
 			callback: (result, sheet) => {
 				this.filters.set(result.filters);
 				this.sort.set(result.sort);
@@ -129,9 +127,22 @@ export class CategoriesPage {
 			callback: (outcome, sheet) => {
 				sheet.close();
 				if (outcome.type === 'delete') return this.deleteCategory(outcome.category);
-				console.log(category ? 'update category' : 'create category', outcome.result);
-				this.snackBar.open(category ? 'Categoria salva.' : 'Categoria criada.', undefined, { duration: 3000 });
+				this.saveCategory(outcome.result);
 			},
+		});
+	}
+
+	private saveCategory({ id, name, color }: CategoryFormResult) {
+		const request = id
+			? this.categoriesService.update(id, { name, color })
+			: this.categoriesService.create({ name, color });
+		request.subscribe({
+			next: () => {
+				this.snackBar.open(id ? 'Categoria salva.' : 'Categoria criada.', undefined, { duration: 3000 });
+				this.reload();
+			},
+			error: (error: HttpErrorResponse) =>
+				this.showError(error, id ? 'Não foi possível salvar a categoria.' : 'Não foi possível criar a categoria.'),
 		});
 	}
 
@@ -160,9 +171,19 @@ export class CategoriesPage {
 			.afterClosed()
 			.subscribe((confirmed: boolean) => {
 				if (!confirmed) return;
-				console.log('delete category', category.id);
-				this.snackBar.open('Categoria excluída.', undefined, { duration: 3000 });
+				this.categoriesService.delete(category.id).subscribe({
+					next: () => {
+						this.snackBar.open('Categoria excluída.', undefined, { duration: 3000 });
+						this.reload();
+					},
+					error: (error: HttpErrorResponse) => this.showError(error, 'Não foi possível excluir a categoria.'),
+				});
 			});
+	}
+
+	private showError(error: HttpErrorResponse, fallback: string) {
+		const detail = typeof error.error?.detail === 'string' ? error.error.detail : null;
+		this.snackBar.open(detail ?? fallback, 'Fechar', { duration: 5000 });
 	}
 
 	private goToCategoryTransactions(category: Category) {

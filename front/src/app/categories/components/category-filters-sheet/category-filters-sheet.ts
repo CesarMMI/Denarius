@@ -1,8 +1,11 @@
-import { Component, computed, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BottomSheetDirective } from '../../../shared/bottom-sheet/directives/bottom-sheet.directive';
+import { MonthRef } from '../../../shared/types/month-ref';
 import { SortOption, SortValue } from '../../../shared/types/sort';
+import { CategoriesService } from '../../services/categories.service';
 import { Category } from '../../types/category';
 import { CATEGORY_TRANSACTION_FILTER_OPTIONS, CategoryFilters, DEFAULT_CATEGORY_FILTERS } from '../../types/category-filters';
 import { CATEGORY_SORT_OPTIONS, CategorySortField } from '../../types/category-sort';
@@ -10,7 +13,7 @@ import { CATEGORY_SORT_OPTIONS, CategorySortField } from '../../types/category-s
 export interface CategoryFiltersData {
 	filters: CategoryFilters;
 	sort: SortValue<CategorySortField>;
-	categories: Category[];
+	monthRef: MonthRef | null;
 }
 
 export interface CategoryFiltersResult {
@@ -25,13 +28,21 @@ export interface CategoryFiltersResult {
 	imports: [MatButtonModule, MatIconModule],
 })
 export class CategoryFiltersSheet extends BottomSheetDirective<CategoryFiltersData, CategoryFiltersResult> {
+	private readonly categoriesService = inject(CategoriesService);
+
 	protected readonly sortOptions = CATEGORY_SORT_OPTIONS;
 	protected readonly withOptions = CATEGORY_TRANSACTION_FILTER_OPTIONS;
 
 	protected readonly draftFilters = signal<CategoryFilters>(this.sheetData.filters);
 	protected readonly draftSort = signal<SortValue<CategorySortField>>(this.sheetData.sort);
 
-	protected readonly resultCount = computed(() => this.filterCategories(this.draftFilters()).length);
+	private readonly previewResource = httpResource<Category[]>(() =>
+		this.categoriesService.list(this.draftFilters(), this.sheetData.sort, this.sheetData.monthRef),
+	);
+
+	protected readonly resultCount = computed(() =>
+		this.previewResource.hasValue() ? this.previewResource.value().length : null,
+	);
 
 	protected setName(event: Event) {
 		const value = (event.target as HTMLInputElement).value;
@@ -57,13 +68,5 @@ export class CategoryFiltersSheet extends BottomSheetDirective<CategoryFiltersDa
 
 	protected apply() {
 		this.callback({ filters: this.draftFilters(), sort: this.draftSort() });
-	}
-
-	private filterCategories(filters: CategoryFilters) {
-		return this.sheetData.categories
-			.filter((c) => c.name.toLowerCase().includes(filters.name.toLowerCase()))
-			.filter(
-				(c) => filters.withTransaction === null || (filters.withTransaction ? c.transactionCount > 0 : c.transactionCount === 0),
-			);
 	}
 }
