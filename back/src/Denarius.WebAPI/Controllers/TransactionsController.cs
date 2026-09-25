@@ -13,9 +13,15 @@ namespace Denarius.WebAPI.Controllers;
 public class TransactionsController(ICreateTransactionUseCase createTransactionUseCase, IUpdateTransactionUseCase updateTransactionUseCase, IDeleteTransactionUseCase deleteTransactionUseCase, IListTransactionsUseCase listTransactionsUseCase, IGetTransactionByIdUseCase getTransactionByIdUseCase) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TransactionOutput>>> List()
+    public async Task<ActionResult<IEnumerable<TransactionOutput>>> List(
+        [FromQuery] string? description,
+        [FromQuery] DateTime? dateRef,
+        [FromQuery] Guid? categoryId,
+        [FromQuery] TransactionType type = TransactionType.All,
+        [FromQuery] TransactionOrderField orderBy = TransactionOrderField.Date,
+        [FromQuery] bool asc = false)
     {
-        var output = await listTransactionsUseCase.Execute(null);
+        var output = await listTransactionsUseCase.Execute(new ListTransactionsInput(description, dateRef, type, categoryId, orderBy, asc));
         return Ok(output);
     }
 

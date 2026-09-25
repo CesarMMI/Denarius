@@ -36,7 +36,7 @@ public class TransactionsControllerTests
         Func<(Guid Id, UpdateTransactionInput Input), TransactionOutput>? update = null,
         Action<Guid>? delete = null,
         Func<Guid, TransactionOutput>? getById = null,
-        Func<object?, IEnumerable<TransactionOutput>>? list = null)
+        Func<ListTransactionsInput, IEnumerable<TransactionOutput>>? list = null)
     {
         var host = await new HostBuilder()
             .ConfigureWebHost(webHost =>
@@ -261,6 +261,72 @@ public class TransactionsControllerTests
         Assert.Empty(body);
     }
 
+    [Fact]
+    public async Task List_WithQueryParameters_BindsThemAndPassesToUseCase()
+    {
+        var categoryId = Guid.NewGuid();
+        ListTransactionsInput? captured = null;
+        using var host = await CreateHostAsync(list: input =>
+        {
+            captured = input;
+            return [];
+        });
+        var client = host.GetTestClient();
+
+        var response = await client.GetAsync(
+            $"/api/transactions?description=Merc&dateRef=2026-09-01&type=out&categoryId={categoryId}&orderBy=CategoryName&asc=true");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(captured);
+        Assert.Equal("Merc", captured!.Description);
+        Assert.Equal(new DateTime(2026, 9, 1), captured.DateRef!.Value.Date);
+        Assert.Equal(TransactionType.Out, captured.Type);
+        Assert.Equal(categoryId, captured.CategoryId);
+        Assert.Equal(TransactionOrderField.CategoryName, captured.OrderBy);
+        Assert.True(captured.Ascending);
+    }
+
+    [Fact]
+    public async Task List_DefaultQueryParameters_OrdersByDateDescendingWithNoFilters()
+    {
+        ListTransactionsInput? captured = null;
+        using var host = await CreateHostAsync(list: input =>
+        {
+            captured = input;
+            return [];
+        });
+        var client = host.GetTestClient();
+
+        await client.GetAsync("/api/transactions");
+
+        Assert.Null(captured!.Description);
+        Assert.Null(captured.DateRef);
+        Assert.Equal(TransactionType.All, captured.Type);
+        Assert.Null(captured.CategoryId);
+        Assert.Equal(TransactionOrderField.Date, captured.OrderBy);
+        Assert.False(captured.Ascending);
+    }
+
+    [Theory]
+    [InlineData("type=invalid")]
+    [InlineData("orderBy=invalid")]
+    [InlineData("categoryId=not-a-guid")]
+    public async Task List_InvalidQueryParameter_Returns400WithoutCallingUseCase(string query)
+    {
+        var called = false;
+        using var host = await CreateHostAsync(list: _ =>
+        {
+            called = true;
+            return [];
+        });
+        var client = host.GetTestClient();
+
+        var response = await client.GetAsync($"/api/transactions?{query}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.False(called);
+    }
+
     private sealed record TransactionResponseBody(Guid Id, string? Description, DateTime Date, decimal Value, Guid CategoryId);
 
     private sealed class FakeCreateTransactionUseCase(Func<CreateTransactionInput, TransactionOutput> handler) : ICreateTransactionUseCase
@@ -287,8 +353,8 @@ public class TransactionsControllerTests
         public Task<TransactionOutput> Execute(Guid input) => Task.FromResult(handler(input));
     }
 
-    private sealed class FakeListTransactionsUseCase(Func<object?, IEnumerable<TransactionOutput>> handler) : IListTransactionsUseCase
+    private sealed class FakeListTransactionsUseCase(Func<ListTransactionsInput, IEnumerable<TransactionOutput>> handler) : IListTransactionsUseCase
     {
-        public Task<IEnumerable<TransactionOutput>> Execute(object? input) => Task.FromResult(handler(input));
+        public Task<IEnumerable<TransactionOutput>> Execute(ListTransactionsInput input) => Task.FromResult(handler(input));
     }
 }
