@@ -4,23 +4,73 @@ info:
   description: >
     Contract for the existing Transaction management endpoints, as implemented by
     Denarius.WebAPI.Controllers.TransactionsController. Documents shipped behavior; not a
-    proposal. Unlike the Categories API, List takes no query parameters today.
-  version: "1.0.0"
+    proposal. 1.1.0 (2026-09-24) added the optional List query parameters (additive change).
+  version: "1.1.0"
 paths:
   /api/transactions:
     get:
       summary: List transactions
       operationId: listTransactions
-      description: Returns every recorded transaction. No filtering, sorting, or pagination.
+      description: >
+        Returns every transaction matching all of the given filters, in the requested order.
+        With no parameters, returns every recorded transaction, most recent first. No
+        pagination.
+      parameters:
+        - name: description
+          in: query
+          required: false
+          schema:
+            type: string
+          description: >
+            Partial, case-insensitive match against Transaction.description (trimmed; blank is
+            ignored). Transactions with no description never match.
+        - name: dateRef
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Any date within the calendar month to keep transactions from.
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+        - name: categoryId
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Keep only transactions of this category.
+        - name: orderBy
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/TransactionOrderField'
+        - name: asc
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
       responses:
         '200':
-          description: All recorded transactions.
+          description: Transactions matching the given filters, in the requested order.
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/TransactionOutput'
+        '400':
+          description: >
+            Unknown type or orderBy value, or a malformed categoryId (model-binding validation
+            problem produced by [ApiController]).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
     post:
       summary: Create a transaction
       operationId: createTransaction
@@ -127,6 +177,18 @@ components:
         type: string
         format: uuid
   schemas:
+    TransactionType:
+      type: string
+      enum: [All, In, Out]
+      default: All
+      description: >
+        All = no filter; In = value > 0 (money received); Out = value < 0 (money spent). Bound
+        case-insensitively, so all/in/out are accepted.
+    TransactionOrderField:
+      type: string
+      enum: [Date, Description, Value, CategoryName]
+      default: Date
+      description: Value sorts by the signed value; CategoryName sorts by the category's current name.
     TransactionOutput:
       type: object
       properties:

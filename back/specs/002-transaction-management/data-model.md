@@ -55,3 +55,20 @@ Behavior:
 
 No state transitions beyond create/update/delete — `Transaction` has no workflow or status
 field, and (unlike `Category`) no derived/computed fields are attached to it by any use case.
+
+## List query (`ListTransactionsInput`)
+
+Application-layer input for `ListTransactionsUseCase` (User Story 3); not persisted. Every field
+is optional, and filters combine with AND.
+
+| Field | Type | Default | Rules |
+|---|---|---|---|
+| `Description` | `string?` | `null` | Trimmed; partial, case-insensitive match against `Transaction.Description`. `null`/blank = no filter. Transactions with no description never match. |
+| `DateRef` | `DateTime?` | `null` | Any date within the target month; keeps transactions with `Date` from the first moment of that month through its last tick, inclusive. `null` = all months. |
+| `Type` | `TransactionType` | `All` | `All` = no filter; `In` = `Value > 0`; `Out` = `Value < 0`. |
+| `CategoryId` | `Guid?` | `null` | Keeps only transactions with that `CategoryId`. `null` = all categories. An id that matches no category just produces an empty list. |
+| `OrderBy` | `TransactionOrderField` | `Date` | `Date`, `Description`, `Value` (signed), or `CategoryName` (the referenced category's current name). |
+| `Ascending` | `bool` | `false` | `false` = descending; the default is most recent first. |
+
+The output is still `IEnumerable<TransactionOutput>`, unchanged in shape — `CategoryName` is only
+a sort key and is not added to the response.

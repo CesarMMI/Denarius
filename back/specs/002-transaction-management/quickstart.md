@@ -27,7 +27,7 @@ dotnet test tests/Denarius.Application.Tests --filter FullyQualifiedName~Transac
 ```
 
 Expected: all tests pass. Together they exercise every functional requirement in `spec.md`
-(FR-001…FR-012) except the HTTP layer itself, which
+(FR-001…FR-018) except the HTTP layer itself, which
 `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` covers separately (see
 `research.md` → Test coverage gap).
 
@@ -57,8 +57,19 @@ dotnet test
    Expected: `201 Created`, a `Location: /api/transactions/{id}` header, body echoes the
    transaction with the negative value preserved (User Story 1, scenario 1).
 4. List transactions: `curl http://localhost:5276/api/transactions` — expect the new transaction
-   in the array, alongside every other transaction currently recorded, with no filtering applied
-   (User Story 2).
+   in the array, alongside every other transaction currently recorded, most recent first
+   (User Story 2). Then narrow and reorder the list (User Story 3):
+   - `curl "http://localhost:5276/api/transactions?description=COMPRAS&dateRef=2026-09-01&type=out&categoryId={categoryId}"`
+     — expect the new transaction (case-insensitive description match, September 2026,
+     negative value, its category).
+   - `curl "http://localhost:5276/api/transactions?type=in&categoryId={categoryId}"` — expect it
+     absent (it is money spent).
+   - `curl "http://localhost:5276/api/transactions?dateRef=2026-08-01&categoryId={categoryId}"` —
+     expect it absent (different month).
+   - `curl "http://localhost:5276/api/transactions?orderBy=Value&asc=true"` — expect the array
+     ordered by signed value, largest expense first.
+   - `curl -i "http://localhost:5276/api/transactions?type=invalid"` — expect `400` with a
+     validation `ProblemDetails` body.
 5. Get it by id: `curl http://localhost:5276/api/transactions/{id}` — expect `200` with the same
    data.
 6. Update it:

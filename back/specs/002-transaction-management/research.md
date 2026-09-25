@@ -13,21 +13,81 @@ below resolves what would otherwise be a `NEEDS CLARIFICATION` in Technical Cont
   has no requirement that would justify a different store.
 - **Alternatives considered**: None specific to `Transaction`.
 
-## List scope (no filter, sort, or pagination)
+## List filtering and sorting (User Story 3, added 2026-09-24)
 
-- **Decision**: `ListTransactionsUseCase` takes no input beyond an ignored `null`/`object?`
-  parameter, calls `ITransactionRepository.GetAllAsync()` with no arguments, and returns every
-  transaction mapped to `TransactionOutput` with no ordering, filtering, or pagination applied.
-  `TransactionsController.List()` takes no query parameters at all.
-- **Rationale**: This is simply the current, unextended state of the feature — no product
-  requirement for search/filter/sort has been implemented for transactions yet, unlike the
-  richer `ListCategoriesUseCase` (name search, in-use filter, three sort fields).
-- **Alternatives considered**: N/A — this documents current behavior rather than a deliberate
-  design trade-off; there is no evidence in the code or tests of a rejected alternative here.
-- **Flagged gap**: Unlike Category, there is no way to narrow the transaction list by category,
-  date range, or description via the API today. Any future work adding that would extend this
-  feature, not fix a defect in it (the spec's Assumptions section documents this as current
-  scope, not a bug).
+Until 2026-09-24 the list had no filter, sort, or pagination: `ListTransactionsUseCase` took an
+ignored `object?` input and returned every transaction in whatever order the database produced.
+User Story 3 replaced that with the decisions below.
+
+### Where filtering and sorting happen
+
+- **Decision**: `ListTransactionsUseCase` loads every transaction via the unchanged
+  `ITransactionRepository.GetAllAsync()` and applies all filters and the sort in memory.
+  `ITransactionRepository` is not changed.
+- **Rationale**: Matches the established `ListCategoriesUseCase` pattern (which already loads
+  every transaction per request for its aggregates), keeps all the new logic in
+  `Denarius.Application` where `Denarius.Application.Tests` covers it (Constitution Principle
+  IV — there is no Infrastructure test project to cover repository query logic), and costs no
+  more than the previous unfiltered list at this feature's stated scale.
+- **Alternatives considered**: Pushing the filters into the repository as an EF Core query
+  (`Where`/`OrderBy` translated to SQL) — better once volumes grow, but it would move the logic
+  into an untested layer and widen `ITransactionRepository` with filter parameters the Domain
+  layer would have to express without Application's enums. Deferred until the scale requires it.
+
+### Description search
+
+- **Decision**: Partial, case-insensitive match (`OrdinalIgnoreCase`) on the trimmed search
+  text; blank/whitespace search text means no filter; transactions with no description never
+  match.
+- **Rationale**: Case-insensitive is what the front-end's filter sheet already does locally, and
+  transaction descriptions are free text where the user rarely remembers the casing.
+- **Alternatives considered**: Mirroring Category's name search exactly — rejected because that
+  one runs as SQL `Contains` in PostgreSQL and is therefore case-sensitive; not changed here, but
+  noted as a known inconsistency between the two lists.
+
+### Month filter (`dateRef`)
+
+- **Decision**: Same semantics as `ListCategoriesUseCase`: any date within a month selects that
+  full calendar month, from its first moment through its last tick, inclusive.
+- **Rationale**: One meaning of "month" across the API; the front-end already sends
+  `YYYY-MM-01` for Categories and can reuse that.
+- **Alternatives considered**: An explicit `from`/`to` date range — more flexible, but no
+  current screen needs it, and it would diverge from Categories.
+
+### Type filter
+
+- **Decision**: `TransactionType` enum `All` (default), `In` (value > 0), `Out` (value < 0),
+  bound case-insensitively from the query string.
+- **Rationale**: "In"/"Out" follow the user-facing wording ("Entradas"/"Saídas") and the
+  front-end's existing `all`/`in`/`out` values, which bind to it directly. Zero is impossible
+  (the entity rejects it), so the two signs cover every transaction.
+- **Alternatives considered**: A nullable `bool?` like Category's `withTransaction` — rejected
+  because a three-state choice reads more clearly as an enum with an explicit `All`.
+
+### Sorting
+
+- **Decision**: `TransactionOrderField` enum `Date` (default), `Description`, `Value`,
+  `CategoryName`, with `asc` defaulting to `false` (date descending, most recent first).
+  `Value` sorts by the signed value. `CategoryName` loads categories via
+  `ICategoryRepository.GetAllAsync(null)` — only when that sort is requested — and sorts by a
+  CategoryId → name lookup.
+- **Rationale**: Most-recent-first is the natural default for a transaction history and matches
+  what the front-end mock already shows. Loading category names only for that one sort avoids
+  an extra query on every other request.
+- **Alternatives considered**: Defaulting `asc` to `true` for consistency with Categories —
+  rejected because it would list the oldest transaction first. Adding a `Category` navigation
+  property plus a SQL join, or adding `categoryName` to `TransactionOutput` — both larger
+  changes (entity/mapping, or response shape) not needed to satisfy the sort.
+
+### Invalid query parameters
+
+- **Decision**: No custom validation — an unknown `type`/`orderBy` value or a malformed
+  `categoryId` fails model binding, and `[ApiController]` returns `400` `ValidationProblem`
+  before the use case runs.
+- **Rationale**: Framework behavior already gives a clear, consistent error; Categories relies on
+  the same thing for `orderBy`.
+- **Alternatives considered**: Silently falling back to defaults — rejected because it would hide
+  client bugs.
 
 ## Validation placement
 

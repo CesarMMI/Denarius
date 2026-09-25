@@ -13,6 +13,11 @@ transaction linked to exactly one category — derived from the current implemen
 test suite. This mirrors the retroactive approach already used for 001-category-management: the
 spec should document verified current behavior, not propose new work."
 
+**Updated**: 2026-09-24 — User Story 3 (filtering and sorting the transaction list) added
+alongside its implementation: filters by description, month (same meaning as in
+[[001-category-management]]), type (all/money in/money out) and category; sorting by date
+(default), description, value, or category name.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Record and maintain individual transactions (Priority: P1)
@@ -62,9 +67,46 @@ have been recorded.
 **Acceptance Scenarios**:
 
 1. **Given** several transactions have been recorded, **When** the transaction list is viewed,
-   **Then** every recorded transaction is shown with its date, value, category, and description.
+   **Then** every recorded transaction is shown with its date, value, category, and description,
+   most recent first.
 2. **Given** no transactions have been recorded, **When** the transaction list is viewed,
    **Then** an empty list is shown.
+
+---
+
+### User Story 3 - Narrow down and reorder the transaction list (Priority: P3)
+
+As someone with a long transaction history, I want to search by description, look at a single
+month, show only money received or only money spent, show only one category, and sort by date,
+description, value, or category, so I can quickly find a transaction or understand where my
+money went.
+
+**Why this priority**: Purely a refinement of browsing an already-working list (Story 2).
+Valuable once the history grows, but not required for the feature to be useful on day one —
+the same position [[001-category-management]]'s search/filter/sort story holds there.
+
+**Independent Test**: Can be fully tested by recording several transactions with varying
+descriptions, dates, signs, and categories, then confirming each filter and each sort option
+narrows or reorders the list correctly on its own, and that combining filters narrows it to the
+transactions that match all of them.
+
+**Acceptance Scenarios**:
+
+1. **Given** several transactions exist, **When** a user searches by part of a description,
+   **Then** only transactions whose description contains that text are shown, regardless of
+   upper/lower case.
+2. **Given** transactions dated in different months, **When** a user picks a month, **Then**
+   only transactions dated within that calendar month are shown.
+3. **Given** both money received and money spent have been recorded, **When** a user chooses
+   "money in" or "money out", **Then** only positive or only negative transactions are shown;
+   choosing "all" shows both.
+4. **Given** transactions in several categories, **When** a user picks a category, **Then** only
+   that category's transactions are shown.
+5. **Given** a user applies several filters at once, **When** the list is viewed, **Then** only
+   transactions matching every filter are shown.
+6. **Given** transactions with different dates, descriptions, values, and categories, **When**
+   a user sorts by date, description, value, or category name (ascending or descending),
+   **Then** the list is ordered accordingly.
 
 ---
 
@@ -85,6 +127,16 @@ have been recorded.
   rejected with a clear "not found" outcome.
 - Deleting a transaction is never blocked by other data — nothing else currently depends on a
   transaction the way transactions depend on categories.
+- A search or filter combination that matches nothing returns an empty list, not an error.
+- A blank or whitespace-only description search is treated as "no search", and
+  leading/trailing spaces in the search text are ignored.
+- A transaction with no description never matches a description search.
+- A transaction dated on the very first or very last moment of a month is included when that
+  month is picked.
+- Sorting by value uses the signed value, so ascending puts the largest expense first and
+  descending puts the largest income first.
+- Asking for an unknown type or sort field, or a malformed category identifier, is rejected with
+  a clear explanation rather than silently ignored.
 
 ## Requirements *(mandatory)*
 
@@ -110,6 +162,18 @@ have been recorded.
   restriction based on other data.
 - **FR-012**: The system MUST reject any attempt to view, edit, or delete a transaction that does
   not exist, with a clear "not found" outcome.
+- **FR-013**: The system MUST allow a user to search the transaction list by partial,
+  case-insensitive description match.
+- **FR-014**: The system MUST allow a user to limit the transaction list to a single calendar
+  month.
+- **FR-015**: The system MUST allow a user to limit the transaction list to all transactions,
+  only money received (positive value), or only money spent (negative value).
+- **FR-016**: The system MUST allow a user to limit the transaction list to a single category.
+- **FR-017**: The system MUST apply every requested filter together, showing only transactions
+  that satisfy all of them.
+- **FR-018**: The system MUST allow a user to sort the transaction list by date, description,
+  value, or category name, in ascending or descending order, defaulting to date descending
+  (most recent first).
 
 ### Key Entities *(include if feature involves data)*
 
@@ -134,16 +198,23 @@ have been recorded.
   with no manual pagination or lookup required.
 - **SC-005**: Attempting to record or re-categorize a transaction against a category that does
   not exist never silently succeeds — 100% of such attempts are rejected with an explanation.
+- **SC-006**: A user can see everything they spent in a given category during a given month in a
+  single request, with no manual cross-referencing of the full history.
 
 ## Assumptions
 
 These document the capability's current, verified behavior (this is a retroactive spec), rather
 than open defaults chosen for a new feature:
 
-- The transaction list is not searchable, filterable, sortable, or paginated — every recorded
-  transaction is returned together, in whatever order the system naturally provides. This is
-  narrower than [[001-category-management]]'s list, which does support search/filter/sort; this
-  spec does not assume that gap is closed.
+- The transaction list is searchable, filterable, and sortable (User Story 3) but not
+  paginated — every transaction matching the filters is returned together.
+- A "month" for filtering always means a full calendar month (its first moment through its last
+  moment), picked by giving any date within it — the same meaning
+  [[001-category-management]] uses for scoping category usage.
+- "Money in" and "money out" are derived from the sign of the value; there is no separate
+  transaction type stored.
+- Sorting by category uses the category's current name, so renaming a category changes where
+  its transactions fall in that ordering.
 - A transaction can be re-categorized to any existing category at any time via edit; there is no
   restriction analogous to Category's delete-guard, because nothing currently depends on a
   Transaction the way Transactions depend on Categories.

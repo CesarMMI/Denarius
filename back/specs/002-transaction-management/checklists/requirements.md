@@ -39,8 +39,11 @@
   shipped entity, use cases, and their test suites (`Transaction.cs`,
   `TransactionTests.cs`, and the five `UseCases/Transactions/*` test files), so no
   [NEEDS CLARIFICATION] markers were needed.
-- Compared to [001-category-management](../../001-category-management/spec.md), this capability
-  is intentionally narrower: the transaction list has no search/filter/sort, and deleting a
-  transaction has no dependent-data guard — both confirmed against the current code, not
-  assumed.
+- Compared to [001-category-management](../../001-category-management/spec.md), deleting a
+  transaction has no dependent-data guard — confirmed against the current code, not assumed.
+- 2026-09-24: re-validated after adding User Story 3 (search by description, month, type, and
+  category filters; sorting by date, description, value, or category name — FR-013…FR-018,
+  SC-006). All items still pass: the new requirements and edge cases are stated in user terms,
+  each has a matching acceptance scenario, and the list no longer differs from Categories in
+  being unfilterable.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`.

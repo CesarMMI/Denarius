@@ -13,18 +13,21 @@ data-model.md (present), contracts/ (present)
 **Status**: This is a **retroactive** task list — Transaction Management is already implemented.
 `[x]` marks a task already satisfied by existing code/tests (with its file path, so the mapping
 from requirement to implementation is traceable). `/speckit-implement` ran on 2026-09-22 and
-closed the two items that were still outstanding (T025, T026) — all 26 tasks are now `[x]`.
+closed the two items that were still outstanding (T025, T026). User Story 3 (list filtering and
+sorting, T027-T033) and its validation run (T034) were added and completed on 2026-09-24 — all
+34 tasks are now `[x]`.
 
 **Tests**: Test tasks below reflect the automated tests that already exist per story; no new
 test tasks were added beyond the one explicit coverage gap (T025), which `research.md` already
-flagged rather than a blanket "add more tests" addition.
+flagged rather than a blanket "add more tests" addition, and the tests shipped with User Story 3
+(T027, T028).
 
-**Organization**: Tasks are grouped by user story, per `spec.md`'s priorities (P1/P2).
+**Organization**: Tasks are grouped by user story, per `spec.md`'s priorities (P1/P2/P3).
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Different files, no dependency on an incomplete task
-- **[Story]**: Which user story this task belongs to (US1, US2)
+- **[Story]**: Which user story this task belongs to (US1, US2, US3)
 - File paths are exact, relative to the repository root
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -152,18 +155,63 @@ transaction list is viewed, and that the list is empty when none have been recor
 ### Implementation for User Story 2
 
 - [x] T023 [US2] `IListTransactionsUseCase`/`ListTransactionsUseCase` — calls
-      `ITransactionRepository.GetAllAsync()` with no filter/sort/pagination and maps every result
-      to `TransactionOutput` — in
+      `ITransactionRepository.GetAllAsync()` and maps every result to `TransactionOutput` — in
       `src/Denarius.Application/UseCases/Transactions/List/ListTransactionsUseCase.cs` (depends
-      on T016, T006).
-- [x] T024 [US2] Wire `GET /api/transactions` (no query parameters) in
-      `src/Denarius.WebAPI/Controllers/TransactionsController.cs` (depends on T023).
+      on T016, T006). Originally took no input and applied no filter/sort; extended by T031.
+- [x] T024 [US2] Wire `GET /api/transactions` in
+      `src/Denarius.WebAPI/Controllers/TransactionsController.cs` (depends on T023). Originally
+      took no query parameters; extended by T032.
 
 **Checkpoint**: Both user stories functional independently.
 
 ---
 
-## Phase 5: Polish & Cross-Cutting Concerns
+## Phase 5: User Story 3 - Narrow down and reorder the transaction list (Priority: P3)
+
+**Goal**: Filter the transaction list by description, month, type, and category, and sort it by
+date, description, value, or category name.
+
+**Independent Test**: Record several transactions with varying descriptions, dates, signs, and
+categories; confirm each filter and each sort option narrows or reorders the list correctly on
+its own, and that combined filters keep only transactions matching all of them.
+
+### Tests for User Story 3
+
+- [x] T027 [P] [US3] `ListTransactionsUseCase` tests — default date-descending order,
+      case-insensitive/trimmed description search (and blank search ignored), `DateRef` month
+      boundaries, `Type` `All`/`In`/`Out`, `CategoryId`, combined filters, each sort field in
+      both directions, and categories loaded only when sorting by `CategoryName` — in
+      `tests/Denarius.Application.Tests/UseCases/Transactions/List/ListTransactionsUseCaseTests.cs`.
+- [x] T028 [P] [US3] `TransactionsController` list tests — every query parameter bound and
+      passed to the use case (including lowercase `type=out`), defaults when none are given, and
+      `400` without calling the use case for an invalid `type`, `orderBy`, or `categoryId` — in
+      `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs`.
+
+### Implementation for User Story 3
+
+- [x] T029 [P] [US3] `TransactionType` enum (`All`, `In`, `Out`) and `TransactionOrderField` enum
+      (`Date`, `Description`, `Value`, `CategoryName`) in
+      `src/Denarius.Application/IO/Transactions/TransactionType.cs` and
+      `TransactionOrderField.cs`.
+- [x] T030 [US3] `ListTransactionsInput` record (`Description`, `DateRef`, `Type`,
+      `CategoryId`, `OrderBy`, `Ascending`; defaults: no filters, `Date` descending) in
+      `src/Denarius.Application/IO/Transactions/ListTransactionsInput.cs` (depends on T029).
+- [x] T031 [US3] Change `IListTransactionsUseCase`'s input from `object?` to
+      `ListTransactionsInput`; apply the four filters and the `orderBy`/`asc` sort switch in
+      `ListTransactionsUseCase`, injecting `ICategoryRepository` for the `CategoryName` sort —
+      in `src/Denarius.Application/UseCases/Transactions/List/` (depends on T030).
+- [x] T032 [US3] Wire `description`, `dateRef`, `categoryId`, `type`, `orderBy`, `asc` query
+      parameters on `GET /api/transactions` in
+      `src/Denarius.WebAPI/Controllers/TransactionsController.cs` (depends on T031).
+- [x] T033 [US3] Update `spec.md` (US3, FR-013…FR-018, SC-006), `plan.md`, `research.md`,
+      `data-model.md`, `contracts/transactions-api.yaml` (1.1.0), `quickstart.md`, and
+      `checklists/requirements.md` to document the shipped behavior (depends on T032).
+
+**Checkpoint**: All three user stories functional independently.
+
+---
+
+## Phase 6: Polish & Cross-Cutting Concerns
 
 - [x] T025 [P] Add `TransactionsController` integration tests covering `POST` (201 + `Location`
       header), `GET`/`GET {id}`, `PUT {id}`, `DELETE {id}`, and the 404/400 mappings (missing
@@ -183,6 +231,14 @@ transaction list is viewed, and that the list is empty when none have been recor
       zero-value/missing-date validation, and unknown-category referential steps. Every response
       matched `quickstart.md`'s documented expectations; the category/transaction created for
       the manual run were deleted afterward.
+- [x] T034 Re-ran the `quickstart.md` validation for User Story 3 on 2026-09-24: `dotnet test` —
+      all three suites, 126/126 passing (Domain.Tests 35, Application.Tests 54, WebAPI.Tests 37)
+      — then the step 4 filter/sort curls against `dotnet run --project src/Denarius.WebAPI` on
+      the local dev database, with three temporary transactions in an existing category
+      (description + month + type + category combined, `type=in`, other month, a transaction
+      at `23:59:59Z` on the month's last day, `Value`/`Description`/`CategoryName` sorts, and
+      `400` for invalid `type`/`orderBy`/`categoryId`). Every response matched; the temporary
+      transactions were deleted afterward (depends on T033).
 
 ---
 
@@ -194,9 +250,9 @@ transaction list is viewed, and that the list is empty when none have been recor
 - **Foundational (Phase 2)**: Depends on Setup — blocks the user story. Pre-existing; also
   depends on [001-category-management](../001-category-management/tasks.md)'s `Category`
   entity/table existing (T003, T006 there) for the FK target.
-- **User Stories (Phase 3-4)**: Both depend on Foundational. Built in priority order (P1 → P2)
-  historically; each remains independently testable today.
-- **Polish (Phase 5)**: Depends on the user stories it covers. Complete.
+- **User Stories (Phase 3-5)**: All depend on Foundational. Built in priority order
+  (P1 → P2 → P3); each remains independently testable today.
+- **Polish (Phase 6)**: Depends on the user stories it covers. Complete.
 
 ### User Story Dependencies
 
@@ -205,6 +261,9 @@ transaction list is viewed, and that the list is empty when none have been recor
   exist to attach a transaction to).
 - **User Story 2 (P2)**: Builds on the `List` plumbing US1 doesn't touch (US1 never calls
   `ListTransactionsUseCase`); independently testable on its own.
+- **User Story 3 (P3)**: Extends US2's `List` use case and endpoint (T023/T024); with no
+  parameters the list behaves as US2 describes. The `CategoryName` sort also reads categories
+  from [001-category-management](../001-category-management/tasks.md)'s repository.
 
 ### Parallel Opportunities
 
@@ -212,6 +271,7 @@ transaction list is viewed, and that the list is empty when none have been recor
   depend only on T003-T005 respectively.
 - T010-T014 (US1 tests): five different files.
 - T015/T016 (US1 DTOs): different files.
+- T027/T028 (US3 tests) and T029 (US3 enums): different files.
 - T025 has no dependency on T026 and vice versa (same as
   001-category-management's T032/T033 relationship).
 
@@ -246,16 +306,21 @@ a usable increment before the full list view (US2) existed.
 3. US2 → unfiltered list view added in the same change.
 4. Polish (T025/T026) → closed by `/speckit-implement` on 2026-09-22, mirroring how
    001-category-management closed the equivalent gap.
+5. US3 (T027-T033) → description/month/type/category filters and four sort fields added on
+   2026-09-24, as an additive change to `GET /api/transactions`; validated by T034.
 
 ### What's Left
 
-Nothing. Phase 5 (the `TransactionsController` HTTP-layer test gap and a recorded quickstart
-run) was closed by `/speckit-implement` on 2026-09-22.
+Nothing. Phase 6 (the `TransactionsController` HTTP-layer test gap and a recorded quickstart
+run) was closed by `/speckit-implement` on 2026-09-22, and User Story 3 was completed on
+2026-09-24.
 
 ---
 
 ## Notes
 
-- `[x]` = implemented and (where applicable) tested; all 26 tasks are now complete.
+- `[x]` = implemented and (where applicable) tested; all 34 tasks are now complete.
 - File paths are exact — this list doubles as a requirement-to-code traceability map for
-  `spec.md`'s FR-001…FR-012.
+  `spec.md`'s FR-001…FR-018.
+- T027-T034 were numbered after the original Polish tasks (T025/T026) because they were added
+  later; the phase order, not the ID order, reflects the story priority.

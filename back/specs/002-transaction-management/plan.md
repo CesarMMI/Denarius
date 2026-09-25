@@ -7,7 +7,8 @@
 **Note**: This is a **retroactive** plan — it documents the design already shipped for this
 feature, verified against the source under `src/` and its test suites under `tests/`, rather
 than proposing new work. `/speckit-tasks` run against this plan should find nothing outstanding
-beyond the documentation gap noted under Research.
+beyond the documentation gap noted under Research. Updated 2026-09-24 to cover User Story 3
+(list filtering and sorting), which was designed and shipped in the same change as this update.
 
 ## Summary
 
@@ -19,9 +20,10 @@ Application use cases (Create/Update/Delete/GetById/List) orchestrate persistenc
 Create/Update additionally verifying the referenced `Category` exists; EF Core persists
 `Transaction` to PostgreSQL with a restrict-on-delete foreign key to `Category`; a single
 `TransactionsController` exposes the use cases over REST; and `GlobalExceptionHandler` translates
-domain/not-found exceptions into `ProblemDetails` responses. Unlike
-[001-category-management](../001-category-management/plan.md), the `List` use case takes no
-filter/sort/pagination parameters — it returns every transaction, unconditionally.
+domain/not-found exceptions into `ProblemDetails` responses. Like
+[001-category-management](../001-category-management/plan.md), the `List` use case takes a
+`ListTransactionsInput` (description, `DateRef` month, type, category, `orderBy`/`asc`) and
+applies the filters and sort in memory over the loaded transactions; there is no pagination.
 
 ## Technical Context
 
@@ -46,9 +48,11 @@ front-end (separate `front/` project) and reachable at `api/transactions`
 backend only
 
 **Performance Goals**: None formally specified. Current behavior: `GET /api/transactions` loads
-every transaction into memory once per request with no filtering, sorting, or pagination — the
-same "acceptable at today's scale" posture as `ListCategoriesUseCase`, just without even the
-per-request aggregation Category performs.
+every transaction into memory once per request, then filters and sorts in the use case (plus one
+extra query for category names, only when sorting by `CategoryName`) — the same "acceptable at
+today's scale" posture as `ListCategoriesUseCase`. Pushing the filters into the repository
+query is the natural next step if volumes outgrow this (see research.md → List filtering and
+sorting).
 
 **Constraints**: Governed by `.specify/memory/constitution.md` — API responses must stay
 backward compatible (Principle I), code must stay in its Clean Architecture layer (Principle
@@ -56,8 +60,8 @@ II), any future migration needs a verified rollback (Principle III), and `dotnet
 across all three suites (Principle IV).
 
 **Scale/Scope**: Single-tenant personal-finance usage; transaction counts expected in the
-hundreds to low thousands per user — the unpaginated, unfiltered list is sized for this range,
-not for large multi-tenant volumes.
+hundreds to low thousands per user — the unpaginated, in-memory-filtered list is sized for this
+range, not for large multi-tenant volumes.
 
 ## Constitution Check
 
@@ -65,10 +69,10 @@ not for large multi-tenant volumes.
 
 | Principle | Status | Evidence |
 |---|---|---|
-| I. Public API Compatibility | PASS | This plan documents the existing `api/transactions` surface as-is; no change is proposed. |
-| II. Service Boundary Adherence | PASS | Validation lives in `Denarius.Domain` (`Transaction`); orchestration in `Denarius.Application` use cases depending only on `Domain` (plus `ICategoryRepository` for the cross-entity existence check); EF Core specifics confined to `Denarius.Infrastructure`; `Denarius.WebAPI`'s `TransactionsController` only calls use-case interfaces. No layer is skipped. |
-| III. Migration Rollback Discipline | PASS | The migration that creates the `Transactions` table (`20260814132713_AddTransaction`) has a clean, non-destructive `Down()` (`DropTable`). |
-| IV. Test Suite Verification | PASS | The `Transaction` entity and all five use cases have dedicated xUnit coverage; `TransactionsController` itself is covered by `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` (added by `/speckit-implement` on 2026-09-22, closing the gap Research originally flagged). |
+| I. Public API Compatibility | PASS | User Story 3 is **additive**: `GET /api/transactions` gains six optional query parameters (`description`, `dateRef`, `type`, `categoryId`, `orderBy`, `asc`), and a call with none of them still returns every transaction with an unchanged response shape. The only observable difference for existing callers is that the previously unspecified order is now date descending. No other route, DTO, or status code changed. |
+| II. Service Boundary Adherence | PASS | Validation lives in `Denarius.Domain` (`Transaction`); orchestration in `Denarius.Application` use cases depending only on `Domain` (plus `ICategoryRepository` for the cross-entity existence check and for category names when sorting by `CategoryName`); EF Core specifics confined to `Denarius.Infrastructure`; `Denarius.WebAPI`'s `TransactionsController` only binds query parameters and calls use-case interfaces. No layer is skipped. |
+| III. Migration Rollback Discipline | PASS | The migration that creates the `Transactions` table (`20260814132713_AddTransaction`) has a clean, non-destructive `Down()` (`DropTable`). User Story 3 adds no migration. |
+| IV. Test Suite Verification | PASS | The `Transaction` entity and all five use cases have dedicated xUnit coverage; `TransactionsController` itself is covered by `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` (added by `/speckit-implement` on 2026-09-22, closing the gap Research originally flagged). User Story 3's filters, sort options, query binding, and 400-on-invalid-parameter behavior are covered in `ListTransactionsUseCaseTests.cs` and `TransactionsControllerTests.cs`. |
 
 No violations — Complexity Tracking is not needed.
 
@@ -98,7 +102,8 @@ src/
 │   └── Repositories/ITransactionRepository.cs
 ├── Denarius.Application/
 │   ├── IO/Transactions/               # CreateTransactionInput, UpdateTransactionInput,
-│   │                                   # TransactionOutput
+│   │                                   # ListTransactionsInput, TransactionOutput,
+│   │                                   # TransactionType, TransactionOrderField
 │   └── UseCases/Transactions/         # Create, Update, Delete, GetById, List
 ├── Denarius.Infrastructure/
 │   ├── Persistence/Configurations/TransactionConfiguration.cs
