@@ -1,17 +1,17 @@
 {
 	"name": "denarius",
 	"version": "0.0.0",
+	"private": true,
+	"packageManager": "npm@11.19.0",
 	"scripts": {
 		"ng": "ng",
 		"start": "ng serve",
 		"build": "ng build",
-		"watch": "npm run build -- --watch --configuration development",
 		"test": "ng test",
 		"lint": "ng lint",
-		"lint:fix": "npm run lint -- --fix"
+		"lint:fix": "npm run lint -- --fix",
+		"prettier": "prettier . --write"
 	},
-	"private": true,
-	"packageManager": "npm@11.19.0",
 	"dependencies": {
 		"@angular/cdk": "^21.2.14",
 		"@angular/common": "^21.2.0",

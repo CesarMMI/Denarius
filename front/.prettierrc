@@ -3,12 +3,5 @@
 	"singleQuote": true,
 	"useTabs": true,
 	"tabWidth": 1,
-	"overrides": [
-		{
-			"files": "*.html",
-			"options": {
-				"parser": "angular"
-			}
-		}
-	]
+	"overrides": [{ "files": "*.html", "options": { "parser": "angular" } }]
 }
