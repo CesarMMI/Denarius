@@ -15,9 +15,21 @@
 />
 
 <div class="content">
-	@if (groups().length > 0) {
+	@if (transactionsResource.isLoading()) {
+		<mat-progress-bar mode="indeterminate" class="loading" />
+	}
+
+	@if (transactionsResource.error()) {
+		<app-empty-state
+			icon="cloud_off"
+			title="Não foi possível carregar as transações"
+			body="Verifique sua conexão e tente novamente."
+			primaryLabel="Tentar novamente"
+			(primaryAction)="reload()"
+		/>
+	} @else if (groups().length > 0) {
 		<app-transaction-list [groups]="groups()" (openTransaction)="openTransaction($event)" />
-	} @else {
+	} @else if (!transactionsResource.isLoading()) {
 		<app-empty-state
 			icon="receipt_long"
 			title="Nenhuma transação encontrada"

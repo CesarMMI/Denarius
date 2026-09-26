@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Category } from '../../../categories/types/category';
 import { BottomSheetDirective } from '../../../shared/bottom-sheet/directives/bottom-sheet.directive';
 import { ConfirmDeleteDialog } from '../../../shared/confirm-delete-dialog/confirm-delete-dialog';
+import { fromApiDate, toApiDate } from '../../../shared/utils/api-date';
 import { Transaction } from '../../types/transaction';
 import { TransactionFormResult } from '../../types/transaction-form-result';
 
@@ -54,7 +55,7 @@ export class TransactionFormSheet extends BottomSheetDirective<TransactionFormDa
 			nonNullable: true,
 			validators: [Validators.required, Validators.pattern(/^\d+([.,]\d{1,2})?$/)],
 		}),
-		date: new FormControl(this.sheetData.transaction ? new Date(this.sheetData.transaction.date) : new Date(), {
+		date: new FormControl(this.sheetData.transaction ? fromApiDate(this.sheetData.transaction.date) : new Date(), {
 			nonNullable: true,
 			validators: [Validators.required],
 		}),
@@ -81,10 +82,10 @@ export class TransactionFormSheet extends BottomSheetDirective<TransactionFormDa
 			type: 'save',
 			result: {
 				id: this.sheetData.transaction?.id,
-				description: raw.description,
+				description: raw.description.trim() || null,
 				categoryId: raw.categoryId,
 				value,
-				date: raw.date.toISOString(),
+				date: toApiDate(raw.date),
 			},
 		});
 	}

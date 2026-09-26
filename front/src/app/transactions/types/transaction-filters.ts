@@ -1,7 +1,7 @@
 export const TRANSACTION_TYPE = {
-	All: 'all',
-	In: 'in',
-	Out: 'out',
+	All: 'All',
+	In: 'In',
+	Out: 'Out',
 } as const;
 
 export type TransactionType = (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE];

@@ -6,13 +6,13 @@
 
 <div class="search">
 	<mat-icon>search</mat-icon>
-	<input [value]="draft().description" (input)="setDescription($event)" placeholder="Buscar na descrição" />
+	<input [value]="draftFilters().description" (input)="setDescription($event)" placeholder="Buscar na descrição" />
 </div>
 
 <div class="section-title">Tipo</div>
 <div class="type-row">
 	@for (option of typeOptions; track option.value) {
-		<button type="button" class="option" [class.selected]="draft().type === option.value" (click)="setType(option.value)">
+		<button type="button" class="option" [class.selected]="draftFilters().type === option.value" (click)="setType(option.value)">
 			{{ option.label }}
 		</button>
 	}
@@ -20,16 +20,38 @@
 
 <div class="section-title">Categoria</div>
 <div class="chips-row">
-	<button type="button" class="chip" [class.selected]="draft().categoryId === 'all'" (click)="setCategory('all')">
+	<button type="button" class="chip" [class.selected]="draftFilters().categoryId === 'all'" (click)="setCategory('all')">
 		<span class="dot all"></span>Todas
 	</button>
 	@for (category of categories; track category.id) {
-		<button type="button" class="chip" [class.selected]="draft().categoryId === category.id" (click)="setCategory(category.id)">
+		<button
+			type="button"
+			class="chip"
+			[class.selected]="draftFilters().categoryId === category.id"
+			(click)="setCategory(category.id)"
+		>
 			<span class="dot" [style.background]="category.color"></span>{{ category.name }}
 		</button>
 	}
 </div>
 
+<div class="section-title">Ordenar por</div>
+<div class="sort-list">
+	@for (option of sortOptions; track option.label) {
+		<button type="button" class="sort-option" [class.selected]="isSortSelected(option)" (click)="selectSort(option)">
+			<span>{{ option.label }}</span>
+			@if (isSortSelected(option)) {
+				<mat-icon>check</mat-icon>
+			}
+		</button>
+	}
+</div>
+
 <button matButton="tonal" type="button" class="apply" (click)="apply()">
-	Ver {{ resultCount() }} {{ resultCount() === 1 ? 'resultado' : 'resultados' }}
+	@let count = resultCount();
+	@if (count === null) {
+		Ver resultados
+	} @else {
+		Ver {{ count }} {{ count === 1 ? 'resultado' : 'resultados' }}
+	}
 </button>
