@@ -1,8 +1,12 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { buildCategory } from '../../testing/category-fixture';
 import { Category } from '../../types/category';
 import { CategoryFormSheet } from './category-form-sheet';
+
+const PALETTE = ['#F4511E', '#8E24AA'];
 
 describe('CategoryFormSheet', () => {
 	let fixture: ComponentFixture<CategoryFormSheet>;
@@ -10,12 +14,14 @@ describe('CategoryFormSheet', () => {
 	let callback: ReturnType<typeof vi.fn>;
 	let dismiss: ReturnType<typeof vi.fn>;
 
-	async function render(category: Category | undefined) {
+	async function render(category: Category | undefined, palette: string[] | 'error' = PALETTE) {
 		callback = vi.fn();
 		dismiss = vi.fn();
 		await TestBed.configureTestingModule({
 			imports: [CategoryFormSheet],
 			providers: [
+				provideHttpClient(),
+				provideHttpClientTesting(),
 				{ provide: MatBottomSheetRef, useValue: { dismiss } },
 				{ provide: MAT_BOTTOM_SHEET_DATA, useValue: { category, callback } },
 			],
@@ -23,6 +29,11 @@ describe('CategoryFormSheet', () => {
 
 		fixture = TestBed.createComponent(CategoryFormSheet);
 		element = fixture.nativeElement;
+		// The color picker loads its palette when rendered.
+		TestBed.tick();
+		const req = TestBed.inject(HttpTestingController).expectOne('colors.json');
+		if (palette === 'error') req.flush('', { status: 404, statusText: 'Not Found' });
+		else req.flush(palette);
 		await fixture.whenStable();
 	}
 
@@ -60,6 +71,7 @@ describe('CategoryFormSheet', () => {
 
 			expect(callback).not.toHaveBeenCalled();
 			expect(element.querySelector('mat-error')?.textContent).toContain('Nome é obrigatório');
+			expect(element.querySelector('.color-error')).toBeNull();
 		});
 
 		it('should not save a name longer than 100 characters', async () => {
@@ -71,12 +83,12 @@ describe('CategoryFormSheet', () => {
 			expect(element.querySelector('mat-error')?.textContent).toContain('no máximo 100 caracteres');
 		});
 
-		it('should save the name with the default color and no id', async () => {
+		it('should save the name with the first palette color and no id', async () => {
 			await typeName('Mercado');
 			saveButton().click();
 
 			expect(callback).toHaveBeenCalledWith(
-				{ type: 'save', result: { name: 'Mercado', color: '#43A047', id: undefined } },
+				{ type: 'save', result: { name: 'Mercado', color: PALETTE[0], id: undefined } },
 				expect.any(CategoryFormSheet),
 			);
 		});
@@ -96,6 +108,19 @@ describe('CategoryFormSheet', () => {
 
 			expect(dismiss).toHaveBeenCalled();
 			expect(callback).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('creating when the palette fails to load', () => {
+		beforeEach(() => render(undefined, 'error'));
+
+		it('should not save without a color and should ask for one', async () => {
+			await typeName('Mercado');
+			saveButton().click();
+			await fixture.whenStable();
+
+			expect(callback).not.toHaveBeenCalled();
+			expect(element.querySelector('.color-error')?.textContent).toContain('Cor é obrigatória');
 		});
 	});
 

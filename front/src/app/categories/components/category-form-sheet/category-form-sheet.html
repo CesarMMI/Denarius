@@ -22,6 +22,9 @@
 	<div class="color-field">
 		<span class="label">Cor *</span>
 		<app-category-color-picker formControlName="color" />
+		@if (form.controls.color.touched && form.controls.color.hasError('required')) {
+			<p class="color-error">Cor é obrigatória</p>
+		}
 	</div>
 
 	@if (isEditing) {

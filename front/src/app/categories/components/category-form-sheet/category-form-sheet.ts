@@ -37,7 +37,7 @@ export class CategoryFormSheet extends BottomSheetDirective<CategoryFormData, Ca
 			nonNullable: true,
 			validators: [Validators.required, Validators.maxLength(this.nameMaxLength)],
 		}),
-		color: new FormControl(this.sheetData.category?.color ?? '#43A047', {
+		color: new FormControl(this.sheetData.category?.color ?? '', {
 			nonNullable: true,
 			validators: [Validators.required],
 		}),

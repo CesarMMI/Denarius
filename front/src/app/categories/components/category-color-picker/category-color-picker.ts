@@ -1,22 +1,19 @@
-import { Component, forwardRef, signal } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+import { Component, computed, effect, forwardRef, linkedSignal, signal, untracked } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
-const PALETTE = [
-	'#F4511E',
-	'#F6BF26',
-	'#43A047',
-	'#8E24AA',
-	'#1E88E5',
-	'#D81B60',
-	'#00897B',
-	'#FB8C00',
-	'#C0CA33',
-	'#78909C',
-	'#E53935',
-];
+/** Served from `public/`, so the palette can change without rebuilding the app. */
+const PALETTE_URL = 'colors.json';
 
 type ColorMode = 'palette' | 'custom';
+
+function parsePalette(raw: unknown): string[] {
+	if (!Array.isArray(raw) || !raw.every((color) => typeof color === 'string')) {
+		throw new Error(`${PALETTE_URL} must be an array of color strings`);
+	}
+	return raw;
+}
 
 @Component({
 	selector: 'app-category-color-picker',
@@ -32,19 +29,35 @@ type ColorMode = 'palette' | 'custom';
 	],
 })
 export class CategoryColorPicker implements ControlValueAccessor {
-	protected readonly palette = PALETTE;
+	protected readonly paletteResource = httpResource(() => PALETTE_URL, { parse: parsePalette, defaultValue: [] });
+	protected readonly palette = computed(() => (this.paletteResource.hasValue() ? this.paletteResource.value() : []));
 
-	protected readonly value = signal(PALETTE[0]);
+	protected readonly value = signal('');
 	protected readonly disabled = signal(false);
-	protected readonly mode = signal<ColorMode>('palette');
+
+	/** The value last written by the form, which picks the starting mode once the palette is known. */
+	private readonly writtenValue = signal('');
+	protected readonly mode = linkedSignal<ColorMode>(() =>
+		this.paletteResource.isLoading() || this.isPaletteColor(this.writtenValue()) ? 'palette' : 'custom',
+	);
 
 	private onChange: (value: string) => void = () => undefined;
 	private onTouched: () => void = () => undefined;
 
-	writeValue(value: string): void {
-		const normalized = value ?? PALETTE[0];
-		this.value.set(normalized);
-		this.mode.set(this.isPaletteColor(normalized) ? 'palette' : 'custom');
+	constructor() {
+		// With no color yet, as for a new category, start from the first color in the palette.
+		effect(() => {
+			const first = this.palette()[0];
+			if (!first || untracked(this.writtenValue)) return;
+			this.writtenValue.set(first);
+			this.value.set(first);
+			this.onChange(first);
+		});
+	}
+
+	writeValue(value: string | null): void {
+		this.value.set(value ?? '');
+		this.writtenValue.set(value ?? '');
 	}
 
 	registerOnChange(fn: (value: string) => void): void {
@@ -74,6 +87,6 @@ export class CategoryColorPicker implements ControlValueAccessor {
 	}
 
 	private isPaletteColor(color: string) {
-		return this.palette.some((c) => c.toLowerCase() === color.toLowerCase());
+		return this.palette().some((c) => c.toLowerCase() === color.toLowerCase());
 	}
 }

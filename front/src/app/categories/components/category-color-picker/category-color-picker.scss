@@ -36,6 +36,12 @@
 	margin-top: 18px;
 }
 
+.palette-error {
+	margin: 18px 0 0;
+	font: var(--mat-sys-body-medium);
+	color: var(--mat-sys-error);
+}
+
 .swatch {
 	aspect-ratio: 1;
 	border: 3px solid transparent;
