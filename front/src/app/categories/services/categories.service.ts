@@ -18,10 +18,6 @@ export class CategoriesService {
 		return { url: this.baseUrl, params: this.toParams(filter, sort, monthRef) };
 	}
 
-	getById(id: string) {
-		return this.httpClient.get<Category>(`${this.baseUrl}/${id}`);
-	}
-
 	create(category: Pick<Category, 'name' | 'color'>) {
 		return this.httpClient.post<Category>(`${this.baseUrl}`, category);
 	}

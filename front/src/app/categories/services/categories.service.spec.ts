@@ -62,17 +62,6 @@ describe('CategoriesService', () => {
 		});
 	});
 
-	it('getById should GET the category', () => {
-		const category = buildCategory();
-		let response: unknown;
-		service.getById(category.id).subscribe((value) => (response = value));
-
-		const req = httpTesting.expectOne(`${baseUrl}/${category.id}`);
-		expect(req.request.method).toBe('GET');
-		req.flush(category);
-		expect(response).toEqual(category);
-	});
-
 	it('create should POST name and color', () => {
 		const category = buildCategory();
 		let response: unknown;

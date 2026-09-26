@@ -83,17 +83,6 @@ describe('TransactionsService', () => {
 		});
 	});
 
-	it('getById should GET the transaction', () => {
-		const transaction = buildTransaction();
-		let response: unknown;
-		service.getById(transaction.id).subscribe((value) => (response = value));
-
-		const req = httpTesting.expectOne(`${baseUrl}/${transaction.id}`);
-		expect(req.request.method).toBe('GET');
-		req.flush(transaction);
-		expect(response).toEqual(transaction);
-	});
-
 	it('create should POST the transaction', () => {
 		const transaction = buildTransaction();
 		let response: unknown;

@@ -19,10 +19,6 @@ export class TransactionsService {
 		return { url: this.baseUrl, params: this.toParams(filter, sort, monthRef) };
 	}
 
-	getById(id: string) {
-		return this.httpClient.get<Transaction>(`${this.baseUrl}/${id}`);
-	}
-
 	create(transaction: TransactionInput) {
 		return this.httpClient.post<Transaction>(this.baseUrl, transaction);
 	}

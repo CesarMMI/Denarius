@@ -8,13 +8,11 @@ export const DEFAULT_CATEGORY_FILTERS: CategoryFilters = {
 	withTransaction: null,
 };
 
-export const CATEGORY_TRANSACTION_FILTER = {
+const CATEGORY_TRANSACTION_FILTER = {
 	All: null,
 	With: true,
 	Without: false,
 } as const;
-
-export type CategoryTransactionFilter = (typeof CATEGORY_TRANSACTION_FILTER)[keyof typeof CATEGORY_TRANSACTION_FILTER];
 
 export const CATEGORY_TRANSACTION_FILTER_OPTIONS = [
 	{ label: 'Todas', value: CATEGORY_TRANSACTION_FILTER.All },
