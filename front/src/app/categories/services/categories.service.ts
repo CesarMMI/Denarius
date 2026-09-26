@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { MonthRef } from '../../shared/types/month-ref';
+import { MonthRef, monthRefToDateRef } from '../../shared/types/month-ref';
 import { SortValue } from '../../shared/types/sort';
 import { Category } from '../types/category';
 import { CategoryFilters } from '../types/category-filters';
@@ -38,7 +38,7 @@ export class CategoriesService {
 		let params = new HttpParams();
 		if (filter.name) params = params.set('name', filter.name);
 		if (typeof filter.withTransaction === 'boolean') params = params.set('withTransaction', filter.withTransaction);
-		if (monthRef) params = params.set('dateRef', `${monthRef.year}-${String(monthRef.month + 1).padStart(2, '0')}-01`);
+		if (monthRef) params = params.set('dateRef', monthRefToDateRef(monthRef));
 		if (sort.orderBy) params = params.set('orderBy', sort.orderBy);
 		if (sort.ascending !== undefined) params = params.set('asc', sort.ascending);
 		return params;
