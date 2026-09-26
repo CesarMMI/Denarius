@@ -47,7 +47,10 @@ describe('TransactionsService', () => {
 		});
 
 		it('should send the description filter', () => {
-			const { params } = service.list({ ...DEFAULT_TRANSACTION_FILTERS, description: 'feira' }, TRANSACTION_SORT_OPTIONS[0]);
+			const { params } = service.list(
+				{ ...DEFAULT_TRANSACTION_FILTERS, description: 'feira' },
+				TRANSACTION_SORT_OPTIONS[0],
+			);
 			expect(params.get('description')).toBe('feira');
 		});
 
@@ -57,7 +60,10 @@ describe('TransactionsService', () => {
 		});
 
 		it('should send the category filter', () => {
-			const { params } = service.list({ ...DEFAULT_TRANSACTION_FILTERS, categoryId: 'mercado' }, TRANSACTION_SORT_OPTIONS[0]);
+			const { params } = service.list(
+				{ ...DEFAULT_TRANSACTION_FILTERS, categoryId: 'mercado' },
+				TRANSACTION_SORT_OPTIONS[0],
+			);
 			expect(params.get('categoryId')).toBe('mercado');
 		});
 

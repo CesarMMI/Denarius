@@ -32,8 +32,12 @@ export class DashboardPage {
 	protected readonly categories = MOCK_CATEGORIES;
 	protected readonly monthRef = signal<MonthRef>(CURRENT_MONTH);
 
-	protected readonly monthLabel = computed(() => this.datePipe.transform(monthRefToDate(this.monthRef()), 'MMMM y') ?? '');
-	protected readonly greeting = computed(() => `${this.datePipe.transform(monthRefToDate(this.monthRef()), 'MMMM') ?? ''} em curso`);
+	protected readonly monthLabel = computed(
+		() => this.datePipe.transform(monthRefToDate(this.monthRef()), 'MMMM y') ?? '',
+	);
+	protected readonly greeting = computed(
+		() => `${this.datePipe.transform(monthRefToDate(this.monthRef()), 'MMMM') ?? ''} em curso`,
+	);
 
 	protected readonly transactionsInMonth = computed(() => {
 		const month = this.monthRef();
@@ -44,8 +48,12 @@ export class DashboardPage {
 	});
 
 	protected readonly net = computed(() => this.transactionsInMonth().reduce((acc, t) => acc + t.value, 0));
-	protected readonly totalIn = computed(() => this.transactionsInMonth().reduce((acc, t) => (t.value > 0 ? acc + t.value : acc), 0));
-	protected readonly totalOut = computed(() => this.transactionsInMonth().reduce((acc, t) => (t.value < 0 ? acc + t.value : acc), 0));
+	protected readonly totalIn = computed(() =>
+		this.transactionsInMonth().reduce((acc, t) => (t.value > 0 ? acc + t.value : acc), 0),
+	);
+	protected readonly totalOut = computed(() =>
+		this.transactionsInMonth().reduce((acc, t) => (t.value < 0 ? acc + t.value : acc), 0),
+	);
 
 	protected readonly recentTransactions = computed<RecentTransactionRow[]>(() =>
 		this.transactionsInMonth()

@@ -80,7 +80,9 @@ form {
 		margin-top: 6px;
 
 		.prefix {
-			font: 400 20px 'Roboto Mono', monospace;
+			font:
+				400 20px 'Roboto Mono',
+				monospace;
 			color: var(--mat-sys-on-surface-variant);
 		}
 
@@ -90,7 +92,9 @@ form {
 			outline: none;
 			background: none;
 			text-align: center;
-			font: 500 40px 'Roboto Mono', monospace;
+			font:
+				500 40px 'Roboto Mono',
+				monospace;
 			letter-spacing: -1px;
 			color: var(--mat-sys-on-surface);
 

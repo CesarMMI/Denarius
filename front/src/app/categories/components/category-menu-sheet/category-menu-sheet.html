@@ -10,9 +10,8 @@
 			@if (category.transactionCount === 0) {
 				Sem transações no período
 			} @else {
-				{{ category.transactionCount === 1 ? '1 transação · ' : category.transactionCount + ' transações · ' }}{{
-					formattedBalance
-				}}
+				{{ category.transactionCount === 1 ? '1 transação · ' : category.transactionCount + ' transações · '
+				}}{{ formattedBalance }}
 			}
 		</div>
 	</div>

@@ -51,10 +51,13 @@ export class TransactionFormSheet extends BottomSheetDirective<TransactionFormDa
 	);
 
 	protected readonly form = new FormGroup({
-		value: new FormControl(this.sheetData.transaction ? this.formatValue(Math.abs(this.sheetData.transaction.value)) : '', {
-			nonNullable: true,
-			validators: [Validators.required, Validators.pattern(/^\d+([.,]\d{1,2})?$/)],
-		}),
+		value: new FormControl(
+			this.sheetData.transaction ? this.formatValue(Math.abs(this.sheetData.transaction.value)) : '',
+			{
+				nonNullable: true,
+				validators: [Validators.required, Validators.pattern(/^\d+([.,]\d{1,2})?$/)],
+			},
+		),
 		date: new FormControl(this.sheetData.transaction ? fromApiDate(this.sheetData.transaction.date) : new Date(), {
 			nonNullable: true,
 			validators: [Validators.required],

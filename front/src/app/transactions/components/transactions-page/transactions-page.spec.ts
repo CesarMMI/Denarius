@@ -28,9 +28,27 @@ describe('TransactionsPage', () => {
 	const categoriesUrl = `${environment.apiUrl}/Categories`;
 	const mercado = buildCategory({ id: 'mercado', name: 'Mercado', color: '#43A047' });
 	const salario = buildCategory({ id: 'salario', name: 'Salário', color: '#1E88E5' });
-	const feira = buildTransaction({ id: 't1', description: 'Feira', categoryId: 'mercado', value: -186.42, date: '2026-09-24T00:00:00Z' });
-	const pao = buildTransaction({ id: 't2', description: null, categoryId: 'mercado', value: -12.5, date: '2026-09-24T00:00:00Z' });
-	const pagamento = buildTransaction({ id: 't3', description: 'Salário', categoryId: 'salario', value: 8600, date: '2026-09-05T00:00:00Z' });
+	const feira = buildTransaction({
+		id: 't1',
+		description: 'Feira',
+		categoryId: 'mercado',
+		value: -186.42,
+		date: '2026-09-24T00:00:00Z',
+	});
+	const pao = buildTransaction({
+		id: 't2',
+		description: null,
+		categoryId: 'mercado',
+		value: -12.5,
+		date: '2026-09-24T00:00:00Z',
+	});
+	const pagamento = buildTransaction({
+		id: 't3',
+		description: 'Salário',
+		categoryId: 'salario',
+		value: 8600,
+		date: '2026-09-05T00:00:00Z',
+	});
 
 	let fixture: ComponentFixture<TransactionsPage>;
 	let element: HTMLElement;
@@ -217,7 +235,10 @@ describe('TransactionsPage', () => {
 
 		function applySort(index: number) {
 			emitFrom('app-page-header', 'openFilters');
-			lastSheet(TransactionFiltersSheet).answer({ filters: DEFAULT_TRANSACTION_FILTERS, sort: TRANSACTION_SORT_OPTIONS[index] });
+			lastSheet(TransactionFiltersSheet).answer({
+				filters: DEFAULT_TRANSACTION_FILTERS,
+				sort: TRANSACTION_SORT_OPTIONS[index],
+			});
 		}
 
 		it('should reload with the chosen sort', () => {
@@ -378,7 +399,10 @@ describe('TransactionsPage', () => {
 
 			httpTesting
 				.expectOne(baseUrl)
-				.flush({ status: 404, title: 'Not Found', detail: 'Categoria não encontrada.' }, { status: 404, statusText: 'Not Found' });
+				.flush(
+					{ status: 404, title: 'Not Found', detail: 'Categoria não encontrada.' },
+					{ status: 404, statusText: 'Not Found' },
+				);
 
 			expect(snackBar.open).toHaveBeenCalledWith('Categoria não encontrada.', 'Fechar', { duration: 5000 });
 			TestBed.tick();

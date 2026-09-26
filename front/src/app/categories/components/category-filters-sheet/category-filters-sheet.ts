@@ -7,7 +7,11 @@ import { MonthRef } from '../../../shared/types/month-ref';
 import { SortOption, SortValue } from '../../../shared/types/sort';
 import { CategoriesService } from '../../services/categories.service';
 import { Category } from '../../types/category';
-import { CATEGORY_TRANSACTION_FILTER_OPTIONS, CategoryFilters, DEFAULT_CATEGORY_FILTERS } from '../../types/category-filters';
+import {
+	CATEGORY_TRANSACTION_FILTER_OPTIONS,
+	CategoryFilters,
+	DEFAULT_CATEGORY_FILTERS,
+} from '../../types/category-filters';
 import { CATEGORY_SORT_OPTIONS, CategorySortField } from '../../types/category-sort';
 
 export interface CategoryFiltersData {

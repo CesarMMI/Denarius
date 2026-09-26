@@ -10,7 +10,10 @@ import { Transaction } from '../../types/transaction';
 import { TransactionFormSheet } from './transaction-form-sheet';
 
 describe('TransactionFormSheet', () => {
-	const categories = [buildCategory({ id: 'mercado', name: 'Mercado' }), buildCategory({ id: 'salario', name: 'Salário' })];
+	const categories = [
+		buildCategory({ id: 'mercado', name: 'Mercado' }),
+		buildCategory({ id: 'salario', name: 'Salário' }),
+	];
 	const feira = buildTransaction({
 		id: 't1',
 		description: 'Feira da semana',

@@ -12,7 +12,12 @@
 <div class="section-title">Tipo</div>
 <div class="type-row">
 	@for (option of typeOptions; track option.value) {
-		<button type="button" class="option" [class.selected]="draftFilters().type === option.value" (click)="setType(option.value)">
+		<button
+			type="button"
+			class="option"
+			[class.selected]="draftFilters().type === option.value"
+			(click)="setType(option.value)"
+		>
 			{{ option.label }}
 		</button>
 	}

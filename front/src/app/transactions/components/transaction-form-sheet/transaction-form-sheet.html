@@ -32,7 +32,9 @@
 		@if (form.controls.value.invalid && form.controls.value.touched) {
 			<span class="hint error">Informe um valor válido</span>
 		} @else {
-			<span class="hint">{{ sign() === 'in' ? 'Salvo como valor positivo. Nunca zero.' : 'Salvo como valor negativo. Nunca zero.' }}</span>
+			<span class="hint">{{
+				sign() === 'in' ? 'Salvo como valor positivo. Nunca zero.' : 'Salvo como valor negativo. Nunca zero.'
+			}}</span>
 		}
 	</div>
 
@@ -60,7 +62,13 @@
 
 	<mat-form-field appearance="outline">
 		<mat-label>Descrição (opcional)</mat-label>
-		<input matInput type="text" formControlName="description" [maxlength]="descriptionMaxLength" placeholder="Ex.: feira da semana" />
+		<input
+			matInput
+			type="text"
+			formControlName="description"
+			[maxlength]="descriptionMaxLength"
+			placeholder="Ex.: feira da semana"
+		/>
 		<mat-hint align="end">{{ form.controls.description.value.length }}/{{ descriptionMaxLength }}</mat-hint>
 	</mat-form-field>
 

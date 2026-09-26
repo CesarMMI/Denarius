@@ -75,7 +75,9 @@ export class TransactionsPage {
 
 		const sort = this.sort();
 		if (sort.orderBy !== TRANSACTION_SORT_FIELD.Date) {
-			const label = TRANSACTION_SORT_OPTIONS.find((o) => o.orderBy === sort.orderBy && o.ascending === sort.ascending)?.label;
+			const label = TRANSACTION_SORT_OPTIONS.find(
+				(o) => o.orderBy === sort.orderBy && o.ascending === sort.ascending,
+			)?.label;
 			return [this.toGroup(label ?? '', `${this.sumOf(transactions)} no total`, transactions)];
 		}
 
@@ -103,7 +105,8 @@ export class TransactionsPage {
 	protected readonly chipList = computed(() => {
 		const f = this.filters();
 		const items: { label: string; reset: () => void }[] = [];
-		if (f.description) items.push({ label: `"${f.description}"`, reset: () => this.filters.update((v) => ({ ...v, description: '' })) });
+		if (f.description)
+			items.push({ label: `"${f.description}"`, reset: () => this.filters.update((v) => ({ ...v, description: '' })) });
 		if (f.type !== TRANSACTION_TYPE.All)
 			items.push({
 				label: f.type === TRANSACTION_TYPE.In ? 'Entradas' : 'Saídas',

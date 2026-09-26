@@ -15,7 +15,9 @@
 
 .net {
 	margin-top: 8px;
-	font: 400 36px 'Roboto Mono', monospace;
+	font:
+		400 36px 'Roboto Mono',
+		monospace;
 	letter-spacing: -1px;
 }
 
@@ -51,6 +53,8 @@
 
 .chip-value {
 	margin-top: 6px;
-	font: 500 17px 'Roboto Mono', monospace;
+	font:
+		500 17px 'Roboto Mono',
+		monospace;
 	white-space: nowrap;
 }

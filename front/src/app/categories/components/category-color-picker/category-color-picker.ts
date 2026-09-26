@@ -2,7 +2,19 @@ import { Component, forwardRef, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
-const PALETTE = ['#F4511E', '#F6BF26', '#43A047', '#8E24AA', '#1E88E5', '#D81B60', '#00897B', '#FB8C00', '#C0CA33', '#78909C', '#E53935'];
+const PALETTE = [
+	'#F4511E',
+	'#F6BF26',
+	'#43A047',
+	'#8E24AA',
+	'#1E88E5',
+	'#D81B60',
+	'#00897B',
+	'#FB8C00',
+	'#C0CA33',
+	'#78909C',
+	'#E53935',
+];
 
 type ColorMode = 'palette' | 'custom';
 

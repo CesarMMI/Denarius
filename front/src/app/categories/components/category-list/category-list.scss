@@ -62,7 +62,9 @@
 }
 
 .balance {
-	font: 500 13px 'Roboto Mono', monospace;
+	font:
+		500 13px 'Roboto Mono',
+		monospace;
 	white-space: nowrap;
 
 	&.positive {

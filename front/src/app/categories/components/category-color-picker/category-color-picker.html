@@ -1,6 +1,10 @@
 <div class="mode-toggle">
-	<button type="button" [class.selected]="mode() === 'palette'" [disabled]="disabled()" (click)="setMode('palette')">Paleta</button>
-	<button type="button" [class.selected]="mode() === 'custom'" [disabled]="disabled()" (click)="setMode('custom')">Customizada</button>
+	<button type="button" [class.selected]="mode() === 'palette'" [disabled]="disabled()" (click)="setMode('palette')">
+		Paleta
+	</button>
+	<button type="button" [class.selected]="mode() === 'custom'" [disabled]="disabled()" (click)="setMode('custom')">
+		Customizada
+	</button>
 </div>
 
 @if (mode() === 'palette') {

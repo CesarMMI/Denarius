@@ -327,9 +327,12 @@ describe('CategoriesPage', () => {
 			dialogReturns(undefined);
 			deleteFromMenu(mercado);
 
-			expect(dialog.open).toHaveBeenCalledWith(CategoryBlockedDialog, expect.objectContaining({
-				data: { categoryName: 'Mercado', transactionCount: 14 },
-			}));
+			expect(dialog.open).toHaveBeenCalledWith(
+				CategoryBlockedDialog,
+				expect.objectContaining({
+					data: { categoryName: 'Mercado', transactionCount: 14 },
+				}),
+			);
 			expect(navigate).not.toHaveBeenCalled();
 			httpTesting.expectNone(`${baseUrl}/${mercado.id}`);
 		});
@@ -345,9 +348,12 @@ describe('CategoriesPage', () => {
 			dialogReturns(false);
 			deleteFromMenu(educacao);
 
-			expect(dialog.open).toHaveBeenCalledWith(ConfirmDeleteDialog, expect.objectContaining({
-				data: expect.objectContaining({ title: 'Excluir "Educação"?' }),
-			}));
+			expect(dialog.open).toHaveBeenCalledWith(
+				ConfirmDeleteDialog,
+				expect.objectContaining({
+					data: expect.objectContaining({ title: 'Excluir "Educação"?' }),
+				}),
+			);
 			httpTesting.expectNone(`${baseUrl}/${educacao.id}`);
 			expect(snackBar.open).not.toHaveBeenCalled();
 		});

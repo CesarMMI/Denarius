@@ -27,7 +27,10 @@ describe('CategoriesService', () => {
 		});
 
 		it('should only send sort params when no filter is set', () => {
-			const { params } = service.list(DEFAULT_CATEGORY_FILTERS, { orderBy: CATEGORY_SORT_FIELD.Balance, ascending: false });
+			const { params } = service.list(DEFAULT_CATEGORY_FILTERS, {
+				orderBy: CATEGORY_SORT_FIELD.Balance,
+				ascending: false,
+			});
 			expect(params.keys()).toEqual(['orderBy', 'asc']);
 			expect(params.get('orderBy')).toBe('Balance');
 			expect(params.get('asc')).toBe('false');

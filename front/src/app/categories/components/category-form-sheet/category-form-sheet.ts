@@ -19,7 +19,14 @@ export type CategoryFormOutcome = { type: 'save'; result: CategoryFormResult } |
 	selector: 'app-category-form-sheet',
 	templateUrl: './category-form-sheet.html',
 	styleUrl: './category-form-sheet.scss',
-	imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, CategoryColorPicker],
+	imports: [
+		ReactiveFormsModule,
+		MatButtonModule,
+		MatFormFieldModule,
+		MatIconModule,
+		MatInputModule,
+		CategoryColorPicker,
+	],
 })
 export class CategoryFormSheet extends BottomSheetDirective<CategoryFormData, CategoryFormOutcome> {
 	protected readonly isEditing = !!this.sheetData.category;

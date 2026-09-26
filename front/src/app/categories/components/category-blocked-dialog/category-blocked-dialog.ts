@@ -21,7 +21,9 @@ export class CategoryBlockedDialog {
 	private readonly dialogRef = inject<MatDialogRef<CategoryBlockedDialog, CategoryBlockedDialogResult>>(MatDialogRef);
 
 	protected readonly blockedPhrase =
-		this.data.transactionCount === 1 ? 'Existe 1 transação vinculada' : `Existem ${this.data.transactionCount} transações vinculadas`;
+		this.data.transactionCount === 1
+			? 'Existe 1 transação vinculada'
+			: `Existem ${this.data.transactionCount} transações vinculadas`;
 
 	protected viewTransactions() {
 		this.dialogRef.close('view-transactions');

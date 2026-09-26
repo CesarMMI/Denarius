@@ -8,7 +8,8 @@ export const routes: Routes = [
 	},
 	{
 		path: 'transactions',
-		loadComponent: () => import('./transactions/components/transactions-page/transactions-page').then((m) => m.TransactionsPage),
+		loadComponent: () =>
+			import('./transactions/components/transactions-page/transactions-page').then((m) => m.TransactionsPage),
 	},
 	{
 		path: 'categories',
