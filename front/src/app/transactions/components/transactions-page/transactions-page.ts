@@ -68,6 +68,14 @@ export class TransactionsPage {
 
 	private readonly categoryById = computed(() => new Map(this.categories().map((c) => [c.id, c])));
 
+	/** Categories give the rows their names and colors and feed the filters and the form, so the page needs both lists. */
+	protected readonly isLoading = computed(
+		() => this.transactionsResource.isLoading() || this.categoriesResource.isLoading(),
+	);
+	protected readonly loadFailed = computed(
+		() => !!(this.transactionsResource.error() || this.categoriesResource.error()),
+	);
+
 	/** Grouped by day when sorted by date; otherwise a single group keeps the API order. */
 	protected readonly groups = computed<TransactionListGroup[]>(() => {
 		const transactions = this.transactions();
@@ -131,6 +139,11 @@ export class TransactionsPage {
 		this.transactionsResource.reload();
 	}
 
+	protected retry() {
+		if (this.transactionsResource.error()) this.transactionsResource.reload();
+		if (this.categoriesResource.error()) this.categoriesResource.reload();
+	}
+
 	protected openMonthPicker() {
 		const current = this.monthRef() ?? { month: new Date().getMonth(), year: new Date().getFullYear() };
 		this.bottomSheetService.open(MonthPickerSheet, {
@@ -163,6 +176,10 @@ export class TransactionsPage {
 	}
 
 	private openTransactionForm(transaction: Transaction | undefined) {
+		if (this.categoriesResource.error()) {
+			this.snackBar.open('Não foi possível carregar as categorias. Tente novamente.', 'Fechar', { duration: 5000 });
+			return;
+		}
 		this.bottomSheetService.open(TransactionFormSheet, {
 			data: { transaction, categories: this.categories() },
 			callback: (outcome, sheet) => {

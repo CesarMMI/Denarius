@@ -210,6 +210,45 @@ describe('TransactionsPage', () => {
 
 			expect(renderedDescriptions()).toEqual(['Feira']);
 		});
+
+		it('should keep the progress bar until the categories arrive', async () => {
+			expectList().flush([feira]);
+			const categories = expectCategories();
+			fixture.detectChanges();
+
+			expect(element.querySelector('mat-progress-bar')).not.toBeNull();
+
+			categories.flush([mercado, salario]);
+			await fixture.whenStable();
+			expect(element.querySelector('mat-progress-bar')).toBeNull();
+		});
+
+		it('should show the error state when the categories fail and retry only them', async () => {
+			expectCategories().flush(null, { status: 500, statusText: 'Server Error' });
+			await flushList([feira]);
+
+			expect(element.querySelector('app-empty-state h2')?.textContent).toBe('Não foi possível carregar as transações');
+			expect(renderedDescriptions()).toEqual([]);
+
+			element.querySelector<HTMLButtonElement>('app-empty-state button')!.click();
+			expectCategories().flush([mercado, salario]);
+			await fixture.whenStable();
+
+			expect(renderedDescriptions()).toEqual(['Feira']);
+			expect(element.querySelector('app-transaction-row .meta')?.textContent?.trim()).toBe('Mercado');
+		});
+
+		it('should not open the form while the categories failed to load', async () => {
+			expectCategories().flush(null, { status: 500, statusText: 'Server Error' });
+			await flushList([feira]);
+
+			emitFrom('app-page-header', 'action');
+
+			expect(bottomSheet.open).not.toHaveBeenCalled();
+			expect(snackBar.open).toHaveBeenCalledWith('Não foi possível carregar as categorias. Tente novamente.', 'Fechar', {
+				duration: 5000,
+			});
+		});
 	});
 
 	describe('category from the route', () => {
