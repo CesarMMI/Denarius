@@ -21,7 +21,6 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 })
 export class App {
 	protected readonly links = [
-		{ route: '/dashboard', label: 'Resumo', icon: 'pie_chart' },
 		{ route: '/transactions', label: 'Transações', icon: 'receipt_long' },
 		{ route: '/categories', label: 'Categorias', icon: 'sell' },
 	];

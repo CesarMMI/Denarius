@@ -13,7 +13,6 @@ describe('AppComponent', () => {
 		TestBed.configureTestingModule({
 			providers: [
 				provideRouter([
-					{ path: 'dashboard', component: Blank },
 					{ path: 'transactions', component: Blank },
 					{ path: 'categories', component: Blank },
 				]),
@@ -28,9 +27,8 @@ describe('AppComponent', () => {
 	}
 
 	it('should link every page from the side menu', () => {
-		expect(links().map((a) => a.getAttribute('href'))).toEqual(['/dashboard', '/transactions', '/categories']);
+		expect(links().map((a) => a.getAttribute('href'))).toEqual(['/transactions', '/categories']);
 		expect(links().map((a) => a.textContent)).toEqual([
-			expect.stringContaining('Resumo'),
 			expect.stringContaining('Transações'),
 			expect.stringContaining('Categorias'),
 		]);
