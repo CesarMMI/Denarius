@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable } from '@angular/core';
 
-const URL = 'default-colors.json';
+const URL = 'data/default-colors.json';
 
 @Injectable({
 	providedIn: 'root',

@@ -26,7 +26,7 @@ describe('CategoryForm', () => {
 		fixture = TestBed.createComponent(CategoryForm);
 		element = fixture.nativeElement;
 		TestBed.tick();
-		const req = TestBed.inject(HttpTestingController).expectOne('colors.json');
+		const req = TestBed.inject(HttpTestingController).expectOne('data/default-colors.json');
 		if (palette === 'error') req.flush('', { status: 404, statusText: 'Not Found' });
 		else req.flush(palette);
 		await fixture.whenStable();
@@ -64,7 +64,7 @@ describe('CategoryForm', () => {
 	describe('creating', () => {
 		beforeEach(() => render(undefined));
 
-		it('should show one swatch per color of colors.json and start with the first one', () => {
+		it('should show one swatch per color of the palette and start with the first one', () => {
 			expect(element.querySelector('[mat-dialog-title]')?.textContent?.trim()).toBe('Nova categoria');
 			expect(swatches().map((s) => s.getAttribute('aria-label'))).toEqual(PALETTE);
 			expect(pressed()).toEqual([PALETTE[0]]);

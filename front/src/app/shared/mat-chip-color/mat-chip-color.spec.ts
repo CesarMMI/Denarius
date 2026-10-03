@@ -33,7 +33,7 @@ describe('MatChipColor', () => {
 		expect(style.getPropertyValue('--mat-chip-label-text-color')).toBe('light-dark(#1e5120, #c9ebca)');
 	});
 
-	// The colors of colors.json where black or white text read worst, and the extremes.
+	// The colors of the default palette where black or white text read worst, and the extremes.
 	it.each(['#D81B60', '#00897B', '#E53935', '#F4511E', '#000000', '#FFFFFF', '#FFFF00', '#00FF00', '#0000FF'])(
 		'should keep at least 7:1 of contrast on %s',
 		async (color) => {
