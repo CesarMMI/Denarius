@@ -1,5 +1,5 @@
 mat-toolbar {
-	margin: 0.5rem 0;
+	margin: 1rem 0;
 	gap: 0.5rem;
 
 	img {
@@ -20,4 +20,6 @@ mat-nav-list {
 
 mat-sidenav-content {
 	padding: 1rem;
+	max-height: 100%;
+	box-sizing: border-box;
 }
