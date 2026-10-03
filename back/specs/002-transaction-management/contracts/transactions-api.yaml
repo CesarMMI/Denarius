@@ -49,9 +49,8 @@ paths:
           schema:
             $ref: '#/components/schemas/TransactionOrderField'
           description: >-
-            The day always comes first. `date` orders the days; any other field orders the
-            transactions within each day, with the days most recent first. Ties fall back to the
-            creation time, in the day's direction.
+            Orders the whole list. Ties fall back to the most recent date, then creation time;
+            ordering by `date`, they follow its direction.
         - name: asc
           in: query
           required: false
