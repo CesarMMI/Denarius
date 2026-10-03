@@ -10,6 +10,9 @@ internal class ListCategoriesUseCase(ICategoryRepository categoryRepository, ITr
         var categories = await categoryRepository.GetAllAsync(input.Name);
         var transactions = await transactionRepository.GetAllAsync();
 
+        // Taken before the month filter: a category with transactions in any month cannot be deleted.
+        var categoriesInUse = transactions.Select(t => t.CategoryId).ToHashSet();
+
         if (input.DateRef.HasValue)
         {
             var rangeStart = new DateTime(input.DateRef.Value.Year, input.DateRef.Value.Month, 1);
@@ -24,7 +27,7 @@ internal class ListCategoriesUseCase(ICategoryRepository categoryRepository, ITr
         var output = categories.Select(category =>
         {
             transactionsByCategory.TryGetValue(category.Id, out var aggregate);
-            return new CategoryOutput(category, aggregate.Count, aggregate.Balance);
+            return new CategoryOutput(category, aggregate.Count, aggregate.Balance, !categoriesInUse.Contains(category.Id));
         });
 
         if (input.WithTransaction.HasValue)

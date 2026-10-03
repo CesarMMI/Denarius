@@ -164,7 +164,10 @@ components:
         balance:
           type: number
           format: decimal
-      required: [id, createdAt, updatedAt, name, color, transactionCount, balance]
+        canDelete:
+          type: boolean
+          description: False when the category has transactions in any month, regardless of dateRef.
+      required: [id, createdAt, updatedAt, name, color, transactionCount, balance, canDelete]
     CreateCategoryInput:
       type: object
       properties:

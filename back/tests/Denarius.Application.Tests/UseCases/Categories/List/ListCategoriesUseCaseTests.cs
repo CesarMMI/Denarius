@@ -131,6 +131,25 @@ public class ListCategoriesUseCaseTests
     }
 
     [Fact]
+    public async Task Execute_CanDeleteOnlyCategoriesWithoutTransactionsInAnyMonth()
+    {
+        var lazer = new Category("Lazer", new Color("#FF0000"));
+        var mercado = new Category("Mercado", new Color("#00FF00"));
+
+        var transactions = new List<Transaction> { new("Fora do mês", new DateTime(2026, 9, 1), 500m, lazer.Id) };
+
+        _categoryRepository.GetAllAsync(null).Returns([lazer, mercado]);
+        _transactionRepository.GetAllAsync().Returns(transactions);
+
+        var output = (await _useCase.Execute(new ListCategoriesInput(null, null, new DateTime(2026, 8, 28)))).ToList();
+
+        var lazerOutput = output.Single(o => o.Name == "Lazer");
+        Assert.Equal(0, lazerOutput.TransactionCount);
+        Assert.False(lazerOutput.CanDelete);
+        Assert.True(output.Single(o => o.Name == "Mercado").CanDelete);
+    }
+
+    [Fact]
     public async Task Execute_OrderByTransactionCountDescending_OrdersCorrectly()
     {
         var lazer = new Category("Lazer", new Color("#FF0000"));

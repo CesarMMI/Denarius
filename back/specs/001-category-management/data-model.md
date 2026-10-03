@@ -51,6 +51,7 @@ Computed by `ListCategoriesUseCase` for each `Category`, not stored on the entit
 |---|---|---|
 | `TransactionCount` | `int` | Count of `Transaction`s with matching `CategoryId` (within the requested calendar month, if `dateRef` is given). |
 | `Balance` | `decimal` | Sum of those transactions' `Value`. |
+| `CanDelete` | `bool` | `true` when no `Transaction` has this `CategoryId`, in any month (ignores `dateRef`); the delete rule. |
 
 ## Persistence mapping (`Categories` table)
 

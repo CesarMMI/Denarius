@@ -11,8 +11,9 @@ public record CategoryOutput
     public string Color { get; private set; }
     public int TransactionCount { get; private set; }
     public decimal Balance { get; private set; }
+    public bool CanDelete { get; private set; }
 
-    public CategoryOutput(Category category, int transactionCount = 0, decimal balance = 0)
+    public CategoryOutput(Category category, int transactionCount = 0, decimal balance = 0, bool canDelete = true)
     {
         Id = category.Id;
         CreatedAt = category.CreatedAt;
@@ -21,5 +22,6 @@ public record CategoryOutput
         Color = category.Color.HexCode;
         TransactionCount = transactionCount;
         Balance = balance;
+        CanDelete = canDelete;
     }
 }
