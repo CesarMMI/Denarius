@@ -206,14 +206,14 @@ public class ListTransactionsUseCaseTests
     [Theory]
     [InlineData(true, new[] { "Aluguel", "Farmácia", "Mercado" })]
     [InlineData(false, new[] { "Mercado", "Farmácia", "Aluguel" })]
-    public async Task Execute_OrderByDescription_OrdersAlphabetically(bool ascending, string[] expected)
+    public async Task Execute_OrderByDescription_OrdersTheDayAlphabetically(bool ascending, string[] expected)
     {
         var categoryId = Guid.NewGuid();
         var transactions = new List<Transaction>
         {
             new("Farmácia", new DateTime(2026, 8, 1), -20m, categoryId),
-            new("Mercado", new DateTime(2026, 8, 2), -80m, categoryId),
-            new("Aluguel", new DateTime(2026, 8, 3), -1500m, categoryId)
+            new("Mercado", new DateTime(2026, 8, 1), -80m, categoryId),
+            new("Aluguel", new DateTime(2026, 8, 1), -1500m, categoryId)
         };
 
         _transactionRepository.GetAllAsync().Returns(transactions);
@@ -226,14 +226,14 @@ public class ListTransactionsUseCaseTests
     [Theory]
     [InlineData(true, new[] { "Aluguel", "Farmácia", "Salário" })]
     [InlineData(false, new[] { "Salário", "Farmácia", "Aluguel" })]
-    public async Task Execute_OrderByValue_OrdersBySignedValue(bool ascending, string[] expected)
+    public async Task Execute_OrderByValue_OrdersTheDayBySignedValue(bool ascending, string[] expected)
     {
         var categoryId = Guid.NewGuid();
         var transactions = new List<Transaction>
         {
             new("Farmácia", new DateTime(2026, 8, 1), -20m, categoryId),
-            new("Salário", new DateTime(2026, 8, 2), 3000m, categoryId),
-            new("Aluguel", new DateTime(2026, 8, 3), -1500m, categoryId)
+            new("Salário", new DateTime(2026, 8, 1), 3000m, categoryId),
+            new("Aluguel", new DateTime(2026, 8, 1), -1500m, categoryId)
         };
 
         _transactionRepository.GetAllAsync().Returns(transactions);
@@ -246,7 +246,7 @@ public class ListTransactionsUseCaseTests
     [Theory]
     [InlineData(true, new[] { "Cinema", "Feira", "Salário" })]
     [InlineData(false, new[] { "Salário", "Feira", "Cinema" })]
-    public async Task Execute_OrderByCategoryName_OrdersByTheCategoryName(bool ascending, string[] expected)
+    public async Task Execute_OrderByCategoryName_OrdersTheDayByTheCategoryName(bool ascending, string[] expected)
     {
         var lazer = new Category("Lazer", new Color("#FF0000"));
         var mercado = new Category("Mercado", new Color("#00FF00"));
@@ -254,8 +254,8 @@ public class ListTransactionsUseCaseTests
         var transactions = new List<Transaction>
         {
             new("Salário", new DateTime(2026, 8, 1), 3000m, trabalho.Id),
-            new("Cinema", new DateTime(2026, 8, 2), -100m, lazer.Id),
-            new("Feira", new DateTime(2026, 8, 3), -80m, mercado.Id)
+            new("Cinema", new DateTime(2026, 8, 1), -100m, lazer.Id),
+            new("Feira", new DateTime(2026, 8, 1), -80m, mercado.Id)
         };
 
         _transactionRepository.GetAllAsync().Returns(transactions);
@@ -265,6 +265,63 @@ public class ListTransactionsUseCaseTests
 
         Assert.Equal(expected, output.Select(o => o.Description));
         await _categoryRepository.Received(1).GetAllAsync(null);
+    }
+
+    [Theory]
+    [InlineData(TransactionOrderField.Description)]
+    [InlineData(TransactionOrderField.Value)]
+    public async Task Execute_OrderByAnotherField_KeepsTheDaysFromNewestToOldest(TransactionOrderField orderBy)
+    {
+        var categoryId = Guid.NewGuid();
+        var transactions = new List<Transaction>
+        {
+            new("A antiga", new DateTime(2026, 8, 1), 10m, categoryId),
+            new("D recente", new DateTime(2026, 8, 2), 40m, categoryId),
+            new("B antiga", new DateTime(2026, 8, 1), 20m, categoryId),
+            new("C recente", new DateTime(2026, 8, 2), 30m, categoryId)
+        };
+
+        _transactionRepository.GetAllAsync().Returns(transactions);
+
+        var output = await _useCase.Execute(new ListTransactionsInput(orderBy: orderBy, ascending: true));
+
+        Assert.Equal(["C recente", "D recente", "A antiga", "B antiga"], output.Select(o => o.Description));
+    }
+
+    [Theory]
+    [InlineData(false, new[] { "Lançada por último", "Lançada primeiro" })]
+    [InlineData(true, new[] { "Lançada primeiro", "Lançada por último" })]
+    public async Task Execute_OrderByDate_OrdersTheDayByCreationInTheSameDirection(bool ascending, string[] expected)
+    {
+        var categoryId = Guid.NewGuid();
+        var transactions = new List<Transaction>
+        {
+            new("Lançada primeiro", new DateTime(2026, 8, 1), 10m, categoryId) { CreatedAt = new DateTime(2026, 8, 1, 9, 0, 0) },
+            new("Lançada por último", new DateTime(2026, 8, 1), 10m, categoryId) { CreatedAt = new DateTime(2026, 8, 1, 18, 0, 0) }
+        };
+
+        _transactionRepository.GetAllAsync().Returns(transactions);
+
+        var output = await _useCase.Execute(new ListTransactionsInput(orderBy: TransactionOrderField.Date, ascending: ascending));
+
+        Assert.Equal(expected, output.Select(o => o.Description));
+    }
+
+    [Fact]
+    public async Task Execute_OrderByAnotherFieldWithTies_OrdersTheTiesByNewestCreation()
+    {
+        var categoryId = Guid.NewGuid();
+        var transactions = new List<Transaction>
+        {
+            new("Mercado", new DateTime(2026, 8, 1), -10m, categoryId) { CreatedAt = new DateTime(2026, 8, 1, 9, 0, 0) },
+            new("Mercado", new DateTime(2026, 8, 1), -20m, categoryId) { CreatedAt = new DateTime(2026, 8, 1, 18, 0, 0) }
+        };
+
+        _transactionRepository.GetAllAsync().Returns(transactions);
+
+        var output = await _useCase.Execute(new ListTransactionsInput(orderBy: TransactionOrderField.Description, ascending: true));
+
+        Assert.Equal([-20m, -10m], output.Select(o => o.Value));
     }
 
     [Theory]

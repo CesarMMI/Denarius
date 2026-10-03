@@ -33,23 +33,31 @@ internal class ListTransactionsUseCase(ITransactionRepository transactionReposit
         if (input.CategoryId.HasValue)
             transactions = transactions.Where(t => t.CategoryId == input.CategoryId.Value);
 
-        transactions = input.OrderBy switch
+        // The list is grouped by day, so the day always comes first and the chosen field orders the transactions within it.
+        var dayAscending = input.OrderBy == TransactionOrderField.Date && input.Ascending;
+        var ordered = OrderBy(transactions, t => t.Date.Date, dayAscending);
+
+        ordered = input.OrderBy switch
         {
-            TransactionOrderField.Description => input.Ascending ? transactions.OrderBy(t => t.Description) : transactions.OrderByDescending(t => t.Description),
-            TransactionOrderField.Value => input.Ascending ? transactions.OrderBy(t => t.Value) : transactions.OrderByDescending(t => t.Value),
-            TransactionOrderField.CategoryName => await OrderByCategoryNameAsync(transactions, input.Ascending),
-            _ => input.Ascending ? transactions.OrderBy(t => t.Date) : transactions.OrderByDescending(t => t.Date)
+            TransactionOrderField.Description => ThenBy(ordered, t => t.Description, input.Ascending),
+            TransactionOrderField.Value => ThenBy(ordered, t => t.Value, input.Ascending),
+            TransactionOrderField.CategoryName => ThenBy(ordered, await CategoryNameAsync(), input.Ascending),
+            _ => ordered
         };
 
-        return transactions.Select(transaction => new TransactionOutput(transaction)).ToList();
+        return ThenBy(ordered, t => t.CreatedAt, dayAscending).Select(transaction => new TransactionOutput(transaction)).ToList();
     }
 
-    private async Task<IEnumerable<Transaction>> OrderByCategoryNameAsync(IEnumerable<Transaction> transactions, bool ascending)
+    private async Task<Func<Transaction, string>> CategoryNameAsync()
     {
         var categoryNames = (await categoryRepository.GetAllAsync(null)).ToDictionary(c => c.Id, c => c.Name);
 
-        string CategoryName(Transaction transaction) => categoryNames.GetValueOrDefault(transaction.CategoryId, string.Empty);
-
-        return ascending ? transactions.OrderBy(CategoryName) : transactions.OrderByDescending(CategoryName);
+        return transaction => categoryNames.GetValueOrDefault(transaction.CategoryId, string.Empty);
     }
+
+    private static IOrderedEnumerable<Transaction> OrderBy<TKey>(IEnumerable<Transaction> transactions, Func<Transaction, TKey> key, bool ascending) =>
+        ascending ? transactions.OrderBy(key) : transactions.OrderByDescending(key);
+
+    private static IOrderedEnumerable<Transaction> ThenBy<TKey>(IOrderedEnumerable<Transaction> transactions, Func<Transaction, TKey> key, bool ascending) =>
+        ascending ? transactions.ThenBy(key) : transactions.ThenByDescending(key);
 }

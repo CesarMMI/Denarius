@@ -67,8 +67,8 @@ is optional, and filters combine with AND.
 | `DateRef` | `DateTime?` | `null` | Any date within the target month; keeps transactions with `Date` from the first moment of that month through its last tick, inclusive. `null` = all months. |
 | `Type` | `TransactionType` | `All` | `All` = no filter; `In` = `Value > 0`; `Out` = `Value < 0`. |
 | `CategoryId` | `Guid?` | `null` | Keeps only transactions with that `CategoryId`. `null` = all categories. An id that matches no category just produces an empty list. |
-| `OrderBy` | `TransactionOrderField` | `Date` | `Date`, `Description`, `Value` (signed), or `CategoryName` (the referenced category's current name). |
-| `Ascending` | `bool` | `false` | `false` = descending; the default is most recent first. |
+| `OrderBy` | `TransactionOrderField` | `Date` | `Date`, `Description`, `Value` (signed), or `CategoryName` (the referenced category's current name). The list is grouped by day, so the day (`Date.Date`) always comes first: `Date` orders the days themselves, and any other field orders the transactions within each day, with the days most recent first. Ties fall back to `CreatedAt`, in the day's direction. |
+| `Ascending` | `bool` | `false` | `false` = descending; the default is most recent first. Applies to the `OrderBy` field. |
 
 The output is still `IEnumerable<TransactionOutput>`, unchanged in shape — `CategoryName` is only
 a sort key and is not added to the response.
