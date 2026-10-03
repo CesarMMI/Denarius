@@ -36,7 +36,17 @@
 			<button matIconButton aria-label="Editar" matTooltip="Editar" (click)="edit.emit(category)">
 				<mat-icon>edit</mat-icon>
 			</button>
-			<button matIconButton aria-label="Excluir" matTooltip="Excluir" (click)="delete.emit(category)">
+			<!-- disabledInteractive keeps the tooltip working; the click still fires, hence the guard. -->
+			<button
+				matIconButton
+				aria-label="Excluir"
+				[matTooltip]="
+					category.canDelete ? 'Excluir' : 'Não é possível excluir uma categoria com transações, mesmo que em outros meses.'
+				"
+				[disabled]="!category.canDelete"
+				disabledInteractive
+				(click)="category.canDelete && delete.emit(category)"
+			>
 				<mat-icon>delete</mat-icon>
 			</button>
 		</td>

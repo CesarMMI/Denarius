@@ -7,6 +7,7 @@ export function buildCategory(overrides: Partial<Category> = {}): Category {
 		color: '#43A047',
 		transactionCount: 0,
 		balance: 0,
+		canDelete: true,
 		createdAt: '2026-01-01T00:00:00.000Z',
 		updatedAt: '2026-01-01T00:00:00.000Z',
 		...overrides,

@@ -2,6 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID, resourceFromSnapshots, ResourceSnapshot, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatTooltip } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { MatChipColor } from '../../../shared/mat-chip-color/mat-chip-color';
@@ -18,6 +19,7 @@ describe('CategoriesTable', () => {
 		color: '#43A047',
 		transactionCount: 14,
 		balance: -1842.55,
+		canDelete: false,
 	});
 	const educacao = buildCategory({
 		id: 'educacao',
@@ -32,6 +34,7 @@ describe('CategoriesTable', () => {
 		color: '#1E88E5',
 		transactionCount: 1,
 		balance: 8600,
+		canDelete: false,
 	});
 
 	let fixture: ComponentFixture<CategoriesTable>;
@@ -56,6 +59,13 @@ describe('CategoriesTable', () => {
 
 	function noDataRow() {
 		return element.querySelector('td[colspan]')?.textContent?.trim();
+	}
+
+	function tooltip(button: HTMLButtonElement) {
+		return fixture.debugElement
+			.queryAll(By.directive(MatTooltip))
+			.find((el) => el.nativeElement === button)!
+			.injector.get(MatTooltip).message;
 	}
 
 	function rowButton(row: number, label: 'Editar' | 'Excluir') {
@@ -113,6 +123,22 @@ describe('CategoriesTable', () => {
 
 		expect(edit).toHaveBeenCalledWith(salario);
 		expect(remove).toHaveBeenCalledWith(educacao);
+	});
+
+	it('should disable deleting a category with transactions and say why', () => {
+		const remove = vi.fn();
+		fixture.componentInstance.delete.subscribe(remove);
+		const [withTransactions, withoutTransactions] = [rowButton(0, 'Excluir'), rowButton(1, 'Excluir')];
+
+		withTransactions.click();
+
+		expect(remove).not.toHaveBeenCalled();
+		expect(withTransactions.getAttribute('aria-disabled')).toBe('true');
+		expect(withoutTransactions.getAttribute('aria-disabled')).toBeNull();
+		expect(tooltip(withTransactions)).toBe(
+			'Não é possível excluir uma categoria com transações, mesmo que em outros meses.',
+		);
+		expect(tooltip(withoutTransactions)).toBe('Excluir');
 	});
 
 	it('should mark the column sorted and take the sort chosen', async () => {
