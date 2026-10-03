@@ -35,7 +35,7 @@ paths:
           required: false
           schema:
             $ref: '#/components/schemas/CategoryOrderField'
-            default: Name
+            default: name
         - name: asc
           in: query
           required: false
@@ -159,7 +159,7 @@ components:
   schemas:
     CategoryOrderField:
       type: string
-      enum: [Name, TransactionCount, Balance]
+      enum: [name, transactionCount, balance]
     CategoryOutput:
       type: object
       properties:

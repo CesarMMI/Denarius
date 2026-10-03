@@ -179,15 +179,15 @@ components:
   schemas:
     TransactionType:
       type: string
-      enum: [All, In, Out]
-      default: All
+      enum: [all, in, out]
+      default: all
       description: >
         All = no filter; In = value > 0 (money received); Out = value < 0 (money spent). Bound
         case-insensitively, so all/in/out are accepted.
     TransactionOrderField:
       type: string
-      enum: [Date, Description, Value, CategoryName]
-      default: Date
+      enum: [date, description, value, categoryName]
+      default: date
       description: Value sorts by the signed value; CategoryName sorts by the category's current name.
     TransactionOutput:
       type: object

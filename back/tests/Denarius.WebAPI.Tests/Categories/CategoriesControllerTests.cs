@@ -13,6 +13,7 @@ using Denarius.Domain.Exceptions;
 using Denarius.Domain.ValueObjects;
 using Denarius.WebAPI.Controllers;
 using Denarius.WebAPI.Middleware;
+using Denarius.WebAPI.Routing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -55,7 +56,7 @@ public class CategoriesControllerTests
                         list ?? (_ => throw new InvalidOperationException("List not configured for this test."))));
                     services.AddExceptionHandler<GlobalExceptionHandler>();
                     services.AddProblemDetails();
-                    services.AddControllers().AddApplicationPart(typeof(CategoriesController).Assembly);
+                    services.AddControllers(options => options.UseCamelCaseRoutes()).AddApplicationPart(typeof(CategoriesController).Assembly);
                 });
                 webHost.Configure(app =>
                 {
@@ -245,7 +246,7 @@ public class CategoriesControllerTests
         var client = host.GetTestClient();
 
         var response = await client.GetAsync(
-            "/api/categories?name=Laz&withTransaction=true&dateRef=2026-09-01&orderBy=Balance&asc=false");
+            "/api/categories?name=Laz&withTransaction=true&dateRef=2026-09-01&orderBy=balance&asc=false");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(captured);

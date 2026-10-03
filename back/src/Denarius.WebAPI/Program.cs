@@ -2,6 +2,7 @@ using Denarius.Application;
 using Denarius.Infrastructure;
 using Denarius.WebAPI.Cors;
 using Denarius.WebAPI.Middleware;
+using Denarius.WebAPI.Routing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,7 @@ builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
     .AddCorsPolicy(builder.Configuration)
-    .AddControllers();
+    .AddControllers(options => options.UseCamelCaseRoutes());
 
 builder.Services
     .AddExceptionHandler<GlobalExceptionHandler>()
