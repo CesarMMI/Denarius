@@ -32,7 +32,7 @@ export class TransactionsTable {
 	readonly transactions = input.required<Resource<Transaction[] | undefined>>();
 	/** Give the rows their names and colors. */
 	readonly categories = input.required<Resource<Category[] | undefined>>();
-	readonly sort = model<Sort>({ active: 'Date', direction: 'desc' });
+	readonly sort = model<Sort>({ active: 'date', direction: 'desc' });
 	readonly edit = output<Transaction>();
 	readonly delete = output<Transaction>();
 

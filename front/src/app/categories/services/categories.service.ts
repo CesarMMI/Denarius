@@ -11,7 +11,7 @@ import { CategoryFilters } from '../types/category-filters';
 })
 export class CategoriesService {
 	private readonly httpClient = inject(HttpClient);
-	private readonly baseUrl = `${environment.apiUrl}/Categories`;
+	private readonly baseUrl = `${environment.apiUrl}/categories`;
 
 	/** A request for an `httpResource`, sorted by the API field in `sort.active`. */
 	list(filters: CategoryFilters = {}, sort?: Sort) {

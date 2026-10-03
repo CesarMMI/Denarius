@@ -68,7 +68,7 @@ describe('TransactionsFilters', () => {
 
 		expect(host.filters()).toEqual({
 			description: '',
-			type: 'Out',
+			type: 'out',
 			categoryId: 'mercado',
 			month: new Date(2026, 8, 1),
 		});
@@ -97,7 +97,7 @@ describe('TransactionsFilters', () => {
 	] as const)('should only offer "%s" while the filter is set, and empty it', async (label, filter) => {
 		expect(await clearButton(label)).toBeNull();
 
-		const filters: TransactionFilters = { description: 'feira', type: 'Out', categoryId: 'mercado', month: null };
+		const filters: TransactionFilters = { description: 'feira', type: 'out', categoryId: 'mercado', month: null };
 		host.filters.set(filters);
 		await fixture.whenStable();
 		await (await clearButton(label))!.click();
@@ -107,7 +107,7 @@ describe('TransactionsFilters', () => {
 	});
 
 	it('should not open the select whose filter is cleared', async () => {
-		host.filters.update((filters) => ({ ...filters, type: 'Out' }));
+		host.filters.update((filters) => ({ ...filters, type: 'out' }));
 		await fixture.whenStable();
 
 		await (await clearButton('Limpar tipo'))!.click();

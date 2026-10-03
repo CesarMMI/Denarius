@@ -8,19 +8,19 @@
 	(matSortChange)="sort.set($event)"
 >
 	<ng-container matColumnDef="date">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header="Date">Data</th>
+		<th mat-header-cell *matHeaderCellDef mat-sort-header="date">Data</th>
 		<td mat-cell *matCellDef="let transaction">{{ transaction.date | date: 'shortDate' : 'UTC' }}</td>
 		<td mat-footer-cell *matFooterCellDef>Total</td>
 	</ng-container>
 
 	<ng-container matColumnDef="description">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header="Description">Descrição</th>
+		<th mat-header-cell *matHeaderCellDef mat-sort-header="description">Descrição</th>
 		<td mat-cell *matCellDef="let transaction">{{ transaction.description }}</td>
 		<td mat-footer-cell *matFooterCellDef></td>
 	</ng-container>
 
 	<ng-container matColumnDef="category">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header="CategoryName">Categoria</th>
+		<th mat-header-cell *matHeaderCellDef mat-sort-header="categoryName">Categoria</th>
 		<td mat-cell *matCellDef="let transaction">
 			@let category = categoryById().get(transaction.categoryId);
 			@if (category) {
@@ -33,7 +33,7 @@
 	</ng-container>
 
 	<ng-container matColumnDef="value">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header="Value" arrowPosition="before">Valor</th>
+		<th mat-header-cell *matHeaderCellDef mat-sort-header="value" arrowPosition="before">Valor</th>
 		<td mat-cell *matCellDef="let transaction" align="end" [class.negative]="transaction.value < 0">
 			{{ transaction.value | currency: 'BRL' }}
 		</td>

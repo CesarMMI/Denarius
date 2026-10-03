@@ -121,7 +121,7 @@ describe('CategoriesTable', () => {
 		element.querySelector<HTMLElement>('th.mat-column-balance')!.click();
 		await fixture.whenStable();
 
-		expect(fixture.componentInstance.sort()).toEqual({ active: 'Balance', direction: 'asc' });
+		expect(fixture.componentInstance.sort()).toEqual({ active: 'balance', direction: 'asc' });
 		expect(element.querySelector('th.mat-column-balance')!.getAttribute('aria-sort')).toBe('ascending');
 	});
 });

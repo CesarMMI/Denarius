@@ -6,7 +6,7 @@ import { buildCategory } from '../testing/category-fixture';
 import { CategoriesService } from './categories.service';
 
 describe('CategoriesService', () => {
-	const baseUrl = `${environment.apiUrl}/Categories`;
+	const baseUrl = `${environment.apiUrl}/categories`;
 
 	let service: CategoriesService;
 	let httpTesting: HttpTestingController;
@@ -31,8 +31,8 @@ describe('CategoriesService', () => {
 		});
 
 		it('should send the sort as orderBy and asc', () => {
-			expect(service.list({}, { active: 'Balance', direction: 'desc' }).params.toString()).toBe(
-				'orderBy=Balance&asc=false',
+			expect(service.list({}, { active: 'balance', direction: 'desc' }).params.toString()).toBe(
+				'orderBy=balance&asc=false',
 			);
 		});
 
@@ -43,9 +43,9 @@ describe('CategoriesService', () => {
 		it('should send every filter together, with the first day of the month as dateRef', () => {
 			const { params } = service.list(
 				{ name: 'merc', withTransaction: true, month: new Date(2026, 8, 1) },
-				{ active: 'Name', direction: 'asc' },
+				{ active: 'name', direction: 'asc' },
 			);
-			expect(params.toString()).toBe('name=merc&withTransaction=true&dateRef=2026-09-01&orderBy=Name&asc=true');
+			expect(params.toString()).toBe('name=merc&withTransaction=true&dateRef=2026-09-01&orderBy=name&asc=true');
 		});
 	});
 

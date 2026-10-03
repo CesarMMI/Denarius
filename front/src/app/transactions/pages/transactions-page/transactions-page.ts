@@ -50,7 +50,7 @@ export class TransactionsPage {
 	});
 	protected readonly filtersVisible = signal<boolean>(!!this.categoryId);
 
-	protected readonly sort = signal<Sort>({ active: 'Date', direction: 'desc' });
+	protected readonly sort = signal<Sort>({ active: 'date', direction: 'desc' });
 
 	protected readonly transactions = httpResource<Transaction[]>(() =>
 		this.transactionsService.list(this.filters(), this.sort()),

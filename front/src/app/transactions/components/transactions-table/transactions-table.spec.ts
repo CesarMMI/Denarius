@@ -132,7 +132,7 @@ describe('TransactionsTable', () => {
 		element.querySelector<HTMLElement>('th.mat-column-value')!.click();
 		await fixture.whenStable();
 
-		expect(fixture.componentInstance.sort()).toEqual({ active: 'Value', direction: 'asc' });
+		expect(fixture.componentInstance.sort()).toEqual({ active: 'value', direction: 'asc' });
 		expect(element.querySelector('th.mat-column-value')!.getAttribute('aria-sort')).toBe('ascending');
 	});
 });

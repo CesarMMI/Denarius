@@ -19,7 +19,7 @@ import { CategoriesPage } from './categories-page';
 registerLocaleData(localePt);
 
 describe('CategoriesPage', () => {
-	const baseUrl = `${environment.apiUrl}/Categories`;
+	const baseUrl = `${environment.apiUrl}/categories`;
 	const mercado = buildCategory({
 		id: 'mercado',
 		name: 'Mercado',
@@ -106,7 +106,7 @@ describe('CategoriesPage', () => {
 
 	describe('loading', () => {
 		it('should request the categories sorted by name when opened', () => {
-			expect(expectList().request.params.toString()).toBe('orderBy=Name&asc=true');
+			expect(expectList().request.params.toString()).toBe('orderBy=name&asc=true');
 		});
 
 		it('should show a spinner while loading', () => {
@@ -159,7 +159,7 @@ describe('CategoriesPage', () => {
 			filters()!.filters.set({ name: 'mer', withTransaction: true, month: new Date(2026, 8, 1) });
 
 			expect(expectList().request.params.toString()).toBe(
-				'name=mer&withTransaction=true&dateRef=2026-09-01&orderBy=Name&asc=true',
+				'name=mer&withTransaction=true&dateRef=2026-09-01&orderBy=name&asc=true',
 			);
 		});
 	});
@@ -169,7 +169,7 @@ describe('CategoriesPage', () => {
 
 		element.querySelector<HTMLElement>('th.mat-column-balance')!.click();
 
-		expect(expectList().request.params.toString()).toBe('orderBy=Balance&asc=true');
+		expect(expectList().request.params.toString()).toBe('orderBy=balance&asc=true');
 	});
 
 	describe('saving', () => {

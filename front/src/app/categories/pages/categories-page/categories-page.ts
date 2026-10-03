@@ -38,7 +38,7 @@ export class CategoriesPage {
 	protected readonly filters = signal<CategoryFilters>({ name: '', withTransaction: '', month: null });
 	protected readonly filtersVisible = signal<boolean>(false);
 
-	protected readonly sort = signal<Sort>({ active: 'Name', direction: 'asc' });
+	protected readonly sort = signal<Sort>({ active: 'name', direction: 'asc' });
 
 	protected readonly categories = httpResource<Category[]>(() =>
 		this.categoriesService.list(this.filters(), this.sort()),

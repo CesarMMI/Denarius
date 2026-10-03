@@ -11,7 +11,7 @@ import { TransactionFilters } from '../types/transaction-filters';
 })
 export class TransactionsService {
 	private readonly httpClient = inject(HttpClient);
-	private readonly baseUrl = `${environment.apiUrl}/Transactions`;
+	private readonly baseUrl = `${environment.apiUrl}/transactions`;
 
 	/** A request for an `httpResource`, sorted by the API field in `sort.active`. */
 	list(filters: TransactionFilters = {}, sort?: Sort) {

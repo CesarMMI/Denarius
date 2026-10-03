@@ -20,8 +20,8 @@ import { TransactionsPage } from './transactions-page';
 registerLocaleData(localePt);
 
 describe('TransactionsPage', () => {
-	const baseUrl = `${environment.apiUrl}/Transactions`;
-	const categoriesUrl = `${environment.apiUrl}/Categories`;
+	const baseUrl = `${environment.apiUrl}/transactions`;
+	const categoriesUrl = `${environment.apiUrl}/categories`;
 	const mercado = buildCategory({ id: 'mercado', name: 'Mercado', color: '#43A047' });
 	const salario = buildCategory({ id: 'salario', name: 'Salário', color: '#1E88E5' });
 	const feira = buildTransaction({
@@ -135,7 +135,7 @@ describe('TransactionsPage', () => {
 		beforeEach(() => create());
 
 		it('should request the most recent transactions and all the categories when opened', () => {
-			expect(expectList().request.params.toString()).toBe('orderBy=Date&asc=false');
+			expect(expectList().request.params.toString()).toBe('orderBy=date&asc=false');
 			expect(expectCategories().request.params.keys()).toEqual([]);
 		});
 
@@ -212,10 +212,10 @@ describe('TransactionsPage', () => {
 			headerButton('Exibir filtros')!.click();
 			await fixture.whenStable();
 
-			filters()!.filters.set({ description: 'fei', type: 'Out', categoryId: 'mercado', month: new Date(2026, 8, 1) });
+			filters()!.filters.set({ description: 'fei', type: 'out', categoryId: 'mercado', month: new Date(2026, 8, 1) });
 
 			expect(expectList().request.params.toString()).toBe(
-				'description=fei&type=Out&categoryId=mercado&dateRef=2026-09-01&orderBy=Date&asc=false',
+				'description=fei&type=out&categoryId=mercado&dateRef=2026-09-01&orderBy=date&asc=false',
 			);
 		});
 	});
@@ -249,7 +249,7 @@ describe('TransactionsPage', () => {
 			element.querySelector<HTMLElement>('th.mat-column-value')!.click();
 
 			const req = expectList();
-			expect(req.request.params.toString()).toBe('orderBy=Value&asc=true');
+			expect(req.request.params.toString()).toBe('orderBy=value&asc=true');
 			req.flush([pao, feira, pagamento]);
 			await fixture.whenStable();
 			expect(column('description')).toEqual(['', 'Feira', 'Salário']);

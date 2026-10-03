@@ -13,8 +13,8 @@
 		<mat-label>Tipo</mat-label>
 		<mat-select [formField]="form.type!">
 			<mat-option value="">Todos</mat-option>
-			<mat-option value="In">Entradas</mat-option>
-			<mat-option value="Out">Saídas</mat-option>
+			<mat-option value="in">Entradas</mat-option>
+			<mat-option value="out">Saídas</mat-option>
 		</mat-select>
 		@if (form.type?.()?.value()) {
 			<button matSuffix matIconButton type="button" aria-label="Limpar tipo" (click)="clear($event, 'type')">

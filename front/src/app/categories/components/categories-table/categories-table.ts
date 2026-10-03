@@ -30,7 +30,7 @@ import { Category } from '../../types/category';
 })
 export class CategoriesTable {
 	readonly categories = input.required<Resource<Category[] | undefined>>();
-	readonly sort = model<Sort>({ active: 'Name', direction: 'asc' });
+	readonly sort = model<Sort>({ active: 'name', direction: 'asc' });
 	readonly edit = output<Category>();
 	readonly delete = output<Category>();
 

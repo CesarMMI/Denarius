@@ -7,7 +7,7 @@ import { TransactionInput } from '../types/transaction';
 import { TransactionsService } from './transactions.service';
 
 describe('TransactionsService', () => {
-	const baseUrl = `${environment.apiUrl}/Transactions`;
+	const baseUrl = `${environment.apiUrl}/transactions`;
 	const input: TransactionInput = {
 		description: 'Feira da semana',
 		categoryId: 'mercado',
@@ -39,21 +39,21 @@ describe('TransactionsService', () => {
 		});
 
 		it('should send the sort as orderBy and asc', () => {
-			expect(service.list({}, { active: 'Value', direction: 'asc' }).params.toString()).toBe('orderBy=Value&asc=true');
-			expect(service.list({}, { active: 'Date', direction: 'desc' }).params.toString()).toBe('orderBy=Date&asc=false');
+			expect(service.list({}, { active: 'value', direction: 'asc' }).params.toString()).toBe('orderBy=value&asc=true');
+			expect(service.list({}, { active: 'date', direction: 'desc' }).params.toString()).toBe('orderBy=date&asc=false');
 		});
 
 		it('should leave the order to the API when the sort has no direction', () => {
-			expect(service.list({}, { active: 'Value', direction: '' }).params.keys()).toEqual([]);
+			expect(service.list({}, { active: 'value', direction: '' }).params.keys()).toEqual([]);
 		});
 
 		it('should send every filter together, with the first day of the month as dateRef', () => {
 			const { params } = service.list(
-				{ description: 'uber', type: 'Out', categoryId: 'transporte', month: new Date(2027, 0, 1) },
-				{ active: 'Date', direction: 'desc' },
+				{ description: 'uber', type: 'out', categoryId: 'transporte', month: new Date(2027, 0, 1) },
+				{ active: 'date', direction: 'desc' },
 			);
 			expect(params.toString()).toBe(
-				'description=uber&type=Out&categoryId=transporte&dateRef=2027-01-01&orderBy=Date&asc=false',
+				'description=uber&type=out&categoryId=transporte&dateRef=2027-01-01&orderBy=date&asc=false',
 			);
 		});
 	});
