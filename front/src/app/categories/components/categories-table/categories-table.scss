@@ -3,3 +3,7 @@
 	justify-content: flex-end;
 	gap: 1rem;
 }
+
+mat-chip {
+	pointer-events: none;
+}
