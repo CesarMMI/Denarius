@@ -53,7 +53,6 @@ export class TransactionsPage {
 	protected readonly filtersVisible = signal<boolean>(!!this.categoryId);
 
 	protected readonly sort = signal<Sort>({ active: 'date', direction: 'desc' });
-	/** The list is grouped by day, so the other fields order the transactions within each day. */
 	protected readonly sortOptions: SortOption[] = [
 		{ active: 'date', direction: 'desc', label: 'Mais recentes primeiro' },
 		{ active: 'date', direction: 'asc', label: 'Mais antigos primeiro' },

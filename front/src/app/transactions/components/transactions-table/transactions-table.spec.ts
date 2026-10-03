@@ -65,6 +65,7 @@ describe('TransactionsTable', () => {
 	}
 
 	it('should list the transactions with a chip in the color of their category', () => {
+		expect(column('date')).toEqual(['24/09/2026', '05/09/2026']);
 		expect(column('description')).toEqual(['Feira', 'Salário']);
 		expect(column('category')).toEqual(['Mercado', 'Salário']);
 		expect(
@@ -72,107 +73,25 @@ describe('TransactionsTable', () => {
 		).toEqual(['#43A047', '#1E88E5']);
 	});
 
-	it('should open each day with its date and total, keeping the order of the API', async () => {
-		const padaria = buildTransaction({ id: 't3', description: 'Padaria', value: -13.58, date: '2026-09-24T00:00:00Z' });
-		transactions.set({ status: 'resolved', value: [padaria, feira, pagamento] });
-		await fixture.whenStable();
-
-		const rows = Array.from(element.querySelectorAll('tr[mat-row]'));
-		expect(rows.map((row) => row.classList.contains('day'))).toEqual([true, false, false, true, false]);
-		expect(column('dayDate')).toEqual(['quinta-feira, 24 de setembro de 2026', 'sábado, 5 de setembro de 2026']);
-		const [expenses, income] = Array.from(element.querySelectorAll('tr.day .mat-column-dayTotal'));
-		expect(expenses.textContent).toContain('Total:');
-		expect(expenses.textContent).toContain('-R$');
-		expect(expenses.textContent).toContain('200,00');
-		expect(expenses.classList).toContain('negative');
-		expect(income.textContent).toContain('8.600,00');
-		expect(income.classList).not.toContain('negative');
-		expect(column('description')).toEqual(['Padaria', 'Feira', 'Salário']);
-	});
-
-	it('should collapse and expand the transactions of a day, keeping its total', async () => {
-		const toggle = () => element.querySelector<HTMLButtonElement>('tr.day .mat-column-dayToggle button')!;
-		expect(toggle().getAttribute('aria-label')).toBe('Recolher');
-		expect(toggle().getAttribute('aria-expanded')).toBe('true');
-
-		toggle().click();
-		await fixture.whenStable();
-
-		expect(column('description')).toEqual(['Salário']);
-		expect(column('dayDate')).toEqual(['quinta-feira, 24 de setembro de 2026', 'sábado, 5 de setembro de 2026']);
-		expect(element.querySelector('tr.day .mat-column-dayTotal')!.textContent).toContain('186,42');
-		expect(toggle().getAttribute('aria-label')).toBe('Expandir');
-		expect(toggle().getAttribute('aria-expanded')).toBe('false');
-
-		toggle().click();
-		await fixture.whenStable();
-
-		expect(column('description')).toEqual(['Feira', 'Salário']);
-	});
-
-	it('should keep the rows of the other days when one collapses', async () => {
-		const [, day] = Array.from(element.querySelectorAll('tr.day'));
-		const transaction = Array.from(element.querySelectorAll('tr[mat-row]:not(.day)'))[1];
-
-		element.querySelector<HTMLButtonElement>('tr.day .mat-column-dayToggle button')!.click();
-		await fixture.whenStable();
-
-		expect(element.querySelectorAll('tr.day')[1]).toBe(day);
-		expect(element.querySelector('tr[mat-row]:not(.day)')).toBe(transaction);
-	});
-
-	it('should collapse every day from the header, and expand them all once they are', async () => {
-		const toggleAll = () => element.querySelector<HTMLButtonElement>('th.mat-column-toggle button')!;
-		const toggleDay = () => element.querySelector<HTMLButtonElement>('tr.day .mat-column-dayToggle button')!;
-		expect(toggleAll().getAttribute('aria-label')).toBe('Recolher todos');
-
-		toggleDay().click();
-		await fixture.whenStable();
-		expect(toggleAll().getAttribute('aria-label')).toBe('Recolher todos');
-
-		toggleAll().click();
-		await fixture.whenStable();
-
-		expect(column('description')).toEqual([]);
-		expect(column('dayDate').length).toBe(2);
-		expect(toggleAll().getAttribute('aria-label')).toBe('Expandir todos');
-		expect(toggleAll().getAttribute('aria-expanded')).toBe('false');
-
-		toggleAll().click();
-		await fixture.whenStable();
-
-		expect(column('description')).toEqual(['Feira', 'Salário']);
-		expect(toggleAll().getAttribute('aria-label')).toBe('Recolher todos');
-	});
-
-	it('should drop the actions column only while every day is collapsed', async () => {
-		const actions = () => element.querySelectorAll('.mat-column-actions, .mat-column-dayActions').length;
-		const toggleDays = () => element.querySelectorAll<HTMLButtonElement>('tr.day .mat-column-dayToggle button');
-		expect(actions()).toBeGreaterThan(0);
-
-		toggleDays()[0].click();
-		await fixture.whenStable();
-		expect(actions()).toBeGreaterThan(0);
-
-		toggleDays()[1].click();
-		await fixture.whenStable();
-		expect(actions()).toBe(0);
-		expect(element.querySelector('tr.day td:last-child')!.classList).toContain('mat-column-dayTotal');
-	});
-
-	it('should disable the toggle in the header without transactions', async () => {
-		transactions.set({ status: 'resolved', value: [] });
-		await fixture.whenStable();
-
-		expect(element.querySelector<HTMLButtonElement>('th.mat-column-toggle button')!.disabled).toBe(true);
-	});
-
-	it('should mark the negative values', () => {
+	it('should mark the negative values and total them', () => {
 		const [expense, income] = Array.from(element.querySelectorAll('tr[mat-row] .mat-column-value'));
 		expect(expense.textContent).toContain('186,42');
 		expect(expense.classList).toContain('negative');
 		expect(income.textContent).toContain('8.600,00');
 		expect(income.classList).not.toContain('negative');
+
+		const total = element.querySelector('tr[mat-footer-row] .mat-column-value')!;
+		expect(total.textContent).toContain('8.413,58');
+		expect(total.classList).not.toContain('negative');
+	});
+
+	it('should mark the transactions followed by another of the same date', async () => {
+		const padaria = buildTransaction({ id: 't3', description: 'Padaria', value: -13.58, date: '2026-09-24T00:00:00Z' });
+		transactions.set({ status: 'resolved', value: [padaria, feira, pagamento] });
+		await fixture.whenStable();
+
+		const rows = Array.from(element.querySelectorAll('tr[mat-row]'));
+		expect(rows.map((row) => row.classList.contains('same-date'))).toEqual([true, false, false]);
 	});
 
 	it('should say when there are no transactions', async () => {
