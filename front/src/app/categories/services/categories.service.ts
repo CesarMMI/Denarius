@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Sort } from '@angular/material/sort';
 import { environment } from '../../../environments/environment';
-import { toDateKey } from '../../shared/utils/api-date';
+import { DateUtils } from '../../shared/date-utils/date-utils';
 import { Category, CategoryInput } from '../types/category';
 import { CategoryFilters } from '../types/category-filters';
 
@@ -18,7 +18,7 @@ export class CategoriesService {
 		let params = new HttpParams();
 		if (filters.name) params = params.set('name', filters.name);
 		if (typeof filters.withTransaction === 'boolean') params = params.set('withTransaction', filters.withTransaction);
-		if (filters.month) params = params.set('dateRef', toDateKey(filters.month));
+		if (filters.month) params = params.set('dateRef', DateUtils.toDateKey(filters.month));
 		if (sort?.direction) params = params.set('orderBy', sort.active).set('asc', sort.direction === 'asc');
 		return { url: this.baseUrl, params };
 	}

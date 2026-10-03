@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Sort } from '@angular/material/sort';
 import { environment } from '../../../environments/environment';
-import { toDateKey } from '../../shared/utils/api-date';
+import { DateUtils } from '../../shared/date-utils/date-utils';
 import { Transaction, TransactionInput } from '../types/transaction';
 import { TransactionFilters } from '../types/transaction-filters';
 
@@ -19,7 +19,7 @@ export class TransactionsService {
 		if (filters.description) params = params.set('description', filters.description);
 		if (filters.type) params = params.set('type', filters.type);
 		if (filters.categoryId) params = params.set('categoryId', filters.categoryId);
-		if (filters.month) params = params.set('dateRef', toDateKey(filters.month));
+		if (filters.month) params = params.set('dateRef', DateUtils.toDateKey(filters.month));
 		if (sort?.direction) params = params.set('orderBy', sort.active).set('asc', sort.direction === 'asc');
 		return { url: this.baseUrl, params };
 	}

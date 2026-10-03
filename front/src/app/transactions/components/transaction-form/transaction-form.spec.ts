@@ -3,7 +3,7 @@ import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { buildCategory } from '../../../categories/testing/category-fixture';
-import { toApiDate } from '../../../shared/utils/api-date';
+import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { buildTransaction } from '../../testing/transaction-fixture';
 import { Transaction } from '../../types/transaction';
 import { TransactionForm } from './transaction-form';
@@ -98,7 +98,7 @@ describe('TransactionForm', () => {
 				description: 'Pão',
 				categoryId: 'mercado',
 				value: -12.5,
-				date: toApiDate(new Date()),
+				date: DateUtils.toApiDate(new Date()),
 			});
 		});
 

@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Category } from '../../../categories/types/category';
-import { fromApiDate, toApiDate } from '../../../shared/utils/api-date';
+import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { Transaction, TransactionInput } from '../../types/transaction';
 
 export interface TransactionFormData {
@@ -47,7 +47,7 @@ export class TransactionForm {
 			nonNullable: true,
 			validators: [Validators.required, Validators.pattern(/^\d+([.,]\d{1,2})?$/)],
 		}),
-		date: new FormControl(this.transaction ? fromApiDate(this.transaction.date) : new Date(), {
+		date: new FormControl(this.transaction ? DateUtils.fromApiDate(this.transaction.date) : new Date(), {
 			nonNullable: true,
 			validators: [Validators.required],
 		}),
@@ -66,7 +66,7 @@ export class TransactionForm {
 			description: description.trim() || null,
 			categoryId,
 			value: type === 'out' ? -amount : amount,
-			date: toApiDate(date),
+			date: DateUtils.toApiDate(date),
 		});
 	}
 }
