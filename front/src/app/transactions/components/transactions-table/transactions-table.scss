@@ -1,0 +1,38 @@
+@use '@angular/material' as mat;
+
+// Only the day toggles are in it, compact and next to the descriptions, so it takes just their width.
+.mat-column-toggle,
+.mat-column-dayToggle {
+	@include mat.icon-button-density(-4);
+	width: 1px;
+	padding-inline: 8px 0;
+}
+
+// The transactions leave the toggle column empty, so it reads as a gutter under the day toggles,
+// closed by the border of the day's last transaction.
+.mat-mdc-row:not(.day):has(+ .mat-mdc-row:not(.day)) .mat-column-toggle {
+	--mat-table-row-item-outline-width: 0;
+}
+
+// The day opens its transactions, and reads apart from them: muted.
+.day {
+	--mat-table-row-item-label-text-color: var(--mat-sys-on-surface-variant);
+	--mat-table-row-item-label-text-weight: 500;
+}
+
+// The date only places the transactions in time, so it reads below their descriptions.
+.mat-column-dayDate {
+	color: color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent);
+}
+
+// No border between the day and its transactions; a collapsed day keeps it, to divide it from the next.
+.day:has(+ .mat-mdc-row:not(.day)) {
+	--mat-table-row-item-outline-width: 0;
+}
+
+// Only tells the day total from the values of the transactions.
+.total-label {
+	font: var(--mat-sys-body-small);
+	letter-spacing: var(--mat-sys-body-small-tracking);
+	color: color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent);
+}

@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { Category } from '../../../categories/types/category';
 import { PageHeader } from '../../../shared/page-header/page-header';
+import { SortMenu, SortOption } from '../../../shared/sort-menu/sort-menu';
 import { TransactionForm, TransactionFormData } from '../../components/transaction-form/transaction-form';
 import { TransactionsFilters } from '../../components/transactions-filters/transactions-filters';
 import { TransactionsTable } from '../../components/transactions-table/transactions-table';
@@ -29,6 +30,7 @@ import { TransactionFilters } from '../../types/transaction-filters';
 		MatIconModule,
 		MatTooltipModule,
 		PageHeader,
+		SortMenu,
 		TransactionsFilters,
 		TransactionsTable,
 	],
@@ -51,6 +53,17 @@ export class TransactionsPage {
 	protected readonly filtersVisible = signal<boolean>(!!this.categoryId);
 
 	protected readonly sort = signal<Sort>({ active: 'date', direction: 'desc' });
+	/** The list is grouped by day, so the other fields order the transactions within each day. */
+	protected readonly sortOptions: SortOption[] = [
+		{ active: 'date', direction: 'desc', label: 'Mais recentes primeiro' },
+		{ active: 'date', direction: 'asc', label: 'Mais antigos primeiro' },
+		{ active: 'description', direction: 'asc', label: 'Descrição (A–Z)' },
+		{ active: 'description', direction: 'desc', label: 'Descrição (Z–A)' },
+		{ active: 'categoryName', direction: 'asc', label: 'Categoria (A–Z)' },
+		{ active: 'categoryName', direction: 'desc', label: 'Categoria (Z–A)' },
+		{ active: 'value', direction: 'desc', label: 'Maior valor primeiro' },
+		{ active: 'value', direction: 'asc', label: 'Menor valor primeiro' },
+	];
 
 	protected readonly transactions = httpResource<Transaction[]>(() =>
 		this.transactionsService.list(this.filters(), this.sort()),

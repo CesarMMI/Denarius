@@ -119,6 +119,15 @@ describe('TransactionsPage', () => {
 		return element.querySelector<HTMLButtonElement>(`app-page-header button[aria-label="${label}"]`);
 	}
 
+	/** The menu opens in an overlay, outside the page. */
+	async function sortBy(label: string) {
+		element.querySelector<HTMLButtonElement>('app-sort-menu button')!.click();
+		await fixture.whenStable();
+		Array.from(document.querySelectorAll<HTMLButtonElement>('.mat-mdc-menu-panel [mat-menu-item]'))
+			.find((item) => item.textContent?.includes(label))!
+			.click();
+	}
+
 	function rowButton(row: number, label: 'Editar' | 'Excluir') {
 		return element.querySelectorAll<HTMLButtonElement>(`tr[mat-row] button[aria-label="${label}"]`)[row];
 	}
@@ -242,11 +251,11 @@ describe('TransactionsPage', () => {
 		});
 
 		it('should show the most recent first', () => {
-			expect(element.querySelector('th.mat-column-date')!.getAttribute('aria-sort')).toBe('descending');
+			expect(headerButton('Ordenar: Mais recentes primeiro')).not.toBeNull();
 		});
 
-		it('should reload sorted by the column chosen', async () => {
-			element.querySelector<HTMLElement>('th.mat-column-value')!.click();
+		it('should reload sorted by the option chosen in the sort menu', async () => {
+			await sortBy('Menor valor primeiro');
 
 			const req = expectList();
 			expect(req.request.params.toString()).toBe('orderBy=value&asc=true');

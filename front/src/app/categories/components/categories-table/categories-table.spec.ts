@@ -140,14 +140,4 @@ describe('CategoriesTable', () => {
 		);
 		expect(tooltip(withoutTransactions)).toBe('Excluir');
 	});
-
-	it('should mark the column sorted and take the sort chosen', async () => {
-		expect(element.querySelector('th.mat-column-name')!.getAttribute('aria-sort')).toBe('ascending');
-
-		element.querySelector<HTMLElement>('th.mat-column-balance')!.click();
-		await fixture.whenStable();
-
-		expect(fixture.componentInstance.sort()).toEqual({ active: 'balance', direction: 'asc' });
-		expect(element.querySelector('th.mat-column-balance')!.getAttribute('aria-sort')).toBe('ascending');
-	});
 });

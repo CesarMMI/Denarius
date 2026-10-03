@@ -1,10 +1,9 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, computed, input, model, output, Resource } from '@angular/core';
+import { Component, computed, input, output, Resource } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -21,7 +20,6 @@ import { Category } from '../../types/category';
 		MatButtonModule,
 		MatChipsModule,
 		MatIconModule,
-		MatSortModule,
 		MatProgressSpinnerModule,
 		MatTableModule,
 		MatTooltipModule,
@@ -30,7 +28,6 @@ import { Category } from '../../types/category';
 })
 export class CategoriesTable {
 	readonly categories = input.required<Resource<Category[] | undefined>>();
-	readonly sort = model<Sort>({ active: 'name', direction: 'asc' });
 	readonly edit = output<Category>();
 	readonly delete = output<Category>();
 

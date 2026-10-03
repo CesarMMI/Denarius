@@ -1,0 +1,17 @@
+<button matIconButton [attr.aria-label]="label()" [matTooltip]="label()" [matMenuTriggerFor]="menu">
+	<mat-icon>sort</mat-icon>
+</button>
+<mat-menu #menu>
+	@for (option of options(); track option.label) {
+		<button
+			mat-menu-item
+			role="menuitemradio"
+			[attr.aria-checked]="option === selected()"
+			[class.selected]="option === selected()"
+			(click)="select(option)"
+		>
+			<mat-icon>check</mat-icon>
+			<span>{{ option.label }}</span>
+		</button>
+	}
+</mat-menu>

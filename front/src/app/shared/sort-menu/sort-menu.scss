@@ -1,0 +1,4 @@
+// Every option keeps the room of the check, so their labels line up.
+[mat-menu-item]:not(.selected) mat-icon {
+	visibility: hidden;
+}

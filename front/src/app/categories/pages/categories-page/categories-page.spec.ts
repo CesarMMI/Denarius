@@ -92,6 +92,15 @@ describe('CategoriesPage', () => {
 		return element.querySelector<HTMLButtonElement>(`app-page-header button[aria-label="${label}"]`);
 	}
 
+	/** The menu opens in an overlay, outside the page. */
+	async function sortBy(label: string) {
+		element.querySelector<HTMLButtonElement>('app-sort-menu button')!.click();
+		await fixture.whenStable();
+		Array.from(document.querySelectorAll<HTMLButtonElement>('.mat-mdc-menu-panel [mat-menu-item]'))
+			.find((item) => item.textContent?.includes(label))!
+			.click();
+	}
+
 	function rowButton(row: number, label: 'Editar' | 'Excluir') {
 		return element.querySelectorAll<HTMLButtonElement>(`tr[mat-row] button[aria-label="${label}"]`)[row];
 	}
@@ -164,10 +173,11 @@ describe('CategoriesPage', () => {
 		});
 	});
 
-	it('should reload sorted by the column chosen', async () => {
+	it('should reload sorted by the option chosen in the sort menu', async () => {
 		await flushList([mercado, educacao]);
+		expect(headerButton('Ordenar: Nome (A–Z)')).not.toBeNull();
 
-		element.querySelector<HTMLElement>('th.mat-column-balance')!.click();
+		await sortBy('Menor saldo primeiro');
 
 		expect(expectList().request.params.toString()).toBe('orderBy=balance&asc=true');
 	});

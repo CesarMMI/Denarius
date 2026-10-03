@@ -1,14 +1,6 @@
-<table
-	mat-table
-	[dataSource]="rows()"
-	matSort
-	matSortDisableClear
-	[matSortActive]="sort().active"
-	[matSortDirection]="sort().direction"
-	(matSortChange)="sort.set($event)"
->
+<table mat-table [dataSource]="rows()">
 	<ng-container matColumnDef="name">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header="name">Nome</th>
+		<th mat-header-cell *matHeaderCellDef>Nome</th>
 		<td mat-cell *matCellDef="let category">
 			<mat-chip [appMatChipColor]="category.color">
 				{{ category.name }}
@@ -17,14 +9,14 @@
 	</ng-container>
 
 	<ng-container matColumnDef="transactionCount">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header="transactionCount" arrowPosition="before">Transações</th>
+		<th mat-header-cell *matHeaderCellDef align="end">Transações</th>
 		<td mat-cell *matCellDef="let category" align="end">
 			<a routerLink="/transactions" [queryParams]="{ categoryId: category.id }">{{ category.transactionCount }}</a>
 		</td>
 	</ng-container>
 
 	<ng-container matColumnDef="balance">
-		<th mat-header-cell *matHeaderCellDef mat-sort-header="balance" arrowPosition="before">Saldo</th>
+		<th mat-header-cell *matHeaderCellDef align="end">Saldo</th>
 		<td mat-cell *matCellDef="let category" align="end" [class.negative]="category.balance < 0">
 			{{ category.balance | currency: 'BRL' }}
 		</td>

@@ -9,6 +9,7 @@ import { Sort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable } from 'rxjs';
 import { PageHeader } from '../../../shared/page-header/page-header';
+import { SortMenu, SortOption } from '../../../shared/sort-menu/sort-menu';
 import { CategoriesFilters } from '../../components/categories-filters/categories-filters';
 import { CategoriesTable } from '../../components/categories-table/categories-table';
 import { CategoryForm } from '../../components/category-form/category-form';
@@ -26,6 +27,7 @@ import { CategoryFilters } from '../../types/category-filters';
 		MatIconModule,
 		MatTooltipModule,
 		PageHeader,
+		SortMenu,
 		CategoriesFilters,
 		CategoriesTable,
 	],
@@ -39,6 +41,14 @@ export class CategoriesPage {
 	protected readonly filtersVisible = signal<boolean>(false);
 
 	protected readonly sort = signal<Sort>({ active: 'name', direction: 'asc' });
+	protected readonly sortOptions: SortOption[] = [
+		{ active: 'name', direction: 'asc', label: 'Nome (A–Z)' },
+		{ active: 'name', direction: 'desc', label: 'Nome (Z–A)' },
+		{ active: 'transactionCount', direction: 'desc', label: 'Mais transações primeiro' },
+		{ active: 'transactionCount', direction: 'asc', label: 'Menos transações primeiro' },
+		{ active: 'balance', direction: 'desc', label: 'Maior saldo primeiro' },
+		{ active: 'balance', direction: 'asc', label: 'Menor saldo primeiro' },
+	];
 
 	protected readonly categories = httpResource<Category[]>(() =>
 		this.categoriesService.list(this.filters(), this.sort()),
