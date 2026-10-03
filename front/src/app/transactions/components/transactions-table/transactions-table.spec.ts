@@ -73,16 +73,12 @@ describe('TransactionsTable', () => {
 		).toEqual(['#43A047', '#1E88E5']);
 	});
 
-	it('should mark the negative values and total them', () => {
+	it('should mark the negative values', () => {
 		const [expense, income] = Array.from(element.querySelectorAll('tr[mat-row] .mat-column-value'));
 		expect(expense.textContent).toContain('186,42');
 		expect(expense.classList).toContain('negative');
 		expect(income.textContent).toContain('8.600,00');
 		expect(income.classList).not.toContain('negative');
-
-		const total = element.querySelector('tr[mat-footer-row] .mat-column-value')!;
-		expect(total.textContent).toContain('8.413,58');
-		expect(total.classList).not.toContain('negative');
 	});
 
 	it('should mark the transactions followed by another of the same date', async () => {

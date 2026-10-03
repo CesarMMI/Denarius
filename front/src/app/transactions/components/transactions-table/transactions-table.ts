@@ -40,7 +40,6 @@ export class TransactionsTable {
 		const transactions = this.transactions();
 		return transactions.hasValue() && this.categories().hasValue() ? transactions.value() : [];
 	});
-	protected readonly total = computed(() => this.rows().reduce((sum, t) => sum + t.value, 0));
 	/** The transactions followed by another of the same date, compared by the day shown in the date column. */
 	protected readonly sameDate = computed(() => {
 		const rows = this.rows();
