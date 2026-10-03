@@ -7,3 +7,5 @@ export interface Category {
 	createdAt: string;
 	updatedAt: string;
 }
+
+export type CategoryInput = Pick<Category, 'name' | 'color'>;

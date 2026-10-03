@@ -7,3 +7,5 @@ export interface Transaction {
 	createdAt: string;
 	updatedAt: string;
 }
+
+export type TransactionInput = Pick<Transaction, 'description' | 'categoryId' | 'value' | 'date'>;

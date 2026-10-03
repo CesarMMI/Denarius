@@ -1,21 +1,8 @@
+/** A filter left out or empty is not applied. */
 export interface CategoryFilters {
-	name: string;
-	withTransaction: boolean | null;
+	name?: string;
+	/** Keeps the categories with (`true`) or without (`false`) transactions in the period. */
+	withTransaction?: boolean | '';
+	/** The first day of the month. */
+	month?: Date | null;
 }
-
-export const DEFAULT_CATEGORY_FILTERS: CategoryFilters = {
-	name: '',
-	withTransaction: null,
-};
-
-const CATEGORY_TRANSACTION_FILTER = {
-	All: null,
-	With: true,
-	Without: false,
-} as const;
-
-export const CATEGORY_TRANSACTION_FILTER_OPTIONS = [
-	{ label: 'Todas', value: CATEGORY_TRANSACTION_FILTER.All },
-	{ label: 'Com transações', value: CATEGORY_TRANSACTION_FILTER.With },
-	{ label: 'Sem transações', value: CATEGORY_TRANSACTION_FILTER.Without },
-];

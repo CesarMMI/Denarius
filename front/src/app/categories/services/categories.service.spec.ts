@@ -3,8 +3,6 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { buildCategory } from '../testing/category-fixture';
-import { DEFAULT_CATEGORY_FILTERS } from '../types/category-filters';
-import { CATEGORY_SORT_FIELD, CATEGORY_SORT_OPTIONS } from '../types/category-sort';
 import { CategoriesService } from './categories.service';
 
 describe('CategoriesService', () => {
@@ -22,43 +20,32 @@ describe('CategoriesService', () => {
 	afterEach(() => httpTesting.verify());
 
 	describe('list', () => {
-		it('should target the categories endpoint', () => {
-			expect(service.list(DEFAULT_CATEGORY_FILTERS, CATEGORY_SORT_OPTIONS[0]).url).toBe(baseUrl);
+		it('should target the categories endpoint without params by default', () => {
+			const { url, params } = service.list();
+			expect(url).toBe(baseUrl);
+			expect(params.keys()).toEqual([]);
 		});
 
-		it('should only send sort params when no filter is set', () => {
-			const { params } = service.list(DEFAULT_CATEGORY_FILTERS, {
-				orderBy: CATEGORY_SORT_FIELD.Balance,
-				ascending: false,
-			});
-			expect(params.keys()).toEqual(['orderBy', 'asc']);
-			expect(params.get('orderBy')).toBe('Balance');
-			expect(params.get('asc')).toBe('false');
+		it('should skip empty filters', () => {
+			expect(service.list({ name: '', withTransaction: '', month: null }).params.keys()).toEqual([]);
 		});
 
-		it('should send the name filter', () => {
-			const { params } = service.list({ ...DEFAULT_CATEGORY_FILTERS, name: 'merc' }, CATEGORY_SORT_OPTIONS[0]);
-			expect(params.get('name')).toBe('merc');
+		it('should send the sort as orderBy and asc', () => {
+			expect(service.list({}, { active: 'Balance', direction: 'desc' }).params.toString()).toBe(
+				'orderBy=Balance&asc=false',
+			);
 		});
 
 		it.each([true, false])('should send withTransaction=%s', (withTransaction) => {
-			const { params } = service.list({ ...DEFAULT_CATEGORY_FILTERS, withTransaction }, CATEGORY_SORT_OPTIONS[0]);
-			expect(params.get('withTransaction')).toBe(String(withTransaction));
+			expect(service.list({ withTransaction }).params.get('withTransaction')).toBe(String(withTransaction));
 		});
 
-		it('should send the first day of the selected month as dateRef', () => {
-			const { params } = service.list(DEFAULT_CATEGORY_FILTERS, CATEGORY_SORT_OPTIONS[0], { month: 8, year: 2026 });
-			expect(params.get('dateRef')).toBe('2026-09-01');
-		});
-
-		it('should zero-pad single-digit months in dateRef', () => {
-			const { params } = service.list(DEFAULT_CATEGORY_FILTERS, CATEGORY_SORT_OPTIONS[0], { month: 0, year: 2027 });
-			expect(params.get('dateRef')).toBe('2027-01-01');
-		});
-
-		it('should omit dateRef when no month is selected', () => {
-			const { params } = service.list(DEFAULT_CATEGORY_FILTERS, CATEGORY_SORT_OPTIONS[0], null);
-			expect(params.has('dateRef')).toBe(false);
+		it('should send every filter together, with the first day of the month as dateRef', () => {
+			const { params } = service.list(
+				{ name: 'merc', withTransaction: true, month: new Date(2026, 8, 1) },
+				{ active: 'Name', direction: 'asc' },
+			);
+			expect(params.toString()).toBe('name=merc&withTransaction=true&dateRef=2026-09-01&orderBy=Name&asc=true');
 		});
 	});
 

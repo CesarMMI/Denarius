@@ -1,22 +1,6 @@
-@use '@angular/material' as mat;
-@use 'mat-overrides';
+@forward 'material';
 
-html {
-	height: 100%;
-	@include mat.theme(
-		(
-			color: mat.$azure-palette,
-			typography: Roboto,
-			density: -1,
-		)
-	);
-}
-
-body {
-	color-scheme: dark light;
-	background-color: var(--mat-sys-surface-container-lowest);
-	color: var(--mat-sys-on-surface);
-	font: var(--mat-sys-body-medium);
-	margin: 0;
-	height: 100%;
+// Money colored by its sign.
+.negative {
+	color: var(--mat-sys-error);
 }

@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>{{ data.transaction ? 'Editar transação' : 'Nova transação' }}</h2>
+
+<mat-dialog-content>
+	<form id="transaction-form" [formGroup]="form" (ngSubmit)="submit()">
+		<mat-button-toggle-group formControlName="type" aria-label="Tipo">
+			<mat-button-toggle value="in">Entrada</mat-button-toggle>
+			<mat-button-toggle value="out">Saída</mat-button-toggle>
+		</mat-button-toggle-group>
+
+		<mat-form-field floatLabel="always">
+			<mat-label>Valor</mat-label>
+			<span matTextPrefix>R$&nbsp;</span>
+			<input matInput formControlName="value" inputmode="decimal" placeholder="0,00" />
+			<mat-error>Informe um valor válido</mat-error>
+		</mat-form-field>
+
+		<mat-form-field>
+			<mat-label>Data</mat-label>
+			<input matInput formControlName="date" [matDatepicker]="picker" />
+			<mat-datepicker-toggle matIconSuffix [for]="picker" />
+			<mat-datepicker #picker />
+			<mat-error>Informe uma data válida</mat-error>
+		</mat-form-field>
+
+		<mat-form-field>
+			<mat-label>Categoria</mat-label>
+			<mat-select formControlName="categoryId">
+				@for (category of data.categories; track category.id) {
+					<mat-option [value]="category.id">{{ category.name }}</mat-option>
+				}
+			</mat-select>
+			<mat-error>Escolha uma categoria</mat-error>
+		</mat-form-field>
+
+		<mat-form-field>
+			<mat-label>Descrição</mat-label>
+			<input matInput formControlName="description" [maxlength]="descriptionMaxLength" />
+			<mat-hint align="end">{{ form.controls.description.value.length }}/{{ descriptionMaxLength }}</mat-hint>
+		</mat-form-field>
+	</form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+	<button matButton mat-dialog-close>Cancelar</button>
+	<button matButton="filled" type="submit" form="transaction-form">Salvar</button>
+</mat-dialog-actions>

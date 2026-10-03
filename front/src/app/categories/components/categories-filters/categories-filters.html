@@ -1,0 +1,32 @@
+<form>
+	<mat-form-field subscriptSizing="dynamic">
+		<mat-label>Nome</mat-label>
+		<mat-icon matIconPrefix>search</mat-icon>
+		<input #search matInput [formField]="form.name!" />
+		@if (form.name?.()?.value()) {
+			<button matSuffix mat-icon-button type="button" aria-label="Limpar nome" (click)="clearName($event)">
+				<mat-icon>close</mat-icon>
+			</button>
+		}
+	</mat-form-field>
+	<mat-form-field subscriptSizing="dynamic">
+		<mat-label>Transações no período</mat-label>
+		<mat-select [formField]="form.withTransaction!">
+			<mat-option value="">Todas</mat-option>
+			<mat-option [value]="true">Com transações</mat-option>
+			<mat-option [value]="false">Sem transações</mat-option>
+		</mat-select>
+		@if (form.withTransaction?.()?.value() !== '') {
+			<button
+				matSuffix
+				mat-icon-button
+				type="button"
+				aria-label="Limpar transações no período"
+				(click)="clearWithTransaction($event)"
+			>
+				<mat-icon>close</mat-icon>
+			</button>
+		}
+	</mat-form-field>
+	<app-month-field [formField]="form.month!" clearable />
+</form>

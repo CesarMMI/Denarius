@@ -1,0 +1,18 @@
+<mat-form-field floatLabel="always" subscriptSizing="dynamic">
+	<mat-label>Mês</mat-label>
+	<input
+		matInput
+		readonly
+		placeholder="Todos os meses"
+		[matDatepicker]="picker"
+		[value]="value()"
+		(click)="picker.open()"
+	/>
+	@if (clearable() && value()) {
+		<button matIconButton matIconSuffix type="button" aria-label="Limpar mês" (click)="value.set(null)">
+			<mat-icon>close</mat-icon>
+		</button>
+	}
+	<mat-datepicker-toggle matIconPrefix [for]="picker" />
+	<mat-datepicker #picker startView="year" (monthSelected)="value.set($event); picker.close()" />
+</mat-form-field>

@@ -3,9 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
 import { buildTransaction } from '../testing/transaction-fixture';
-import { DEFAULT_TRANSACTION_FILTERS, TRANSACTION_TYPE } from '../types/transaction-filters';
-import { TransactionInput } from '../types/transaction-form-result';
-import { TRANSACTION_SORT_FIELD, TRANSACTION_SORT_OPTIONS } from '../types/transaction-sort';
+import { TransactionInput } from '../types/transaction';
 import { TransactionsService } from './transactions.service';
 
 describe('TransactionsService', () => {
@@ -29,57 +27,34 @@ describe('TransactionsService', () => {
 	afterEach(() => httpTesting.verify());
 
 	describe('list', () => {
-		it('should target the transactions endpoint', () => {
-			expect(service.list(DEFAULT_TRANSACTION_FILTERS, TRANSACTION_SORT_OPTIONS[0]).url).toBe(baseUrl);
+		it('should target the transactions endpoint without params by default', () => {
+			const { url, params } = service.list();
+			expect(url).toBe(baseUrl);
+			expect(params.keys()).toEqual([]);
 		});
 
-		it('should only send sort params when no filter is set', () => {
-			const { params } = service.list(DEFAULT_TRANSACTION_FILTERS, TRANSACTION_SORT_OPTIONS[0]);
-			expect(params.keys()).toEqual(['orderBy', 'asc']);
-			expect(params.get('orderBy')).toBe('Date');
-			expect(params.get('asc')).toBe('false');
+		it('should skip empty filters', () => {
+			const { params } = service.list({ description: '', type: '', categoryId: '', month: null });
+			expect(params.keys()).toEqual([]);
 		});
 
-		it.each(TRANSACTION_SORT_OPTIONS)('should send the "$label" sort', (option) => {
-			const { params } = service.list(DEFAULT_TRANSACTION_FILTERS, option);
-			expect(params.get('orderBy')).toBe(option.orderBy);
-			expect(params.get('asc')).toBe(String(option.ascending));
+		it('should send the sort as orderBy and asc', () => {
+			expect(service.list({}, { active: 'Value', direction: 'asc' }).params.toString()).toBe('orderBy=Value&asc=true');
+			expect(service.list({}, { active: 'Date', direction: 'desc' }).params.toString()).toBe('orderBy=Date&asc=false');
 		});
 
-		it('should send the description filter', () => {
+		it('should leave the order to the API when the sort has no direction', () => {
+			expect(service.list({}, { active: 'Value', direction: '' }).params.keys()).toEqual([]);
+		});
+
+		it('should send every filter together, with the first day of the month as dateRef', () => {
 			const { params } = service.list(
-				{ ...DEFAULT_TRANSACTION_FILTERS, description: 'feira' },
-				TRANSACTION_SORT_OPTIONS[0],
+				{ description: 'uber', type: 'Out', categoryId: 'transporte', month: new Date(2027, 0, 1) },
+				{ active: 'Date', direction: 'desc' },
 			);
-			expect(params.get('description')).toBe('feira');
-		});
-
-		it.each([TRANSACTION_TYPE.In, TRANSACTION_TYPE.Out])('should send type=%s', (type) => {
-			const { params } = service.list({ ...DEFAULT_TRANSACTION_FILTERS, type }, TRANSACTION_SORT_OPTIONS[0]);
-			expect(params.get('type')).toBe(type);
-		});
-
-		it('should send the category filter', () => {
-			const { params } = service.list(
-				{ ...DEFAULT_TRANSACTION_FILTERS, categoryId: 'mercado' },
-				TRANSACTION_SORT_OPTIONS[0],
+			expect(params.toString()).toBe(
+				'description=uber&type=Out&categoryId=transporte&dateRef=2027-01-01&orderBy=Date&asc=false',
 			);
-			expect(params.get('categoryId')).toBe('mercado');
-		});
-
-		it('should send the first day of the selected month as dateRef', () => {
-			const { params } = service.list(DEFAULT_TRANSACTION_FILTERS, TRANSACTION_SORT_OPTIONS[0], { month: 0, year: 2027 });
-			expect(params.get('dateRef')).toBe('2027-01-01');
-		});
-
-		it('should send every filter together', () => {
-			const { params } = service.list(
-				{ description: 'uber', type: TRANSACTION_TYPE.Out, categoryId: 'transporte' },
-				{ orderBy: TRANSACTION_SORT_FIELD.Value, ascending: true },
-				{ month: 8, year: 2026 },
-			);
-			expect(params.keys()).toEqual(['description', 'type', 'categoryId', 'dateRef', 'orderBy', 'asc']);
-			expect(params.get('dateRef')).toBe('2026-09-01');
 		});
 	});
 

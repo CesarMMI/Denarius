@@ -1,0 +1,31 @@
+<app-page-header text="Categorias">
+	<button matIconButton aria-label="Recarregar" matTooltip="Recarregar" (click)="categories.reload()">
+		<mat-icon>refresh</mat-icon>
+	</button>
+	<button
+		matIconButton
+		[attr.aria-label]="filtersVisible() ? 'Ocultar filtros' : 'Exibir filtros'"
+		[matTooltip]="filtersVisible() ? 'Ocultar filtros' : 'Exibir filtros'"
+		(click)="filtersVisible.set(!filtersVisible())"
+	>
+		@if (filtersVisible()) {
+			<mat-icon>filter_alt_off</mat-icon>
+		} @else {
+			<mat-icon>filter_alt</mat-icon>
+		}
+	</button>
+	<button matButton="filled" (click)="openForm()">
+		<mat-icon>add</mat-icon>
+		<span>Nova categoria</span>
+	</button>
+</app-page-header>
+
+@if (filtersVisible()) {
+	<mat-card class="filters">
+		<app-categories-filters [(filters)]="filters" />
+	</mat-card>
+}
+
+<mat-card>
+	<app-categories-table [categories]="categories" [(sort)]="sort" (edit)="openForm($event)" (delete)="delete($event)" />
+</mat-card>

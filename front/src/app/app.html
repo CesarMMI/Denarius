@@ -1,0 +1,25 @@
+<mat-sidenav-container fullscreen autosize>
+	<mat-sidenav mode="side" opened disableClose>
+		<mat-toolbar>
+			<img src="icon/denarius-icon.svg" alt="Denarius Logo" />
+			<h2>Denarius</h2>
+		</mat-toolbar>
+		<mat-nav-list>
+			@for (link of links; track link.route) {
+				<a
+					mat-list-item
+					[routerLink]="link.route"
+					routerLinkActive
+					#active="routerLinkActive"
+					[activated]="active.isActive"
+				>
+					<mat-icon matListItemIcon>{{ link.icon }}</mat-icon>
+					{{ link.label }}
+				</a>
+			}
+		</mat-nav-list>
+	</mat-sidenav>
+	<mat-sidenav-content>
+		<router-outlet />
+	</mat-sidenav-content>
+</mat-sidenav-container>

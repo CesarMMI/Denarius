@@ -1,0 +1,10 @@
+form {
+	display: flex;
+	flex-direction: column;
+	width: 400px;
+}
+
+mat-button-toggle-group {
+	align-self: flex-start;
+	margin-bottom: 16px;
+}

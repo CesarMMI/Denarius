@@ -1,0 +1,78 @@
+@use '@angular/material' as mat;
+
+html {
+	@include mat.theme(
+		(
+			color: mat.$azure-palette,
+			typography: Roboto,
+			density: -1,
+		)
+	);
+
+	@include mat.button-overrides(
+		(
+			filled-container-shape: var(--mat-sys-corner-small),
+			outlined-container-shape: var(--mat-sys-corner-small),
+			text-container-shape: var(--mat-sys-corner-small),
+			tonal-container-shape: var(--mat-sys-corner-small),
+		)
+	);
+	@include mat.card-overrides(
+		(
+			elevated-container-shape: var(--mat-sys-corner-small),
+			elevated-container-elevation: 0,
+		)
+	);
+	@include mat.list-overrides(
+		(
+			active-indicator-shape: var(--mat-sys-corner-small),
+		)
+	);
+	@include mat.sidenav-overrides(
+		(
+			container-width: min(300px, 20%),
+			container-shape: 0,
+			container-background-color: var(--mat-sys-surface-container-low),
+		)
+	);
+	@include mat.table-overrides(
+		(
+			background-color: transparent,
+			row-item-outline-color: var(--mat-sys-outline-variant),
+		)
+	);
+	@include mat.toolbar-overrides(
+		(
+			container-background-color: transparent,
+		)
+	);
+}
+
+body {
+	margin: 0;
+	color-scheme: dark light;
+	background-color: var(--mat-sys-surface);
+	color: var(--mat-sys-on-surface);
+	font: var(--mat-sys-body-medium);
+}
+
+a {
+	text-decoration: none;
+	color: var(--mat-sys-primary);
+
+	&:hover {
+		text-decoration: underline;
+		color: var(--mat-sys-on-primary-container);
+	}
+}
+
+.mat-toolbar h1 {
+	flex: 1;
+}
+
+// Numbers and row actions line up at the end of the table columns.
+.mat-mdc-table {
+	[align='end'] {
+		text-align: end;
+	}
+}

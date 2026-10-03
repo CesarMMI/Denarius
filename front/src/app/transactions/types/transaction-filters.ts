@@ -1,25 +1,8 @@
-export const TRANSACTION_TYPE = {
-	All: 'All',
-	In: 'In',
-	Out: 'Out',
-} as const;
-
-export type TransactionType = (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE];
-
-export const TRANSACTION_TYPE_OPTIONS = [
-	{ label: 'Todas', value: TRANSACTION_TYPE.All },
-	{ label: 'Entradas', value: TRANSACTION_TYPE.In },
-	{ label: 'Saídas', value: TRANSACTION_TYPE.Out },
-];
-
+/** A filter left out or empty is not applied. */
 export interface TransactionFilters {
-	description: string;
-	type: TransactionType;
-	categoryId: string | 'all';
+	description?: string;
+	type?: 'In' | 'Out' | '';
+	categoryId?: string;
+	/** The first day of the month. */
+	month?: Date | null;
 }
-
-export const DEFAULT_TRANSACTION_FILTERS: TransactionFilters = {
-	description: '',
-	type: TRANSACTION_TYPE.All,
-	categoryId: 'all',
-};

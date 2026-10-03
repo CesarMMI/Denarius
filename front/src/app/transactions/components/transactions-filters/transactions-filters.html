@@ -1,0 +1,40 @@
+<form>
+	<mat-form-field subscriptSizing="dynamic">
+		<mat-label>Descrição</mat-label>
+		<mat-icon matIconPrefix>search</mat-icon>
+		<input matInput [formField]="form.description!" />
+		@if (form.description?.()?.value()) {
+			<button matSuffix matIconButton type="button" aria-label="Limpar descrição" (click)="clear($event, 'description')">
+				<mat-icon>close</mat-icon>
+			</button>
+		}
+	</mat-form-field>
+	<mat-form-field subscriptSizing="dynamic">
+		<mat-label>Tipo</mat-label>
+		<mat-select [formField]="form.type!">
+			<mat-option value="">Todos</mat-option>
+			<mat-option value="In">Entradas</mat-option>
+			<mat-option value="Out">Saídas</mat-option>
+		</mat-select>
+		@if (form.type?.()?.value()) {
+			<button matSuffix matIconButton type="button" aria-label="Limpar tipo" (click)="clear($event, 'type')">
+				<mat-icon>close</mat-icon>
+			</button>
+		}
+	</mat-form-field>
+	<mat-form-field subscriptSizing="dynamic">
+		<mat-label>Categoria</mat-label>
+		<mat-select [formField]="form.categoryId!">
+			<mat-option value="">Todas</mat-option>
+			@for (category of categories(); track category.id) {
+				<mat-option [value]="category.id">{{ category.name }}</mat-option>
+			}
+		</mat-select>
+		@if (form.categoryId?.()?.value()) {
+			<button matSuffix matIconButton type="button" aria-label="Limpar categoria" (click)="clear($event, 'categoryId')">
+				<mat-icon>close</mat-icon>
+			</button>
+		}
+	</mat-form-field>
+	<app-month-field [formField]="form.month!" clearable />
+</form>

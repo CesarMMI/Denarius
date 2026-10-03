@@ -1,25 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { PageHeader } from './page-header';
 
+@Component({
+	imports: [PageHeader],
+	template: `<app-page-header text="Transações"><button>Nova transação</button></app-page-header>`,
+})
+class Host {}
+
 describe('PageHeader', () => {
-	let component: PageHeader;
-	let fixture: ComponentFixture<PageHeader>;
-
-	beforeEach(async () => {
-		await TestBed.configureTestingModule({
-			imports: [PageHeader],
-		}).compileComponents();
-
-		fixture = TestBed.createComponent(PageHeader);
-		component = fixture.componentInstance;
-		fixture.componentRef.setInput('greeting', 'Setembro em curso');
-		fixture.componentRef.setInput('title', 'Resumo');
-		fixture.componentRef.setInput('actionLabel', 'Transação');
-		fixture.componentRef.setInput('monthLabel', 'Setembro 2026');
+	it('should show the title and the actions given', async () => {
+		const fixture = TestBed.createComponent(Host);
 		await fixture.whenStable();
-	});
+		const element: HTMLElement = fixture.nativeElement;
 
-	it('should create', () => {
-		expect(component).toBeTruthy();
+		expect(element.querySelector('h1')?.textContent).toBe('Transações');
+		expect(element.querySelector('.actions button')?.textContent).toBe('Nova transação');
 	});
 });

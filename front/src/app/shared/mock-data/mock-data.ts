@@ -3,7 +3,7 @@ import { Transaction } from '../../transactions/types/transaction';
 
 const TIMESTAMP = '2026-01-01T00:00:00.000Z';
 
-export const MOCK_CATEGORIES: Category[] = [
+const MOCK_CATEGORIES: Category[] = [
 	{
 		id: 'aluguel',
 		name: 'Aluguel',
