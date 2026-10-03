@@ -1,9 +1,10 @@
 @use '@angular/material' as mat;
+@use 'material-theme' as theme;
 
 html {
 	@include mat.theme(
 		(
-			color: mat.$azure-palette,
+			color: theme.$palette,
 			typography: Roboto,
 			density: -1,
 		)
@@ -38,7 +39,7 @@ html {
 	@include mat.table-overrides(
 		(
 			background-color: transparent,
-			row-item-outline-color: var(--mat-sys-outline-variant),
+			row-item-outline-color: var(--mat-sys-surface-container-high),
 		)
 	);
 	@include mat.toolbar-overrides(
@@ -50,7 +51,7 @@ html {
 
 body {
 	margin: 0;
-	color-scheme: dark light;
+	color-scheme: light dark;
 	background-color: var(--mat-sys-surface);
 	color: var(--mat-sys-on-surface);
 	font: var(--mat-sys-body-medium);
