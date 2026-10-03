@@ -47,7 +47,7 @@ describe('MonthField', () => {
 		host.month.set(new Date(2026, 8, 1));
 		await fixture.whenStable();
 
-		expect(input().value).toBe('setembro de 2026');
+		expect(input().value).toBe('09/2026');
 	});
 
 	it('should pick the month selected in the year view and close the picker', async () => {
@@ -57,7 +57,7 @@ describe('MonthField', () => {
 		await fixture.whenStable();
 
 		expect(host.month()).toEqual(new Date(2026, 2, 1));
-		expect(input().value).toBe('março de 2026');
+		expect(input().value).toBe('03/2026');
 		expect(close).toHaveBeenCalled();
 	});
 

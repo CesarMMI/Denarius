@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 	providers: [
 		provideNativeDateAdapter({
 			...MAT_NATIVE_DATE_FORMATS,
-			display: { ...MAT_NATIVE_DATE_FORMATS.display, dateInput: { month: 'long', year: 'numeric' } },
+			display: { ...MAT_NATIVE_DATE_FORMATS.display, dateInput: { month: '2-digit', year: 'numeric' } },
 		}),
 	],
 })
