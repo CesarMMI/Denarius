@@ -5,7 +5,6 @@ using Denarius.Application.Exceptions;
 using Denarius.Application.IO.Transactions;
 using Denarius.Application.UseCases.Transactions.Create;
 using Denarius.Application.UseCases.Transactions.Delete;
-using Denarius.Application.UseCases.Transactions.GetById;
 using Denarius.Application.UseCases.Transactions.List;
 using Denarius.Application.UseCases.Transactions.Update;
 using Denarius.Domain.Entities;
@@ -36,7 +35,6 @@ public class TransactionsControllerTests
         Func<CreateTransactionInput, TransactionOutput>? create = null,
         Func<(Guid Id, UpdateTransactionInput Input), TransactionOutput>? update = null,
         Action<Guid>? delete = null,
-        Func<Guid, TransactionOutput>? getById = null,
         Func<ListTransactionsInput, IEnumerable<TransactionOutput>>? list = null)
     {
         var host = await new HostBuilder()
@@ -51,8 +49,6 @@ public class TransactionsControllerTests
                         update ?? (_ => throw new InvalidOperationException("Update not configured for this test."))));
                     services.AddSingleton<IDeleteTransactionUseCase>(new FakeDeleteTransactionUseCase(
                         delete ?? (_ => throw new InvalidOperationException("Delete not configured for this test."))));
-                    services.AddSingleton<IGetTransactionByIdUseCase>(new FakeGetTransactionByIdUseCase(
-                        getById ?? (_ => throw new InvalidOperationException("GetById not configured for this test."))));
                     services.AddSingleton<IListTransactionsUseCase>(new FakeListTransactionsUseCase(
                         list ?? (_ => throw new InvalidOperationException("List not configured for this test."))));
                     services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -137,40 +133,6 @@ public class TransactionsControllerTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         var problem = await ReadProblemDetailsAsync(response);
         Assert.Equal("Categoria não encontrada.", problem.Detail);
-    }
-
-    [Fact]
-    public async Task GetById_ExistingTransaction_Returns200WithBody()
-    {
-        var output = MakeOutput(description: "Farmácia", value: 42.5m);
-        Guid? requestedId = null;
-        using var host = await CreateHostAsync(getById: id =>
-        {
-            requestedId = id;
-            return output;
-        });
-        var client = host.GetTestClient();
-
-        var response = await client.GetAsync($"/api/transactions/{output.Id}");
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(output.Id, requestedId);
-        var body = await ReadTransactionAsync(response);
-        Assert.Equal("Farmácia", body.Description);
-        Assert.Equal(42.5m, body.Value);
-    }
-
-    [Fact]
-    public async Task GetById_UnknownTransaction_Returns404()
-    {
-        using var host = await CreateHostAsync(getById: _ => throw new NotFoundException("Transação não encontrada."));
-        var client = host.GetTestClient();
-
-        var response = await client.GetAsync($"/api/transactions/{Guid.NewGuid()}");
-
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        var problem = await ReadProblemDetailsAsync(response);
-        Assert.Equal("Transação não encontrada.", problem.Detail);
     }
 
     [Fact]
@@ -347,11 +309,6 @@ public class TransactionsControllerTests
             handler(input);
             return Task.CompletedTask;
         }
-    }
-
-    private sealed class FakeGetTransactionByIdUseCase(Func<Guid, TransactionOutput> handler) : IGetTransactionByIdUseCase
-    {
-        public Task<TransactionOutput> Execute(Guid input) => Task.FromResult(handler(input));
     }
 
     private sealed class FakeListTransactionsUseCase(Func<ListTransactionsInput, IEnumerable<TransactionOutput>> handler) : IListTransactionsUseCase

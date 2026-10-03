@@ -15,8 +15,8 @@ beyond the documentation gap noted under Research. Updated 2026-09-24 to cover U
 Transaction management provides CRUD over individual financial transactions — a date, a value
 (positive or negative), a required category reference, and an optional description. It is
 implemented as one vertical slice through the existing four-layer architecture: a
-self-validating `Transaction` domain entity enforces the business rules; five single-purpose
-Application use cases (Create/Update/Delete/GetById/List) orchestrate persistence, with
+self-validating `Transaction` domain entity enforces the business rules; four single-purpose
+Application use cases (Create/Update/Delete/List) orchestrate persistence, with
 Create/Update additionally verifying the referenced `Category` exists; EF Core persists
 `Transaction` to PostgreSQL with a restrict-on-delete foreign key to `Category`; a single
 `TransactionsController` exposes the use cases over REST; and `GlobalExceptionHandler` translates
@@ -72,7 +72,7 @@ range, not for large multi-tenant volumes.
 | I. Public API Compatibility | PASS | User Story 3 is **additive**: `GET /api/transactions` gains six optional query parameters (`description`, `dateRef`, `type`, `categoryId`, `orderBy`, `asc`), and a call with none of them still returns every transaction with an unchanged response shape. The only observable difference for existing callers is that the previously unspecified order is now date descending. No other route, DTO, or status code changed. |
 | II. Service Boundary Adherence | PASS | Validation lives in `Denarius.Domain` (`Transaction`); orchestration in `Denarius.Application` use cases depending only on `Domain` (plus `ICategoryRepository` for the cross-entity existence check and for category names when sorting by `CategoryName`); EF Core specifics confined to `Denarius.Infrastructure`; `Denarius.WebAPI`'s `TransactionsController` only binds query parameters and calls use-case interfaces. No layer is skipped. |
 | III. Migration Rollback Discipline | PASS | The migration that creates the `Transactions` table (`20260814132713_AddTransaction`) has a clean, non-destructive `Down()` (`DropTable`). User Story 3 adds no migration. |
-| IV. Test Suite Verification | PASS | The `Transaction` entity and all five use cases have dedicated xUnit coverage; `TransactionsController` itself is covered by `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` (added by `/speckit-implement` on 2026-09-22, closing the gap Research originally flagged). User Story 3's filters, sort options, query binding, and 400-on-invalid-parameter behavior are covered in `ListTransactionsUseCaseTests.cs` and `TransactionsControllerTests.cs`. |
+| IV. Test Suite Verification | PASS | The `Transaction` entity and all four use cases have dedicated xUnit coverage; `TransactionsController` itself is covered by `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` (added by `/speckit-implement` on 2026-09-22, closing the gap Research originally flagged). User Story 3's filters, sort options, query binding, and 400-on-invalid-parameter behavior are covered in `ListTransactionsUseCaseTests.cs` and `TransactionsControllerTests.cs`. |
 
 No violations — Complexity Tracking is not needed.
 
@@ -104,7 +104,7 @@ src/
 │   ├── IO/Transactions/               # CreateTransactionInput, UpdateTransactionInput,
 │   │                                   # ListTransactionsInput, TransactionOutput,
 │   │                                   # TransactionType, TransactionOrderField
-│   └── UseCases/Transactions/         # Create, Update, Delete, GetById, List
+│   └── UseCases/Transactions/         # Create, Update, Delete, List
 ├── Denarius.Infrastructure/
 │   ├── Persistence/Configurations/TransactionConfiguration.cs
 │   ├── Repositories/TransactionRepository.cs

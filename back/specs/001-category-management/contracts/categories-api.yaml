@@ -79,24 +79,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
   /api/categories/{id}:
-    get:
-      summary: Get a category by id
-      operationId: getCategoryById
-      parameters:
-        - $ref: '#/components/parameters/CategoryId'
-      responses:
-        '200':
-          description: The category.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CategoryOutput'
-        '404':
-          description: No category exists with the given id.
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
     put:
       summary: Update a category
       operationId: updateCategory

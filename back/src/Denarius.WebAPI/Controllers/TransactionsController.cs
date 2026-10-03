@@ -1,7 +1,6 @@
 using Denarius.Application.IO.Transactions;
 using Denarius.Application.UseCases.Transactions.Create;
 using Denarius.Application.UseCases.Transactions.Delete;
-using Denarius.Application.UseCases.Transactions.GetById;
 using Denarius.Application.UseCases.Transactions.List;
 using Denarius.Application.UseCases.Transactions.Update;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ namespace Denarius.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class TransactionsController(ICreateTransactionUseCase createTransactionUseCase, IUpdateTransactionUseCase updateTransactionUseCase, IDeleteTransactionUseCase deleteTransactionUseCase, IListTransactionsUseCase listTransactionsUseCase, IGetTransactionByIdUseCase getTransactionByIdUseCase) : ControllerBase
+public class TransactionsController(ICreateTransactionUseCase createTransactionUseCase, IUpdateTransactionUseCase updateTransactionUseCase, IDeleteTransactionUseCase deleteTransactionUseCase, IListTransactionsUseCase listTransactionsUseCase) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TransactionOutput>>> List(
@@ -22,13 +21,6 @@ public class TransactionsController(ICreateTransactionUseCase createTransactionU
         [FromQuery] bool asc = false)
     {
         var output = await listTransactionsUseCase.Execute(new ListTransactionsInput(description, dateRef, type, categoryId, orderBy, asc));
-        return Ok(output);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<TransactionOutput>> GetById(Guid id)
-    {
-        var output = await getTransactionByIdUseCase.Execute(id);
         return Ok(output);
     }
 

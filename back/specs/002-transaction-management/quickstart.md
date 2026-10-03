@@ -66,13 +66,11 @@ dotnet test
      absent (it is money spent).
    - `curl "http://localhost:5276/api/transactions?dateRef=2026-08-01&categoryId={categoryId}"` —
      expect it absent (different month).
-   - `curl "http://localhost:5276/api/transactions?orderBy=Value&asc=true"` — expect the array
+   - `curl "http://localhost:5276/api/transactions?orderBy=value&asc=true"` — expect the array
      ordered by signed value, largest expense first.
    - `curl -i "http://localhost:5276/api/transactions?type=invalid"` — expect `400` with a
      validation `ProblemDetails` body.
-5. Get it by id: `curl http://localhost:5276/api/transactions/{id}` — expect `200` with the same
-   data.
-6. Update it:
+5. Update it:
    ```
    curl -i -X PUT http://localhost:5276/api/transactions/{id} \
      -H "Content-Type: application/json" \
@@ -80,12 +78,12 @@ dotnet test
    ```
    Expected: `200`, date/value changed, `description` becomes `null` (blank normalizes to no
    description — User Story 1, scenario 2 and 5).
-7. Delete it: `curl -i -X DELETE http://localhost:5276/api/transactions/{id}` — expect `204`,
+6. Delete it: `curl -i -X DELETE http://localhost:5276/api/transactions/{id}` — expect `204`,
    with no dependent-data refusal (User Story 1, scenario 3; contrast with the Category
    delete-guard).
-8. Confirm removal: repeat step 5 — expect `404`.
-9. Validation edge case: repeat step 3 with `"value":0` or an omitted `"date"` — expect `400`
+7. Confirm removal: repeat step 4's unfiltered list — expect the transaction to be gone.
+8. Validation edge case: repeat step 3 with `"value":0` or an omitted `"date"` — expect `400`
    with a `ProblemDetails` body explaining what's wrong (User Story 1, scenario 4).
-10. Referential edge case: repeat step 3 with a random `categoryId` (e.g.
-    `"00000000-0000-0000-0000-000000000000"`) — expect `404` explaining the category was not
-    found.
+9. Referential edge case: repeat step 3 with a random `categoryId` (e.g.
+   `"00000000-0000-0000-0000-000000000000"`) — expect `404` explaining the category was not
+   found.

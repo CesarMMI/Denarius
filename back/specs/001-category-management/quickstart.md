@@ -46,23 +46,21 @@ dotnet test
    with `transactionCount: 0` and `balance: 0`.
 3. List categories: `curl http://localhost:5276/api/categories` — expect the new category in the
    array, sorted by name ascending by default (User Story 1, User Story 3).
-4. Get it by id: `curl http://localhost:5276/api/categories/{id}` — expect `200` with the same
-   data.
-5. Update it:
+4. Update it:
    ```
    curl -i -X PUT http://localhost:5276/api/categories/{id} \
      -H "Content-Type: application/json" \
      -d '{"name":"Diversao","color":"#0F0"}'
    ```
    Expected: `200`, name changed, color normalized to `#00FF00`.
-6. Delete it: `curl -i -X DELETE http://localhost:5276/api/categories/{id}` — expect `204`.
-7. Confirm removal: repeat step 4 — expect `404`.
-8. Validation edge case: repeat step 2 with `"name":""` or `"color":"not-a-color"` — expect
+5. Delete it: `curl -i -X DELETE http://localhost:5276/api/categories/{id}` — expect `204`.
+6. Confirm removal: repeat step 3 — expect the category to be gone from the list.
+7. Validation edge case: repeat step 2 with `"name":""` or `"color":"not-a-color"` — expect
    `400` with a `ProblemDetails` body explaining what's wrong (User Story 1, scenario 5).
-9. Delete-guard edge case: create a category, record a transaction against it via
+8. Delete-guard edge case: create a category, record a transaction against it via
    `POST /api/categories` → `POST /api/transactions` (Transactions API — its own feature, out of
    scope here), then attempt delete — expect `400`; the category should still be present in
    step 3's list.
-10. Usage stats: repeat step 9 once more with a known transaction value, then `GET
-    /api/categories?dateRef=<that month>` — expect `transactionCount`/`balance` to reflect only
-    that month's transactions (User Story 2).
+9. Usage stats: repeat step 8 once more with a known transaction value, then `GET
+   /api/categories?dateRef=<that month>` — expect `transactionCount`/`balance` to reflect only
+   that month's transactions (User Story 2).

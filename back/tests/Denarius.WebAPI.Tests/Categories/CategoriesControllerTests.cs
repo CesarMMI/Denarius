@@ -5,7 +5,6 @@ using Denarius.Application.Exceptions;
 using Denarius.Application.IO.Categories;
 using Denarius.Application.UseCases.Categories.Create;
 using Denarius.Application.UseCases.Categories.Delete;
-using Denarius.Application.UseCases.Categories.GetById;
 using Denarius.Application.UseCases.Categories.List;
 using Denarius.Application.UseCases.Categories.Update;
 using Denarius.Domain.Entities;
@@ -35,7 +34,6 @@ public class CategoriesControllerTests
         Func<CreateCategoryInput, CategoryOutput>? create = null,
         Func<(Guid Id, UpdateCategoryInput Input), CategoryOutput>? update = null,
         Action<Guid>? delete = null,
-        Func<Guid, CategoryOutput>? getById = null,
         Func<ListCategoriesInput, IEnumerable<CategoryOutput>>? list = null)
     {
         var host = await new HostBuilder()
@@ -50,8 +48,6 @@ public class CategoriesControllerTests
                         update ?? (_ => throw new InvalidOperationException("Update not configured for this test."))));
                     services.AddSingleton<IDeleteCategoryUseCase>(new FakeDeleteCategoryUseCase(
                         delete ?? (_ => throw new InvalidOperationException("Delete not configured for this test."))));
-                    services.AddSingleton<IGetCategoryByIdUseCase>(new FakeGetCategoryByIdUseCase(
-                        getById ?? (_ => throw new InvalidOperationException("GetById not configured for this test."))));
                     services.AddSingleton<IListCategoriesUseCase>(new FakeListCategoriesUseCase(
                         list ?? (_ => throw new InvalidOperationException("List not configured for this test."))));
                     services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -121,40 +117,6 @@ public class CategoriesControllerTests
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var problem = await ReadProblemDetailsAsync(response);
         Assert.Equal("O nome da categoria não pode ser vazio.", problem.Detail);
-    }
-
-    [Fact]
-    public async Task GetById_ExistingCategory_Returns200WithBody()
-    {
-        var output = MakeOutput(name: "Alimentação", color: "#00FF00");
-        Guid? requestedId = null;
-        using var host = await CreateHostAsync(getById: id =>
-        {
-            requestedId = id;
-            return output;
-        });
-        var client = host.GetTestClient();
-
-        var response = await client.GetAsync($"/api/categories/{output.Id}");
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(output.Id, requestedId);
-        var body = await ReadCategoryAsync(response);
-        Assert.Equal("Alimentação", body.Name);
-        Assert.Equal("#00FF00", body.Color);
-    }
-
-    [Fact]
-    public async Task GetById_UnknownCategory_Returns404()
-    {
-        using var host = await CreateHostAsync(getById: _ => throw new NotFoundException("Categoria não encontrada."));
-        var client = host.GetTestClient();
-
-        var response = await client.GetAsync($"/api/categories/{Guid.NewGuid()}");
-
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-        var problem = await ReadProblemDetailsAsync(response);
-        Assert.Equal("Categoria não encontrada.", problem.Detail);
     }
 
     [Fact]
@@ -296,11 +258,6 @@ public class CategoriesControllerTests
             handler(input);
             return Task.CompletedTask;
         }
-    }
-
-    private sealed class FakeGetCategoryByIdUseCase(Func<Guid, CategoryOutput> handler) : IGetCategoryByIdUseCase
-    {
-        public Task<CategoryOutput> Execute(Guid input) => Task.FromResult(handler(input));
     }
 
     private sealed class FakeListCategoriesUseCase(Func<ListCategoriesInput, IEnumerable<CategoryOutput>> handler) : IListCategoriesUseCase

@@ -1,7 +1,6 @@
 using Denarius.Application.IO.Categories;
 using Denarius.Application.UseCases.Categories.Create;
 using Denarius.Application.UseCases.Categories.Delete;
-using Denarius.Application.UseCases.Categories.GetById;
 using Denarius.Application.UseCases.Categories.List;
 using Denarius.Application.UseCases.Categories.Update;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ namespace Denarius.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CategoriesController(ICreateCategoryUseCase createCategoryUseCase, IUpdateCategoryUseCase updateCategoryUseCase, IDeleteCategoryUseCase deleteCategoryUseCase, IListCategoriesUseCase listCategoriesUseCase, IGetCategoryByIdUseCase getCategoryByIdUseCase) : ControllerBase
+public class CategoriesController(ICreateCategoryUseCase createCategoryUseCase, IUpdateCategoryUseCase updateCategoryUseCase, IDeleteCategoryUseCase deleteCategoryUseCase, IListCategoriesUseCase listCategoriesUseCase) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryOutput>>> List(
@@ -21,13 +20,6 @@ public class CategoriesController(ICreateCategoryUseCase createCategoryUseCase, 
         [FromQuery] bool asc = true)
     {
         var output = await listCategoriesUseCase.Execute(new ListCategoriesInput(name, withTransaction, dateRef, orderBy, asc));
-        return Ok(output);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<CategoryOutput>> GetById(Guid id)
-    {
-        var output = await getCategoryByIdUseCase.Execute(id);
         return Ok(output);
     }
 
