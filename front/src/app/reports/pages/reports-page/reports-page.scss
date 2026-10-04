@@ -10,13 +10,13 @@
 	min-height: 0;
 	display: grid;
 	gap: 1rem;
-	grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(18rem, 1.2fr);
+	grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
 	grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
 	// The doughnut and the list are tall blocks: the doughnut's legend lists up to five categories.
 	grid-template-areas:
-		'summary summary summary summary'
-		'bars bars bars categories'
-		'line line line transactions';
+		'summary summary'
+		'bars categories'
+		'line transactions';
 }
 
 app-summary-cards {
