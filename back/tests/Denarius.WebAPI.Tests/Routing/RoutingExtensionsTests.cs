@@ -51,6 +51,18 @@ public class RoutingExtensionsTests
             .Order()
             .ToList();
 
-        Assert.Equal(["api/categories", "api/categories/{id}", "api/transactions", "api/transactions/{id}"], routes);
+        Assert.Equal(
+            [
+                "api/categories",
+                "api/categories/{id}",
+                "api/reports/cumulativeExpenses",
+                "api/reports/expensesByCategory",
+                "api/reports/incomeVsExpense",
+                "api/reports/summary",
+                "api/reports/transactions",
+                "api/transactions",
+                "api/transactions/{id}"
+            ],
+            routes);
     }
 }

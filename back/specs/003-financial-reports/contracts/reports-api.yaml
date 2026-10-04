@@ -1,0 +1,329 @@
+openapi: 3.0.3
+info:
+  title: Denarius Reports API
+  description: >
+    Contract for the financial reports, as implemented by
+    Denarius.WebAPI.Controllers.ReportsController. Read-only; every report covers one calendar month,
+    written YYYY-MM, and defaults to the current month in the America/Sao_Paulo time zone. Money is
+    decimal and expense is always a positive amount; percentages are on a 0-100 scale, rounded to two
+    decimals. Transaction dates are calendar days and are never shifted by a time zone.
+  version: "1.0.0"
+paths:
+  /api/reports/summary:
+    get:
+      summary: Monthly summary
+      operationId: getMonthlySummary
+      description: >
+        Totals of the month, its savings rate, the month-end projection and the comparison with the
+        previous month.
+      parameters:
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: The month's summary.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthlySummaryOutput'
+        '400':
+          $ref: '#/components/responses/InvalidMonth'
+  /api/reports/expensesByCategory:
+    get:
+      summary: Expenses by category
+      operationId: getExpensesByCategory
+      description: >
+        The month's expense per category, largest first (ties by name). With more than 8 categories,
+        the 7 largest are listed and the rest are added up into a final "Outras" entry.
+      parameters:
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: The month's expense per category.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpensesByCategoryOutput'
+        '400':
+          $ref: '#/components/responses/InvalidMonth'
+  /api/reports/incomeVsExpense:
+    get:
+      summary: Income vs. expense per month
+      operationId: getIncomeVsExpense
+      description: >
+        One entry per month, oldest first, for the `months` months ending in `month`. Months without
+        transactions are included with zeros.
+      parameters:
+        - $ref: '#/components/parameters/Month'
+        - name: months
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 24
+            default: 12
+          description: How many months the series covers, ending in `month`.
+      responses:
+        '200':
+          description: The series, in chronological order.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncomeVsExpenseOutput'
+        '400':
+          description: >
+            `month` is not a valid YYYY-MM month, or `months` is not a number between 1 and 24
+            (model-binding validation problem produced by [ApiController]).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetails'
+  /api/reports/cumulativeExpenses:
+    get:
+      summary: Cumulative expense of the month vs. the previous month
+      operationId: getCumulativeExpenseComparison
+      description: >
+        The running total of expense on each day of the month and of the previous month. A series
+        stops at today for the current month and is empty for a month that has not started.
+      parameters:
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: Both series and the number of days in each month.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CumulativeExpenseComparisonOutput'
+        '400':
+          $ref: '#/components/responses/InvalidMonth'
+  /api/reports/transactions:
+    get:
+      summary: Transactions of the month
+      operationId: listMonthlyTransactions
+      description: >
+        Every transaction dated in the month — no pagination, no limit — newest date first, then the
+        most recently recorded first.
+      parameters:
+        - $ref: '#/components/parameters/Month'
+      responses:
+        '200':
+          description: The month's transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyTransactionOutput'
+        '400':
+          $ref: '#/components/responses/InvalidMonth'
+components:
+  parameters:
+    Month:
+      name: month
+      in: query
+      required: false
+      schema:
+        type: string
+        pattern: '^\d{4}-(0[1-9]|1[0-2])$'
+        example: '2026-09'
+      description: >
+        The calendar month, YYYY-MM. Omitted or empty: the current month in America/Sao_Paulo.
+  responses:
+    InvalidMonth:
+      description: >
+        `month` is not a valid YYYY-MM month (model-binding validation problem produced by
+        [ApiController]; the use case is not called).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ValidationProblemDetails'
+  schemas:
+    MonthlySummaryOutput:
+      type: object
+      properties:
+        month:
+          type: string
+          example: '2026-09'
+        totalIncome:
+          type: number
+          format: decimal
+          description: Sum of the month's money in.
+        totalExpense:
+          type: number
+          format: decimal
+          description: Sum of the month's money out, as a positive amount.
+        balance:
+          type: number
+          format: decimal
+          description: totalIncome - totalExpense.
+        savingsRate:
+          type: number
+          format: decimal
+          nullable: true
+          description: >
+            balance / totalIncome x 100, on a 0-100 scale (negative when expense exceeds income).
+            null when the month has no income.
+        projectedExpense:
+          type: number
+          format: decimal
+          description: >
+            Current month: expense from day 1 through today / days elapsed (today included) x days in
+            the month, rounded to cents. Past month: totalExpense. Future month: 0.
+        projectedBalance:
+          type: number
+          format: decimal
+          description: >
+            Current month: totalIncome - projectedExpense. Past month: balance. Future month: 0.
+        previousMonth:
+          $ref: '#/components/schemas/PreviousMonthSummaryOutput'
+      required: [month, totalIncome, totalExpense, balance, savingsRate, projectedExpense, projectedBalance, previousMonth]
+    PreviousMonthSummaryOutput:
+      type: object
+      description: >
+        The month before the report month and the percentage change from each of its values to the
+        report month's: (current - previous) / |previous| x 100, null when the previous value is 0.
+      properties:
+        totalIncome:
+          type: number
+          format: decimal
+        totalExpense:
+          type: number
+          format: decimal
+        balance:
+          type: number
+          format: decimal
+        totalIncomeChange:
+          type: number
+          format: decimal
+          nullable: true
+        totalExpenseChange:
+          type: number
+          format: decimal
+          nullable: true
+        balanceChange:
+          type: number
+          format: decimal
+          nullable: true
+      required: [totalIncome, totalExpense, balance, totalIncomeChange, totalExpenseChange, balanceChange]
+    ExpensesByCategoryOutput:
+      type: object
+      properties:
+        total:
+          type: number
+          format: decimal
+          description: The month's total expense.
+        items:
+          type: array
+          maxItems: 8
+          items:
+            $ref: '#/components/schemas/CategoryExpenseOutput'
+      required: [total, items]
+    CategoryExpenseOutput:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+          nullable: true
+          description: null for "Outras".
+        categoryName:
+          type: string
+          description: The category's name, or "Outras".
+        color:
+          type: string
+          nullable: true
+          example: '#43A047'
+          description: The category's color, or null for "Outras".
+        amount:
+          type: number
+          format: decimal
+        percentage:
+          type: number
+          format: decimal
+          description: amount / total x 100, on a 0-100 scale.
+      required: [categoryId, categoryName, color, amount, percentage]
+    IncomeVsExpenseOutput:
+      type: object
+      properties:
+        month:
+          type: string
+          example: '2026-09'
+        income:
+          type: number
+          format: decimal
+        expense:
+          type: number
+          format: decimal
+        balance:
+          type: number
+          format: decimal
+          description: income - expense.
+      required: [month, income, expense, balance]
+    CumulativeExpenseComparisonOutput:
+      type: object
+      properties:
+        currentMonth:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccumulatedExpenseOutput'
+        previousMonth:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccumulatedExpenseOutput'
+        daysInCurrentMonth:
+          type: integer
+        daysInPreviousMonth:
+          type: integer
+      required: [currentMonth, previousMonth, daysInCurrentMonth, daysInPreviousMonth]
+    AccumulatedExpenseOutput:
+      type: object
+      properties:
+        day:
+          type: integer
+          minimum: 1
+          maximum: 31
+        accumulated:
+          type: number
+          format: decimal
+          description: The month's expense from day 1 through this day.
+      required: [day, accumulated]
+    MonthlyTransactionOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date-time
+          description: The calendar day, at UTC midnight (as in TransactionOutput).
+        description:
+          type: string
+          nullable: true
+        categoryName:
+          type: string
+        type:
+          type: string
+          enum: [in, out]
+          description: in = money in (positive value); out = money out (negative value).
+        amount:
+          type: number
+          format: decimal
+          description: The size of the value, always positive.
+      required: [id, date, description, categoryName, type, amount]
+    ValidationProblemDetails:
+      type: object
+      description: RFC 7807 validation problem, as produced by [ApiController] for an invalid query.
+      properties:
+        status:
+          type: integer
+        title:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
