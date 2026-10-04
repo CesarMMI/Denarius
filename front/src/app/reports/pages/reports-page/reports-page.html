@@ -1,0 +1,24 @@
+<app-page-header text="Relatórios">
+	<button matIconButton aria-label="Recarregar" matTooltip="Recarregar" (click)="reload()">
+		<mat-icon>refresh</mat-icon>
+	</button>
+	<button matIconButton aria-label="Mês anterior" matTooltip="Mês anterior" (click)="previousMonth()">
+		<mat-icon>arrow_left</mat-icon>
+	</button>
+	<button matIconButton aria-label="Próximo mês" matTooltip="Próximo mês" (click)="nextMonth()">
+		<mat-icon>arrow_right</mat-icon>
+	</button>
+	<app-month-field [(value)]="month" />
+</app-page-header>
+
+<div class="bento">
+	<app-summary-cards [summary]="summary" (retry)="summary.reload()" />
+	<app-income-vs-expense-chart [series]="incomeVsExpense" (retry)="incomeVsExpense.reload()" />
+	<app-expenses-by-category-chart [expenses]="expensesByCategory" (retry)="expensesByCategory.reload()" />
+	<app-cumulative-comparison-chart
+		[comparison]="cumulativeExpenses"
+		[month]="month()"
+		(retry)="cumulativeExpenses.reload()"
+	/>
+	<app-transactions-list [transactions]="transactions" [month]="month()" (retry)="transactions.reload()" />
+</div>

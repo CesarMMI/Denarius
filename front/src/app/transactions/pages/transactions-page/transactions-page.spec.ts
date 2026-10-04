@@ -244,6 +244,29 @@ describe('TransactionsPage', () => {
 		expect(category!.textContent).toContain('Salário');
 	});
 
+	it('should filter by the month given in the query string, showing the filters', async () => {
+		create({ month: '2026-09' });
+
+		const req = expectList();
+		expect(req.request.params.get('dateRef')).toBe('2026-09-01');
+		req.flush([feira, pao, pagamento]);
+		expectCategories().flush([mercado, salario]);
+		await fixture.whenStable();
+
+		expect(element.querySelector<HTMLInputElement>('app-month-field input')!.value).toBe('09/2026');
+	});
+
+	it('should ignore a month in the query string that is not YYYY-MM', async () => {
+		create({ month: 'setembro' });
+
+		const req = expectList();
+		expect(req.request.params.has('dateRef')).toBe(false);
+		req.flush([]);
+		expectCategories().flush([mercado, salario]);
+		await fixture.whenStable();
+		expect(filters()).toBeUndefined();
+	});
+
 	describe('sorting', () => {
 		beforeEach(async () => {
 			create();

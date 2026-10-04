@@ -1,0 +1,40 @@
+:host {
+	display: flex;
+	min-width: 0;
+	min-height: 0;
+}
+
+app-report-card {
+	flex: 1;
+}
+
+// Only the list scrolls; the sticky header takes the card's color so rows don't show through it.
+.scroll {
+	flex: 1;
+	align-self: stretch;
+	min-height: 0;
+	overflow: auto;
+	--mat-table-background-color: var(--mat-sys-surface-container-low);
+}
+
+// A compact table for a side block: date and amount keep their width, the description takes the rest and truncates.
+th,
+td {
+	padding-inline: 0.5rem;
+	white-space: nowrap;
+}
+
+.mat-column-description {
+	width: 100%;
+	max-width: 0;
+
+	div {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+}
+
+.category {
+	font: var(--mat-sys-body-small);
+	color: var(--mat-sys-on-surface-variant);
+}

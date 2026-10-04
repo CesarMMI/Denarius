@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { Category } from '../../../categories/types/category';
+import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { PageHeader } from '../../../shared/page-header/page-header';
 import { SortMenu, SortOption } from '../../../shared/sort-menu/sort-menu';
 import { TransactionForm, TransactionFormData } from '../../components/transaction-form/transaction-form';
@@ -41,16 +42,21 @@ export class TransactionsPage {
 	private readonly dialog = inject(MatDialog);
 	private readonly snackBar = inject(MatSnackBar);
 
-	/** The categories page links here with a category, and the filters start open to show it. */
-	private readonly categoryId = inject(ActivatedRoute).snapshot.queryParamMap.get('categoryId') ?? '';
+	/**
+	 * The categories page links here with a category and the reports page with a month (`YYYY-MM`); the filters start
+	 * open to show them.
+	 */
+	private readonly queryParams = inject(ActivatedRoute).snapshot.queryParamMap;
+	private readonly categoryId = this.queryParams.get('categoryId') ?? '';
+	private readonly month = DateUtils.fromMonthKey(this.queryParams.get('month'));
 
 	protected readonly filters = signal<TransactionFilters>({
 		description: '',
 		type: '',
 		categoryId: this.categoryId,
-		month: null,
+		month: this.month,
 	});
-	protected readonly filtersVisible = signal<boolean>(!!this.categoryId);
+	protected readonly filtersVisible = signal<boolean>(!!this.categoryId || !!this.month);
 
 	protected readonly sort = signal<Sort>({ active: 'date', direction: 'desc' });
 	protected readonly sortOptions: SortOption[] = [

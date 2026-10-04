@@ -1,0 +1,21 @@
+<app-report-card
+	heading="Receitas vs. despesas"
+	[report]="series()"
+	[empty]="empty()"
+	emptyText="Sem movimentações neste período."
+	errorText="Não foi possível carregar as receitas e despesas dos últimos meses."
+	(retry)="retry.emit()"
+>
+	<ng-template>
+		<div class="chart">
+			<canvas
+				baseChart
+				[type]="'bar'"
+				[data]="data()"
+				[options]="options()"
+				role="img"
+				[attr.aria-label]="description()"
+			></canvas>
+		</div>
+	</ng-template>
+</app-report-card>

@@ -15,6 +15,7 @@ describe('AppComponent', () => {
 				provideRouter([
 					{ path: 'transactions', component: Blank },
 					{ path: 'categories', component: Blank },
+					{ path: 'reports', component: Blank },
 				]),
 			],
 		});
@@ -27,11 +28,20 @@ describe('AppComponent', () => {
 	}
 
 	it('should link every page from the side menu', () => {
-		expect(links().map((a) => a.getAttribute('href'))).toEqual(['/transactions', '/categories']);
+		expect(links().map((a) => a.getAttribute('href'))).toEqual(['/reports', '/transactions', '/categories']);
 		expect(links().map((a) => a.textContent)).toEqual([
+			expect.stringContaining('Relatórios'),
 			expect.stringContaining('Transações'),
 			expect.stringContaining('Categorias'),
 		]);
+	});
+
+	it('should mark the reports link on the reports page', async () => {
+		await TestBed.inject(Router).navigateByUrl('/reports');
+		await fixture.whenStable();
+
+		const current = links().filter((a) => a.getAttribute('aria-current') === 'page');
+		expect(current.map((a) => a.getAttribute('href'))).toEqual(['/reports']);
 	});
 
 	it('should mark the link of the current page', async () => {

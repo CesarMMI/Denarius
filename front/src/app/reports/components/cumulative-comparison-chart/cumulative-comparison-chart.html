@@ -1,0 +1,21 @@
+<app-report-card
+	heading="Despesas acumuladas"
+	[report]="comparison()"
+	[empty]="empty()"
+	emptyText="Sem despesas neste mês nem no anterior."
+	errorText="Não foi possível carregar as despesas acumuladas."
+	(retry)="retry.emit()"
+>
+	<ng-template>
+		<div class="chart">
+			<canvas
+				baseChart
+				[type]="'line'"
+				[data]="data()"
+				[options]="options()"
+				role="img"
+				[attr.aria-label]="description()"
+			></canvas>
+		</div>
+	</ng-template>
+</app-report-card>

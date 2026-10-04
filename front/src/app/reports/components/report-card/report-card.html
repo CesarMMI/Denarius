@@ -1,0 +1,24 @@
+@let resource = report();
+<mat-card>
+	<mat-card-header>
+		<mat-card-title>{{ heading() }}</mat-card-title>
+		@if (subtitle()) {
+			<mat-card-subtitle>{{ subtitle() }}</mat-card-subtitle>
+		}
+	</mat-card-header>
+	<mat-card-content [class.reloading]="resource.isLoading() && resource.hasValue()">
+		@if (resource.isLoading() && !resource.hasValue()) {
+			<mat-progress-spinner mode="indeterminate" diameter="32" aria-label="Carregando" />
+		} @else if (resource.error()) {
+			<p>{{ errorText() }}</p>
+			<button matButton (click)="retry.emit()">
+				<mat-icon>refresh</mat-icon>
+				Tentar novamente
+			</button>
+		} @else if (empty()) {
+			<p>{{ emptyText() }}</p>
+		} @else {
+			<ng-container [ngTemplateOutlet]="content() ?? null" />
+		}
+	</mat-card-content>
+</mat-card>

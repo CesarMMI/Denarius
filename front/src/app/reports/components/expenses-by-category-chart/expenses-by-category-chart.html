@@ -1,0 +1,21 @@
+<app-report-card
+	heading="Despesas por categoria"
+	[report]="expenses()"
+	[empty]="empty()"
+	emptyText="Sem despesas neste mês."
+	errorText="Não foi possível carregar as despesas por categoria."
+	(retry)="retry.emit()"
+>
+	<ng-template>
+		<div class="chart">
+			<canvas
+				baseChart
+				[type]="'doughnut'"
+				[data]="data()"
+				[options]="options()"
+				role="img"
+				[attr.aria-label]="description()"
+			></canvas>
+		</div>
+	</ng-template>
+</app-report-card>

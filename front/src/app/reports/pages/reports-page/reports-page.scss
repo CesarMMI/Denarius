@@ -1,0 +1,53 @@
+// The page fills the sidenav content, which fills the window, so on desktop nothing but the list scrolls.
+:host {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.bento {
+	flex: 1;
+	min-height: 0;
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(18rem, 1.2fr);
+	grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr);
+	// The doughnut and the list are tall blocks: the doughnut's legend lists up to five categories.
+	grid-template-areas:
+		'summary summary summary summary'
+		'bars bars bars categories'
+		'line line line transactions';
+}
+
+app-summary-cards {
+	grid-area: summary;
+}
+
+app-expenses-by-category-chart {
+	grid-area: categories;
+}
+
+app-income-vs-expense-chart {
+	grid-area: bars;
+}
+
+app-cumulative-comparison-chart {
+	grid-area: line;
+}
+
+app-transactions-list {
+	grid-area: transactions;
+}
+
+// Narrow or short windows stack the blocks in one column and let the page scroll.
+@media (max-width: 1199.98px), (max-height: 599.98px) {
+	:host {
+		height: auto;
+	}
+
+	.bento {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: auto 26rem 22rem 22rem 30rem;
+		grid-template-areas: 'summary' 'categories' 'bars' 'line' 'transactions';
+	}
+}

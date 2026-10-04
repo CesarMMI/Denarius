@@ -1,0 +1,17 @@
+:host {
+	display: flex;
+	min-width: 0;
+	min-height: 0;
+}
+
+app-report-card {
+	flex: 1;
+}
+
+// Chart.js sizes the canvas to this box.
+.chart {
+	position: relative;
+	flex: 1;
+	align-self: stretch;
+	min-height: 0;
+}

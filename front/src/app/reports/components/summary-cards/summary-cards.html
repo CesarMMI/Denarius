@@ -1,0 +1,80 @@
+@let value = loaded();
+@if (value && !empty()) {
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>Saldo</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			<span class="value" [class.negative]="value.balance < 0">{{ value.balance | currency: 'BRL' }}</span>
+			<ng-container [ngTemplateOutlet]="change" [ngTemplateOutletContext]="{ $implicit: changes().balance }" />
+		</mat-card-content>
+	</mat-card>
+
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>Receitas</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			<span class="value">{{ value.totalIncome | currency: 'BRL' }}</span>
+			<ng-container [ngTemplateOutlet]="change" [ngTemplateOutletContext]="{ $implicit: changes().income }" />
+		</mat-card-content>
+	</mat-card>
+
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>Despesas</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			<span class="value">{{ value.totalExpense * -1 | currency: 'BRL' }}</span>
+			<ng-container [ngTemplateOutlet]="change" [ngTemplateOutletContext]="{ $implicit: changes().expense }" />
+		</mat-card-content>
+	</mat-card>
+
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>Taxa de poupança</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			@if (value.savingsRate === null) {
+				<span class="value">—</span>
+				<span class="caption">Sem receitas no mês</span>
+			} @else {
+				<span class="value" [class.negative]="value.savingsRate < 0">
+					{{ value.savingsRate / 100 | percent: '1.0-1' }}
+				</span>
+				<span class="caption">da receita do mês</span>
+			}
+		</mat-card-content>
+	</mat-card>
+
+	<mat-card>
+		<mat-card-header>
+			<mat-card-title>Projeção de despesas</mat-card-title>
+		</mat-card-header>
+		<mat-card-content>
+			<span class="value">{{ value.projectedExpense * -1 | currency: 'BRL' }}</span>
+			<span class="caption">
+				Saldo projetado
+				<span [class.negative]="value.projectedBalance < 0">{{ value.projectedBalance | currency: 'BRL' }}</span>
+			</span>
+		</mat-card-content>
+	</mat-card>
+} @else {
+	<app-report-card
+		heading="Resumo do mês"
+		[report]="summary()"
+		[empty]="empty()"
+		errorText="Não foi possível carregar o resumo do mês."
+		(retry)="retry.emit()"
+	/>
+}
+
+<ng-template #change let-change>
+	@if (change) {
+		<span class="caption" [class.good]="change.tone === 'good'" [class.bad]="change.tone === 'bad'">
+			{{ change.arrow }} {{ change.size | percent: '1.0-1' }} vs. {{ previousMonth() | date: 'MMMM' }}
+		</span>
+	} @else {
+		<span class="caption">Sem comparação com {{ previousMonth() | date: 'MMMM' }}</span>
+	}
+</ng-template>

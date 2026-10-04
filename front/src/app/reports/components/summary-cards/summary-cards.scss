@@ -1,0 +1,48 @@
+:host {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+// Loading, empty or failed, the summary is one card across the row.
+app-report-card {
+	grid-column: 1 / -1;
+	min-height: 7rem;
+}
+
+// A stat tile: a quiet label and the value as the loud part.
+mat-card-title {
+	font: var(--mat-sys-title-small);
+	letter-spacing: var(--mat-sys-title-small-tracking);
+	color: var(--mat-sys-on-surface-variant);
+}
+
+mat-card-content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.value {
+	font: var(--mat-sys-headline-small);
+	letter-spacing: var(--mat-sys-headline-small-tracking);
+}
+
+.caption {
+	font: var(--mat-sys-body-small);
+	letter-spacing: var(--mat-sys-body-small-tracking);
+}
+
+.good {
+	color: var(--mat-sys-tertiary);
+}
+
+.bad {
+	color: var(--mat-sys-error);
+}
+
+@media (max-width: 1199.98px) {
+	:host {
+		grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	}
+}
