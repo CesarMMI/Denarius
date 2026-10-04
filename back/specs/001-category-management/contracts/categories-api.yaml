@@ -1,14 +1,14 @@
 openapi: 3.0.3
 info:
-  title: Denarius Categories API
+  title: API de categorias do Denarius
   description: >
-    Contract for the existing Category management endpoints, as implemented by
-    Denarius.WebAPI.Controllers.CategoriesController. Documents shipped behavior; not a proposal.
+    Contrato dos endpoints existentes de gestão de categorias, como implementados por
+    Denarius.WebAPI.Controllers.CategoriesController. Documenta o comportamento entregue; não é uma proposta.
   version: "1.0.0"
 paths:
   /api/categories:
     get:
-      summary: List categories
+      summary: Listar categorias
       operationId: listCategories
       parameters:
         - name: name
@@ -16,20 +16,20 @@ paths:
           required: false
           schema:
             type: string
-          description: Partial, case-sensitivity-dependent-on-database match against Category.Name.
+          description: Busca parcial em Category.Name; a diferenciação entre maiúsculas e minúsculas depende do banco.
         - name: withTransaction
           in: query
           required: false
           schema:
             type: boolean
-          description: true = only categories with at least one transaction; false = only categories with none.
+          description: true = só categorias com pelo menos uma transação; false = só categorias sem nenhuma.
         - name: dateRef
           in: query
           required: false
           schema:
             type: string
             format: date-time
-          description: Any date within the calendar month to scope transactionCount/balance to.
+          description: Qualquer data dentro do mês do calendário ao qual transactionCount/balance devem se restringir.
         - name: orderBy
           in: query
           required: false
@@ -44,7 +44,7 @@ paths:
             default: true
       responses:
         '200':
-          description: Categories matching the given filters, in the requested order.
+          description: Categorias que atendem aos filtros informados, na ordem pedida.
           content:
             application/json:
               schema:
@@ -52,7 +52,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/CategoryOutput'
     post:
-      summary: Create a category
+      summary: Criar uma categoria
       operationId: createCategory
       requestBody:
         required: true
@@ -62,7 +62,7 @@ paths:
               $ref: '#/components/schemas/CreateCategoryInput'
       responses:
         '201':
-          description: Category created.
+          description: Categoria criada.
           headers:
             Location:
               schema:
@@ -73,14 +73,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/CategoryOutput'
         '400':
-          description: Invalid name or color.
+          description: Nome ou cor inválidos.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
   /api/categories/{id}:
     put:
-      summary: Update a category
+      summary: Atualizar uma categoria
       operationId: updateCategory
       parameters:
         - $ref: '#/components/parameters/CategoryId'
@@ -92,39 +92,39 @@ paths:
               $ref: '#/components/schemas/UpdateCategoryInput'
       responses:
         '200':
-          description: Category updated.
+          description: Categoria atualizada.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryOutput'
         '400':
-          description: Invalid name or color.
+          description: Nome ou cor inválidos.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
         '404':
-          description: No category exists with the given id.
+          description: Não existe categoria com o id informado.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
-      summary: Delete a category
+      summary: Excluir uma categoria
       operationId: deleteCategory
       parameters:
         - $ref: '#/components/parameters/CategoryId'
       responses:
         '204':
-          description: Category deleted.
+          description: Categoria excluída.
         '400':
-          description: The category has one or more transactions associated with it.
+          description: A categoria tem uma ou mais transações associadas.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
         '404':
-          description: No category exists with the given id.
+          description: Não existe categoria com o id informado.
           content:
             application/problem+json:
               schema:
@@ -158,7 +158,7 @@ components:
           type: string
         color:
           type: string
-          description: Normalized hex color, e.g. "#FF0000".
+          description: Cor hexadecimal normalizada, por exemplo "#FF0000".
         transactionCount:
           type: integer
         balance:
@@ -166,7 +166,7 @@ components:
           format: decimal
         canDelete:
           type: boolean
-          description: False when the category has transactions in any month, regardless of dateRef.
+          description: É false quando a categoria tem transações em algum mês, independentemente do dateRef.
       required: [id, createdAt, updatedAt, name, color, transactionCount, balance, canDelete]
     CreateCategoryInput:
       type: object
@@ -176,7 +176,7 @@ components:
           maxLength: 100
         color:
           type: string
-          description: Hex color, with or without leading "#"; 3- or 6-digit.
+          description: Cor hexadecimal, com ou sem "#" inicial; 3 ou 6 dígitos.
       required: [name, color]
     UpdateCategoryInput:
       type: object
@@ -189,7 +189,7 @@ components:
       required: [name, color]
     ProblemDetails:
       type: object
-      description: RFC 7807 problem details, as produced by GlobalExceptionHandler.
+      description: Problem details da RFC 7807, como gerados pelo GlobalExceptionHandler.
       properties:
         status:
           type: integer

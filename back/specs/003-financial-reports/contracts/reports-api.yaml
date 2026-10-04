@@ -1,26 +1,27 @@
 openapi: 3.0.3
 info:
-  title: Denarius Reports API
+  title: API de relatórios do Denarius
   description: >
-    Contract for the financial reports, as implemented by
-    Denarius.WebAPI.Controllers.ReportsController. Read-only; every report covers one calendar month,
-    written YYYY-MM, and defaults to the current month in the America/Sao_Paulo time zone. Money is
-    decimal and expense is always a positive amount; percentages are on a 0-100 scale, rounded to two
-    decimals. Transaction dates are calendar days and are never shifted by a time zone.
+    Contrato dos relatórios financeiros, como implementados por
+    Denarius.WebAPI.Controllers.ReportsController. Somente leitura; cada relatório cobre um mês do
+    calendário, escrito YYYY-MM, e o padrão é o mês atual no fuso horário America/Sao_Paulo. Dinheiro
+    é decimal e a despesa é sempre um valor positivo; os percentuais estão na escala 0-100,
+    arredondados para duas casas decimais. As datas das transações são dias do calendário e nunca são
+    deslocadas por fuso horário.
   version: "1.0.0"
 paths:
   /api/reports/summary:
     get:
-      summary: Monthly summary
+      summary: Resumo mensal
       operationId: getMonthlySummary
       description: >
-        Totals of the month, its savings rate, the month-end projection and the comparison with the
-        previous month.
+        Totais do mês, a sua taxa de poupança, a projeção do fim do mês e a comparação com o mês
+        anterior.
       parameters:
         - $ref: '#/components/parameters/Month'
       responses:
         '200':
-          description: The month's summary.
+          description: O resumo do mês.
           content:
             application/json:
               schema:
@@ -29,16 +30,16 @@ paths:
           $ref: '#/components/responses/InvalidMonth'
   /api/reports/expensesByCategory:
     get:
-      summary: Expenses by category
+      summary: Despesas por categoria
       operationId: getExpensesByCategory
       description: >
-        The month's expense per category, largest first (ties by name). With more than 8 categories,
-        the 7 largest are listed and the rest are added up into a final "Outras" entry.
+        A despesa do mês por categoria, das maiores para as menores (empates pelo nome). Com mais de 8
+        categorias, as 7 maiores são listadas e o resto é somado numa entrada final "Outras".
       parameters:
         - $ref: '#/components/parameters/Month'
       responses:
         '200':
-          description: The month's expense per category.
+          description: A despesa do mês por categoria.
           content:
             application/json:
               schema:
@@ -47,11 +48,11 @@ paths:
           $ref: '#/components/responses/InvalidMonth'
   /api/reports/incomeVsExpense:
     get:
-      summary: Income vs. expense per month
+      summary: Receitas vs. despesas por mês
       operationId: getIncomeVsExpense
       description: >
-        One entry per month, oldest first, for the `months` months ending in `month`. Months without
-        transactions are included with zeros.
+        Uma entrada por mês, do mais antigo para o mais recente, para os `months` meses que terminam
+        em `month`. Meses sem transações aparecem com zeros.
       parameters:
         - $ref: '#/components/parameters/Month'
         - name: months
@@ -62,10 +63,10 @@ paths:
             minimum: 1
             maximum: 24
             default: 12
-          description: How many months the series covers, ending in `month`.
+          description: Quantos meses a série cobre, terminando em `month`.
       responses:
         '200':
-          description: The series, in chronological order.
+          description: A série, em ordem cronológica.
           content:
             application/json:
               schema:
@@ -74,24 +75,24 @@ paths:
                   $ref: '#/components/schemas/IncomeVsExpenseOutput'
         '400':
           description: >
-            `month` is not a valid YYYY-MM month, or `months` is not a number between 1 and 24
-            (model-binding validation problem produced by [ApiController]).
+            `month` não é um mês YYYY-MM válido, ou `months` não é um número entre 1 e 24 (problema
+            de validação do model binding produzido pelo [ApiController]).
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ValidationProblemDetails'
   /api/reports/cumulativeExpenses:
     get:
-      summary: Cumulative expense of the month vs. the previous month
+      summary: Despesa acumulada do mês vs. o mês anterior
       operationId: getCumulativeExpenseComparison
       description: >
-        The running total of expense on each day of the month and of the previous month. A series
-        stops at today for the current month and is empty for a month that has not started.
+        O total acumulado da despesa em cada dia do mês e do mês anterior. A série para em hoje no mês
+        atual e fica vazia num mês que ainda não começou.
       parameters:
         - $ref: '#/components/parameters/Month'
       responses:
         '200':
-          description: Both series and the number of days in each month.
+          description: As duas séries e a quantidade de dias de cada mês.
           content:
             application/json:
               schema:
@@ -100,16 +101,16 @@ paths:
           $ref: '#/components/responses/InvalidMonth'
   /api/reports/transactions:
     get:
-      summary: Transactions of the month
+      summary: Transações do mês
       operationId: listMonthlyTransactions
       description: >
-        Every transaction dated in the month — no pagination, no limit — newest date first, then the
-        most recently recorded first.
+        Todas as transações com data no mês — sem paginação, sem limite —, da data mais recente para a
+        mais antiga e, depois, das registradas mais recentemente para as mais antigas.
       parameters:
         - $ref: '#/components/parameters/Month'
       responses:
         '200':
-          description: The month's transactions.
+          description: As transações do mês.
           content:
             application/json:
               schema:
@@ -129,12 +130,12 @@ components:
         pattern: '^\d{4}-(0[1-9]|1[0-2])$'
         example: '2026-09'
       description: >
-        The calendar month, YYYY-MM. Omitted or empty: the current month in America/Sao_Paulo.
+        O mês do calendário, YYYY-MM. Omitido ou vazio: o mês atual em America/Sao_Paulo.
   responses:
     InvalidMonth:
       description: >
-        `month` is not a valid YYYY-MM month (model-binding validation problem produced by
-        [ApiController]; the use case is not called).
+        `month` não é um mês YYYY-MM válido (problema de validação do model binding produzido pelo
+        [ApiController]; o caso de uso não é chamado).
       content:
         application/problem+json:
           schema:
@@ -149,11 +150,11 @@ components:
         totalIncome:
           type: number
           format: decimal
-          description: Sum of the month's money in.
+          description: Soma das entradas do mês.
         totalExpense:
           type: number
           format: decimal
-          description: Sum of the month's money out, as a positive amount.
+          description: Soma das saídas do mês, como valor positivo.
         balance:
           type: number
           format: decimal
@@ -163,27 +164,27 @@ components:
           format: decimal
           nullable: true
           description: >
-            balance / totalIncome x 100, on a 0-100 scale (negative when expense exceeds income).
-            null when the month has no income.
+            balance / totalIncome x 100, na escala 0-100 (negativa quando a despesa passa da
+            receita). null quando o mês não tem receita.
         projectedExpense:
           type: number
           format: decimal
           description: >
-            Current month: expense from day 1 through today / days elapsed (today included) x days in
-            the month, rounded to cents. Past month: totalExpense. Future month: 0.
+            Mês atual: despesa do dia 1 até hoje / dias decorridos (incluindo hoje) x dias do mês,
+            arredondada para centavos. Mês passado: totalExpense. Mês futuro: 0.
         projectedBalance:
           type: number
           format: decimal
           description: >
-            Current month: totalIncome - projectedExpense. Past month: balance. Future month: 0.
+            Mês atual: totalIncome - projectedExpense. Mês passado: balance. Mês futuro: 0.
         previousMonth:
           $ref: '#/components/schemas/PreviousMonthSummaryOutput'
       required: [month, totalIncome, totalExpense, balance, savingsRate, projectedExpense, projectedBalance, previousMonth]
     PreviousMonthSummaryOutput:
       type: object
       description: >
-        The month before the report month and the percentage change from each of its values to the
-        report month's: (current - previous) / |previous| x 100, null when the previous value is 0.
+        O mês anterior ao mês do relatório e a variação percentual de cada um dos seus valores para os
+        do mês do relatório: (current - previous) / |previous| x 100, null quando o valor anterior é 0.
       properties:
         totalIncome:
           type: number
@@ -213,7 +214,7 @@ components:
         total:
           type: number
           format: decimal
-          description: The month's total expense.
+          description: A despesa total do mês.
         items:
           type: array
           maxItems: 8
@@ -227,22 +228,22 @@ components:
           type: string
           format: uuid
           nullable: true
-          description: null for "Outras".
+          description: É null para "Outras".
         categoryName:
           type: string
-          description: The category's name, or "Outras".
+          description: O nome da categoria, ou "Outras".
         color:
           type: string
           nullable: true
           example: '#43A047'
-          description: The category's color, or null for "Outras".
+          description: A cor da categoria, ou null para "Outras".
         amount:
           type: number
           format: decimal
         percentage:
           type: number
           format: decimal
-          description: amount / total x 100, on a 0-100 scale.
+          description: amount / total x 100, na escala 0-100.
       required: [categoryId, categoryName, color, amount, percentage]
     IncomeVsExpenseOutput:
       type: object
@@ -287,7 +288,7 @@ components:
         accumulated:
           type: number
           format: decimal
-          description: The month's expense from day 1 through this day.
+          description: A despesa do mês do dia 1 até este dia.
       required: [day, accumulated]
     MonthlyTransactionOutput:
       type: object
@@ -298,7 +299,7 @@ components:
         date:
           type: string
           format: date-time
-          description: The calendar day, at UTC midnight (as in TransactionOutput).
+          description: O dia do calendário, à meia-noite UTC (como em TransactionOutput).
         description:
           type: string
           nullable: true
@@ -307,15 +308,15 @@ components:
         type:
           type: string
           enum: [in, out]
-          description: in = money in (positive value); out = money out (negative value).
+          description: in = entrada (valor positivo); out = saída (valor negativo).
         amount:
           type: number
           format: decimal
-          description: The size of the value, always positive.
+          description: O tamanho do valor, sempre positivo.
       required: [id, date, description, categoryName, type, amount]
     ValidationProblemDetails:
       type: object
-      description: RFC 7807 validation problem, as produced by [ApiController] for an invalid query.
+      description: Problema de validação da RFC 7807, como produzido pelo [ApiController] para uma query inválida.
       properties:
         status:
           type: integer

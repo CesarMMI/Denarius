@@ -1,65 +1,63 @@
-# Phase 0 Research: Reports Dashboard
+# Pesquisa da Fase 0: Painel de relatórios
 
-## Chart library and how it is added
+## A biblioteca de gráficos e como ela é adicionada
 
-- **Decision**: `npx ng add ng2-charts`, which installs `ng2-charts` and `chart.js` and wires
-  `provideCharts(withDefaultRegisterables())`. ng2-charts 11.x requires Angular 22; `ng add` picks the
-  newest version whose peer dependencies match the installed Angular, so the project gets 10.0.0
-  (peer `@angular/core >=21`). Nothing is installed by hand.
-- **Rationale**: The request names the library and asks for its schematic.
-- **Alternatives considered**: Installing `ng2-charts@11` — fails the peer dependencies of Angular 21.
+- **Decisão**: `npx ng add ng2-charts`, que instala `ng2-charts` e `chart.js` e configura
+  `provideCharts(withDefaultRegisterables())`. O ng2-charts 11.x exige o Angular 22; o `ng add` escolhe a versão mais
+  nova cujas peer dependencies combinam com o Angular instalado, então o projeto recebe a 10.0.0 (peer
+  `@angular/core >=21`). Nada é instalado à mão.
+- **Justificativa**: O pedido nomeia a biblioteca e pede o seu schematic.
+- **Alternativas consideradas**: Instalar `ng2-charts@11` — falha nas peer dependencies do Angular 21.
 
-## Where Chart.js is provided
+## Onde o Chart.js é provido
 
-- **Decision**: Keep the schematic's provider but move it from `app.config.ts` to the `providers` of
-  the reports route (`reports.routes.ts`), which `app.routes.ts` already loads lazily. The provider
-  also sets Chart.js's default font to the app's Roboto.
-- **Rationale**: `withDefaultRegisterables()` imports every Chart.js controller, element, scale and
-  plugin (~200 kB). Provided in `app.config.ts`, all of it joins the initial bundle (630 kB today, budget
-  warning at 700 kB) and is downloaded by users who never open the reports — the kind of regression the
-  budget exists to catch. A route-level provider gives the reports page the same configuration, and
-  Chart.js loads with the route.
-- **Alternatives considered**: Leaving the provider in `app.config.ts` — passes `ng add` verbatim but
-  breaks the budget rule; registering only the needed Chart.js pieces — smaller, but departs from the
-  request's `withDefaultRegisterables()` for a chunk that is already lazy.
+- **Decisão**: Manter o provider do schematic, mas movê-lo de `app.config.ts` para os `providers` da rota de
+  relatórios (`reports.routes.ts`), que o `app.routes.ts` já carrega sob demanda. O provider também define a fonte
+  padrão do Chart.js como a Roboto do app.
+- **Justificativa**: O `withDefaultRegisterables()` importa todos os controllers, elementos, escalas e plugins do
+  Chart.js (~200 kB). Provido em `app.config.ts`, tudo isso entra no bundle inicial (630 kB hoje, aviso do budget em
+  700 kB) e é baixado por usuários que nunca abrem os relatórios — o tipo de regressão que o budget existe para pegar.
+  Um provider na rota dá à página de relatórios a mesma configuração, e o Chart.js carrega com a rota.
+- **Alternativas consideradas**: Deixar o provider em `app.config.ts` — segue o `ng add` ao pé da letra, mas quebra a
+  regra do budget; registrar só as peças necessárias do Chart.js — menor, mas se afasta do
+  `withDefaultRegisterables()` do pedido para um chunk que já é lazy.
 
-## Who loads each block's data
+## Quem carrega os dados de cada bloco
 
-- **Decision**: `ReportsPage` owns five `httpResource`s, one per report, driven by its `month` signal.
-  Each block component receives its own `Resource` as an input and emits `retry`; the page calls
-  `reload()` on that resource alone.
-- **Rationale**: The request asks each card to fetch its own data "so that loading and error are
-  independent"; the front constitution (Principle II) puts `httpResource` state in pages and keeps
-  `components/` presentational, without HTTP. One resource per block keeps every block independent —
-  its own request, loading, error and retry — and keeps the boundary. It is also the shape the tables
-  already use (`TransactionsTable` takes a `Resource`).
-- **Alternatives considered**: An `httpResource` inside each card — what the request literally says,
-  but a constitution violation with nothing gained over one resource per block in the page.
+- **Decisão**: A `ReportsPage` é dona de cinco `httpResource`s, um por relatório, guiados pelo seu signal `month`.
+  Cada componente de bloco recebe o seu próprio `Resource` como input e emite `retry`; a página chama `reload()` só
+  naquele resource.
+- **Justificativa**: O pedido quer que cada card busque os próprios dados "para que carregamento e erro sejam
+  independentes"; a constituição do front (Princípio II) põe o estado de `httpResource` nas páginas e mantém
+  `components/` de apresentação, sem HTTP. Um resource por bloco mantém cada bloco independente — a sua própria
+  requisição, carregamento, erro e nova tentativa — e respeita a fronteira. É também o formato que as tabelas já usam
+  (o `TransactionsTable` recebe um `Resource`).
+- **Alternativas consideradas**: Um `httpResource` dentro de cada card — o que o pedido diz literalmente, mas uma
+  violação da constituição sem ganho em relação a um resource por bloco na página.
 
-## Loading, empty and error states
+## Estados de carregamento, vazio e erro
 
-- **Decision**: A `report-card` component — `mat-card` with `mat-card-title`, then either a
-  `mat-progress-spinner` (loading with nothing to show), the error text with a "Tentar novamente"
-  `matButton` (error), the empty text (loaded, nothing to show), or the block's content passed as an
-  `ng-template`. A reload of a block that has data keeps it on screen at reduced opacity instead of
-  replacing it with the spinner. Empty texts: "Sem movimentações neste mês." for the summary and the list
-  (the request's text), "Sem despesas neste mês." for the doughnut, "Sem despesas neste mês nem no
-  anterior." for the line, and "Sem movimentações neste período." for the bars, which cover twelve months.
-- **Rationale**: Five blocks share one state behavior; the template input makes the content render only
-  when there is data, so a chart is never created over an empty or failed report. Angular's resource
-  clears `value()` when the request changes (a new month → spinner) and keeps it on `reload()` (→ dimmed
-  content), checked in `@angular/core`'s resource implementation. A Material spinner instead of a
-  hand-made skeleton follows the project's "Material first" rule. The doughnut and the line are about
-  expenses, so "no movement" would be false for a month with income only.
-- **Alternatives considered**: Repeating the states in each block — five copies of the same markup and
-  styles; `@if` around `<ng-content>` — projected content is created even when hidden, so the chart would
-  be created over missing data.
+- **Decisão**: Um componente `report-card` — `mat-card` com `mat-card-title` e, depois, um `mat-progress-spinner`
+  (carregando, sem nada para mostrar), o texto de erro com um `matButton` "Tentar novamente" (erro), o texto de vazio
+  (carregado, sem nada para mostrar) ou o conteúdo do bloco passado como `ng-template`. Recarregar um bloco que tem
+  dados os mantém na tela com opacidade reduzida, em vez de trocá-los pelo spinner. Textos de vazio: "Sem movimentações
+  neste mês." para o resumo e a lista (o texto do pedido), "Sem despesas neste mês." para a rosca, "Sem despesas neste
+  mês nem no anterior." para a linha e "Sem movimentações neste período." para as barras, que cobrem doze meses.
+- **Justificativa**: Cinco blocos compartilham um comportamento de estados; o input de template faz o conteúdo só
+  renderizar quando há dados, então um gráfico nunca é criado sobre um relatório vazio ou que falhou. O resource do
+  Angular limpa o `value()` quando a requisição muda (um mês novo → spinner) e o mantém no `reload()` (→ conteúdo
+  esmaecido), o que foi conferido na implementação de resource do `@angular/core`. Um spinner do Material, em vez de
+  um skeleton feito à mão, segue a regra "Material primeiro" do projeto. A rosca e a linha tratam de despesas, então
+  "sem movimentação" seria falso num mês só com receitas.
+- **Alternativas consideradas**: Repetir os estados em cada bloco — cinco cópias do mesmo markup e dos mesmos
+  estilos; `@if` em volta de `<ng-content>` — o conteúdo projetado é criado mesmo escondido, então o gráfico seria
+  criado sobre dados ausentes.
 
 ## Layout
 
-- **Decision**: The page host takes `height: 100%` of `mat-sidenav-content` (the sidenav container is
-  `fullscreen`, so that is the viewport minus the content padding) — the project's equivalent of
-  `100dvh`. Below the page header, a CSS grid (`gap: 1rem`) with `grid-template-areas`:
+- **Decisão**: O host da página ocupa `height: 100%` do `mat-sidenav-content` (o container da sidenav é `fullscreen`,
+  então isso é a viewport menos o padding do conteúdo) — o equivalente, neste projeto, a `100dvh`. Abaixo do cabeçalho
+  da página, uma grade CSS (`gap: 1rem`) com `grid-template-areas`:
 
   ```
   "summary    summary  summary  summary"
@@ -67,124 +65,122 @@
   "categories line     line     transactions"
   ```
 
-  with columns `repeat(3, minmax(0, 1fr)) minmax(18rem, 1.2fr)` and rows `auto minmax(0, 1fr)
-minmax(0, 1fr)`. The five summary cards share the first row; the doughnut and the transactions are tall
-  blocks on each side; the two time series take the wide middle. Below 1200 px wide or 600 px tall, a
-  media query switches to one column (`summary`, `categories`, `bars`, `line`, `transactions`), gives
-  the blocks fixed heights and lets the page scroll.
+  com colunas `repeat(3, minmax(0, 1fr)) minmax(18rem, 1.2fr)` e linhas `auto minmax(0, 1fr) minmax(0, 1fr)`. Os
+  cinco cards de resumo dividem a primeira linha; a rosca e as transações são blocos altos, um de cada lado; as duas
+  séries temporais ocupam o meio, mais largo. Abaixo de 1200 px de largura ou de 600 px de altura, uma media query
+  passa para uma coluna (`summary`, `categories`, `bars`, `line`, `transactions`), dá alturas fixas aos blocos e deixa
+  a página rolar.
 
-- **Rationale**: The request's areas, adjusted as it allows: four blocks side by side in the second row
-  would leave each time series a quarter of the width, too narrow for twelve months of paired bars or 31
-  days of lines; stacking the two series in a double-width column gives them room while the doughnut and
-  the list use the full height.
-- **Alternatives considered**: The literal four-column second row — cramped series; `100dvh` on the
-  page — ignores the header, the padding and the sidenav layout and would overflow.
+- **Justificativa**: As áreas do pedido, ajustadas como ele permite: quatro blocos lado a lado na segunda linha
+  deixariam cada série temporal com um quarto da largura, estreito demais para doze meses de barras em pares ou 31 dias
+  de linhas; empilhar as duas séries numa coluna de largura dupla lhes dá espaço, enquanto a rosca e a lista usam a
+  altura toda.
+- **Alternativas consideradas**: A segunda linha literal, com quatro colunas — séries apertadas; `100dvh` na página —
+  ignora o cabeçalho, o padding e o layout da sidenav e transbordaria.
 
-## Colors
+## Cores
 
-- **Decision**: Every color is a `--mat-sys-*` token. Expense: `error`, in the charts and the list
-  (the global `.negative` class already uses it); the summary cards show expenses as negative values
-  without color. Income: `tertiary`, the theme's green. Change indicators: "good" in `tertiary`, "bad"
-  in `error`, always with ↑/↓ and the percentage in text. The doughnut uses each category's own color,
-  "Outras" `outline` (the neutral), and a gap in the card's surface color between slices. Grid lines use
-  `surface-container-high`, chart text uses `on-surface`. The canvas can't read CSS variables, so
-  `ChartThemeService` resolves these tokens to concrete colors through a probe element, again whenever
-  `prefers-color-scheme` changes, and the charts recompute their options from it.
-- **Rationale**: The first version had income in `outline`, the pair that passed the dataviz CVD check;
-  the owner then chose the theme's green, and its seed was desaturated (`#4CAF50` → `#71A96C`) so it no
-  longer outweighs the red in dark mode, where `error` is a pastel tone 80. Green against red fails the
-  deuteranopia check (ΔE 7.0 light / 2.8 dark), so the legend, the tooltip and the fixed order of the
-  bars carry the identity too. The red in the summary cards drew too much attention, so the owner
-  removed it there. Reading the tokens keeps the charts on the theme, in light and dark.
-- **Alternatives considered**: Income in `outline` — the validated first version, replaced by the
-  owner's green; hex values for a blue income — breaks the "tokens only" rule and drifts from the theme.
+- **Decisão**: Toda cor é um token `--mat-sys-*`. Despesa: `error`, nos gráficos e na lista (a classe global
+  `.negative` já o usa); os cards de resumo mostram as despesas como valores negativos, sem cor. Receita: `tertiary`, o
+  verde do tema. Indicadores de variação: "bom" em `tertiary`, "ruim" em `error`, sempre com ↑/↓ e o percentual em
+  texto. A rosca usa a cor de cada categoria, "Outras" em `outline` (a neutra) e um espaço na cor da superfície do card
+  entre as fatias. As linhas de grade usam `surface-container-high`, e o texto dos gráficos, `on-surface`. O canvas não
+  lê variáveis CSS, então o `ChartThemeService` resolve esses tokens para cores concretas por meio de um elemento de
+  sondagem, de novo a cada mudança de `prefers-color-scheme`, e os gráficos recalculam as suas opções a partir dele.
+- **Justificativa**: A primeira versão tinha a receita em `outline`, o par que passou na verificação de daltonismo
+  (CVD) do dataviz; depois, o dono escolheu o verde do tema, e a sua semente foi dessaturada (`#4CAF50` → `#71A96C`)
+  para não pesar mais que o vermelho no modo escuro, em que `error` é um tom pastel 80. Verde contra vermelho falha na
+  verificação de deuteranopia (ΔE 7,0 no claro / 2,8 no escuro), então a legenda, o tooltip e a ordem fixa das barras
+  também carregam a identidade. O vermelho nos cards de resumo chamava atenção demais, então o dono o removeu dali. Ler
+  os tokens mantém os gráficos no tema, no claro e no escuro.
+- **Alternativas consideradas**: Receita em `outline` — a primeira versão, validada, substituída pelo verde do dono;
+  valores hex para uma receita azul — quebra a regra de "só tokens" e se afasta do tema.
 
-## Five slices at most in the doughnut
+## No máximo cinco fatias na rosca
 
-- **Decision**: `expenses-by-category-chart` folds the API's items to five: past five, the four largest
-  keep their slices and the rest — including the API's own "Outras" — add up to a fifth, "Outras", whose
-  share is recomputed from the month's `total`. The legend, the tooltip and the `aria-label` use the
-  folded list.
-- **Rationale**: Asked by the owner before finishing. The API sorts the categories largest first and
-  folds past eight with its "Outras" last, so the first four items are always named categories. Folding
-  in the front keeps the backend as it is (front tasks don't change `back/`).
-- **Alternatives considered**: Lowering the API's limit from eight to five — a backend change for a
-  presentation choice.
+- **Decisão**: O `expenses-by-category-chart` reduz os itens da API a cinco: com mais de cinco, as quatro maiores
+  mantêm as suas fatias e o resto — incluindo o próprio "Outras" da API — soma numa quinta, "Outras", cuja
+  participação é recalculada a partir do `total` do mês. A legenda, o tooltip e o `aria-label` usam a lista reduzida.
+- **Justificativa**: Pedido pelo dono antes de terminar. A API ordena as categorias da maior para a menor e agrupa a
+  partir de oito, com o seu "Outras" por último, então os quatro primeiros itens são sempre categorias com nome.
+  Agrupar no front mantém o backend como está (tarefas de front não mudam o `back/`).
+- **Alternativas consideradas**: Baixar o limite da API de oito para cinco — uma mudança no backend por uma escolha
+  de apresentação.
 
-## Latest transactions and "Ver todas"
+## Transações mais recentes e "Ver todas"
 
-- **Decision**: `transactions-list` shows the first ten of the month's transactions (the API sends them
-  newest first) and keeps counting all of them in its title. Below the table, a `matButton` link "Ver
-  todas" opens `/transactions?month=YYYY-MM` (new `month` input, from the page). The transactions page
-  reads `month` from its query string as it already reads `categoryId` (`DateUtils.fromMonthKey`, which
-  ignores anything but a valid `YYYY-MM`) and opens with the filters shown on that month.
-- **Rationale**: Asked by the owner before finishing. The same link-with-query-string pattern as the
-  categories table's transaction count; a link (not router state) survives a reload and can be shared.
-- **Alternatives considered**: An API `limit` — a backend change that would lose the month's count.
+- **Decisão**: O `transactions-list` mostra as dez primeiras transações do mês (a API as envia das mais recentes para
+  as mais antigas) e continua contando todas no título. Abaixo da tabela, um link `matButton` "Ver todas" abre
+  `/transactions?month=YYYY-MM` (novo input `month`, vindo da página). A página de transações lê `month` da query
+  string, como já lê `categoryId` (`DateUtils.fromMonthKey`, que ignora tudo que não for um `YYYY-MM` válido), e abre
+  com os filtros visíveis naquele mês.
+- **Justificativa**: Pedido pelo dono antes de terminar. O mesmo padrão de link com query string da contagem de
+  transações da tabela de categorias; um link (e não estado do router) sobrevive a um reload e pode ser compartilhado.
+- **Alternativas consideradas**: Um `limit` na API — uma mudança no backend que perderia a contagem do mês.
 
-## Balance line over the bars (dropped)
+## Linha de saldo sobre as barras (descartada)
 
-- **Decision**: None — the bars stay as they were.
-- **Rationale**: A line with each month's balance, in the text color over the bars, was built and
-  tried; the owner found that it cluttered the chart and asked to remove it.
+- **Decisão**: Nenhuma — as barras continuam como estavam.
+- **Justificativa**: Uma linha com o saldo de cada mês, na cor do texto, sobre as barras, foi construída e testada; o
+  dono achou que ela poluía o gráfico e pediu para removê-la.
 
-## Formatting
+## Formatação
 
-- **Decision**: Templates use `CurrencyPipe` (`'BRL'`), `DatePipe` (`'dd/MM'` in `UTC` for API dates,
-  the same as the transactions table) and `PercentPipe`, under the app's `LOCALE_ID` (`pt-BR`). Chart
-  callbacks (tooltips, axes) use `Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })`,
-  compact on the value axes. Months are spelled out where they are named — "vs. agosto", legends and
-  tooltips such as "setembro de 2026" — and abbreviated only on the bar axis: "set.", with the year on a
-  second line under the first month and every January, so the labels need no tilt.
-- **Rationale**: The request's pt-BR rules, with the formatting the app already uses.
+- **Decisão**: Os templates usam `CurrencyPipe` (`'BRL'`), `DatePipe` (`'dd/MM'` em `UTC` para as datas da API, como
+  na tabela de transações) e `PercentPipe`, sob o `LOCALE_ID` do app (`pt-BR`). Os callbacks dos gráficos (tooltips,
+  eixos) usam `Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })`, compacto nos eixos de valor. Os
+  meses aparecem por extenso onde são nomeados — "vs. agosto", legendas e tooltips como "setembro de 2026" — e
+  abreviados só no eixo das barras: "set.", com o ano numa segunda linha sob o primeiro mês e sob cada janeiro, para
+  que os rótulos não precisem inclinar.
+- **Justificativa**: As regras pt-BR do pedido, com a formatação que o app já usa.
 
-## Month selector
+## Seletor de mês
 
-- **Decision**: The shared `app-month-field` in the page header, not clearable, starting on the current
-  month in São Paulo (`DateUtils.currentMonth()`, from `Intl.DateTimeFormat` with `timeZone:
-'America/Sao_Paulo'`). The service sends it as `month=YYYY-MM` (`DateUtils.toMonthKey`).
-- **Rationale**: Reuses the app's month picker; it shows `MM/yyyy`, which the owner set for every month
-  field (commit `40b8e1d`), so the dashboard spells months out in its own content instead. Starting on
-  São Paulo's month keeps the first view in line with the API's "current month".
-- **Alternatives considered**: Omitting `month` on the first load and letting the API choose — the field
-  would show nothing.
+- **Decisão**: O `app-month-field` compartilhado no cabeçalho da página, sem opção de limpar, começando no mês atual
+  em São Paulo (`DateUtils.currentMonth()`, a partir de `Intl.DateTimeFormat` com
+  `timeZone: 'America/Sao_Paulo'`). O service o envia como `month=YYYY-MM` (`DateUtils.toMonthKey`).
+- **Justificativa**: Reaproveita o seletor de mês do app; ele mostra `MM/yyyy`, que o dono definiu para todos os
+  campos de mês (commit `40b8e1d`), então o painel escreve os meses por extenso no próprio conteúdo. Começar no mês de
+  São Paulo mantém a primeira visão alinhada com o "mês atual" da API.
+- **Alternativas consideradas**: Omitir `month` no primeiro carregamento e deixar a API escolher — o campo não
+  mostraria nada.
 
-## Chart forms and marks
+## Formas e marcas dos gráficos
 
-- **Decision**: Following the dataviz method: a KPI row of stat tiles (small label, large value, delta)
-  for the summary; a doughnut (as requested; at most eight slices, the API folds the tail into "Outras");
-  grouped columns for income vs. expense (bars at most 24 px, 4 px rounded tops, one tooltip per month
-  listing both series); and lines (2 px, no point markers except on hover) for the cumulative
-  comparison, the current month in the accent (red) and the previous month in the neutral, with an
-  index-mode tooltip. Every chart uses Chart.js's own legend and tooltip — the doughnut's labels carry
-  each category's share ("Mercado (23,08%)") and its tooltip adds the amount. Grid lines are hairlines,
-  axes recessive, `maintainAspectRatio: false` so the chart fills its card. Each canvas gets an
-  `aria-label` with the values it draws.
-- **Rationale**: Thin marks and quiet chrome, color doing one job per chart, tooltips that never gate a
-  value (legend, axes and the `aria-label` carry it too). The native legend instead of an HTML list keeps
-  the front's own code to a minimum (the owner asked for it during implementation).
-- **Alternatives considered**: An HTML legend listing amount and share beside the doughnut — built first,
-  replaced by the native legend: about sixty lines of template, styles and tests for what the legend and
-  the tooltip already show.
+- **Decisão**: Seguindo o método do dataviz: uma linha de KPIs com stat tiles (rótulo pequeno, valor grande,
+  variação) para o resumo; uma rosca (como pedido; no máximo oito fatias, a API agrupa a cauda em "Outras"); colunas
+  agrupadas para receitas vs. despesas (barras de no máximo 24 px, topos arredondados de 4 px, um tooltip por mês
+  listando as duas séries); e linhas (2 px, sem marcadores de ponto, exceto no hover) para a comparação acumulada, com
+  o mês atual na cor de destaque (vermelho) e o mês anterior na neutra, com tooltip em modo índice. Todos os gráficos
+  usam a legenda e o tooltip do próprio Chart.js — os rótulos da rosca trazem a participação de cada categoria
+  ("Mercado (23,08%)") e o seu tooltip acrescenta o valor. As linhas de grade são finíssimas, os eixos discretos,
+  `maintainAspectRatio: false` para o gráfico ocupar o card. Cada canvas recebe um `aria-label` com os valores que
+  desenha.
+- **Justificativa**: Marcas finas e moldura discreta, a cor fazendo um único trabalho por gráfico, tooltips que nunca
+  são o único acesso a um valor (a legenda, os eixos e o `aria-label` também o trazem). A legenda nativa, em vez de
+  uma lista em HTML, reduz ao mínimo o código próprio do front (o dono pediu isso durante a implementação).
+- **Alternativas consideradas**: Uma legenda em HTML com valor e participação ao lado da rosca — construída primeiro e
+  substituída pela legenda nativa: cerca de sessenta linhas de template, estilos e testes para o que a legenda e o
+  tooltip já mostram.
 
-## Validation findings (rendered in Chrome, 2026-10-03)
+## Achados da validação (renderizado no Chrome, 2026-10-03)
 
-- The native doughnut legend needs height: in a one-row block it cut off the last three of eight
-  categories, so the doughnut keeps the tall `categories` area (rows 2–3) of the layout above.
-- Long single words in a description kept the transactions table from shrinking and pushed the amount out
-  of the card at 1366 px; the description column now takes the remaining width and truncates with an
-  ellipsis, and the side table uses 8 px cell padding.
-- Two-line card titles ("Projeção de despesas") misaligned the summary row; the cards' labels use the
-  small title style, so the value is the loud part of each tile.
-- At 1366×768 and 1440×900, the page's scroll height equals its client height (no page scroll); at
-  1024 px wide the blocks stack and the page scrolls.
+- A legenda nativa da rosca precisa de altura: num bloco de uma linha, ela cortava as três últimas de oito categorias,
+  então a rosca fica com a área alta `categories` (linhas 2–3) do layout acima.
+- Palavras longas numa descrição impediam a tabela de transações de encolher e empurravam o valor para fora do card em
+  1366 px; a coluna de descrição agora ocupa a largura restante e trunca com reticências, e a tabela lateral usa
+  padding de célula de 8 px.
+- Títulos de card em duas linhas ("Projeção de despesas") desalinhavam a linha de resumo; os rótulos dos cards usam o
+  estilo de título pequeno, para que o valor seja a parte mais forte de cada tile.
+- Em 1366×768 e 1440×900, a altura de rolagem da página é igual à sua altura visível (sem rolagem da página); com
+  1024 px de largura, os blocos se empilham e a página rola.
 
-## Testing approach
+## Abordagem de testes
 
-- **Decision**: Model specs per the `write-front-tests` skill: the service with `HttpTestingController`;
-  the block components with `resourceFromSnapshots`; the page with `HttpTestingController` and fake
-  `MatDialog`-free providers; `app.spec.ts` gains the new link. The chart components are tested through
-  the inputs they give to the chart (`type`, `data`, `options`, tooltip callbacks): specs replace
-  ng2-charts' `BaseChartDirective` with a fake directive that has the same selector and inputs.
-- **Rationale**: jsdom has no canvas; the fake keeps the tests about what the components decide (data,
-  colors, formatting), not about Chart.js drawing.
+- **Decisão**: Specs modelo, conforme a skill `write-front-tests`: o service com `HttpTestingController`; os
+  componentes dos blocos com `resourceFromSnapshots`; a página com `HttpTestingController` e providers fake sem
+  `MatDialog`; o `app.spec.ts` ganha o novo link. Os componentes de gráfico são testados pelos inputs que entregam ao
+  gráfico (`type`, `data`, `options`, callbacks do tooltip): os specs substituem a `BaseChartDirective` do ng2-charts
+  por uma diretiva fake com o mesmo seletor e os mesmos inputs.
+- **Justificativa**: O jsdom não tem canvas; o fake mantém os testes focados no que os componentes decidem (dados,
+  cores, formatação), e não no desenho do Chart.js.

@@ -1,43 +1,43 @@
-# Specification Quality Checklist: Reports Dashboard
+# Checklist de qualidade da especificação: Painel de relatórios
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-10-03
+**Objetivo**: Validar a completude e a qualidade da especificação antes de seguir para o planejamento
+**Criado em**: 2026-10-03
 **Feature**: [spec.md](../spec.md)
 
-## Content Quality
+## Qualidade do conteúdo
 
-- [x] No implementation details (languages, frameworks, APIs)
-- [x] Focused on user value and business needs
-- [x] Written for non-technical stakeholders
-- [x] All mandatory sections completed
+- [x] Sem detalhes de implementação (linguagens, frameworks, APIs)
+- [x] Focada no valor para o usuário e nas necessidades do negócio
+- [x] Escrita para partes interessadas não técnicas
+- [x] Todas as seções obrigatórias preenchidas
 
-## Requirement Completeness
+## Completude dos requisitos
 
-- [x] No [NEEDS CLARIFICATION] markers remain
-- [x] Requirements are testable and unambiguous
-- [x] Success criteria are measurable
-- [x] Success criteria are technology-agnostic (no implementation details)
-- [x] All acceptance scenarios are defined
-- [x] Edge cases are identified
-- [x] Scope is clearly bounded
-- [x] Dependencies and assumptions identified
+- [x] Nenhum marcador [NEEDS CLARIFICATION] restante
+- [x] Os requisitos são testáveis e sem ambiguidade
+- [x] Os critérios de sucesso são mensuráveis
+- [x] Os critérios de sucesso não dependem de tecnologia (sem detalhes de implementação)
+- [x] Todos os cenários de aceitação estão definidos
+- [x] Os casos-limite estão identificados
+- [x] O escopo está claramente delimitado
+- [x] Dependências e premissas identificadas
 
-## Feature Readiness
+## Prontidão da feature
 
-- [x] All functional requirements have clear acceptance criteria
-- [x] User scenarios cover primary flows
-- [x] Feature meets measurable outcomes defined in Success Criteria
-- [x] No implementation details leak into specification
+- [x] Todos os requisitos funcionais têm critérios de aceitação claros
+- [x] Os cenários de usuário cobrem os fluxos principais
+- [x] A feature atinge os resultados mensuráveis definidos nos critérios de sucesso
+- [x] Nenhum detalhe de implementação vaza para a especificação
 
-## Notes
+## Observações
 
-- The Input quotes the request, which names ng2-charts and `ng add`; the requirements themselves stay
-  free of libraries — the chart library, its setup and where it loads are decided in the plan.
-- The `/reports` route and the America/Sao_Paulo time zone are kept in the requirements because the
-  request sets them as product rules (a bookmarkable address and the business time zone).
-- SC-005 restates the bundle-budget constraint as a user outcome (nothing extra downloaded by users who
-  never open the page).
-- No [NEEDS CLARIFICATION] markers: the request fixed the blocks, states and formatting. The open
-  choices — empty-state wording per block, the income color, keeping the existing `MM/yyyy` month
-  field — are recorded in Edge Cases and Assumptions.
-- All items passed on the first validation pass.
+- A Entrada cita o pedido, que nomeia o ng2-charts e o `ng add`; os requisitos em si ficam livres de bibliotecas — a
+  biblioteca de gráficos, a sua configuração e onde ela é carregada são decididas no plan.
+- A rota `/reports` e o fuso horário America/Sao_Paulo ficam nos requisitos porque o pedido os define como regras do
+  produto (um endereço que pode ir para os favoritos e o fuso horário do negócio).
+- O SC-005 reformula a restrição do budget do bundle como um resultado para o usuário (nada a mais baixado por quem
+  nunca abre a página).
+- Nenhum marcador [NEEDS CLARIFICATION]: o pedido definiu os blocos, os estados e a formatação. As escolhas em aberto —
+  o texto do estado vazio de cada bloco, a cor das receitas, manter o campo de mês `MM/yyyy` existente — estão
+  registradas em Casos-limite e Premissas.
+- Todos os itens passaram na primeira validação.

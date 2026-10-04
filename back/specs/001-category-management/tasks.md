@@ -1,278 +1,294 @@
 ---
 
-description: "Task list for the Category Management feature"
+description: "Lista de tarefas da feature Gestão de categorias"
 ---
 
-# Tasks: Category Management
+# Tarefas: Gestão de categorias
 
-**Input**: Design documents from `/specs/001-category-management/`
+**Entrada**: Documentos de design em `/specs/001-category-management/`
 
-**Prerequisites**: plan.md (present), spec.md (present), research.md (present),
-data-model.md (present), contracts/ (present)
+**Pré-requisitos**: plan.md (presente), spec.md (presente), research.md (presente),
+data-model.md (presente), contracts/ (presente)
 
-**Status**: This is a **retroactive** task list — Category Management is already implemented.
-`[x]` marks a task already satisfied by existing code/tests (with its file path, so the mapping
-from requirement to implementation is traceable). `/speckit-implement` ran on 2026-09-21 and
-closed the two items that were still outstanding (T032, T033) — all 33 tasks are now `[x]`.
+**Status**: Esta é uma lista de tarefas **retroativa** — a gestão de categorias já está
+implementada. `[x]` marca uma tarefa já atendida pelo código/testes existentes (com o caminho do
+arquivo, para que o mapeamento de requisito para implementação seja rastreável). O
+`/speckit-implement` rodou em 2026-09-21 e fechou os dois itens que ainda estavam pendentes (T032,
+T033) — as 33 tarefas agora estão `[x]`.
 
-**Tests**: Test tasks below reflect the automated tests that already exist per story; no new
-test tasks were added beyond the one explicit coverage gap (T032), which `research.md` already
-flagged rather than a blanket "add more tests" addition.
+**Testes**: As tarefas de teste abaixo refletem os testes automatizados que já existem por
+história; nenhuma tarefa de teste nova foi adicionada além da única lacuna de cobertura explícita
+(T032), que o `research.md` já tinha apontado, em vez de um genérico "adicionar mais testes".
 
-**Organization**: Tasks are grouped by user story, per `spec.md`'s priorities (P1/P2/P3).
+**Organização**: As tarefas estão agrupadas por história de usuário, conforme as prioridades do
+`spec.md` (P1/P2/P3).
 
-## Format: `[ID] [P?] [Story] Description`
+## Formato: `[ID] [P?] [História] Descrição`
 
-- **[P]**: Different files, no dependency on an incomplete task
-- **[Story]**: Which user story this task belongs to (US1, US2, US3)
-- File paths are exact, relative to the repository root
+- **[P]**: Arquivos diferentes, sem dependência de uma tarefa incompleta
+- **[História]**: A história de usuário a que a tarefa pertence (US1, US2, US3)
+- Os caminhos de arquivo são exatos, relativos à raiz do repositório
 
-## Phase 1: Setup (Shared Infrastructure)
+## Fase 1: Preparação (infraestrutura compartilhada)
 
-**Purpose**: Project initialization. Shared across every backend feature, not created for
-Category specifically — included here only so this list matches the required phase structure.
+**Objetivo**: Inicialização do projeto. É compartilhada por todas as features do backend, e não
+foi criada especificamente para Category — está aqui só para que esta lista siga a estrutura de
+fases exigida.
 
-- [x] T001 Confirm the four-project Clean Architecture solution exists per `Denarius.slnx`
-      (`Denarius.Domain`, `Denarius.Application`, `Denarius.Infrastructure`, `Denarius.WebAPI`,
-      with matching `*.Tests` projects) — pre-existing.
-- [x] T002 [P] Confirm EF Core + `Npgsql.EntityFrameworkCore.PostgreSQL` (in
-      `src/Denarius.Infrastructure/Denarius.Infrastructure.csproj`) and xUnit + NSubstitute /
-      `Microsoft.AspNetCore.TestHost` (in the three `tests/*.csproj`) package references are in
-      place — pre-existing.
+- [x] T001 Confirmar que a solução de Clean Architecture com quatro projetos existe, conforme o
+      `Denarius.slnx` (`Denarius.Domain`, `Denarius.Application`, `Denarius.Infrastructure`,
+      `Denarius.WebAPI`, com os projetos `*.Tests` correspondentes) — preexistente.
+- [x] T002 [P] Confirmar que as referências de pacote do EF Core +
+      `Npgsql.EntityFrameworkCore.PostgreSQL` (em
+      `src/Denarius.Infrastructure/Denarius.Infrastructure.csproj`) e do xUnit + NSubstitute /
+      `Microsoft.AspNetCore.TestHost` (nos três `tests/*.csproj`) estão presentes —
+      preexistente.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Fase 2: Fundação (pré-requisitos bloqueantes)
 
-**Purpose**: The entity, persistence, and controller scaffolding every user story below depends
-on.
+**Objetivo**: A entidade, a persistência e a estrutura do controller de que todas as histórias de
+usuário abaixo dependem.
 
-**⚠️ CRITICAL**: No user story can work without this phase.
+**⚠️ CRÍTICO**: Nenhuma história de usuário funciona sem esta fase.
 
-- [x] T003 [P] `Category` entity — `Name`: "required; trimmed; 1-100 characters after trimming;
-      throws DomainException otherwise" — in `src/Denarius.Domain/Entities/Category.cs`.
-- [x] T004 [P] `Color` value object — "normalized to `#RRGGBB` uppercase; accepts input with or
-      without a leading `#`, and 3-digit shorthand; anything not matching `^#[0-9A-F]{6}$` after
-      normalization throws DomainException" — in `src/Denarius.Domain/ValueObjects/Color.cs`.
-- [x] T005 `ICategoryRepository` (extends `IRepository<Category>`, adds
-      `GetAllAsync(string? name)`) in `src/Denarius.Domain/Repositories/ICategoryRepository.cs`
-      (depends on T003).
-- [x] T006 [P] `CategoryConfiguration` EF mapping — `Name` `character varying(100)` not null,
-      `Color` `character varying(7)` not null via value converter — in
+- [x] T003 [P] Entidade `Category` — `Name`: "obrigatório; com trim; 1-100 caracteres depois do
+      trim; lança DomainException caso contrário" — em `src/Denarius.Domain/Entities/Category.cs`.
+- [x] T004 [P] Value object `Color` — "normalizado para `#RRGGBB` em maiúsculas; aceita entrada com
+      ou sem `#` inicial e a forma abreviada de 3 dígitos; qualquer valor que não case com
+      `^#[0-9A-F]{6}$` depois da normalização lança DomainException" — em
+      `src/Denarius.Domain/ValueObjects/Color.cs`.
+- [x] T005 `ICategoryRepository` (estende `IRepository<Category>` e adiciona
+      `GetAllAsync(string? name)`) em `src/Denarius.Domain/Repositories/ICategoryRepository.cs`
+      (depende de T003).
+- [x] T006 [P] Mapeamento EF `CategoryConfiguration` — `Name` `character varying(100)` not null,
+      `Color` `character varying(7)` not null via value converter — em
       `src/Denarius.Infrastructure/Persistence/Configurations/CategoryConfiguration.cs`
-      (depends on T003, T004).
-- [x] T007 [P] `CategoryRepository.GetAllAsync(string? name)` (`Name.Contains(name)` filter) in
-      `src/Denarius.Infrastructure/Repositories/CategoryRepository.cs` (depends on T005).
-- [x] T008 `Categories` table migration with a clean, reversible `Down()` (`DropTable`) in
-      `src/Denarius.Infrastructure/Migrations/20260813225006_InitialCreate.cs` (depends on
-      T006) — satisfies Constitution Principle III.
-- [x] T009 Restrict-on-delete FK `Transactions.CategoryId → Categories.Id` in
-      `src/Denarius.Infrastructure/Persistence/Configurations/TransactionConfiguration.cs` and
-      `src/Denarius.Infrastructure/Migrations/20260814132713_AddTransaction.cs` (depends on
-      T008) — database-level backstop for FR-009.
-- [x] T010 Register `ICategoryRepository → CategoryRepository` in
-      `src/Denarius.Infrastructure/DependencyInjection.cs` (depends on T007).
-- [x] T011 Scaffold `CategoriesController` with `GlobalExceptionHandler` mapping
-      `NotFoundException → 404`, `DomainException`/`AppException → 400` in
-      `src/Denarius.WebAPI/Controllers/CategoriesController.cs` and
-      `src/Denarius.WebAPI/Middleware/GlobalExceptionHandler.cs` (depends on T010).
+      (depende de T003, T004).
+- [x] T007 [P] `CategoryRepository.GetAllAsync(string? name)` (filtro `Name.Contains(name)`) em
+      `src/Denarius.Infrastructure/Repositories/CategoryRepository.cs` (depende de T005).
+- [x] T008 Migration da tabela `Categories` com um `Down()` limpo e reversível (`DropTable`) em
+      `src/Denarius.Infrastructure/Migrations/20260813225006_InitialCreate.cs` (depende de
+      T006) — atende ao Princípio III da constituição.
+- [x] T009 FK restrict-on-delete `Transactions.CategoryId → Categories.Id` em
+      `src/Denarius.Infrastructure/Persistence/Configurations/TransactionConfiguration.cs` e
+      `src/Denarius.Infrastructure/Migrations/20260814132713_AddTransaction.cs` (depende de
+      T008) — a garantia no banco para o FR-009.
+- [x] T010 Registrar `ICategoryRepository → CategoryRepository` em
+      `src/Denarius.Infrastructure/DependencyInjection.cs` (depende de T007).
+- [x] T011 Criar a estrutura do `CategoriesController`, com o `GlobalExceptionHandler` mapeando
+      `NotFoundException → 404` e `DomainException`/`AppException → 400`, em
+      `src/Denarius.WebAPI/Controllers/CategoriesController.cs` e
+      `src/Denarius.WebAPI/Middleware/GlobalExceptionHandler.cs` (depende de T010).
 
-**Checkpoint**: Foundation ready — all three user stories build on this.
+**Ponto de controle**: Fundação pronta — as três histórias de usuário se apoiam nela.
 
 ---
 
-## Phase 3: User Story 1 - Build and maintain a category list (Priority: P1) 🎯 MVP
+## Fase 3: História de usuário 1 - Montar e manter uma lista de categorias (Prioridade: P1) 🎯 MVP
 
-**Goal**: Create, view, rename/recolor, and delete categories; block deleting a category that
-still has transactions.
+**Objetivo**: Criar, visualizar, renomear/mudar a cor e excluir categorias; bloquear a exclusão de
+uma categoria que ainda tem transações.
 
-**Independent Test**: Create a category, confirm it appears with the chosen name/color, edit it,
-delete it — no transaction data required.
+**Teste independente**: Criar uma categoria, confirmar que ela aparece com o nome/cor escolhidos,
+editá-la e excluí-la — sem precisar de transações.
 
-### Tests for User Story 1 (already exist)
+### Testes da história de usuário 1 (já existem)
 
-- [x] T012 [P] [US1] `Category` validation/trim/update tests in
+- [x] T012 [P] [US1] Testes de validação/trim/update de `Category` em
       `tests/Denarius.Domain.Tests/Entities/CategoryTests.cs`.
-- [x] T013 [P] [US1] `CreateCategoryUseCase` tests in
+- [x] T013 [P] [US1] Testes do `CreateCategoryUseCase` em
       `tests/Denarius.Application.Tests/UseCases/Categories/Create/CreateCategoryUseCaseTests.cs`.
-- [x] T014 [P] [US1] `UpdateCategoryUseCase` tests in
+- [x] T014 [P] [US1] Testes do `UpdateCategoryUseCase` em
       `tests/Denarius.Application.Tests/UseCases/Categories/Update/UpdateCategoryUseCaseTests.cs`.
-- [x] T015 [P] [US1] `DeleteCategoryUseCase` tests — not-found and has-transactions guard — in
+- [x] T015 [P] [US1] Testes do `DeleteCategoryUseCase` — categoria não encontrada e proteção de
+      categoria com transações — em
       `tests/Denarius.Application.Tests/UseCases/Categories/Delete/DeleteCategoryUseCaseTests.cs`.
-- [x] T016 [P] [US1] `GetCategoryByIdUseCase` tests in
+- [x] T016 [P] [US1] Testes do `GetCategoryByIdUseCase` em
       `tests/Denarius.Application.Tests/UseCases/Categories/GetById/GetCategoryByIdUseCaseTests.cs`.
 
-### Implementation for User Story 1
+### Implementação da história de usuário 1
 
-- [x] T017 [P] [US1] `CreateCategoryInput`/`UpdateCategoryInput` DTOs (`name`, `color`) in
-      `src/Denarius.Application/IO/Categories/CreateCategoryInput.cs` and
+- [x] T017 [P] [US1] DTOs `CreateCategoryInput`/`UpdateCategoryInput` (`name`, `color`) em
+      `src/Denarius.Application/IO/Categories/CreateCategoryInput.cs` e
       `UpdateCategoryInput.cs`.
-- [x] T018 [P] [US1] `CategoryOutput` DTO in
+- [x] T018 [P] [US1] DTO `CategoryOutput` em
       `src/Denarius.Application/IO/Categories/CategoryOutput.cs`.
-- [x] T019 [US1] `ICreateCategoryUseCase`/`CreateCategoryUseCase` in
-      `src/Denarius.Application/UseCases/Categories/Create/` (depends on T017, T018).
+- [x] T019 [US1] `ICreateCategoryUseCase`/`CreateCategoryUseCase` em
+      `src/Denarius.Application/UseCases/Categories/Create/` (depende de T017, T018).
 - [x] T020 [US1] `IUpdateCategoryUseCase`/`UpdateCategoryUseCase` — 404 via `NotFoundException`
-      when the category doesn't exist — in `src/Denarius.Application/UseCases/Categories/Update/`
-      (depends on T017, T018).
-- [x] T021 [US1] `IDeleteCategoryUseCase`/`DeleteCategoryUseCase` — "MUST refuse to delete a
-      category that has one or more transactions associated with it" via
-      `ITransactionRepository.ExistsByCategoryIdAsync` — in
-      `src/Denarius.Application/UseCases/Categories/Delete/` (depends on T018).
-- [x] T022 [US1] `IGetCategoryByIdUseCase`/`GetCategoryByIdUseCase` — 404 when missing — in
-      `src/Denarius.Application/UseCases/Categories/GetById/` (depends on T018).
-- [x] T023 [US1] Wire `POST`, `PUT {id}`, `DELETE {id}`, `GET {id}` actions in
-      `src/Denarius.WebAPI/Controllers/CategoriesController.cs` (depends on T019-T022).
+      quando a categoria não existe — em `src/Denarius.Application/UseCases/Categories/Update/`
+      (depende de T017, T018).
+- [x] T021 [US1] `IDeleteCategoryUseCase`/`DeleteCategoryUseCase` — "DEVE recusar a exclusão de
+      uma categoria que tenha uma ou mais transações associadas" via
+      `ITransactionRepository.ExistsByCategoryIdAsync` — em
+      `src/Denarius.Application/UseCases/Categories/Delete/` (depende de T018).
+- [x] T022 [US1] `IGetCategoryByIdUseCase`/`GetCategoryByIdUseCase` — 404 quando não existe — em
+      `src/Denarius.Application/UseCases/Categories/GetById/` (depende de T018).
+- [x] T023 [US1] Ligar as actions `POST`, `PUT {id}`, `DELETE {id}` e `GET {id}` em
+      `src/Denarius.WebAPI/Controllers/CategoriesController.cs` (depende de T019-T022).
 
-**Checkpoint**: User Story 1 fully functional and independently testable.
+**Ponto de controle**: História de usuário 1 totalmente funcional e testável de forma
+independente.
 
 ---
 
-## Phase 4: User Story 2 - See how much each category is used (Priority: P2)
+## Fase 4: História de usuário 2 - Ver quanto cada categoria é usada (Prioridade: P2)
 
-**Goal**: Each category reports its transaction count and balance, optionally scoped to one
-calendar month.
+**Objetivo**: Cada categoria informa a sua quantidade de transações e o seu saldo, opcionalmente
+restritos a um mês do calendário.
 
-**Independent Test**: Record a known set of transactions against a category; confirm the list
-reports the correct count/balance for it and zero/zero for an unused one.
+**Teste independente**: Registrar um conjunto conhecido de transações numa categoria; confirmar
+que a lista informa a quantidade/saldo corretos para ela e zero/zero para uma categoria sem uso.
 
-### Tests for User Story 2 (already exist)
+### Testes da história de usuário 2 (já existem)
 
-- [x] T024 [US2] `ListCategoriesUseCase` aggregation and month-scoping tests
+- [x] T024 [US2] Testes de agregação e de recorte por mês do `ListCategoriesUseCase`
       (`Execute_CalculatesTransactionCountAndBalancePerCategory`,
-      `Execute_WithDateRef_OnlyConsidersTransactionsWithinTheMonth`) in
+      `Execute_WithDateRef_OnlyConsidersTransactionsWithinTheMonth`) em
       `tests/Denarius.Application.Tests/UseCases/Categories/List/ListCategoriesUseCaseTests.cs`.
 
-### Implementation for User Story 2
+### Implementação da história de usuário 2
 
-- [x] T025 [US2] `TransactionCount`/`Balance` fields on `CategoryOutput` in
+- [x] T025 [US2] Campos `TransactionCount`/`Balance` em `CategoryOutput`, em
       `src/Denarius.Application/IO/Categories/CategoryOutput.cs`.
-- [x] T026 [US2] `ListCategoriesInput.DateRef` + `IListCategoriesUseCase`/`ListCategoriesUseCase`
-      aggregation (`GroupBy(t => t.CategoryId)`, month range derived from `dateRef`) in
-      `src/Denarius.Application/IO/Categories/ListCategoriesInput.cs` and
-      `src/Denarius.Application/UseCases/Categories/List/ListCategoriesUseCase.cs` (depends on
+- [x] T026 [US2] `ListCategoriesInput.DateRef` + agregação em
+      `IListCategoriesUseCase`/`ListCategoriesUseCase` (`GroupBy(t => t.CategoryId)`, intervalo
+      do mês derivado do `dateRef`) em
+      `src/Denarius.Application/IO/Categories/ListCategoriesInput.cs` e
+      `src/Denarius.Application/UseCases/Categories/List/ListCategoriesUseCase.cs` (depende de
       T025, T007).
-- [x] T027 [US2] Wire `GET /api/categories` with the `dateRef` query parameter in
-      `src/Denarius.WebAPI/Controllers/CategoriesController.cs` (depends on T026).
+- [x] T027 [US2] Ligar o `GET /api/categories` com o parâmetro de query `dateRef` em
+      `src/Denarius.WebAPI/Controllers/CategoriesController.cs` (depende de T026).
 
-**Checkpoint**: User Stories 1 and 2 both functional independently.
+**Ponto de controle**: Histórias de usuário 1 e 2 funcionando de forma independente.
 
 ---
 
-## Phase 5: User Story 3 - Narrow down a long category list (Priority: P3)
+## Fase 5: História de usuário 3 - Filtrar uma lista longa de categorias (Prioridade: P3)
 
-**Goal**: Search by name, filter by usage, sort by name/count/balance.
+**Objetivo**: Buscar por nome, filtrar por uso e ordenar por nome/quantidade/saldo.
 
-**Independent Test**: Create several categories with varying names/usage; confirm search, the
-in-use/not-in-use filter, and each sort option each narrow or reorder the list on their own.
+**Teste independente**: Criar várias categorias com nomes/usos variados; confirmar que a busca, o
+filtro em uso/sem uso e cada opção de ordenação, cada um por si, filtram ou reordenam a lista.
 
-### Tests for User Story 3 (already exist)
+### Testes da história de usuário 3 (já existem)
 
-- [x] T028 [US3] `ListCategoriesUseCase` tests for the name filter, the `withTransaction` filter,
-      and each `orderBy`/`asc` combination in
+- [x] T028 [US3] Testes do `ListCategoriesUseCase` para o filtro de nome, o filtro
+      `withTransaction` e cada combinação de `orderBy`/`asc` em
       `tests/Denarius.Application.Tests/UseCases/Categories/List/ListCategoriesUseCaseTests.cs`.
 
-### Implementation for User Story 3
+### Implementação da história de usuário 3
 
-- [x] T029 [US3] `CategoryOrderField` enum (`Name`, `TransactionCount`, `Balance`) in
+- [x] T029 [US3] Enum `CategoryOrderField` (`Name`, `TransactionCount`, `Balance`) em
       `src/Denarius.Application/IO/Categories/CategoryOrderField.cs`.
-- [x] T030 [US3] `withTransaction` filter and `orderBy`/`asc` sort switch in
-      `src/Denarius.Application/UseCases/Categories/List/ListCategoriesUseCase.cs` (depends on
+- [x] T030 [US3] Filtro `withTransaction` e o switch de ordenação `orderBy`/`asc` em
+      `src/Denarius.Application/UseCases/Categories/List/ListCategoriesUseCase.cs` (depende de
       T026, T029).
-- [x] T031 [US3] Wire `name`, `withTransaction`, `orderBy`, `asc` query parameters on
-      `GET /api/categories` in `src/Denarius.WebAPI/Controllers/CategoriesController.cs`
-      (depends on T030).
+- [x] T031 [US3] Ligar os parâmetros de query `name`, `withTransaction`, `orderBy` e `asc` no
+      `GET /api/categories` em `src/Denarius.WebAPI/Controllers/CategoriesController.cs`
+      (depende de T030).
 
-**Checkpoint**: All three user stories functional independently.
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-- [x] T032 [P] Add `CategoriesController` integration tests covering `POST` (201 + `Location`
-      header), `GET`/`GET {id}`, `PUT {id}`, `DELETE {id}`, and the 404/400 mappings, plus the
-      `List` query-parameter binding (`name`/`withTransaction`/`dateRef`/`orderBy`/`asc`) — in
-      `tests/Denarius.WebAPI.Tests/Categories/CategoriesControllerTests.cs` (11 tests). Follows
-      the existing hand-built `HostBuilder`/`TestServer` pattern from
-      `tests/Denarius.WebAPI.Tests/Cors/` and `.../Middleware/` (registers the controller via
-      `AddApplicationPart` instead of the full `Program` composition root, so no database is
-      needed) with hand-written fakes for the five use case interfaces — this test project uses
-      no mocking library. Closes the gap flagged in `research.md` → Test coverage gap.
-- [x] T033 Ran the `quickstart.md` validation end-to-end on 2026-09-21 against .NET SDK
-      10.0.401: `dotnet test` — all three suites, 90/90 passing (Domain.Tests 35, Application.Tests
-      34, WebAPI.Tests 21 including the 11 new T032 tests) — then the full manual curl smoke test
-      (steps 1-10) against `dotnet run --project src/Denarius.WebAPI` on the local dev database,
-      including the delete-guard and month-scoped usage-stats steps against a real
-      `POST /api/transactions`. Every response matched `quickstart.md`'s documented expectations;
-      the categories/transaction created for the manual run were deleted afterward.
+**Ponto de controle**: As três histórias de usuário funcionando de forma independente.
 
 ---
 
-## Dependencies & Execution Order
+## Fase 6: Acabamento e aspectos transversais
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies — pre-existing.
-- **Foundational (Phase 2)**: Depends on Setup — blocks all user stories. Pre-existing.
-- **User Stories (Phase 3-5)**: All depend on Foundational. Built in priority order (P1 → P2 →
-  P3) historically; each remains independently testable today.
-- **Polish (Phase 6)**: Depends on the user stories it covers. Complete.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: No dependency on US2/US3.
-- **User Story 2 (P2)**: Builds on the `List` plumbing US1 doesn't touch (US1 never calls
-  `ListCategoriesUseCase`); independently testable without US3's filters/sort.
-- **User Story 3 (P3)**: Extends the same `ListCategoriesUseCase` as US2 (T026 → T030); depends
-  on US2's `ListCategoriesInput`/`ListCategoriesUseCase` existing, but its own filter/sort
-  behavior is independently testable.
-
-### Parallel Opportunities
-
-- T003/T004 (Foundational): different files, no shared dependency.
-- T006/T007 (Foundational): different files, both depend only on T003-T005.
-- T012-T016 (US1 tests): five different files.
-- T017/T018 (US1 DTOs): different files.
-- T032 (Polish) has no dependency on T033 and vice versa.
+- [x] T032 [P] Adicionar testes de integração do `CategoriesController` cobrindo `POST` (201 +
+      cabeçalho `Location`), `GET`/`GET {id}`, `PUT {id}`, `DELETE {id}` e os mapeamentos
+      404/400, além do binding dos parâmetros de query do `List`
+      (`name`/`withTransaction`/`dateRef`/`orderBy`/`asc`) — em
+      `tests/Denarius.WebAPI.Tests/Categories/CategoriesControllerTests.cs` (11 testes). Segue o
+      padrão existente de `HostBuilder`/`TestServer` montado à mão de
+      `tests/Denarius.WebAPI.Tests/Cors/` e `.../Middleware/` (registra o controller via
+      `AddApplicationPart` em vez da composition root completa do `Program`, sem precisar de
+      banco), com fakes escritos à mão para as cinco interfaces de casos de uso — este projeto de
+      testes não usa biblioteca de mock. Fecha a lacuna apontada em `research.md` → Lacuna de
+      cobertura de testes.
+- [x] T033 Rodada a validação do `quickstart.md` de ponta a ponta em 2026-09-21 com o .NET SDK
+      10.0.401: `dotnet test` — as três suítes, 90/90 passando (Domain.Tests 35,
+      Application.Tests 34, WebAPI.Tests 21, incluindo os 11 testes novos da T032) — e depois o
+      smoke test manual completo com curl (passos 1-10) contra
+      `dotnet run --project src/Denarius.WebAPI` no banco local de desenvolvimento, incluindo os
+      passos da proteção de exclusão e das estatísticas de uso por mês com um
+      `POST /api/transactions` real. Todas as respostas bateram com o esperado documentado no
+      `quickstart.md`; as categorias/transação criadas para a execução manual foram excluídas
+      depois.
 
 ---
 
-## Parallel Example: User Story 1
+## Dependências e ordem de execução
+
+### Dependências entre fases
+
+- **Preparação (Fase 1)**: Sem dependências — preexistente.
+- **Fundação (Fase 2)**: Depende da Preparação — bloqueia todas as histórias de usuário.
+  Preexistente.
+- **Histórias de usuário (Fases 3-5)**: Todas dependem da Fundação. Historicamente, foram
+  construídas na ordem de prioridade (P1 → P2 → P3); cada uma continua testável de forma
+  independente.
+- **Acabamento (Fase 6)**: Depende das histórias de usuário que cobre. Concluída.
+
+### Dependências entre histórias de usuário
+
+- **História de usuário 1 (P1)**: Sem dependência de US2/US3.
+- **História de usuário 2 (P2)**: Se apoia na estrutura do `List`, que a US1 não toca (a US1
+  nunca chama o `ListCategoriesUseCase`); testável de forma independente, sem os
+  filtros/ordenação da US3.
+- **História de usuário 3 (P3)**: Estende o mesmo `ListCategoriesUseCase` da US2 (T026 → T030);
+  depende da existência do `ListCategoriesInput`/`ListCategoriesUseCase` da US2, mas o seu próprio
+  comportamento de filtro/ordenação é testável de forma independente.
+
+### Oportunidades de paralelismo
+
+- T003/T004 (Fundação): arquivos diferentes, sem dependência compartilhada.
+- T006/T007 (Fundação): arquivos diferentes, as duas dependem só de T003-T005.
+- T012-T016 (testes da US1): cinco arquivos diferentes.
+- T017/T018 (DTOs da US1): arquivos diferentes.
+- T032 (Acabamento) não depende de T033, e vice-versa.
+
+---
+
+## Exemplo de paralelismo: história de usuário 1
 
 ```bash
-# The five US1 test files have no dependency on each other:
-Task: "Category validation/trim/update tests in tests/Denarius.Domain.Tests/Entities/CategoryTests.cs"
-Task: "CreateCategoryUseCase tests in tests/Denarius.Application.Tests/UseCases/Categories/Create/CreateCategoryUseCaseTests.cs"
-Task: "UpdateCategoryUseCase tests in tests/Denarius.Application.Tests/UseCases/Categories/Update/UpdateCategoryUseCaseTests.cs"
-Task: "DeleteCategoryUseCase tests in tests/Denarius.Application.Tests/UseCases/Categories/Delete/DeleteCategoryUseCaseTests.cs"
-Task: "GetCategoryByIdUseCase tests in tests/Denarius.Application.Tests/UseCases/Categories/GetById/GetCategoryByIdUseCaseTests.cs"
+# Os cinco arquivos de teste da US1 não dependem uns dos outros:
+Task: "Testes de validação/trim/update de Category em tests/Denarius.Domain.Tests/Entities/CategoryTests.cs"
+Task: "Testes do CreateCategoryUseCase em tests/Denarius.Application.Tests/UseCases/Categories/Create/CreateCategoryUseCaseTests.cs"
+Task: "Testes do UpdateCategoryUseCase em tests/Denarius.Application.Tests/UseCases/Categories/Update/UpdateCategoryUseCaseTests.cs"
+Task: "Testes do DeleteCategoryUseCase em tests/Denarius.Application.Tests/UseCases/Categories/Delete/DeleteCategoryUseCaseTests.cs"
+Task: "Testes do GetCategoryByIdUseCase em tests/Denarius.Application.Tests/UseCases/Categories/GetById/GetCategoryByIdUseCaseTests.cs"
 ```
 
 ---
 
-## Implementation Strategy
+## Estratégia de implementação
 
-### MVP First (User Story 1 Only)
+### MVP primeiro (só a história de usuário 1)
 
-This is how the feature was actually delivered: Setup + Foundational, then US1 (CRUD) shipped as
-a usable increment before usage statistics (US2) or search/sort (US3) existed.
+Foi assim que a feature foi de fato entregue: Preparação + Fundação e depois a US1 (CRUD), entregue
+como um incremento utilizável antes de existirem as estatísticas de uso (US2) ou a
+busca/ordenação (US3).
 
-### Incremental Delivery (as it happened)
+### Entrega incremental (como aconteceu)
 
-1. Setup + Foundational → `Category`/`Color`, persistence, empty controller.
-2. US1 → basic category CRUD with the delete guard — deployable on its own.
-3. US2 → transaction count/balance joined in (`feat(api): add category transaction count,
+1. Preparação + Fundação → `Category`/`Color`, persistência, controller vazio.
+2. US1 → CRUD básico de categorias com a proteção de exclusão — implantável sozinho.
+3. US2 → quantidade de transações/saldo incorporados (`feat(api): add category transaction count,
    balance, filters and sorting`).
-4. US3 → search, in-use filter, and sorting added in the same change as US2.
+4. US3 → busca, filtro de uso e ordenação adicionados na mesma mudança da US2.
 
-### What's Left
+### O que falta
 
-Nothing. Phase 6 (the `CategoriesController` HTTP-layer test gap and a recorded quickstart run)
-was closed by `/speckit-implement` on 2026-09-21.
+Nada. A Fase 6 (a lacuna de testes da camada HTTP do `CategoriesController` e uma execução
+registrada do quickstart) foi fechada pelo `/speckit-implement` em 2026-09-21.
 
 ---
 
-## Notes
+## Observações
 
-- `[x]` = implemented and (where applicable) tested; all 33 tasks are now complete.
-- File paths are exact — this list doubles as a requirement-to-code traceability map for
-  `spec.md`'s FR-001…FR-015.
+- `[x]` = implementada e (quando se aplica) testada; as 33 tarefas estão concluídas.
+- Os caminhos de arquivo são exatos — esta lista também serve de mapa de rastreabilidade de
+  requisito para código dos FR-001…FR-015 do `spec.md`.

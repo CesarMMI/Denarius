@@ -1,114 +1,116 @@
-# Data Model: Financial Reports
+# Modelo de dados: Relatórios financeiros
 
-The reports store nothing: they read `Transaction` ([002-transaction-management](../002-transaction-management/data-model.md))
-and `Category` ([001-category-management](../001-category-management/data-model.md)). This document
-describes the month type, the Inputs and Outputs of the five use cases, the repository queries they
-read from, and the one schema change (an index).
+Os relatórios não armazenam nada: eles leem `Transaction` ([002-transaction-management](../002-transaction-management/data-model.md))
+e `Category` ([001-category-management](../001-category-management/data-model.md)). Este documento
+descreve o tipo de mês, os Inputs e Outputs dos cinco casos de uso, as consultas de repositório de
+que eles leem e a única mudança de esquema (um índice).
 
 ## YearMonth (`Application/IO/Reports/YearMonth.cs`)
 
-A calendar month; a `readonly record struct` holding the month's first day.
+Um mês do calendário; um `readonly record struct` que guarda o primeiro dia do mês.
 
-| Member | Meaning |
+| Membro | Significado |
 |---|---|
-| `Year`, `Month` | The month's year and number (1–12). |
-| `FirstDay` | `DateOnly` — day 1 of the month. |
-| `DayCount` | Days in the month (28–31, leap years included). |
-| `AddMonths(int)` | The month that many months later (negative: earlier); crosses years. |
-| `FromDate(DateOnly)` | The month a day belongs to. |
-| `TryParse(string?, IFormatProvider?, out YearMonth)` | Accepts exactly `yyyy-MM` (`2026-09`); anything else — `2026-9`, `2026-13`, `2026-00`, `09-2026`, `2026-09-01`, blank — fails. MVC binds query parameters through it. |
-| `CompareTo(YearMonth)` | Chronological order. |
+| `Year`, `Month` | O ano e o número do mês (1–12). |
+| `FirstDay` | `DateOnly` — o dia 1 do mês. |
+| `DayCount` | Quantidade de dias do mês (28–31, incluindo anos bissextos). |
+| `AddMonths(int)` | O mês que fica essa quantidade de meses depois (negativo: antes); atravessa anos. |
+| `FromDate(DateOnly)` | O mês a que um dia pertence. |
+| `TryParse(string?, IFormatProvider?, out YearMonth)` | Aceita exatamente `yyyy-MM` (`2026-09`); qualquer outra coisa — `2026-9`, `2026-13`, `2026-00`, `09-2026`, `2026-09-01`, em branco — falha. O MVC faz o binding dos parâmetros de query por meio dele. |
+| `CompareTo(YearMonth)` | Ordem cronológica. |
 | `ToString()` | `yyyy-MM`. |
 
 ## Inputs (`Application/IO/Reports/`)
 
-Every input's `Month` is optional: `null` means the current month in America/Sao_Paulo, resolved by
-the use case.
+O `Month` de todo input é opcional: `null` significa o mês atual em America/Sao_Paulo, resolvido
+pelo caso de uso.
 
-| Record | Fields |
+| Record | Campos |
 |---|---|
 | `GetMonthlySummaryInput` | `YearMonth? Month` |
 | `GetExpensesByCategoryInput` | `YearMonth? Month` |
-| `GetIncomeVsExpenseInput` | `YearMonth? Month` — the series' last month; `int Months = 12` — validated 1–24 by the controller (`[Range(1, 24)]`) |
+| `GetIncomeVsExpenseInput` | `YearMonth? Month` — o último mês da série; `int Months = 12` — validado em 1–24 pelo controller (`[Range(1, 24)]`) |
 | `GetCumulativeExpenseComparisonInput` | `YearMonth? Month` |
 | `ListMonthlyTransactionsInput` | `YearMonth? Month` |
 
 ## Outputs (`Application/IO/Reports/`)
 
-Money is `decimal`. Expense is always a positive amount. Percentages are on a 0–100 scale, rounded to
-two decimals (`AwayFromZero`). Months are `yyyy-MM` strings.
+Dinheiro é `decimal`. A despesa é sempre um valor positivo. Os percentuais estão na escala 0–100,
+arredondados para duas casas decimais (`AwayFromZero`). Os meses são strings `yyyy-MM`.
 
 ### `MonthlySummaryOutput` (GetMonthlySummary)
 
-| Field | Type | Rule |
+| Campo | Tipo | Regra |
 |---|---|---|
-| `Month` | `string` | The report month. |
-| `TotalIncome` | `decimal` | Sum of the month's positive values. |
-| `TotalExpense` | `decimal` | Sum of the sizes of the month's negative values. |
+| `Month` | `string` | O mês do relatório. |
+| `TotalIncome` | `decimal` | Soma dos valores positivos do mês. |
+| `TotalExpense` | `decimal` | Soma dos tamanhos dos valores negativos do mês. |
 | `Balance` | `decimal` | `TotalIncome − TotalExpense`. |
-| `SavingsRate` | `decimal?` | `Balance / TotalIncome × 100`; `null` when `TotalIncome` is 0; negative when expense exceeds income. |
-| `ProjectedExpense` | `decimal` | Current month: `ExpenseToDate / today.Day × DayCount`, where `ExpenseToDate` covers day 1 through today; past month: `TotalExpense`; future month: 0. Rounded to cents. |
-| `ProjectedBalance` | `decimal` | Current month: `TotalIncome − ProjectedExpense`; past month: `Balance`; future month: 0. |
-| `PreviousMonth` | `PreviousMonthSummaryOutput` | See below. |
+| `SavingsRate` | `decimal?` | `Balance / TotalIncome × 100`; `null` quando `TotalIncome` é 0; negativa quando a despesa passa da receita. |
+| `ProjectedExpense` | `decimal` | Mês atual: `ExpenseToDate / today.Day × DayCount`, em que `ExpenseToDate` cobre do dia 1 até hoje; mês passado: `TotalExpense`; mês futuro: 0. Arredondado para centavos. |
+| `ProjectedBalance` | `decimal` | Mês atual: `TotalIncome − ProjectedExpense`; mês passado: `Balance`; mês futuro: 0. |
+| `PreviousMonth` | `PreviousMonthSummaryOutput` | Veja abaixo. |
 
-`PreviousMonthSummaryOutput`: `TotalIncome`, `TotalExpense`, `Balance` (`decimal`, same rules, for
-the month before — December of the previous year for a January) and `TotalIncomeChange`,
+`PreviousMonthSummaryOutput`: `TotalIncome`, `TotalExpense`, `Balance` (`decimal`, mesmas regras,
+para o mês anterior — dezembro do ano anterior no caso de janeiro) e `TotalIncomeChange`,
 `TotalExpenseChange`, `BalanceChange` (`decimal?`): `(current − previous) / |previous| × 100`, `null`
-when the previous value is 0.
+quando o valor anterior é 0.
 
 ### `ExpensesByCategoryOutput` (GetExpensesByCategory)
 
-| Field | Type | Rule |
+| Campo | Tipo | Regra |
 |---|---|---|
-| `Total` | `decimal` | The month's total expense. |
-| `Items` | `IEnumerable<CategoryExpenseOutput>` | Largest amount first, ties by category name; with more than 8 categories, the 7 largest and then "Outras". Empty when the month has no expense. |
+| `Total` | `decimal` | A despesa total do mês. |
+| `Items` | `IEnumerable<CategoryExpenseOutput>` | Do maior valor para o menor, empates pelo nome da categoria; com mais de 8 categorias, as 7 maiores e depois "Outras". Vazio quando o mês não tem despesa. |
 
-`CategoryExpenseOutput`: `CategoryId` (`Guid?`, `null` for "Outras"), `CategoryName` (`string`),
-`Color` (`string?`, the category's `#RRGGBB`, `null` for "Outras"), `Amount` (`decimal`), `Percentage`
-(`decimal`, `Amount / Total × 100`).
+`CategoryExpenseOutput`: `CategoryId` (`Guid?`, `null` para "Outras"), `CategoryName` (`string`),
+`Color` (`string?`, o `#RRGGBB` da categoria, `null` para "Outras"), `Amount` (`decimal`),
+`Percentage` (`decimal`, `Amount / Total × 100`).
 
-### `IncomeVsExpenseOutput` (GetIncomeVsExpense, returned as a list)
+### `IncomeVsExpenseOutput` (GetIncomeVsExpense, devolvido como lista)
 
-One per month of the series, oldest first, `Months` entries ending in the report month:
-`Month` (`string`), `Income`, `Expense`, `Balance` (`decimal`, `Income − Expense`). A month without
-transactions is present with zeros.
+Um por mês da série, do mais antigo para o mais recente, `Months` entradas terminando no mês do
+relatório: `Month` (`string`), `Income`, `Expense`, `Balance` (`decimal`, `Income − Expense`). Um
+mês sem transações aparece com zeros.
 
 ### `CumulativeExpenseComparisonOutput` (GetCumulativeExpenseComparison)
 
-| Field | Type | Rule |
+| Campo | Tipo | Regra |
 |---|---|---|
-| `CurrentMonth` | `IEnumerable<AccumulatedExpenseOutput>` | The report month, day 1 to its last day — to today when it is the current month, no days when it is a future month. |
-| `PreviousMonth` | `IEnumerable<AccumulatedExpenseOutput>` | The month before, under the same rule. |
-| `DaysInCurrentMonth` | `int` | Days in the report month. |
-| `DaysInPreviousMonth` | `int` | Days in the month before. |
+| `CurrentMonth` | `IEnumerable<AccumulatedExpenseOutput>` | O mês do relatório, do dia 1 ao último dia — até hoje quando é o mês atual, sem nenhum dia quando é um mês futuro. |
+| `PreviousMonth` | `IEnumerable<AccumulatedExpenseOutput>` | O mês anterior, com a mesma regra. |
+| `DaysInCurrentMonth` | `int` | Dias do mês do relatório. |
+| `DaysInPreviousMonth` | `int` | Dias do mês anterior. |
 
-`AccumulatedExpenseOutput`: `Day` (`int`, 1–31), `Accumulated` (`decimal`, the month's expense from
-day 1 through that day; unchanged on days without expense).
+`AccumulatedExpenseOutput`: `Day` (`int`, 1–31), `Accumulated` (`decimal`, a despesa do mês do dia
+1 até aquele dia; inalterada nos dias sem despesa).
 
-### `MonthlyTransactionOutput` (ListMonthlyTransactions, returned as a list)
+### `MonthlyTransactionOutput` (ListMonthlyTransactions, devolvido como lista)
 
-Every transaction dated in the month, newest date first, then most recently created first:
-`Id` (`Guid`), `Date` (`DateTime`, the calendar day at UTC midnight, as in `TransactionOutput`),
-`Description` (`string?`), `CategoryName` (`string`), `Type` (`TransactionType`: `In` when the value
-is positive, `Out` when negative — serialized `in`/`out`), `Amount` (`decimal`, the value's size).
+Todas as transações com data no mês, da data mais recente para a mais antiga e, depois, das criadas
+mais recentemente para as mais antigas: `Id` (`Guid`), `Date` (`DateTime`, o dia do calendário à
+meia-noite UTC, como em `TransactionOutput`), `Description` (`string?`), `CategoryName` (`string`),
+`Type` (`TransactionType`: `In` quando o valor é positivo, `Out` quando é negativo — serializado como
+`in`/`out`), `Amount` (`decimal`, o tamanho do valor).
 
-## Repository queries (`Domain/Repositories/ITransactionRepository.cs`)
+## Consultas do repositório (`Domain/Repositories/ITransactionRepository.cs`)
 
-Ranges are calendar days, `from` inclusive and `to` exclusive; Infrastructure compares them as UTC
-midnights, the form in which dates are stored. Each query runs one SQL statement over the range only.
+Os intervalos são dias do calendário, `from` inclusivo e `to` exclusivo; a Infrastructure os compara
+como meias-noites UTC, a forma em que as datas são armazenadas. Cada consulta roda um único comando
+SQL, só sobre o intervalo.
 
-| Query | Returns | SQL shape |
+| Consulta | Retorna | Formato do SQL |
 |---|---|---|
-| `SumByMonthAsync(DateOnly from, DateOnly to)` | `(int Year, int Month, decimal Income, decimal Expense)` per month with transactions | `GROUP BY` the UTC year and month of `Date`; `SUM(CASE WHEN "Value" > 0 ...)` and `-SUM(CASE WHEN "Value" < 0 ...)` |
-| `SumExpensesByCategoryAsync(DateOnly from, DateOnly to)` | `(Category Category, decimal Expense)` per category with expenses | `-SUM("Value") ... WHERE "Value" < 0 GROUP BY "CategoryId"`, joined to `Categories` |
-| `SumExpensesByDayAsync(DateOnly from, DateOnly to)` | `(DateOnly Date, decimal Expense)` per day with expenses | `GROUP BY` the UTC year, month and day of `Date`, `WHERE "Value" < 0` |
-| `GetWithCategoryNameAsync(DateOnly from, DateOnly to)` | `(Transaction Transaction, string CategoryName)` for each transaction | `Transactions JOIN Categories`, filtered by the range |
+| `SumByMonthAsync(DateOnly from, DateOnly to)` | `(int Year, int Month, decimal Income, decimal Expense)` por mês com transações | `GROUP BY` o ano e o mês UTC de `Date`; `SUM(CASE WHEN "Value" > 0 ...)` e `-SUM(CASE WHEN "Value" < 0 ...)` |
+| `SumExpensesByCategoryAsync(DateOnly from, DateOnly to)` | `(Category Category, decimal Expense)` por categoria com despesas | `-SUM("Value") ... WHERE "Value" < 0 GROUP BY "CategoryId"`, com join em `Categories` |
+| `SumExpensesByDayAsync(DateOnly from, DateOnly to)` | `(DateOnly Date, decimal Expense)` por dia com despesas | `GROUP BY` o ano, o mês e o dia UTC de `Date`, `WHERE "Value" < 0` |
+| `GetWithCategoryNameAsync(DateOnly from, DateOnly to)` | `(Transaction Transaction, string CategoryName)` para cada transação | `Transactions JOIN Categories`, filtrado pelo intervalo |
 
-## Schema change
+## Mudança de esquema
 
-| Index | Table | Column | Migration |
+| Índice | Tabela | Coluna | Migration |
 |---|---|---|---|
-| `IX_Transactions_Date` *(new)* | `Transactions` | `Date` | `AddTransactionDateIndex` — `Up()` creates it, `Down()` drops it. |
-| `IX_Transactions_CategoryId` *(existing)* | `Transactions` | `CategoryId` | `AddTransaction` — unchanged. |
+| `IX_Transactions_Date` *(novo)* | `Transactions` | `Date` | `AddTransactionDateIndex` — o `Up()` o cria, o `Down()` o remove. |
+| `IX_Transactions_CategoryId` *(existente)* | `Transactions` | `CategoryId` | `AddTransaction` — inalterado. |
 
-No table, column or data changes.
+Nenhuma mudança de tabela, coluna ou dados.

@@ -1,13 +1,13 @@
-# Contracts: Reports Dashboard
+# Contratos: Painel de relatórios
 
-## Consumed API
+## API consumida
 
-Defined by the backend in
+Definida pelo backend em
 [`back/specs/003-financial-reports/contracts/reports-api.yaml`](../../../../back/specs/003-financial-reports/contracts/reports-api.yaml).
-Every request goes through `ReportsService`, which returns `{ url, params }` for an `httpResource`.
-`month` is sent as `YYYY-MM`; without a month the API reports the current month in São Paulo.
+Toda requisição passa pelo `ReportsService`, que devolve `{ url, params }` para um `httpResource`. O `month` é enviado
+como `YYYY-MM`; sem mês, a API informa o mês atual em São Paulo.
 
-| Service method                    | Request                                                         | Response type                 |
+| Método do service                 | Requisição                                                      | Tipo da resposta              |
 | --------------------------------- | --------------------------------------------------------------- | ----------------------------- |
 | `summary(month)`                  | `GET {apiUrl}/reports/summary?month=YYYY-MM`                    | `MonthlySummary`              |
 | `expensesByCategory(month)`       | `GET {apiUrl}/reports/expensesByCategory?month=YYYY-MM`         | `ExpensesByCategory`          |
@@ -15,21 +15,20 @@ Every request goes through `ReportsService`, which returns `{ url, params }` for
 | `cumulativeExpenses(month)`       | `GET {apiUrl}/reports/cumulativeExpenses?month=YYYY-MM`         | `CumulativeExpenseComparison` |
 | `transactions(month)`             | `GET {apiUrl}/reports/transactions?month=YYYY-MM`               | `MonthlyTransaction[]`        |
 
-An invalid month is a `400` from the API; the page never sends one (the month field only produces
-valid months), and any failed request shows the block's error state.
+Um mês inválido é um `400` da API; a página nunca envia um (o campo de mês só produz meses válidos), e qualquer
+requisição que falhe mostra o estado de erro do bloco.
 
-## Exposed UI
+## UI exposta
 
-- Route `/reports` (lazy, `loadChildren` from `app.routes.ts`), linked first in the sidenav as
-  "Relatórios" (`insights` icon).
-- The transactions page (`/transactions`) accepts `?month=YYYY-MM`, as it accepts `?categoryId=`: its
-  filters open on that month. A value that isn't a valid `YYYY-MM` is ignored. The list's "Ver todas"
-  links there.
-- Block components (inputs → outputs), all presentational:
+- Rota `/reports` (lazy, `loadChildren` a partir do `app.routes.ts`), com link em primeiro lugar na sidenav como
+  "Relatórios" (ícone `insights`).
+- A página de transações (`/transactions`) aceita `?month=YYYY-MM`, como aceita `?categoryId=`: os seus filtros abrem
+  naquele mês. Um valor que não seja um `YYYY-MM` válido é ignorado. O "Ver todas" da lista leva para lá.
+- Componentes dos blocos (inputs → outputs), todos de apresentação:
 
-| Component                         | Inputs                                                                                                              | Outputs |
+| Componente                        | Inputs                                                                                                              | Outputs |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------- |
-| `app-report-card`                 | `heading`, `subtitle?`, `report: Resource<unknown>`, `empty`, `emptyText`, `errorText`; content as an `ng-template` | `retry` |
+| `app-report-card`                 | `heading`, `subtitle?`, `report: Resource<unknown>`, `empty`, `emptyText`, `errorText`; conteúdo como `ng-template` | `retry` |
 | `app-summary-cards`               | `summary: Resource<MonthlySummary \| undefined>`                                                                    | `retry` |
 | `app-expenses-by-category-chart`  | `expenses: Resource<ExpensesByCategory \| undefined>`                                                               | `retry` |
 | `app-income-vs-expense-chart`     | `series: Resource<IncomeVsExpense[] \| undefined>`                                                                  | `retry` |

@@ -1,211 +1,208 @@
 ---
-description: 'Task list for the Reports Dashboard feature'
+description: 'Lista de tarefas da feature Painel de relatórios'
 ---
 
-# Tasks: Reports Dashboard
+# Tarefas: Painel de relatórios
 
-**Input**: Design documents from `/specs/001-reports-dashboard/`
+**Entrada**: Documentos de design em `/specs/001-reports-dashboard/`
 
-**Prerequisites**: plan.md (present), spec.md (present), research.md (present),
-data-model.md (present), contracts/ (present)
+**Pré-requisitos**: plan.md (presente), spec.md (presente), research.md (presente),
+data-model.md (presente), contracts/ (presente)
 
-**Tests**: Required by the constitution (Principle IV: a `*.spec.ts` next to every new file) and by
-the request ("lint e testes existentes passando"). Within each story the spec is written with the code
-it covers, modeled on the `write-front-tests` skill.
+**Testes**: Exigidos pela constituição (Princípio IV: um `*.spec.ts` ao lado de cada arquivo novo) e pelo pedido
+("lint e testes existentes passando"). Em cada história, o spec é escrito junto com o código que ele cobre, no modelo
+da skill `write-front-tests`.
 
-**Organization**: Tasks are grouped by user story, in `spec.md`'s priority order (P1–P6).
+**Organização**: As tarefas estão agrupadas por história de usuário, na ordem de prioridade do `spec.md` (P1–P6).
 
-## Format: `[ID] [P?] [Story] Description`
+## Formato: `[ID] [P?] [História] Descrição`
 
-- **[P]**: Different files, no dependency on an incomplete task
-- **[Story]**: Which user story this task belongs to (US1–US6)
-- File paths are exact, relative to `front/`
+- **[P]**: Arquivos diferentes, sem dependência de uma tarefa incompleta
+- **[História]**: A história de usuário a que a tarefa pertence (US1–US6)
+- Os caminhos de arquivo são exatos, relativos a `front/`
 
-## Phase 1: Setup (Shared Infrastructure)
+## Fase 1: Preparação (infraestrutura compartilhada)
 
-- [x] T001 Run `npx ng test --watch=false`, `npm run lint` and `npm run build` on the untouched front and
-      record the baseline (tests, lint, "Initial total").
-- [x] T002 Run `npx ng add ng2-charts --skip-confirmation`; check that `package.json` gains `ng2-charts`
-      (10.x, the Angular 21 line) and `chart.js` (4.x) and what the schematic added to
-      `src/app/app.config.ts`.
+- [x] T001 Rodar `npx ng test --watch=false`, `npm run lint` e `npm run build` no front intocado e registrar a linha
+      de base (testes, lint, "Initial total").
+- [x] T002 Rodar `npx ng add ng2-charts --skip-confirmation`; conferir que o `package.json` ganha `ng2-charts` (10.x,
+      a linha do Angular 21) e `chart.js` (4.x) e o que o schematic acrescentou a `src/app/app.config.ts`.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Fase 2: Fundação (pré-requisitos bloqueantes)
 
-**⚠️ CRITICAL**: No user story can be completed before this phase.
+**⚠️ CRÍTICO**: Nenhuma história de usuário pode ser concluída antes desta fase.
 
-- [x] T003 Move `provideCharts(withDefaultRegisterables())` from `src/app/app.config.ts` to the
-      `providers` of the page route in `src/app/reports/reports.routes.ts`, with Chart.js's default font
-      set to Roboto; lazy-load it from `src/app/app.routes.ts` (`path: 'reports'`, `loadChildren`).
-- [x] T004 [P] Types for the five reports — `MonthlySummary`, `PreviousMonthSummary`,
-      `ExpensesByCategory`, `CategoryExpense`, `IncomeVsExpense`, `CumulativeExpenseComparison`,
-      `AccumulatedExpense`, `MonthlyTransaction` (`type: 'in' | 'out'`) — in
-      `src/app/reports/types/report.ts`.
-- [x] T005 [P] `DateUtils.toMonthKey(date)` → `YYYY-MM` and `DateUtils.currentMonth()` → day 1 of the
-      current month in America/Sao_Paulo, with tests (including 02:00 UTC on October 1 still being
-      September) in `src/app/shared/date-utils/date-utils.ts` and `date-utils.spec.ts`.
+- [x] T003 Mover `provideCharts(withDefaultRegisterables())` de `src/app/app.config.ts` para os `providers` da rota
+      da página em `src/app/reports/reports.routes.ts`, com a fonte padrão do Chart.js definida como Roboto;
+      carregá-la sob demanda a partir de `src/app/app.routes.ts` (`path: 'reports'`, `loadChildren`).
+- [x] T004 [P] Tipos dos cinco relatórios — `MonthlySummary`, `PreviousMonthSummary`, `ExpensesByCategory`,
+      `CategoryExpense`, `IncomeVsExpense`, `CumulativeExpenseComparison`, `AccumulatedExpense`, `MonthlyTransaction`
+      (`type: 'in' | 'out'`) — em `src/app/reports/types/report.ts`.
+- [x] T005 [P] `DateUtils.toMonthKey(date)` → `YYYY-MM` e `DateUtils.currentMonth()` → dia 1 do mês atual em
+      America/Sao_Paulo, com testes (incluindo 02:00 UTC de 1º de outubro ainda ser setembro) em
+      `src/app/shared/date-utils/date-utils.ts` e `date-utils.spec.ts`.
 - [x] T006 `ReportsService` — `summary`, `expensesByCategory`, `incomeVsExpense(month, months?)`,
-      `cumulativeExpenses`, `transactions`, each returning `{ url, params }` with `month=YYYY-MM` only when
-      a month is given — and its spec in `src/app/reports/services/reports.service.ts` and
-      `reports.service.spec.ts` (depends on T005).
-- [x] T007 [P] `ChartThemeService` — `colors()` resolving `error`, `outline`, `outline-variant`,
-      `on-surface-variant` and `surface-container-low` through a probe element, recomputed when
-      `prefers-color-scheme` changes — and its spec in `src/app/reports/services/chart-theme.service.ts`
-      and `chart-theme.service.spec.ts`.
-- [x] T008 [P] `report-card` — `mat-card` with title (and optional subtitle), spinner while loading
-      without data, dimmed content while reloading with data, error text + "Tentar novamente" (`retry`),
-      empty text, otherwise the content `ng-template` — and its spec in
-      `src/app/reports/components/report-card/`.
-- [x] T009 [P] Test helpers: `build*` fixtures for the five reports in
-      `src/app/reports/testing/report-fixtures.ts` and a fake `canvas[baseChart]` directive (inputs
-      `type`, `data`, `options`) in `src/app/reports/testing/fake-chart.ts`.
+      `cumulativeExpenses`, `transactions`, cada um devolvendo `{ url, params }` com `month=YYYY-MM` só quando um mês
+      é informado — e o seu spec em `src/app/reports/services/reports.service.ts` e `reports.service.spec.ts`
+      (depende de T005).
+- [x] T007 [P] `ChartThemeService` — `colors()` resolvendo `error`, `outline`, `outline-variant`,
+      `on-surface-variant` e `surface-container-low` por meio de um elemento de sondagem, recalculado quando
+      `prefers-color-scheme` muda — e o seu spec em `src/app/reports/services/chart-theme.service.ts` e
+      `chart-theme.service.spec.ts`.
+- [x] T008 [P] `report-card` — `mat-card` com título (e subtítulo opcional), spinner enquanto carrega sem dados,
+      conteúdo esmaecido enquanto recarrega com dados, texto de erro + "Tentar novamente" (`retry`), texto de vazio e,
+      nos demais casos, o `ng-template` do conteúdo — e o seu spec em `src/app/reports/components/report-card/`.
+- [x] T009 [P] Utilitários de teste: fixtures `build*` dos cinco relatórios em
+      `src/app/reports/testing/report-fixtures.ts` e uma diretiva fake `canvas[baseChart]` (inputs `type`, `data`,
+      `options`) em `src/app/reports/testing/fake-chart.ts`.
 
-**Checkpoint**: The route, data access and the card shell exist.
-
----
-
-## Phase 3: User Story 1 - See how the current month is going (Priority: P1) 🎯 MVP
-
-**Goal**: "Relatórios" in the menu opens `/reports` on the current month with the five summary cards.
-
-**Independent Test**: quickstart.md step 2.1.
-
-- [x] T010 [US1] `summary-cards` — five `mat-card`s (Saldo, Receitas, Despesas, Taxa de poupança,
-      Projeção) with BRL values, expenses and negative balances in red, changes as ↑/↓ + percent +
-      "vs. {mês anterior por extenso}" in the good (`tertiary`) or bad (`error`) color by metric, "Sem
-      comparação com {mês}" for a null change, "—" for a null savings rate; otherwise one `report-card`
-      with the summary's state ("Sem movimentações neste mês." when income and expense are 0) — and its
-      spec, in `src/app/reports/components/summary-cards/`.
-- [x] T011 [US1] `ReportsPage` — page header "Relatórios" with "Recarregar" and the month field, the five
-      `httpResource`s on `month()`, the bento grid (areas, `height: 100%`, single-column media query) with
-      `summary-cards` wired — and its spec (first requests with the São Paulo month, spinner, cards, error
-      and retry of one block, reload of all) in `src/app/reports/pages/reports-page/`.
-- [x] T012 [US1] Add `{ route: '/reports', label: 'Relatórios', icon: 'insights' }` last in `links` in
-      `src/app/app.ts`, and the new link to the expectations of `src/app/app.spec.ts`.
-
-**Checkpoint**: The page opens from the menu with the summary — the MVP.
+**Ponto de controle**: A rota, o acesso aos dados e a casca do card existem.
 
 ---
 
-## Phase 4: User Story 2 - Look at another month (Priority: P2)
+## Fase 3: História de usuário 1 - Ver como está o mês atual (Prioridade: P1) 🎯 MVP
 
-**Goal**: The month field reloads every block; a block's retry reloads only that block.
+**Objetivo**: "Relatórios" no menu abre `/reports` no mês atual, com os cinco cards de resumo.
 
-**Independent Test**: quickstart.md step 2.4 and 2.6.
+**Teste independente**: passo 2.1 do quickstart.md.
 
-- [x] T013 [US2] Page spec: picking a month through the month field's model sends `month=YYYY-MM` to the
-      five endpoints; `retry` from one block re-requests only its endpoint — in
-      `src/app/reports/pages/reports-page/reports-page.spec.ts` (extends T011 as each block is wired).
+- [x] T010 [US1] `summary-cards` — cinco `mat-card`s (Saldo, Receitas, Despesas, Taxa de poupança, Projeção) com
+      valores em BRL, despesas e saldos negativos em vermelho, variações como ↑/↓ + percentual +
+      "vs. {mês anterior por extenso}" na cor boa (`tertiary`) ou ruim (`error`) conforme a métrica,
+      "Sem comparação com {mês}" para uma variação nula, "—" para uma taxa de poupança nula; fora isso, um
+      `report-card` com o estado do resumo ("Sem movimentações neste mês." quando receita e despesa são 0) — e o seu
+      spec, em `src/app/reports/components/summary-cards/`.
+- [x] T011 [US1] `ReportsPage` — cabeçalho da página "Relatórios" com "Recarregar" e o campo de mês, os cinco
+      `httpResource`s sobre `month()`, a grade bento (áreas, `height: 100%`, media query de coluna única) com o
+      `summary-cards` ligado — e o seu spec (primeiras requisições com o mês de São Paulo, spinner, cards, erro e nova
+      tentativa de um bloco, recarga de todos) em `src/app/reports/pages/reports-page/`.
+- [x] T012 [US1] Adicionar `{ route: '/reports', label: 'Relatórios', icon: 'insights' }` por último em `links` em
+      `src/app/app.ts`, e o novo link às expectativas de `src/app/app.spec.ts`.
 
----
-
-## Phase 5: User Story 3 - See where the money went (Priority: P3)
-
-- [x] T014 [US3] `expenses-by-category-chart` — `report-card` "Despesas por categoria" (subtitle: the
-      month's total in BRL), a doughnut with the categories' colors, "Outras" in `outline`, a 2 px gap in the
-      card surface color, Chart.js's own legend with each share ("Mercado (23,08%)"), tooltip adding the
-      amount in BRL, `aria-label`; "Sem despesas neste mês." when empty — and its spec (data, colors,
-      legend, tooltip, states, retry) in
-      `src/app/reports/components/expenses-by-category-chart/`; wire it in the page and its spec.
-
----
-
-## Phase 6: User Story 4 - Compare income and expenses over the months (Priority: P4)
-
-- [x] T015 [US4] `income-vs-expense-chart` — `report-card` "Receitas vs. despesas" (subtitle "12 meses até
-      {mês}"), grouped columns (Receitas `outline`, Despesas `error`, at most 24 px, 4 px rounded tops),
-      untilted x labels ("set.", the year below the first month and every January), compact BRL y axis,
-      index tooltip with the month spelled out and
-      both values in BRL, `aria-label`; "Sem movimentações neste período." when every month is zero — and its
-      spec in `src/app/reports/components/income-vs-expense-chart/`; wire it in the page and its spec.
+**Ponto de controle**: A página abre pelo menu com o resumo — o MVP.
 
 ---
 
-## Phase 7: User Story 5 - Follow the spending pace (Priority: P5)
+## Fase 4: História de usuário 2 - Ver outro mês (Prioridade: P2)
 
-- [x] T016 [US5] `cumulative-comparison-chart` — `report-card` "Despesas acumuladas", lines over days 1…max
-      of both months (current month `error`, previous `outline`, 2 px, no markers), legend with both months
-      spelled out (from the `month` input), compact BRL y axis, index tooltip "Dia N" with both values in
-      BRL, `aria-label`; "Sem despesas neste mês nem no anterior." when both series are zero — and its spec
-      in `src/app/reports/components/cumulative-comparison-chart/`; wire it in the page and its spec.
+**Objetivo**: O campo de mês recarrega todos os blocos; a nova tentativa de um bloco recarrega só aquele bloco.
 
----
+**Teste independente**: passos 2.4 e 2.6 do quickstart.md.
 
-## Phase 8: User Story 6 - Check the details (Priority: P6)
-
-- [x] T017 [US6] `transactions-list` — `report-card` "Transações do mês" (subtitle: how many), a
-      `mat-table` with sticky header and its own scroll: Data (`dd/MM`, UTC), Descrição (with the category
-      below), Valor (BRL, `-` and `.negative` for `out`, end-aligned); "Sem movimentações neste mês." when
-      empty — and its spec in `src/app/reports/components/transactions-list/`; wire it in the page and its
-      spec.
+- [x] T013 [US2] Spec da página: escolher um mês pelo model do campo de mês envia `month=YYYY-MM` aos cinco
+      endpoints; o `retry` de um bloco refaz só a requisição do seu endpoint — em
+      `src/app/reports/pages/reports-page/reports-page.spec.ts` (estende a T011 à medida que cada bloco é ligado).
 
 ---
 
-## Phase 9: Polish & Cross-Cutting Concerns
+## Fase 5: História de usuário 3 - Ver para onde foi o dinheiro (Prioridade: P3)
 
-- [x] T018 `npx prettier --write` on the changed files; `npx ng test --watch=false`, `npm run lint`,
-      `npm run build` — all pass (27 spec files, 199 tests), no budget warning; "Initial total" 633.45 kB
-      against 630.52 kB in T001, from the esbuild re-split of shared Angular/Material chunks, with no chart
-      or reports code in the initial graph (checked with `--stats-json`).
-- [x] T019 quickstart.md step 2 against the backend's scratch database: render the page (desktop and
-      narrow) and check the numbers, colors, states and layout; fix what the screenshots show. Rendered in
-      headless Chrome through the DevTools protocol at 1440×900 (light and dark), 1366×768 and 1024 px
-      wide, for October (current), September (eight categories) and March (no movement): numbers match the
-      backend quickstart, no page scroll on desktop, single column below 1200 px. Fixed: the doughnut back
-      in the tall area (its legend cut off categories in a one-row block), the transactions table
-      overflowing at 1366 px (description now truncates), two-line summary labels (small label style),
-      tilted axis labels.
-- [x] T020 [P] Mark this task list complete and record what the validation found (research.md →
-      Validation findings). "Initial total": 630.52 kB before, 633.45 kB after (no budget warning; no
-      Chart.js, ng2-charts or reports code in the initial chunks — 800.33 kB with the schematic's
-      provider left in `app.config.ts`).
+- [x] T014 [US3] `expenses-by-category-chart` — `report-card` "Despesas por categoria" (subtítulo: o total do mês em
+      BRL), uma rosca com as cores das categorias, "Outras" em `outline`, um espaço de 2 px na cor da superfície do
+      card, a legenda do próprio Chart.js com cada participação ("Mercado (23,08%)"), tooltip acrescentando o valor em
+      BRL, `aria-label`; "Sem despesas neste mês." quando vazio — e o seu spec (dados, cores, legenda, tooltip,
+      estados, nova tentativa) em `src/app/reports/components/expenses-by-category-chart/`; ligá-lo na página e no
+      spec dela.
 
 ---
 
-## Dependencies & Execution Order
+## Fase 6: História de usuário 4 - Comparar receitas e despesas ao longo dos meses (Prioridade: P4)
 
-- **Setup (Phase 1)** → **Foundational (Phase 2)** → stories in priority order → **Polish**.
-- US1 creates the page; US2 extends the page spec; US3–US6 each add one block to the page (template and
-  spec), so they touch `reports-page.*` one at a time even though their components are independent.
-- T004, T005, T007, T008 and T009 touch different files and can be written together.
+- [x] T015 [US4] `income-vs-expense-chart` — `report-card` "Receitas vs. despesas" (subtítulo "12 meses até {mês}"),
+      colunas agrupadas (Receitas `outline`, Despesas `error`, no máximo 24 px, topos arredondados de 4 px), rótulos
+      do eixo x sem inclinação ("set.", o ano abaixo do primeiro mês e de cada janeiro), eixo y em BRL compacto,
+      tooltip em modo índice com o mês por extenso e os dois valores em BRL, `aria-label`; "Sem movimentações neste
+      período." quando todos os meses são zero — e o seu spec em
+      `src/app/reports/components/income-vs-expense-chart/`; ligá-lo na página e no spec dela.
 
-## Parallel Example: Foundational
+---
+
+## Fase 7: História de usuário 5 - Acompanhar o ritmo de gastos (Prioridade: P5)
+
+- [x] T016 [US5] `cumulative-comparison-chart` — `report-card` "Despesas acumuladas", linhas sobre os dias 1…max dos
+      dois meses (mês atual `error`, anterior `outline`, 2 px, sem marcadores), legenda com os dois meses por extenso
+      (a partir do input `month`), eixo y em BRL compacto, tooltip em modo índice "Dia N" com os dois valores em BRL,
+      `aria-label`; "Sem despesas neste mês nem no anterior." quando as duas séries são zero — e o seu spec em
+      `src/app/reports/components/cumulative-comparison-chart/`; ligá-lo na página e no spec dela.
+
+---
+
+## Fase 8: História de usuário 6 - Conferir os detalhes (Prioridade: P6)
+
+- [x] T017 [US6] `transactions-list` — `report-card` "Transações do mês" (subtítulo: quantas), uma `mat-table` com
+      cabeçalho fixo e rolagem própria: Data (`dd/MM`, UTC), Descrição (com a categoria abaixo), Valor (BRL, `-` e
+      `.negative` para `out`, alinhado ao fim); "Sem movimentações neste mês." quando vazia — e o seu spec em
+      `src/app/reports/components/transactions-list/`; ligá-la na página e no spec dela.
+
+---
+
+## Fase 9: Acabamento e aspectos transversais
+
+- [x] T018 `npx prettier --write` nos arquivos alterados; `npx ng test --watch=false`, `npm run lint`,
+      `npm run build` — todos passam (27 arquivos de spec, 199 testes), sem aviso de budget; "Initial total" de
+      633,45 kB contra 630,52 kB na T001, pela redivisão, feita pelo esbuild, dos chunks compartilhados de
+      Angular/Material, sem código de gráfico nem de relatórios no grafo inicial (conferido com `--stats-json`).
+- [x] T019 Passo 2 do quickstart.md contra o banco descartável do backend: renderizar a página (desktop e estreita) e
+      conferir os números, as cores, os estados e o layout; corrigir o que as capturas de tela mostrarem. Renderizado
+      no Chrome headless pelo protocolo do DevTools em 1440×900 (claro e escuro), 1366×768 e 1024 px de largura, para
+      outubro (atual), setembro (oito categorias) e março (sem movimentação): os números batem com o quickstart do
+      backend, sem rolagem da página no desktop, coluna única abaixo de 1200 px. Corrigido: a rosca de volta na área
+      alta (a legenda dela cortava categorias num bloco de uma linha), a tabela de transações transbordando em
+      1366 px (a descrição agora trunca), rótulos do resumo em duas linhas (estilo de rótulo pequeno), rótulos de eixo
+      inclinados.
+- [x] T020 [P] Marcar esta lista de tarefas como concluída e registrar o que a validação encontrou (research.md →
+      Achados da validação). "Initial total": 630,52 kB antes, 633,45 kB depois (sem aviso de budget; nenhum código
+      de Chart.js, ng2-charts ou relatórios nos chunks iniciais — 800,33 kB com o provider do schematic deixado em
+      `app.config.ts`).
+
+---
+
+## Dependências e ordem de execução
+
+- **Preparação (Fase 1)** → **Fundação (Fase 2)** → histórias na ordem de prioridade → **Acabamento**.
+- A US1 cria a página; a US2 estende o spec da página; as US3–US6 acrescentam, cada uma, um bloco à página (template
+  e spec), então mexem em `reports-page.*` uma de cada vez, mesmo com componentes independentes.
+- T004, T005, T007, T008 e T009 mexem em arquivos diferentes e podem ser escritas juntas.
+
+## Exemplo de paralelismo: Fundação
 
 ```bash
-Task: "Types in src/app/reports/types/report.ts"
-Task: "DateUtils.toMonthKey/currentMonth in src/app/shared/date-utils/"
-Task: "ChartThemeService in src/app/reports/services/chart-theme.service.ts"
-Task: "report-card in src/app/reports/components/report-card/"
-Task: "Fixtures and fake chart in src/app/reports/testing/"
+Task: "Tipos em src/app/reports/types/report.ts"
+Task: "DateUtils.toMonthKey/currentMonth em src/app/shared/date-utils/"
+Task: "ChartThemeService em src/app/reports/services/chart-theme.service.ts"
+Task: "report-card em src/app/reports/components/report-card/"
+Task: "Fixtures e gráfico fake em src/app/reports/testing/"
 ```
 
-## Implementation Strategy
+## Estratégia de implementação
 
-MVP = Setup + Foundational + US1 (the page with the summary cards from the menu). Then each story adds a
-block, testable on its own, and Polish runs the full suites, the build budget and the visual check.
+MVP = Preparação + Fundação + US1 (a página com os cards de resumo, aberta pelo menu). Depois, cada história
+acrescenta um bloco, testável sozinho, e o Acabamento roda as suítes completas, o budget do build e a verificação
+visual.
 
-## Phase 10: Convergence
+## Fase 10: Convergência
 
-The owner's adjustments before finishing (spec.md → Clarifications, Session 2026-10-03). A balance line
-over the bars was built and dropped at the owner's request; the bars are unchanged.
+Os ajustes do dono antes de terminar (spec.md → Esclarecimentos, Sessão 2026-10-03). Uma linha de saldo sobre as
+barras foi construída e descartada a pedido do dono; as barras não mudaram.
 
-- [x] T021 Fold the doughnut to at most five slices — the four largest and "Outras" with the rest, its
-      share recomputed from `total`, in the neutral color (`ChartColors.neutral`, `outline`) — with specs in
-      `src/app/reports/components/expenses-by-category-chart/` and `src/app/reports/services/chart-theme.service.*`
-      per FR-004, US3/AC2 (partial)
-- [x] T022 Add `DateUtils.fromMonthKey` and read `?month=YYYY-MM` in `TransactionsPage`, opening the filters on
-      that month, with specs in `src/app/shared/date-utils/` and `src/app/transactions/pages/transactions-page/`
-      per FR-013, US6/AC3 (missing)
-- [x] T023 List the ten newest transactions under a title with the month's count, and link "Ver todas" to
-      `/transactions?month=YYYY-MM` (new `month` input, wired in the page), with specs in
-      `src/app/reports/components/transactions-list/` and the page per FR-007, US6/AC1, US6/AC3 (partial)
-- [x] T024 Cover the owner's "Mês anterior" / "Próximo mês" — `DateUtils.previousMonth`/`nextMonth` and one
-      request per block from the page header — in `date-utils.spec.ts` and `reports-page.spec.ts` per FR-002,
+- [x] T021 Reduzir a rosca a no máximo cinco fatias — as quatro maiores e "Outras" com o resto, a sua participação
+      recalculada a partir do `total`, na cor neutra (`ChartColors.neutral`, `outline`) — com specs em
+      `src/app/reports/components/expenses-by-category-chart/` e `src/app/reports/services/chart-theme.service.*`
+      conforme FR-004, US3/AC2 (partial)
+- [x] T022 Adicionar `DateUtils.fromMonthKey` e ler `?month=YYYY-MM` na `TransactionsPage`, abrindo os filtros
+      naquele mês, com specs em `src/app/shared/date-utils/` e `src/app/transactions/pages/transactions-page/`
+      conforme FR-013, US6/AC3 (missing)
+- [x] T023 Listar as dez transações mais recentes sob um título com a contagem do mês e ligar "Ver todas" a
+      `/transactions?month=YYYY-MM` (novo input `month`, ligado na página), com specs em
+      `src/app/reports/components/transactions-list/` e na página conforme FR-007, US6/AC1, US6/AC3 (partial)
+- [x] T024 Cobrir o "Mês anterior" / "Próximo mês" do dono — `DateUtils.previousMonth`/`nextMonth` e uma requisição
+      por bloco a partir do cabeçalho da página — em `date-utils.spec.ts` e `reports-page.spec.ts` conforme FR-002,
       US2/AC3, Constitution IV (missing)
-- [x] T025 Align the specs that drifted from the owner's later changes, asserting the new behavior: menu
-      order (Relatórios first), expenses as negative values without red in the summary cards, no card
-      subtitles, `count: 5` value ticks, the doughnut's 4 px gap, chart colors (`tertiary` income, `primary`
-      and `on-primary` lines, `on-surface` text) per Constitution IV (contradicts)
-- [x] T026 `npx prettier --write` on the changed files; `npx ng test --watch=false` (27 files, 223 tests),
-      `npm run lint` and `npm run build` pass — "Initial total" 633.08 kB, no budget warning (polish)
+- [x] T025 Alinhar os specs que se desviaram das mudanças posteriores do dono, verificando o novo comportamento:
+      ordem do menu (Relatórios primeiro), despesas como valores negativos sem vermelho nos cards de resumo, sem
+      subtítulos nos cards, ticks de valor `count: 5`, o espaço de 4 px da rosca, cores dos gráficos (receita
+      `tertiary`, linhas `primary` e `on-primary`, texto `on-surface`) conforme Constitution IV (contradicts)
+- [x] T026 `npx prettier --write` nos arquivos alterados; `npx ng test --watch=false` (27 arquivos, 223 testes),
+      `npm run lint` e `npm run build` passam — "Initial total" de 633,08 kB, sem aviso de budget (polish)

@@ -1,186 +1,186 @@
-# Feature Specification: Category Management
+# Especificação da feature: Gestão de categorias
 
-**Feature Branch**: `001-category-management`
+**Branch da feature**: `001-category-management`
 
-**Created**: 2026-09-21
+**Criada em**: 2026-09-21
 
-**Status**: Draft
+**Status**: Rascunho
 
-**Input**: User description: "Retroactive specification of the existing category management capability — creating, viewing, listing, editing, and deleting categories, plus per-category usage statistics (transaction count and balance) — derived from the current implementation and its automated test suite."
+**Entrada**: Descrição do usuário: "Especificação retroativa da capacidade existente de gestão de categorias — criar, visualizar, listar, editar e excluir categorias, além das estatísticas de uso por categoria (quantidade de transações e saldo) — derivada da implementação atual e da sua suíte de testes automatizados."
 
-## User Scenarios & Testing *(mandatory)*
+## Cenários de usuário e testes *(obrigatório)*
 
-### User Story 1 - Build and maintain a category list (Priority: P1)
+### História de usuário 1 - Montar e manter uma lista de categorias (Prioridade: P1)
 
-As someone tracking personal finances, I want to create categories with a name and a color, and
-rename, recolor, or remove them later, so I can organize my transactions in a way that makes
-sense to me and keep that organization accurate over time.
+Como alguém que acompanha as finanças pessoais, quero criar categorias com nome e cor e, depois,
+renomeá-las, mudar a cor ou removê-las, para organizar minhas transações de um jeito que faça
+sentido para mim e manter essa organização correta ao longo do tempo.
 
-**Why this priority**: Nothing else in this feature — or in transaction tracking generally — is
-possible until categories can be created. This is the minimum needed to make categories usable
-at all.
+**Por que esta prioridade**: Nada mais nesta feature — nem no controle de transações em geral — é
+possível enquanto não der para criar categorias. É o mínimo necessário para que as categorias
+tenham alguma utilidade.
 
-**Independent Test**: Can be fully tested by creating a category, confirming it appears with the
-chosen name and color, editing it, and deleting it — without needing any transaction data to
-exist.
+**Teste independente**: Pode ser testada por completo criando uma categoria, confirmando que ela
+aparece com o nome e a cor escolhidos, editando-a e excluindo-a — sem precisar de nenhuma
+transação cadastrada.
 
-**Acceptance Scenarios**:
+**Cenários de aceitação**:
 
-1. **Given** no categories exist yet, **When** a user creates a category with a name and a
-   color, **Then** the category appears with that name and color.
-2. **Given** a category exists, **When** a user renames it or changes its color, **Then** the
-   category reflects the new name and color everywhere it is shown.
-3. **Given** a category has no transactions, **When** a user deletes it, **Then** it no longer
-   appears in the category list.
-4. **Given** a category already has transactions recorded against it, **When** a user tries to
-   delete it, **Then** the deletion is refused and the user is told why.
-5. **Given** a user submits a blank name, an overly long name, or an invalid color, **When**
-   they try to create or edit a category, **Then** the request is rejected with a clear
-   explanation of what is wrong.
-
----
-
-### User Story 2 - See how much each category is used (Priority: P2)
-
-As someone reviewing their spending, I want each category to show how many transactions it has
-and what they add up to, so I can immediately see where my money is going without manually
-tallying transactions myself.
-
-**Why this priority**: This turns a plain list of labels into a useful financial overview. It
-depends on Story 1 existing but does not require any new category-management actions of its own.
-
-**Independent Test**: Can be fully tested by recording a known set of transactions against a
-category and confirming the category list reports the correct transaction count and balance for
-it, and zero/zero for a category with none.
-
-**Acceptance Scenarios**:
-
-1. **Given** a category has three transactions worth a combined total, **When** the category
-   list is viewed, **Then** that category shows a count of three and the correct combined
-   balance.
-2. **Given** a category has no transactions, **When** the category list is viewed, **Then** it
-   shows a count of zero and a balance of zero.
-3. **Given** a user asks to see usage for a specific month, **When** the category list is
-   viewed, **Then** only transactions dated within that month count toward each category's
-   totals.
+1. **Dado que** ainda não existe nenhuma categoria, **Quando** o usuário cria uma categoria com
+   nome e cor, **Então** a categoria aparece com esse nome e essa cor.
+2. **Dado que** existe uma categoria, **Quando** o usuário a renomeia ou muda a sua cor, **Então**
+   a categoria mostra o novo nome e a nova cor em todos os lugares onde aparece.
+3. **Dado que** uma categoria não tem transações, **Quando** o usuário a exclui, **Então** ela
+   deixa de aparecer na lista de categorias.
+4. **Dado que** uma categoria já tem transações registradas nela, **Quando** o usuário tenta
+   excluí-la, **Então** a exclusão é recusada e o usuário é informado do motivo.
+5. **Dado que** o usuário informa um nome em branco, um nome longo demais ou uma cor inválida,
+   **Quando** tenta criar ou editar uma categoria, **Então** a solicitação é rejeitada com uma
+   explicação clara do que está errado.
 
 ---
 
-### User Story 3 - Narrow down a long category list (Priority: P3)
+### História de usuário 2 - Ver quanto cada categoria é usada (Prioridade: P2)
 
-As someone with many categories, I want to search by name, show only categories that are (or
-are not) in use, and sort by name, activity, or balance, so I can quickly find or compare the
-categories I care about.
+Como alguém que revisa os próprios gastos, quero que cada categoria mostre quantas transações tem
+e quanto elas somam, para ver na hora para onde vai o meu dinheiro sem precisar somar as
+transações à mão.
 
-**Why this priority**: Purely a refinement of browsing an already-working list (Stories 1-2).
-Valuable once the category list grows, but not required for the feature to be useful on day
-one.
+**Por que esta prioridade**: Transforma uma simples lista de rótulos numa visão financeira útil.
+Depende da História 1, mas não exige nenhuma ação nova de gestão de categorias.
 
-**Independent Test**: Can be fully tested by creating several categories with varying names and
-usage, then confirming search, the in-use/not-in-use filter, and each sort option each narrow or
-reorder the list correctly on their own.
+**Teste independente**: Pode ser testada por completo registrando um conjunto conhecido de
+transações numa categoria e confirmando que a lista de categorias informa a quantidade de
+transações e o saldo corretos para ela, e zero/zero para uma categoria sem transações.
 
-**Acceptance Scenarios**:
+**Cenários de aceitação**:
 
-1. **Given** several categories exist, **When** a user searches by part of a name, **Then**
-   only categories whose name contains that text are shown.
-2. **Given** some categories have transactions and others do not, **When** a user filters to
-   "in use" or "not in use", **Then** only the matching categories are shown.
-3. **Given** categories with different names, transaction counts, and balances, **When** a user
-   sorts by name, activity, or balance (ascending or descending), **Then** the list is ordered
-   accordingly.
+1. **Dado que** uma categoria tem três transações que somam um total conhecido, **Quando** a lista
+   de categorias é exibida, **Então** essa categoria mostra a quantidade três e o saldo somado
+   correto.
+2. **Dado que** uma categoria não tem transações, **Quando** a lista de categorias é exibida,
+   **Então** ela mostra quantidade zero e saldo zero.
+3. **Dado que** o usuário pede o uso de um mês específico, **Quando** a lista de categorias é
+   exibida, **Então** só as transações com data dentro desse mês entram nos totais de cada
+   categoria.
 
 ---
 
-### Edge Cases
+### História de usuário 3 - Filtrar uma lista longa de categorias (Prioridade: P3)
 
-- A category name that is blank, whitespace-only, or longer than 100 characters is rejected
-  outright, on both create and edit.
-- Leading/trailing spaces in a name are trimmed automatically rather than treated as making it a
-  different category.
-- A color that is not a valid color code is rejected outright, on both create and edit.
-- Viewing, editing, or deleting a category that does not exist (or was already deleted) is
-  rejected with a clear "not found" outcome.
-- Deleting a category that still has transactions is refused rather than silently orphaning
-  those transactions.
-- A search or filter combination that matches nothing returns an empty list, not an error.
-- A transaction dated on the very first or very last moment of a month still counts toward that
-  month's usage totals for its category.
+Como alguém com muitas categorias, quero buscar pelo nome, mostrar só as categorias em uso (ou só
+as sem uso) e ordenar por nome, atividade ou saldo, para encontrar ou comparar rapidamente as
+categorias que me interessam.
 
-## Requirements *(mandatory)*
+**Por que esta prioridade**: É só um refinamento da navegação numa lista que já funciona
+(Histórias 1-2). Ganha valor quando a lista de categorias cresce, mas não é necessário para a
+feature ser útil desde o primeiro dia.
 
-### Functional Requirements
+**Teste independente**: Pode ser testada por completo criando várias categorias com nomes e usos
+variados e confirmando que a busca, o filtro em uso/sem uso e cada opção de ordenação, cada um por
+si, filtram ou reordenam a lista corretamente.
 
-- **FR-001**: The system MUST allow a user to create a category by providing a name and a
-  color.
-- **FR-002**: The system MUST reject a category name that is empty, whitespace-only, or longer
-  than 100 characters, explaining what is wrong.
-- **FR-003**: The system MUST trim leading and trailing whitespace from a category name rather
-  than treating it as significant.
-- **FR-004**: The system MUST reject a color value that is not a valid color code, explaining
-  what is wrong.
-- **FR-005**: The system MUST allow a user to view an individual category's details.
-- **FR-006**: The system MUST allow a user to view the full list of categories.
-- **FR-007**: The system MUST allow a user to rename a category and/or change its color at any
-  time, subject to the same validation as creation.
-- **FR-008**: The system MUST allow a user to delete a category that has no transactions
-  associated with it.
-- **FR-009**: The system MUST refuse to delete a category that has one or more transactions
-  associated with it, and MUST explain why.
-- **FR-010**: The system MUST reject any attempt to view, edit, or delete a category that does
-  not exist, with a clear "not found" outcome.
-- **FR-011**: For every category shown in the list, the system MUST report the number of
-  transactions associated with it and the resulting balance (the sum of those transactions'
-  values).
-- **FR-012**: The system MUST allow a user to restrict a category's reported transaction count
-  and balance to a single calendar month.
-- **FR-013**: The system MUST allow a user to filter the category list to only categories with
-  at least one transaction, or only those with none.
-- **FR-014**: The system MUST allow a user to search the category list by partial name match.
-- **FR-015**: The system MUST allow a user to sort the category list by name, transaction
-  count, or balance, in ascending or descending order, defaulting to name ascending.
+**Cenários de aceitação**:
 
-### Key Entities *(include if feature involves data)*
+1. **Dado que** existem várias categorias, **Quando** o usuário busca por parte de um nome,
+   **Então** só aparecem as categorias cujo nome contém esse texto.
+2. **Dado que** algumas categorias têm transações e outras não, **Quando** o usuário filtra por
+   "em uso" ou "sem uso", **Então** só aparecem as categorias correspondentes.
+3. **Dado que** existem categorias com nomes, quantidades de transações e saldos diferentes,
+   **Quando** o usuário ordena por nome, atividade ou saldo (em ordem crescente ou decrescente),
+   **Então** a lista é ordenada de acordo.
 
-- **Category**: A user-defined label used to group transactions, with a name and a color for
-  visual identification, plus creation and last-updated timestamps. A category can exist with
-  zero transactions.
-- **Transaction** *(existing entity, owned by its own feature)*: Each transaction belongs to
-  exactly one category. A category's transaction count and balance are derived entirely from the
-  transactions that reference it.
+---
 
-## Success Criteria *(mandatory)*
+### Casos-limite
 
-### Measurable Outcomes
+- Um nome de categoria em branco, só com espaços ou com mais de 100 caracteres é rejeitado de
+  imediato, tanto na criação quanto na edição.
+- Espaços no início e no fim do nome são removidos automaticamente, em vez de fazerem dele uma
+  categoria diferente.
+- Uma cor que não seja um código de cor válido é rejeitada de imediato, tanto na criação quanto na
+  edição.
+- Visualizar, editar ou excluir uma categoria que não existe (ou que já foi excluída) é rejeitado
+  com um resultado claro de "não encontrada".
+- A exclusão de uma categoria que ainda tem transações é recusada, em vez de deixar essas
+  transações órfãs sem aviso.
+- Uma busca ou combinação de filtros sem nenhum resultado devolve uma lista vazia, e não um erro.
+- Uma transação com data no primeiro ou no último instante de um mês ainda entra nos totais de uso
+  desse mês para a sua categoria.
 
-- **SC-001**: A user can create a usable category (name and color) in a single step, with it
-  immediately visible in their category list.
-- **SC-002**: A user can state any shown category's transaction count and balance without
-  performing a single manual calculation — the figures are visible for 100% of categories in the
-  list.
-- **SC-003**: Attempting to delete a category that is still in use never results in lost or
-  orphaned transaction history — 100% of such attempts are blocked.
-- **SC-004**: In a list of any size, a user can locate a specific category by typing part of its
-  name, or by filtering to only categories that are (or are not) in use.
-- **SC-005**: A user can name their single most- or least-active category, for a given month or
-  for all time, in one sorting action — with no need to cross-reference individual
-  transactions.
+## Requisitos *(obrigatório)*
 
-## Assumptions
+### Requisitos funcionais
 
-These document the capability's current, verified behavior (this is a retroactive spec), rather
-than open defaults chosen for a new feature:
+- **FR-001**: O sistema DEVE permitir que o usuário crie uma categoria informando um nome e uma
+  cor.
+- **FR-002**: O sistema DEVE rejeitar um nome de categoria vazio, só com espaços ou com mais de 100
+  caracteres, explicando o que está errado.
+- **FR-003**: O sistema DEVE remover os espaços no início e no fim do nome da categoria, em vez de
+  tratá-los como significativos.
+- **FR-004**: O sistema DEVE rejeitar um valor de cor que não seja um código de cor válido,
+  explicando o que está errado.
+- **FR-005**: O sistema DEVE permitir que o usuário veja os detalhes de uma categoria específica.
+- **FR-006**: O sistema DEVE permitir que o usuário veja a lista completa de categorias.
+- **FR-007**: O sistema DEVE permitir que o usuário renomeie uma categoria e/ou mude a sua cor a
+  qualquer momento, com a mesma validação da criação.
+- **FR-008**: O sistema DEVE permitir que o usuário exclua uma categoria que não tenha transações
+  associadas.
+- **FR-009**: O sistema DEVE recusar a exclusão de uma categoria que tenha uma ou mais transações
+  associadas, e DEVE explicar o motivo.
+- **FR-010**: O sistema DEVE rejeitar qualquer tentativa de visualizar, editar ou excluir uma
+  categoria inexistente, com um resultado claro de "não encontrada".
+- **FR-011**: Para cada categoria exibida na lista, o sistema DEVE informar a quantidade de
+  transações associadas e o saldo resultante (a soma dos valores dessas transações).
+- **FR-012**: O sistema DEVE permitir que o usuário restrinja a quantidade de transações e o saldo
+  informados de uma categoria a um único mês do calendário.
+- **FR-013**: O sistema DEVE permitir que o usuário filtre a lista para mostrar só as categorias
+  com pelo menos uma transação, ou só as que não têm nenhuma.
+- **FR-014**: O sistema DEVE permitir que o usuário busque na lista de categorias por parte do
+  nome.
+- **FR-015**: O sistema DEVE permitir que o usuário ordene a lista de categorias por nome,
+  quantidade de transações ou saldo, em ordem crescente ou decrescente, com o padrão nome em ordem
+  crescente.
 
-- Category names are not required to be unique; two categories may currently share the same
-  name.
-- A color is any valid hex color code; there is no fixed palette or named-color list beyond
-  validity.
-- There is no "reassign transactions, then delete" flow — a category with any transactions must
-  have those transactions removed or recategorized elsewhere before it can be deleted.
-- A "month" for usage scoping always means a full calendar month (its first moment through its
-  last), not a rolling 30-day window.
-- The category list is not paginated; all categories are returned together. This spec does not
-  assume that changes as category counts grow.
-- Who may manage categories (single user vs. multiple users/accounts, permissions) is out of
-  scope here — this spec assumes the same single-tenant usage model as the rest of the
-  application.
+### Entidades principais *(inclua se a feature envolver dados)*
+
+- **Categoria**: Um rótulo definido pelo usuário para agrupar transações, com um nome e uma cor
+  para identificação visual, além das datas de criação e da última atualização. Uma categoria
+  pode existir sem nenhuma transação.
+- **Transação** *(entidade existente, de outra feature)*: Cada transação pertence a exatamente uma
+  categoria. A quantidade de transações e o saldo de uma categoria são derivados inteiramente das
+  transações que a referenciam.
+
+## Critérios de sucesso *(obrigatório)*
+
+### Resultados mensuráveis
+
+- **SC-001**: O usuário consegue criar uma categoria utilizável (nome e cor) em um único passo, e
+  ela aparece imediatamente na sua lista de categorias.
+- **SC-002**: O usuário consegue dizer a quantidade de transações e o saldo de qualquer categoria
+  exibida sem fazer nenhum cálculo manual — os números aparecem para 100% das categorias da lista.
+- **SC-003**: Tentar excluir uma categoria ainda em uso nunca resulta em histórico de transações
+  perdido ou órfão — 100% dessas tentativas são bloqueadas.
+- **SC-004**: Numa lista de qualquer tamanho, o usuário consegue localizar uma categoria
+  específica digitando parte do nome, ou filtrando só as categorias em uso (ou só as sem uso).
+- **SC-005**: O usuário consegue apontar a sua categoria mais ativa ou menos ativa, num mês
+  específico ou em todo o período, com uma única ação de ordenação — sem precisar cruzar
+  transações individuais.
+
+## Premissas
+
+Estas premissas documentam o comportamento atual e verificado da capacidade (esta é uma spec
+retroativa), e não padrões em aberto escolhidos para uma feature nova:
+
+- Os nomes de categoria não precisam ser únicos; hoje, duas categorias podem ter o mesmo nome.
+- Uma cor é qualquer código de cor hexadecimal válido; não há paleta fixa nem lista de cores
+  nomeadas, só a exigência de validade.
+- Não existe um fluxo de "reatribuir as transações e depois excluir" — as transações de uma
+  categoria precisam ser removidas ou movidas para outra categoria antes que ela possa ser
+  excluída.
+- Um "mês", no recorte do uso, é sempre um mês do calendário inteiro (do primeiro ao último
+  instante), e não uma janela móvel de 30 dias.
+- A lista de categorias não é paginada; todas as categorias vêm juntas. Esta spec não supõe que
+  isso mude quando a quantidade de categorias crescer.
+- Quem pode gerenciar as categorias (um único usuário ou vários usuários/contas, permissões) está
+  fora do escopo — esta spec supõe o mesmo modelo de uso single-tenant do resto da aplicação.

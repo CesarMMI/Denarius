@@ -1,89 +1,89 @@
-# Quickstart: Validating Transaction Management
+# Guia rápido: validação da gestão de transações
 
-This feature is already implemented; this guide validates that it still works, not how to build
-it. Field-level rules are in [data-model.md](./data-model.md); the full request/response shapes
-are in [contracts/transactions-api.yaml](./contracts/transactions-api.yaml).
+Esta feature já está implementada; este guia confere que ela continua funcionando, e não como
+construí-la. As regras de cada campo estão em [data-model.md](./data-model.md); os formatos
+completos de requisição/resposta estão em [contracts/transactions-api.yaml](./contracts/transactions-api.yaml).
 
-## Prerequisites
+## Pré-requisitos
 
-- .NET 10 SDK
-- PostgreSQL reachable at the connection string under `ConnectionStrings:DenariusDb` (already
-  set for local dev in `src/Denarius.WebAPI/appsettings.Development.json`)
-- Schema up to date:
+- SDK do .NET 10
+- PostgreSQL acessível pela connection string em `ConnectionStrings:DenariusDb` (já configurada
+  para o desenvolvimento local em `src/Denarius.WebAPI/appsettings.Development.json`)
+- Esquema do banco atualizado:
   ```
   dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI
   ```
-- At least one existing category to attach transactions to — see
-  [001-category-management/quickstart.md](../001-category-management/quickstart.md) step 2 if one
-  doesn't exist yet.
+- Pelo menos uma categoria existente para vincular as transações — veja o passo 2 de
+  [001-category-management/quickstart.md](../001-category-management/quickstart.md) se ainda não
+  existir nenhuma.
 
-## Automated validation (primary — no running server needed)
+## Validação automatizada (a principal — não precisa de servidor rodando)
 
-Run just the Transaction-related suites:
+Rode só as suítes relacionadas a Transaction:
 
 ```
 dotnet test tests/Denarius.Domain.Tests --filter FullyQualifiedName~TransactionTests
 dotnet test tests/Denarius.Application.Tests --filter FullyQualifiedName~Transactions
 ```
 
-Expected: all tests pass. Together they exercise every functional requirement in `spec.md`
-(FR-001…FR-018) except the HTTP layer itself, which
-`tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` covers separately (see
-`research.md` → Test coverage gap).
+Esperado: todos os testes passam. Juntas, elas exercitam todos os requisitos funcionais do
+`spec.md` (FR-001…FR-018), exceto a própria camada HTTP, que o
+`tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` cobre à parte (veja
+`research.md` → Lacuna de cobertura de testes).
 
-Or the full suite, matching Constitution Principle IV:
+Ou a suíte completa, como pede o Princípio IV da constituição:
 
 ```
 dotnet test
 ```
 
-## Manual end-to-end smoke test (also exercises the HTTP layer)
+## Smoke test manual de ponta a ponta (também exercita a camada HTTP)
 
-1. Start the API: `dotnet run --project src/Denarius.WebAPI` (HTTP profile listens on
-   `http://localhost:5276`, per `launchSettings.json`).
-2. Create a category to attach the transaction to (skip if one already exists):
+1. Suba a API: `dotnet run --project src/Denarius.WebAPI` (o perfil HTTP escuta em
+   `http://localhost:5276`, conforme o `launchSettings.json`).
+2. Crie uma categoria para vincular a transação (pule se já existir uma):
    ```
    curl -i -X POST http://localhost:5276/api/categories \
      -H "Content-Type: application/json" \
      -d '{"name":"Mercado","color":"#FF0000"}'
    ```
-   Note the returned `id` as `{categoryId}`.
-3. Create a transaction:
+   Anote o `id` devolvido como `{categoryId}`.
+3. Crie uma transação:
    ```
    curl -i -X POST http://localhost:5276/api/transactions \
      -H "Content-Type: application/json" \
      -d '{"description":"Compras da semana","date":"2026-09-15T00:00:00Z","value":-150.75,"categoryId":"{categoryId}"}'
    ```
-   Expected: `201 Created`, a `Location: /api/transactions/{id}` header, body echoes the
-   transaction with the negative value preserved (User Story 1, scenario 1).
-4. List transactions: `curl http://localhost:5276/api/transactions` — expect the new transaction
-   in the array, alongside every other transaction currently recorded, most recent first
-   (User Story 2). Then narrow and reorder the list (User Story 3):
+   Esperado: `201 Created`, um cabeçalho `Location: /api/transactions/{id}` e um corpo que devolve
+   a transação com o valor negativo preservado (História de usuário 1, cenário 1).
+4. Liste as transações: `curl http://localhost:5276/api/transactions` — espere a transação nova no
+   array, junto com todas as outras transações registradas, das mais recentes para as mais antigas
+   (História de usuário 2). Depois filtre e reordene a lista (História de usuário 3):
    - `curl "http://localhost:5276/api/transactions?description=COMPRAS&dateRef=2026-09-01&type=out&categoryId={categoryId}"`
-     — expect the new transaction (case-insensitive description match, September 2026,
-     negative value, its category).
-   - `curl "http://localhost:5276/api/transactions?type=in&categoryId={categoryId}"` — expect it
-     absent (it is money spent).
+     — espere a transação nova (busca na descrição sem diferenciar maiúsculas de minúsculas,
+     setembro de 2026, valor negativo, a categoria dela).
+   - `curl "http://localhost:5276/api/transactions?type=in&categoryId={categoryId}"` — espere que
+     ela não apareça (é dinheiro gasto).
    - `curl "http://localhost:5276/api/transactions?dateRef=2026-08-01&categoryId={categoryId}"` —
-     expect it absent (different month).
-   - `curl "http://localhost:5276/api/transactions?orderBy=value&asc=true"` — expect the array
-     ordered by signed value, largest expense first.
-   - `curl -i "http://localhost:5276/api/transactions?type=invalid"` — expect `400` with a
-     validation `ProblemDetails` body.
-5. Update it:
+     espere que ela não apareça (outro mês).
+   - `curl "http://localhost:5276/api/transactions?orderBy=value&asc=true"` — espere o array
+     ordenado pelo valor com sinal, com a maior despesa primeiro.
+   - `curl -i "http://localhost:5276/api/transactions?type=invalid"` — espere `400` com um corpo
+     `ProblemDetails` de validação.
+5. Atualize-a:
    ```
    curl -i -X PUT http://localhost:5276/api/transactions/{id} \
      -H "Content-Type: application/json" \
      -d '{"description":"","date":"2026-09-16T00:00:00Z","value":200.00,"categoryId":"{categoryId}"}'
    ```
-   Expected: `200`, date/value changed, `description` becomes `null` (blank normalizes to no
-   description — User Story 1, scenario 2 and 5).
-6. Delete it: `curl -i -X DELETE http://localhost:5276/api/transactions/{id}` — expect `204`,
-   with no dependent-data refusal (User Story 1, scenario 3; contrast with the Category
-   delete-guard).
-7. Confirm removal: repeat step 4's unfiltered list — expect the transaction to be gone.
-8. Validation edge case: repeat step 3 with `"value":0` or an omitted `"date"` — expect `400`
-   with a `ProblemDetails` body explaining what's wrong (User Story 1, scenario 4).
-9. Referential edge case: repeat step 3 with a random `categoryId` (e.g.
-   `"00000000-0000-0000-0000-000000000000"`) — expect `404` explaining the category was not
-   found.
+   Esperado: `200`, data/valor alterados e `description` passa a ser `null` (em branco é
+   normalizado para sem descrição — História de usuário 1, cenários 2 e 5).
+6. Exclua-a: `curl -i -X DELETE http://localhost:5276/api/transactions/{id}` — espere `204`, sem
+   recusa por dados dependentes (História de usuário 1, cenário 3; compare com a proteção de
+   exclusão de Category).
+7. Confirme a remoção: repita a lista sem filtros do passo 4 — a transação não deve mais aparecer.
+8. Caso-limite de validação: repita o passo 3 com `"value":0` ou sem o `"date"` — espere `400` com
+   um corpo `ProblemDetails` explicando o que está errado (História de usuário 1, cenário 4).
+9. Caso-limite referencial: repita o passo 3 com um `categoryId` aleatório (por exemplo,
+   `"00000000-0000-0000-0000-000000000000"`) — espere `404` explicando que a categoria não foi
+   encontrada.

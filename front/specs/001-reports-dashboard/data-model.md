@@ -1,11 +1,11 @@
-# Data Model: Reports Dashboard
+# Modelo de dados: Painel de relatórios
 
-The front stores nothing. Its model is the five report shapes it receives, typed in
-`src/app/reports/types/report.ts` to mirror `back/specs/003-financial-reports/contracts/reports-api.yaml`
-(money is `number` here — the API sends decimals as JSON numbers; months are `YYYY-MM` strings; dates are
-ISO strings at UTC midnight).
+O front não armazena nada. O seu modelo são os formatos dos cinco relatórios que ele recebe, tipados em
+`src/app/reports/types/report.ts` para espelhar `back/specs/003-financial-reports/contracts/reports-api.yaml`
+(dinheiro é `number` aqui — a API envia decimais como números JSON; os meses são strings `YYYY-MM`; as datas são
+strings ISO à meia-noite UTC).
 
-## Types
+## Tipos
 
 ```ts
 interface MonthlySummary {
@@ -72,19 +72,19 @@ interface MonthlyTransaction {
 }
 ```
 
-## Page state (`ReportsPage`)
+## Estado da página (`ReportsPage`)
 
-| State                                                                                    | Type                           | Rule                                                                                                                                                                      |
+| Estado                                                                                   | Tipo                           | Regra                                                                                                                                                                     |
 | ---------------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `month`                                                                                  | `WritableSignal<Date \| null>` | Day 1 of the selected month, local time; starts on the current month in São Paulo. Two-way bound to the month field; "Mês anterior" / "Próximo mês" move it by one month. |
-| `summary`, `expensesByCategory`, `incomeVsExpense`, `cumulativeExpenses`, `transactions` | `HttpResourceRef<…>`           | One per block, each from `ReportsService` with `month()`; a new month reloads all five, `retry` from a block reloads its own.                                             |
+| `month`                                                                                  | `WritableSignal<Date \| null>` | Dia 1 do mês selecionado, no horário local; começa no mês atual em São Paulo. Tem binding bidirecional com o campo de mês; "Mês anterior" / "Próximo mês" o movem um mês. |
+| `summary`, `expensesByCategory`, `incomeVsExpense`, `cumulativeExpenses`, `transactions` | `HttpResourceRef<…>`           | Um por bloco, cada um do `ReportsService` com `month()`; um mês novo recarrega os cinco, e o `retry` de um bloco recarrega só o dele.                                     |
 
-## Derived view state (per block)
+## Estado derivado da visão (por bloco)
 
-| Block                 | Empty when                                  | Shows                                                                                                                                                                     |
-| --------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Summary cards         | income and expense are both 0               | 5 cards, expenses as negative values without color; changes as ↑/↓ + percent + "vs. {previous month}", good/bad color by metric                                           |
-| Expenses by category  | `items` is empty                            | doughnut, at most five slices (past five items, the four largest and "Outras" with the rest, its share recomputed from `total`), category color, "Outras" neutral         |
-| Income vs. expense    | every month has income and expense 0        | grouped columns per month, income green, expense red                                                                                                                      |
-| Cumulative comparison | every accumulated value of both series is 0 | two lines over days 1…max(days), current red, previous neutral                                                                                                            |
-| Transactions list     | the list is empty                           | title with the month's count; table of the first ten (newest): dd/MM, description + category, signed amount (red when `out`); "Ver todas" → `/transactions?month=YYYY-MM` |
+| Bloco                  | Vazio quando                                      | Mostra                                                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cards de resumo        | receita e despesa são ambas 0                     | 5 cards, despesas como valores negativos sem cor; variações como ↑/↓ + percentual + "vs. {mês anterior}", cor boa/ruim por métrica                                                           |
+| Despesas por categoria | `items` está vazio                                | rosca, com no máximo cinco fatias (com mais de cinco itens, as quatro maiores e "Outras" com o resto, a sua participação recalculada a partir do `total`), cor da categoria, "Outras" neutra |
+| Receitas vs. despesas  | todos os meses têm receita e despesa 0            | colunas agrupadas por mês, receita verde, despesa vermelha                                                                                                                                   |
+| Comparação acumulada   | todos os valores acumulados das duas séries são 0 | duas linhas sobre os dias 1…max(dias), atual em vermelho, anterior neutra                                                                                                                    |
+| Lista de transações    | a lista está vazia                                | título com a contagem do mês; tabela das dez primeiras (mais recentes): dd/MM, descrição + categoria, valor com sinal (vermelho quando `out`); "Ver todas" → `/transactions?month=YYYY-MM`   |

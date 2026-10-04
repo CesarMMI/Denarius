@@ -1,20 +1,20 @@
 openapi: 3.0.3
 info:
-  title: Denarius Transactions API
+  title: API de transações do Denarius
   description: >
-    Contract for the existing Transaction management endpoints, as implemented by
-    Denarius.WebAPI.Controllers.TransactionsController. Documents shipped behavior; not a
-    proposal. 1.1.0 (2026-09-24) added the optional List query parameters (additive change).
+    Contrato dos endpoints existentes de gestão de transações, como implementados por
+    Denarius.WebAPI.Controllers.TransactionsController. Documenta o comportamento entregue; não é
+    uma proposta. A 1.1.0 (2026-09-24) adicionou os parâmetros de query opcionais do List (mudança aditiva).
   version: "1.1.0"
 paths:
   /api/transactions:
     get:
-      summary: List transactions
+      summary: Listar transações
       operationId: listTransactions
       description: >
-        Returns every transaction matching all of the given filters, in the requested order.
-        With no parameters, returns every recorded transaction, most recent first. No
-        pagination.
+        Devolve todas as transações que atendem a todos os filtros informados, na ordem pedida.
+        Sem parâmetros, devolve todas as transações registradas, das mais recentes para as mais
+        antigas. Sem paginação.
       parameters:
         - name: description
           in: query
@@ -22,15 +22,15 @@ paths:
           schema:
             type: string
           description: >
-            Partial, case-insensitive match against Transaction.description (trimmed; blank is
-            ignored). Transactions with no description never match.
+            Busca parcial, sem diferenciar maiúsculas de minúsculas, em Transaction.description (com
+            trim; em branco é ignorada). Transações sem descrição nunca aparecem.
         - name: dateRef
           in: query
           required: false
           schema:
             type: string
             format: date-time
-          description: Any date within the calendar month to keep transactions from.
+          description: Qualquer data dentro do mês do calendário cujas transações devem ser mantidas.
         - name: type
           in: query
           required: false
@@ -42,15 +42,15 @@ paths:
           schema:
             type: string
             format: uuid
-          description: Keep only transactions of this category.
+          description: Mantém só as transações desta categoria.
         - name: orderBy
           in: query
           required: false
           schema:
             $ref: '#/components/schemas/TransactionOrderField'
           description: >-
-            Orders the whole list. Ties fall back to the most recent date, then creation time;
-            ordering by `date`, they follow its direction.
+            Ordena a lista inteira. Empates são desfeitos pela data mais recente e depois pelo
+            horário de criação; ordenando por `date`, eles seguem a direção dela.
         - name: asc
           in: query
           required: false
@@ -59,7 +59,7 @@ paths:
             default: false
       responses:
         '200':
-          description: Transactions matching the given filters, in the requested order.
+          description: Transações que atendem aos filtros informados, na ordem pedida.
           content:
             application/json:
               schema:
@@ -68,14 +68,14 @@ paths:
                   $ref: '#/components/schemas/TransactionOutput'
         '400':
           description: >
-            Unknown type or orderBy value, or a malformed categoryId (model-binding validation
-            problem produced by [ApiController]).
+            Valor desconhecido de type ou orderBy, ou um categoryId malformado (problema de
+            validação do model binding produzido pelo [ApiController]).
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
     post:
-      summary: Create a transaction
+      summary: Criar uma transação
       operationId: createTransaction
       requestBody:
         required: true
@@ -85,7 +85,7 @@ paths:
               $ref: '#/components/schemas/CreateTransactionInput'
       responses:
         '201':
-          description: Transaction created.
+          description: Transação criada.
           headers:
             Location:
               schema:
@@ -96,20 +96,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/TransactionOutput'
         '400':
-          description: Invalid date, value, or description.
+          description: Data, valor ou descrição inválidos.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
         '404':
-          description: The referenced category does not exist.
+          description: A categoria referenciada não existe.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
   /api/transactions/{id}:
     put:
-      summary: Update a transaction
+      summary: Atualizar uma transação
       operationId: updateTransaction
       parameters:
         - $ref: '#/components/parameters/TransactionId'
@@ -121,33 +121,33 @@ paths:
               $ref: '#/components/schemas/UpdateTransactionInput'
       responses:
         '200':
-          description: Transaction updated.
+          description: Transação atualizada.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransactionOutput'
         '400':
-          description: Invalid date, value, or description.
+          description: Data, valor ou descrição inválidos.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
         '404':
-          description: No transaction exists with the given id, or the referenced category does not exist.
+          description: Não existe transação com o id informado, ou a categoria referenciada não existe.
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
-      summary: Delete a transaction
+      summary: Excluir uma transação
       operationId: deleteTransaction
       parameters:
         - $ref: '#/components/parameters/TransactionId'
       responses:
         '204':
-          description: Transaction deleted. Never blocked by other data.
+          description: Transação excluída. Nunca é bloqueada por outros dados.
         '404':
-          description: No transaction exists with the given id.
+          description: Não existe transação com o id informado.
           content:
             application/problem+json:
               schema:
@@ -167,13 +167,13 @@ components:
       enum: [all, in, out]
       default: all
       description: >
-        All = no filter; In = value > 0 (money received); Out = value < 0 (money spent). Bound
-        case-insensitively, so all/in/out are accepted.
+        All = sem filtro; In = value > 0 (dinheiro recebido); Out = value < 0 (dinheiro gasto). O
+        binding não diferencia maiúsculas de minúsculas, então all/in/out são aceitos.
     TransactionOrderField:
       type: string
       enum: [date, description, value, categoryName]
       default: date
-      description: Value sorts by the signed value; CategoryName sorts by the category's current name.
+      description: Value ordena pelo valor com sinal; CategoryName ordena pelo nome atual da categoria.
     TransactionOutput:
       type: object
       properties:
@@ -195,7 +195,7 @@ components:
         value:
           type: number
           format: decimal
-          description: Positive (money received) or negative (money spent); never zero.
+          description: Positivo (dinheiro recebido) ou negativo (dinheiro gasto); nunca zero.
         categoryId:
           type: string
           format: uuid
@@ -213,11 +213,11 @@ components:
         value:
           type: number
           format: decimal
-          description: Must not be zero.
+          description: Não pode ser zero.
         categoryId:
           type: string
           format: uuid
-          description: Must reference an existing category.
+          description: Precisa referenciar uma categoria existente.
       required: [date, value, categoryId]
     UpdateTransactionInput:
       type: object
@@ -238,7 +238,7 @@ components:
       required: [date, value, categoryId]
     ProblemDetails:
       type: object
-      description: RFC 7807 problem details, as produced by GlobalExceptionHandler.
+      description: Problem details da RFC 7807, como gerados pelo GlobalExceptionHandler.
       properties:
         status:
           type: integer

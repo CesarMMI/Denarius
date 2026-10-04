@@ -1,74 +1,75 @@
-# Data Model: Transaction Management
+# Modelo de dados: Gestão de transações
 
 ## Transaction
 
-Represents a single recorded movement of money.
+Representa uma movimentação de dinheiro registrada.
 
-| Field | Type | Rules |
+| Campo | Tipo | Regras |
 |---|---|---|
-| `Id` | `Guid` | Generated on creation (`Guid.NewGuid()`); immutable. |
-| `Description` | `string?` | Optional; trimmed; blank/whitespace-only normalizes to `null` rather than being rejected; up to 255 characters after trimming, throws `DomainException` if longer. |
-| `Date` | `DateTime` | Required; `default(DateTime)` (unset) throws `DomainException`. |
-| `Value` | `decimal` | Required; any nonzero value — positive (money received) or negative (money spent); `0` throws `DomainException`. |
-| `CategoryId` | `Guid` | Required; `Guid.Empty` throws `DomainException` at the entity level. Existence of the referenced `Category` is checked one layer up (see below). |
-| `CreatedAt` | `DateTime` (UTC) | Set once at creation; immutable. |
-| `UpdatedAt` | `DateTime` (UTC) | Set at creation; refreshed by `Update()`. |
+| `Id` | `Guid` | Gerado na criação (`Guid.NewGuid()`); imutável. |
+| `Description` | `string?` | Opcional; com trim; em branco/só espaços é normalizada para `null`, em vez de ser rejeitada; até 255 caracteres depois do trim, lança `DomainException` se for maior. |
+| `Date` | `DateTime` | Obrigatório; `default(DateTime)` (não definido) lança `DomainException`. |
+| `Value` | `decimal` | Obrigatório; qualquer valor diferente de zero — positivo (dinheiro recebido) ou negativo (dinheiro gasto); `0` lança `DomainException`. |
+| `CategoryId` | `Guid` | Obrigatório; `Guid.Empty` lança `DomainException` na entidade. A existência da `Category` referenciada é verificada uma camada acima (veja abaixo). |
+| `CreatedAt` | `DateTime` (UTC) | Definido uma vez, na criação; imutável. |
+| `UpdatedAt` | `DateTime` (UTC) | Definido na criação; atualizado por `Update()`. |
 
-Behavior:
+Comportamento:
 
-- `Transaction(description, date, value, categoryId)` — constructs a new transaction; validates
-  and normalizes `description`, validates `date`, `value`, and `categoryId`.
-- `Update(description, date, value, categoryId)` — re-validates and replaces all four fields;
-  refreshes `UpdatedAt`. A failed validation leaves the existing instance unchanged (the
-  exception is thrown before any field is reassigned).
-- No soft-delete or status field: a transaction either exists or has been hard-deleted, with no
-  guard based on other data (contrast with `Category`, which refuses deletion while referenced).
+- `Transaction(description, date, value, categoryId)` — cria uma transação nova; valida e
+  normaliza `description` e valida `date`, `value` e `categoryId`.
+- `Update(description, date, value, categoryId)` — valida de novo e substitui os quatro campos;
+  atualiza `UpdatedAt`. Uma validação que falha deixa a instância existente inalterada (a exceção
+  é lançada antes de qualquer campo ser reatribuído).
+- Sem soft delete nem campo de status: uma transação ou existe ou foi excluída fisicamente, sem
+  proteção baseada em outros dados (ao contrário de `Category`, que recusa a exclusão enquanto é
+  referenciada).
 
-## Relationship: Transaction → Category
+## Relacionamento: Transaction → Category
 
-- Each `Transaction.CategoryId` references exactly one `Category`
-  ([001-category-management](../001-category-management/data-model.md)); a `Category` has many
+- Cada `Transaction.CategoryId` referencia exatamente uma `Category`
+  ([001-category-management](../001-category-management/data-model.md)); uma `Category` tem muitas
   `Transaction`s.
-- Enforced at the database level: `FK_Transactions_Categories_CategoryId`,
-  `ON DELETE RESTRICT` — mirrors the direction described in
-  [001-category-management/data-model.md](../001-category-management/data-model.md), but from
-  the referencing side.
-- Enforced again at the application level: `CreateTransactionUseCase` and
-  `UpdateTransactionUseCase` both call `ICategoryRepository.GetByIdAsync(categoryId)` before
-  persisting, so an invalid/nonexistent category surfaces as a clean `404` `NotFoundException`
-  instead of a raw constraint-violation error.
-- `Transaction` holds no navigation property back to `Category`; only the raw `CategoryId` is
-  stored. Nothing else in the domain currently references a `Transaction` — deleting one is
-  unconditional.
+- Garantido no banco: `FK_Transactions_Categories_CategoryId`, `ON DELETE RESTRICT` — espelha a
+  direção descrita em
+  [001-category-management/data-model.md](../001-category-management/data-model.md), mas do lado
+  que referencia.
+- Garantido de novo na aplicação: `CreateTransactionUseCase` e `UpdateTransactionUseCase` chamam
+  `ICategoryRepository.GetByIdAsync(categoryId)` antes de persistir, para que uma categoria
+  inválida/inexistente apareça como um `404` limpo (`NotFoundException`) em vez de um erro cru de
+  violação de restrição.
+- `Transaction` não tem navigation property de volta para `Category`; só o `CategoryId` cru é
+  armazenado. Hoje, nada mais no domínio referencia uma `Transaction` — excluí-la é incondicional.
 
-## Persistence mapping (`Transactions` table)
+## Mapeamento de persistência (tabela `Transactions`)
 
-| Column | Type | Notes |
+| Coluna | Tipo | Observações |
 |---|---|---|
-| `Id` | `uuid` | Primary key. |
-| `Description` | `character varying(255)` | Nullable. |
+| `Id` | `uuid` | Chave primária. |
+| `Description` | `character varying(255)` | Anulável. |
 | `Date` | `timestamp with time zone` | `NOT NULL`. |
 | `Value` | `numeric(18,2)` | `NOT NULL`. |
-| `CategoryId` | `uuid` | `NOT NULL`; FK → `Categories.Id`, `ON DELETE RESTRICT`; indexed (`IX_Transactions_CategoryId`). |
+| `CategoryId` | `uuid` | `NOT NULL`; FK → `Categories.Id`, `ON DELETE RESTRICT`; indexado (`IX_Transactions_CategoryId`). |
 | `CreatedAt` | `timestamp with time zone` | `NOT NULL`. |
 | `UpdatedAt` | `timestamp with time zone` | `NOT NULL`. |
 
-No state transitions beyond create/update/delete — `Transaction` has no workflow or status
-field, and (unlike `Category`) no derived/computed fields are attached to it by any use case.
+Sem transições de estado além de criar/atualizar/excluir — `Transaction` não tem workflow nem
+campo de status e (ao contrário de `Category`) nenhum caso de uso lhe acrescenta campos
+derivados/calculados.
 
-## List query (`ListTransactionsInput`)
+## Consulta da lista (`ListTransactionsInput`)
 
-Application-layer input for `ListTransactionsUseCase` (User Story 3); not persisted. Every field
-is optional, and filters combine with AND.
+Entrada da camada Application para o `ListTransactionsUseCase` (História de usuário 3); não é
+persistida. Todos os campos são opcionais, e os filtros se combinam com AND.
 
-| Field | Type | Default | Rules |
+| Campo | Tipo | Padrão | Regras |
 |---|---|---|---|
-| `Description` | `string?` | `null` | Trimmed; partial, case-insensitive match against `Transaction.Description`. `null`/blank = no filter. Transactions with no description never match. |
-| `DateRef` | `DateTime?` | `null` | Any date within the target month; keeps transactions with `Date` from the first moment of that month through its last tick, inclusive. `null` = all months. |
-| `Type` | `TransactionType` | `All` | `All` = no filter; `In` = `Value > 0`; `Out` = `Value < 0`. |
-| `CategoryId` | `Guid?` | `null` | Keeps only transactions with that `CategoryId`. `null` = all categories. An id that matches no category just produces an empty list. |
-| `OrderBy` | `TransactionOrderField` | `Date` | `Date`, `Description`, `Value` (signed), or `CategoryName` (the referenced category's current name). Ties fall back to the most recent `Date`, then `CreatedAt`; ordering by `Date`, they follow its direction. |
-| `Ascending` | `bool` | `false` | `false` = descending; the default is most recent first. Applies to the `OrderBy` field. |
+| `Description` | `string?` | `null` | Com trim; busca parcial, sem diferenciar maiúsculas de minúsculas, em `Transaction.Description`. `null`/em branco = sem filtro. Transações sem descrição nunca aparecem. |
+| `DateRef` | `DateTime?` | `null` | Qualquer data dentro do mês desejado; mantém as transações com `Date` do primeiro instante desse mês até o último tick, inclusive. `null` = todos os meses. |
+| `Type` | `TransactionType` | `All` | `All` = sem filtro; `In` = `Value > 0`; `Out` = `Value < 0`. |
+| `CategoryId` | `Guid?` | `null` | Mantém só as transações com esse `CategoryId`. `null` = todas as categorias. Um id que não corresponde a nenhuma categoria só produz uma lista vazia. |
+| `OrderBy` | `TransactionOrderField` | `Date` | `Date`, `Description`, `Value` (com sinal) ou `CategoryName` (o nome atual da categoria referenciada). Empates são desfeitos pela `Date` mais recente e depois pelo `CreatedAt`; ordenando por `Date`, eles seguem a direção dela. |
+| `Ascending` | `bool` | `false` | `false` = decrescente; o padrão é mais recentes primeiro. Vale para o campo de `OrderBy`. |
 
-The output is still `IEnumerable<TransactionOutput>`, unchanged in shape — `CategoryName` is only
-a sort key and is not added to the response.
+A saída continua sendo `IEnumerable<TransactionOutput>`, com o formato inalterado — `CategoryName`
+é só uma chave de ordenação e não é adicionado à resposta.

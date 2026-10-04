@@ -1,99 +1,101 @@
-# Implementation Plan: Transaction Management
+# Plano de implementação: Gestão de transações
 
-**Branch**: `002-transaction-management` | **Date**: 2026-09-22 | **Spec**: [spec.md](./spec.md)
+**Branch**: `002-transaction-management` | **Data**: 2026-09-22 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `/specs/002-transaction-management/spec.md`
+**Entrada**: Especificação da feature em `/specs/002-transaction-management/spec.md`
 
-**Note**: This is a **retroactive** plan — it documents the design already shipped for this
-feature, verified against the source under `src/` and its test suites under `tests/`, rather
-than proposing new work. `/speckit-tasks` run against this plan should find nothing outstanding
-beyond the documentation gap noted under Research. Updated 2026-09-24 to cover User Story 3
-(list filtering and sorting), which was designed and shipped in the same change as this update.
+**Observação**: Este é um plano **retroativo** — documenta o design já entregue desta feature,
+conferido com o código em `src/` e as suítes de testes em `tests/`, em vez de propor trabalho
+novo. Um `/speckit-tasks` rodado sobre este plano não deve encontrar nada pendente além da lacuna
+de documentação apontada na pesquisa. Atualizado em 2026-09-24 para cobrir a História de usuário 3
+(filtro e ordenação da lista), projetada e entregue na mesma mudança desta atualização.
 
-## Summary
+## Resumo
 
-Transaction management provides CRUD over individual financial transactions — a date, a value
-(positive or negative), a required category reference, and an optional description. It is
-implemented as one vertical slice through the existing four-layer architecture: a
-self-validating `Transaction` domain entity enforces the business rules; four single-purpose
-Application use cases (Create/Update/Delete/List) orchestrate persistence, with
-Create/Update additionally verifying the referenced `Category` exists; EF Core persists
-`Transaction` to PostgreSQL with a restrict-on-delete foreign key to `Category`; a single
-`TransactionsController` exposes the use cases over REST; and `GlobalExceptionHandler` translates
-domain/not-found exceptions into `ProblemDetails` responses. Like
-[001-category-management](../001-category-management/plan.md), the `List` use case takes a
-`ListTransactionsInput` (description, `DateRef` month, type, category, `orderBy`/`asc`) and
-applies the filters and sort in memory over the loaded transactions; there is no pagination.
+A gestão de transações oferece CRUD de transações financeiras individuais — data, valor (positivo
+ou negativo), referência obrigatória a uma categoria e descrição opcional. Ela é implementada como
+uma única fatia vertical pela arquitetura de quatro camadas existente: a entidade de domínio
+`Transaction`, que se autovalida, impõe as regras de negócio; quatro casos de uso da camada
+Application, cada um com um único propósito (Create/Update/Delete/List), orquestram a
+persistência, e Create/Update também verificam se a `Category` referenciada existe; o EF Core
+persiste `Transaction` no PostgreSQL, com uma chave estrangeira restrict-on-delete para
+`Category`; um único `TransactionsController` expõe os casos de uso via REST; e o
+`GlobalExceptionHandler` converte as exceções de domínio/não encontrado em respostas
+`ProblemDetails`. Como em [001-category-management](../001-category-management/plan.md), o caso de
+uso `List` recebe um `ListTransactionsInput` (descrição, mês `DateRef`, tipo, categoria,
+`orderBy`/`asc`) e aplica os filtros e a ordenação em memória sobre as transações carregadas; não
+há paginação.
 
-## Technical Context
+## Contexto técnico
 
-**Language/Version**: C# 13 / .NET 10 (`net10.0`)
+**Linguagem/versão**: C# 13 / .NET 10 (`net10.0`)
 
-**Primary Dependencies**: ASP.NET Core (`Microsoft.AspNetCore.OpenApi`) for the web host; Entity
-Framework Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` for persistence;
-`Microsoft.Extensions.DependencyInjection.Abstractions` for the Application layer's DI contracts
+**Dependências principais**: ASP.NET Core (`Microsoft.AspNetCore.OpenApi`) para o host web; Entity
+Framework Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` para a persistência;
+`Microsoft.Extensions.DependencyInjection.Abstractions` para os contratos de DI da camada
+Application
 
-**Storage**: PostgreSQL, accessed via EF Core code-first migrations
-(`Denarius.Infrastructure/Migrations`); a `Transactions` table with a restrict-on-delete foreign
-key to `Categories.Id` and a non-unique index on `CategoryId`
+**Armazenamento**: PostgreSQL, acessado via migrations code-first do EF Core
+(`Denarius.Infrastructure/Migrations`); uma tabela `Transactions` com uma chave estrangeira
+restrict-on-delete para `Categories.Id` e um índice não único em `CategoryId`
 
-**Testing**: xUnit across all three test projects; `Denarius.Domain.Tests` and
-`Denarius.Application.Tests` use NSubstitute for repository/unit-of-work doubles;
-`Denarius.WebAPI.Tests` uses `Microsoft.AspNetCore.TestHost` for in-process integration tests
+**Testes**: xUnit nos três projetos de teste; `Denarius.Domain.Tests` e
+`Denarius.Application.Tests` usam NSubstitute para os dublês de repositório/unit of work;
+`Denarius.WebAPI.Tests` usa `Microsoft.AspNetCore.TestHost` para testes de integração in-process
 
-**Target Platform**: ASP.NET Core Web API (server-side), consumed by the Denarius Angular
-front-end (separate `front/` project) and reachable at `api/transactions`
+**Plataforma-alvo**: ASP.NET Core Web API (lado do servidor), consumida pelo front-end Angular do
+Denarius (projeto separado, `front/`) e acessível em `api/transactions`
 
-**Project Type**: web — backend half of a two-project web application; this plan covers the
-backend only
+**Tipo de projeto**: web — a metade backend de uma aplicação web de dois projetos; este plano
+cobre só o backend
 
-**Performance Goals**: None formally specified. Current behavior: `GET /api/transactions` loads
-every transaction into memory once per request, then filters and sorts in the use case (plus one
-extra query for category names, only when sorting by `CategoryName`) — the same "acceptable at
-today's scale" posture as `ListCategoriesUseCase`. Pushing the filters into the repository
-query is the natural next step if volumes outgrow this (see research.md → List filtering and
-sorting).
+**Metas de desempenho**: Nenhuma especificada formalmente. Comportamento atual:
+`GET /api/transactions` carrega todas as transações em memória uma vez por requisição e depois
+filtra e ordena no caso de uso (mais uma consulta extra para os nomes das categorias, só quando a
+ordenação é por `CategoryName`) — a mesma postura de "aceitável na escala atual" do
+`ListCategoriesUseCase`. Levar os filtros para a consulta do repositório é o próximo passo natural
+se os volumes superarem isso (veja research.md → Filtro e ordenação da lista).
 
-**Constraints**: Governed by `.specify/memory/constitution.md` — API responses must stay
-backward compatible (Principle I), code must stay in its Clean Architecture layer (Principle
-II), any future migration needs a verified rollback (Principle III), and `dotnet test` must pass
-across all three suites (Principle IV).
+**Restrições**: Regidas por `.specify/memory/constitution.md` — as respostas da API precisam
+continuar retrocompatíveis (Princípio I), o código precisa ficar na sua camada da Clean
+Architecture (Princípio II), qualquer migration futura precisa de um rollback verificado
+(Princípio III) e o `dotnet test` precisa passar nas três suítes (Princípio IV).
 
-**Scale/Scope**: Single-tenant personal-finance usage; transaction counts expected in the
-hundreds to low thousands per user — the unpaginated, in-memory-filtered list is sized for this
-range, not for large multi-tenant volumes.
+**Escala/escopo**: Uso single-tenant de finanças pessoais; por usuário, de centenas a poucos
+milhares de transações — a lista sem paginação e filtrada em memória foi dimensionada para essa
+faixa, e não para grandes volumes multi-tenant.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*PORTÃO: precisa passar antes da pesquisa da Fase 0. Conferir de novo após o design da Fase 1.*
 
-| Principle | Status | Evidence |
+| Princípio | Status | Evidência |
 |---|---|---|
-| I. Public API Compatibility | PASS | User Story 3 is **additive**: `GET /api/transactions` gains six optional query parameters (`description`, `dateRef`, `type`, `categoryId`, `orderBy`, `asc`), and a call with none of them still returns every transaction with an unchanged response shape. The only observable difference for existing callers is that the previously unspecified order is now date descending. No other route, DTO, or status code changed. |
-| II. Service Boundary Adherence | PASS | Validation lives in `Denarius.Domain` (`Transaction`); orchestration in `Denarius.Application` use cases depending only on `Domain` (plus `ICategoryRepository` for the cross-entity existence check and for category names when sorting by `CategoryName`); EF Core specifics confined to `Denarius.Infrastructure`; `Denarius.WebAPI`'s `TransactionsController` only binds query parameters and calls use-case interfaces. No layer is skipped. |
-| III. Migration Rollback Discipline | PASS | The migration that creates the `Transactions` table (`20260814132713_AddTransaction`) has a clean, non-destructive `Down()` (`DropTable`). User Story 3 adds no migration. |
-| IV. Test Suite Verification | PASS | The `Transaction` entity and all four use cases have dedicated xUnit coverage; `TransactionsController` itself is covered by `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` (added by `/speckit-implement` on 2026-09-22, closing the gap Research originally flagged). User Story 3's filters, sort options, query binding, and 400-on-invalid-parameter behavior are covered in `ListTransactionsUseCaseTests.cs` and `TransactionsControllerTests.cs`. |
+| I. Compatibilidade da API pública | PASSA | A História de usuário 3 é **aditiva**: `GET /api/transactions` ganha seis parâmetros de query opcionais (`description`, `dateRef`, `type`, `categoryId`, `orderBy`, `asc`), e uma chamada sem nenhum deles continua devolvendo todas as transações, com o formato de resposta inalterado. A única diferença observável para quem já chama a API é que a ordem, antes não especificada, agora é data decrescente. Nenhuma outra rota, DTO ou código de status mudou. |
+| II. Respeito às fronteiras de serviço | PASSA | A validação fica em `Denarius.Domain` (`Transaction`); a orquestração, nos casos de uso de `Denarius.Application`, que dependem só de `Domain` (mais o `ICategoryRepository`, para a verificação de existência entre entidades e para os nomes das categorias na ordenação por `CategoryName`); os detalhes do EF Core ficam confinados a `Denarius.Infrastructure`; o `TransactionsController` de `Denarius.WebAPI` só faz o binding dos parâmetros de query e chama interfaces de casos de uso. Nenhuma camada é pulada. |
+| III. Disciplina de rollback de migrations | PASSA | A migration que cria a tabela `Transactions` (`20260814132713_AddTransaction`) tem um `Down()` limpo e não destrutivo (`DropTable`). A História de usuário 3 não adiciona migration. |
+| IV. Verificação da suíte de testes | PASSA | A entidade `Transaction` e os quatro casos de uso têm cobertura própria em xUnit; o próprio `TransactionsController` é coberto por `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` (adicionado pelo `/speckit-implement` em 2026-09-22, fechando a lacuna que a pesquisa tinha apontado). Os filtros, as opções de ordenação, o binding da query e o comportamento de 400 para parâmetro inválido da História de usuário 3 são cobertos em `ListTransactionsUseCaseTests.cs` e `TransactionsControllerTests.cs`. |
 
-No violations — Complexity Tracking is not needed.
+Nenhuma violação — o Acompanhamento de complexidade não é necessário.
 
-*Re-checked after Phase 1 design: unchanged — data-model.md and contracts/ describe the shipped
-design, they don't introduce anything new to re-gate.*
+*Conferido de novo após o design da Fase 1: sem mudança — data-model.md e contracts/ descrevem o
+design entregue e não introduzem nada novo que precise passar pelo portão de novo.*
 
-## Project Structure
+## Estrutura do projeto
 
-### Documentation (this feature)
+### Documentação (desta feature)
 
 ```text
 specs/002-transaction-management/
-├── plan.md               # This file (/speckit-plan command output)
-├── research.md           # Phase 0 output (/speckit-plan command)
-├── data-model.md         # Phase 1 output (/speckit-plan command)
-├── quickstart.md         # Phase 1 output (/speckit-plan command)
-├── contracts/            # Phase 1 output (/speckit-plan command)
-└── tasks.md              # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+├── plan.md               # Este arquivo (saída do comando /speckit-plan)
+├── research.md           # Saída da Fase 0 (comando /speckit-plan)
+├── data-model.md         # Saída da Fase 1 (comando /speckit-plan)
+├── quickstart.md         # Saída da Fase 1 (comando /speckit-plan)
+├── contracts/            # Saída da Fase 1 (comando /speckit-plan)
+└── tasks.md              # Saída da Fase 2 (comando /speckit-tasks - NÃO é criado pelo /speckit-plan)
 ```
 
-### Source Code (repository root)
+### Código-fonte (raiz do repositório)
 
 ```text
 src/
@@ -114,16 +116,16 @@ src/
 
 tests/
 ├── Denarius.Domain.Tests/Entities/TransactionTests.cs
-├── Denarius.Application.Tests/UseCases/Transactions/   # one folder per use case
+├── Denarius.Application.Tests/UseCases/Transactions/   # uma pasta por caso de uso
 └── Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs
 ```
 
-**Structure Decision**: Same as [001-category-management](../001-category-management/plan.md) —
-the template's Option 2 (web application: separate backend/frontend) narrowed to the backend
-only, using this repo's actual Clean Architecture layout (`Denarius.Domain` /
-`Denarius.Application` / `Denarius.Infrastructure` / `Denarius.WebAPI` under `src/`, mirrored 1:1
-under `tests/`) rather than the template's generic `models/services/api` split.
+**Decisão de estrutura**: A mesma de [001-category-management](../001-category-management/plan.md)
+— a Opção 2 do template (aplicação web: backend/frontend separados) restrita ao backend, com o
+layout real de Clean Architecture deste repositório (`Denarius.Domain` / `Denarius.Application` /
+`Denarius.Infrastructure` / `Denarius.WebAPI` em `src/`, espelhados 1:1 em `tests/`) em vez da
+divisão genérica `models/services/api` do template.
 
-## Complexity Tracking
+## Acompanhamento de complexidade
 
-Not applicable — the Constitution Check reported no violations.
+Não se aplica — o Constitution Check não apontou violações.

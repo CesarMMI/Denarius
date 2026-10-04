@@ -1,107 +1,111 @@
-# Implementation Plan: Financial Reports
+# Plano de implementação: Relatórios financeiros
 
-**Branch**: `003-financial-reports` | **Date**: 2026-10-03 | **Spec**: [spec.md](./spec.md)
+**Branch**: `003-financial-reports` | **Data**: 2026-10-03 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `/specs/003-financial-reports/spec.md`
+**Entrada**: Especificação da feature em `/specs/003-financial-reports/spec.md`
 
-## Summary
+## Resumo
 
-Five read-only reports for the front's reports dashboard, each one a vertical slice through the
-existing layers: a `GET` action on a new `ReportsController` that only binds and validates its query
-and delegates to a single-purpose Application use case (`GetMonthlySummary`,
-`GetExpensesByCategory`, `GetIncomeVsExpense`, `GetCumulativeExpenseComparison`,
-`ListMonthlyTransactions`), each with its own Input and Output records under `IO/Reports`. The use
-cases hold the report rules (default month, savings rate, projection, percentage changes, "Outras",
-continuous series, running totals) and get their numbers from four new `ITransactionRepository`
-queries that `GROUP BY`/`SUM` in PostgreSQL over the requested months only. The month travels as a
-`YYYY-MM` `YearMonth` bound by MVC through its `TryParse`, so an invalid month is a `400` before any
-use case runs, exactly like the existing invalid `type`/`orderBy` values. "Today" — and so the
-current month — is the day in America/Sao_Paulo, read from an injected `TimeProvider`; transaction
-dates stay calendar days. A new migration adds the missing index on `Transactions.Date`
-(`CategoryId` is already indexed).
+Cinco relatórios somente leitura para o painel de relatórios do front, cada um uma fatia vertical
+pelas camadas existentes: uma action `GET` num novo `ReportsController` que só faz o binding e a
+validação da sua query e delega a um caso de uso da camada Application com um único propósito
+(`GetMonthlySummary`, `GetExpensesByCategory`, `GetIncomeVsExpense`,
+`GetCumulativeExpenseComparison`, `ListMonthlyTransactions`), cada um com os seus próprios records
+de Input e Output em `IO/Reports`. Os casos de uso guardam as regras dos relatórios (mês padrão,
+taxa de poupança, projeção, variações percentuais, "Outras", série contínua, totais acumulados) e
+obtêm os seus números de quatro novas consultas do `ITransactionRepository`, que fazem
+`GROUP BY`/`SUM` no PostgreSQL só sobre os meses pedidos. O mês trafega como um `YearMonth`
+`YYYY-MM`, com binding feito pelo MVC por meio do seu `TryParse`, então um mês inválido é um `400`
+antes de qualquer caso de uso rodar, exatamente como os valores inválidos de `type`/`orderBy` que já
+existem. "Hoje" — e, portanto, o mês atual — é o dia em America/Sao_Paulo, lido de um
+`TimeProvider` injetado; as datas das transações continuam sendo dias do calendário. Uma nova
+migration adiciona o índice que faltava em `Transactions.Date` (`CategoryId` já é indexado).
 
-## Technical Context
+## Contexto técnico
 
-**Language/Version**: C# 14 / .NET 10 (`net10.0`)
+**Linguagem/versão**: C# 14 / .NET 10 (`net10.0`)
 
-**Primary Dependencies**: ASP.NET Core MVC (`Microsoft.AspNetCore.OpenApi`); Entity Framework Core
-10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10; `System.TimeProvider` (BCL) for "today"; no new
-packages
+**Dependências principais**: ASP.NET Core MVC (`Microsoft.AspNetCore.OpenApi`); Entity Framework
+Core 10 + `Npgsql.EntityFrameworkCore.PostgreSQL` 10; `System.TimeProvider` (BCL) para o "hoje";
+nenhum pacote novo
 
-**Storage**: PostgreSQL via EF Core code-first migrations. `Transactions.Date` is
-`timestamp with time zone` holding each calendar day at UTC midnight; `Value` is `numeric(18,2)`,
-positive for money in and negative for money out. New index `IX_Transactions_Date`.
+**Armazenamento**: PostgreSQL via migrations code-first do EF Core. `Transactions.Date` é
+`timestamp with time zone` e guarda cada dia do calendário à meia-noite UTC; `Value` é
+`numeric(18,2)`, positivo para entradas e negativo para saídas. Novo índice `IX_Transactions_Date`.
 
-**Testing**: xUnit; `Denarius.Application.Tests` with NSubstitute for `ITransactionRepository` and
-`TimeProvider`; `Denarius.WebAPI.Tests` with `TestServer` and hand-written use case fakes. There is
-no Infrastructure test project, so the SQL translation of the new queries is validated against
-PostgreSQL by the quickstart.
+**Testes**: xUnit; `Denarius.Application.Tests` com NSubstitute para `ITransactionRepository` e
+`TimeProvider`; `Denarius.WebAPI.Tests` com `TestServer` e fakes dos casos de uso escritos à mão.
+Não há projeto de testes de Infrastructure, então a tradução das novas consultas para SQL é validada
+no PostgreSQL pelo quickstart.
 
-**Target Platform**: ASP.NET Core Web API at `api/reports`, consumed by the Denarius Angular front
+**Plataforma-alvo**: ASP.NET Core Web API em `api/reports`, consumida pelo front Angular do Denarius
 
-**Project Type**: web — backend half of a two-project web application; this plan covers the backend
+**Tipo de projeto**: web — a metade backend de uma aplicação web de dois projetos; este plano cobre
+o backend
 
-**Performance Goals**: Each report under one second for a history of 10,000 transactions (SC-002):
-each request reads only the months it covers, with the sums done by PostgreSQL over the date index.
+**Metas de desempenho**: Cada relatório em menos de um segundo com um histórico de 10.000 transações
+(SC-002): cada requisição lê só os meses que cobre, com as somas feitas pelo PostgreSQL sobre o
+índice de data.
 
-**Constraints**: Governed by `.specify/memory/constitution.md` (see Constitution Check). From the
-request: money as `decimal`, never `float`/`double`; dates in America/Sao_Paulo; `month` as
-`YYYY-MM`, current month when omitted, invalid → `400`; one endpoint and one use case per report;
-thin controllers.
+**Restrições**: Regidas por `.specify/memory/constitution.md` (veja o Constitution Check). Do pedido:
+dinheiro como `decimal`, nunca `float`/`double`; datas em America/Sao_Paulo; `month` como `YYYY-MM`,
+mês atual quando omitido, inválido → `400`; um endpoint e um caso de uso por relatório; controllers
+finos.
 
-**Scale/Scope**: Single-tenant personal finance — hundreds to low thousands of transactions a year,
-a few dozen categories. Five endpoints, five use cases, four repository queries, one migration.
+**Escala/escopo**: Finanças pessoais single-tenant — de centenas a poucos milhares de transações por
+ano, algumas dezenas de categorias. Cinco endpoints, cinco casos de uso, quatro consultas de
+repositório, uma migration.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*PORTÃO: precisa passar antes da pesquisa da Fase 0. Conferir de novo após o design da Fase 1.*
 
-| Principle | Status | Evidence |
+| Princípio | Status | Evidência |
 |---|---|---|
-| I. Public API Compatibility | PASS | Additive only: a new `ReportsController` with five new `GET` routes and new response shapes. `TransactionType` gains JSON attributes so the new `type` field reads `in`/`out`; no existing request or response body carries that enum, and the existing `type` query parameter keeps binding case-insensitively through its type converter, so no existing contract changes. |
-| II. Service Boundary Adherence | PASS | `Denarius.Domain` gets four query signatures on `ITransactionRepository` and no new dependency. `Denarius.Application` holds every report rule and depends only on `Domain` plus the BCL `TimeProvider`. `Denarius.Infrastructure` implements the queries with EF Core. `ReportsController` binds, validates (`YearMonth`, `[Range]`) and delegates — no rule in `WebAPI`, no layer skipped. |
-| III. Migration Rollback Discipline | PASS | One migration, `AddTransactionDateIndex`: `Up()` creates `IX_Transactions_Date`, `Down()` drops it — no data touched. The quickstart applies it, rolls it back to `AddTransaction` and re-applies it on a scratch database before review. |
-| IV. Test Suite Verification | PASS | Each use case gets `Denarius.Application.Tests` coverage (empty month, only income, only expense, month/year turn, current vs. past/future month, division by zero), `YearMonth` its own tests, and `ReportsController` `Denarius.WebAPI.Tests` coverage (binding, defaults, `400`s, JSON shape). `dotnet test` must pass across all three suites. |
+| I. Compatibilidade da API pública | PASSA | Só acréscimos: um novo `ReportsController` com cinco novas rotas `GET` e novos formatos de resposta. O `TransactionType` ganha atributos de JSON para que o novo campo `type` seja `in`/`out`; nenhum corpo de requisição ou de resposta existente usa esse enum, e o parâmetro de query `type` existente continua com binding sem diferenciar maiúsculas de minúsculas pelo seu type converter, então nenhum contrato existente muda. |
+| II. Respeito às fronteiras de serviço | PASSA | `Denarius.Domain` ganha quatro assinaturas de consulta no `ITransactionRepository` e nenhuma dependência nova. `Denarius.Application` guarda todas as regras dos relatórios e depende só de `Domain` e do `TimeProvider` da BCL. `Denarius.Infrastructure` implementa as consultas com EF Core. O `ReportsController` faz o binding, valida (`YearMonth`, `[Range]`) e delega — nenhuma regra em `WebAPI`, nenhuma camada pulada. |
+| III. Disciplina de rollback de migrations | PASSA | Uma migration, `AddTransactionDateIndex`: o `Up()` cria `IX_Transactions_Date`, o `Down()` o remove — nenhum dado é tocado. O quickstart a aplica, faz o rollback para `AddTransaction` e a reaplica num banco descartável antes da revisão. |
+| IV. Verificação da suíte de testes | PASSA | Cada caso de uso ganha cobertura em `Denarius.Application.Tests` (mês vazio, só receita, só despesa, virada de mês/ano, mês atual vs. passado/futuro, divisão por zero), o `YearMonth` ganha testes próprios e o `ReportsController`, cobertura em `Denarius.WebAPI.Tests` (binding, padrões, `400`s, formato do JSON). O `dotnet test` precisa passar nas três suítes. |
 
-No violations — Complexity Tracking is not needed.
+Nenhuma violação — o Acompanhamento de complexidade não é necessário.
 
-*Re-checked after Phase 1 design: unchanged. The design adds no project, package or layer
-dependency; data-model.md and contracts/ only describe the additions above.*
+*Conferido de novo após o design da Fase 1: sem mudança. O design não acrescenta projeto, pacote nem
+dependência entre camadas; data-model.md e contracts/ só descrevem os acréscimos acima.*
 
-## Project Structure
+## Estrutura do projeto
 
-### Documentation (this feature)
+### Documentação (desta feature)
 
 ```text
 specs/003-financial-reports/
-├── plan.md               # This file (/speckit-plan command output)
-├── research.md           # Phase 0 output (/speckit-plan command)
-├── data-model.md         # Phase 1 output (/speckit-plan command)
-├── quickstart.md         # Phase 1 output (/speckit-plan command)
-├── contracts/            # Phase 1 output (/speckit-plan command)
+├── plan.md               # Este arquivo (saída do comando /speckit-plan)
+├── research.md           # Saída da Fase 0 (comando /speckit-plan)
+├── data-model.md         # Saída da Fase 1 (comando /speckit-plan)
+├── quickstart.md         # Saída da Fase 1 (comando /speckit-plan)
+├── contracts/            # Saída da Fase 1 (comando /speckit-plan)
 │   └── reports-api.yaml
-└── tasks.md              # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+└── tasks.md              # Saída da Fase 2 (comando /speckit-tasks - NÃO é criado pelo /speckit-plan)
 ```
 
-### Source Code (repository root)
+### Código-fonte (raiz do repositório)
 
 ```text
 src/
 ├── Denarius.Domain/
-│   └── Repositories/ITransactionRepository.cs        # + 4 report queries
+│   └── Repositories/ITransactionRepository.cs        # + 4 consultas de relatório
 ├── Denarius.Application/
-│   ├── IO/Reports/                                   # YearMonth, the 5 inputs and their outputs
-│   ├── IO/Transactions/TransactionType.cs            # in/out as JSON strings
-│   ├── UseCases/Reports/                             # TimeProviderExtensions (today in São Paulo)
+│   ├── IO/Reports/                                   # YearMonth, os 5 inputs e os seus outputs
+│   ├── IO/Transactions/TransactionType.cs            # in/out como strings no JSON
+│   ├── UseCases/Reports/                             # TimeProviderExtensions (hoje em São Paulo)
 │   │   ├── GetMonthlySummary/
 │   │   ├── GetExpensesByCategory/
 │   │   ├── GetIncomeVsExpense/
 │   │   ├── GetCumulativeExpenseComparison/
 │   │   └── ListMonthlyTransactions/
-│   └── DependencyInjection.cs                        # + 5 use cases, TimeProvider.System
+│   └── DependencyInjection.cs                        # + 5 casos de uso, TimeProvider.System
 ├── Denarius.Infrastructure/
-│   ├── Persistence/Configurations/TransactionConfiguration.cs   # + index on Date
-│   ├── Repositories/TransactionRepository.cs                   # + 4 report queries
+│   ├── Persistence/Configurations/TransactionConfiguration.cs   # + índice em Date
+│   ├── Repositories/TransactionRepository.cs                   # + 4 consultas de relatório
 │   └── Migrations/*_AddTransactionDateIndex.cs
 └── Denarius.WebAPI/
     └── Controllers/ReportsController.cs
@@ -109,16 +113,17 @@ src/
 tests/
 ├── Denarius.Application.Tests/
 │   ├── IO/Reports/YearMonthTests.cs
-│   └── UseCases/Reports/                             # one folder per use case
+│   └── UseCases/Reports/                             # uma pasta por caso de uso
 └── Denarius.WebAPI.Tests/Reports/ReportsControllerTests.cs
 ```
 
-**Structure Decision**: Same as [002-transaction-management](../002-transaction-management/plan.md):
-the backend half of the web application, in this repo's Clean Architecture layout, mirrored 1:1 under
-`tests/`. Reports are not an entity, so they add no entity, configuration or repository of their
-own: they read `Transaction` (and `Category`) through `ITransactionRepository`, and their IO and use
-cases follow the `IO/{Feature}` and `UseCases/{Feature}/{Operation}` folders the other features use.
+**Decisão de estrutura**: A mesma de [002-transaction-management](../002-transaction-management/plan.md):
+a metade backend da aplicação web, no layout de Clean Architecture deste repositório, espelhado 1:1
+em `tests/`. Relatórios não são uma entidade, então não acrescentam entidade, configuração nem
+repositório próprios: eles leem `Transaction` (e `Category`) pelo `ITransactionRepository`, e o IO e
+os casos de uso deles seguem as pastas `IO/{Feature}` e `UseCases/{Feature}/{Operation}` que as
+outras features usam.
 
-## Complexity Tracking
+## Acompanhamento de complexidade
 
-Not applicable — the Constitution Check reported no violations.
+Não se aplica — o Constitution Check não apontou violações.

@@ -1,27 +1,27 @@
-# Quickstart: Validating the Financial Reports
+# Guia rápido: validação dos relatórios financeiros
 
-How to prove the five reports work, from the unit tests to the SQL that PostgreSQL runs. Field rules
-are in [data-model.md](./data-model.md); request and response shapes are in
-[contracts/reports-api.yaml](./contracts/reports-api.yaml).
+Como provar que os cinco relatórios funcionam, dos testes unitários ao SQL que o PostgreSQL executa.
+As regras dos campos estão em [data-model.md](./data-model.md); os formatos de requisição e resposta
+estão em [contracts/reports-api.yaml](./contracts/reports-api.yaml).
 
-## Prerequisites
+## Pré-requisitos
 
-- .NET 10 SDK and the `dotnet-ef` tool (10.x)
-- PostgreSQL reachable with the credentials of `ConnectionStrings:DenariusDb` in
-  `src/Denarius.WebAPI/appsettings.Development.json`, and `psql` on the path
-- A **scratch database**, so the validation never touches the development data:
+- SDK do .NET 10 e a ferramenta `dotnet-ef` (10.x)
+- PostgreSQL acessível com as credenciais de `ConnectionStrings:DenariusDb` em
+  `src/Denarius.WebAPI/appsettings.Development.json`, e o `psql` no path
+- Um **banco descartável**, para que a validação nunca toque nos dados de desenvolvimento:
 
   ```
   psql -U postgres -c "CREATE DATABASE denarius_reports_smoke"
   ```
 
-  Every command below that talks to the database uses this connection string:
+  Todos os comandos abaixo que falam com o banco usam esta connection string:
 
   ```
   SMOKE="Host=localhost;Port=5432;Database=denarius_reports_smoke;Username=postgres;Password=root"
   ```
 
-## 1. Automated validation (no server needed)
+## 1. Validação automatizada (sem servidor)
 
 ```
 dotnet test tests/Denarius.Application.Tests --filter FullyQualifiedName~Reports
@@ -29,20 +29,20 @@ dotnet test tests/Denarius.WebAPI.Tests --filter FullyQualifiedName~Reports
 dotnet test
 ```
 
-Expected: every test passes — the report rules (empty month, only income, only expense, month and
-year turns, current vs. past and future months, division by zero), `YearMonth` parsing, and the
-controller's binding, defaults and `400`s. The last command runs the three suites (Constitution
-Principle IV).
+Esperado: todos os testes passam — as regras dos relatórios (mês vazio, só receita, só despesa,
+viradas de mês e de ano, mês atual vs. meses passados e futuros, divisão por zero), o parsing do
+`YearMonth` e o binding, os padrões e os `400`s do controller. O último comando roda as três suítes
+(Princípio IV da constituição).
 
-## 2. Migration and its rollback (Constitution Principle III)
+## 2. A migration e o seu rollback (Princípio III da constituição)
 
 ```
 dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI --connection "$SMOKE"
 psql -U postgres -d denarius_reports_smoke -c '\di "IX_Transactions_*"'
 ```
 
-Expected: `IX_Transactions_CategoryId` and `IX_Transactions_Date` exist. Then roll back to the
-previous migration and re-apply:
+Esperado: `IX_Transactions_CategoryId` e `IX_Transactions_Date` existem. Depois, faça o rollback
+para a migration anterior e reaplique:
 
 ```
 dotnet ef database update AddTransaction --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI --connection "$SMOKE"
@@ -50,13 +50,13 @@ psql -U postgres -d denarius_reports_smoke -c '\di "IX_Transactions_*"'
 dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI --connection "$SMOKE"
 ```
 
-Expected: after the rollback only `IX_Transactions_CategoryId` remains and no table or row changed;
-after the re-apply both indexes are back.
+Esperado: depois do rollback, só `IX_Transactions_CategoryId` continua lá e nenhuma tabela ou linha
+mudou; depois de reaplicar, os dois índices voltam.
 
-## 3. Seed a known month history
+## 3. Popular um histórico de meses conhecido
 
-Dates are written as UTC midnights, the way the API stores calendar days (a bare `'2026-09-05'`
-would be read in the server's time zone).
+As datas são escritas como meias-noites UTC, do jeito que a API armazena os dias do calendário (um
+`'2026-09-05'` puro seria lido no fuso horário do servidor).
 
 ```sql
 INSERT INTO "Categories" ("Id", "Name", "Color", "CreatedAt", "UpdatedAt")
@@ -88,55 +88,58 @@ FROM (VALUES
 ) AS t(description, day, value, category);
 ```
 
-Month by month: December 2025 — 7,500.00 in, 2,700.00 out; January 2026 — 7,500.00 in, 2,800.00
-out; February to July 2026 — nothing; August — 8,000.00 in, 4,000.00 out; September — 8,000.00 in,
-5,200.00 out in ten categories; October — 8,000.00 in and 2,210.00 out, of which only 210.00 dated
-up to October 3 (the salary and the rent are recorded ahead, for the 5th and the 10th).
+Mês a mês: dezembro de 2025 — 7.500,00 de entradas, 2.700,00 de saídas; janeiro de 2026 — 7.500,00
+de entradas, 2.800,00 de saídas; fevereiro a julho de 2026 — nada; agosto — 8.000,00 de entradas,
+4.000,00 de saídas; setembro — 8.000,00 de entradas, 5.200,00 de saídas em dez categorias; outubro —
+8.000,00 de entradas e 2.210,00 de saídas, dos quais só 210,00 com data até 3 de outubro (o salário
+e o aluguel foram registrados antes, para os dias 5 e 10).
 
-## 4. Call the reports
+## 4. Chamar os relatórios
 
-Start the API on the scratch database:
+Suba a API no banco descartável:
 
 ```
 ConnectionStrings__DenariusDb="$SMOKE" dotnet run --project src/Denarius.WebAPI --launch-profile http
 ```
 
-The expectations for the current month assume **today is 2026-10-03 in São Paulo**; on another day,
-recompute them with the rules in [data-model.md](./data-model.md).
+As expectativas para o mês atual supõem que **hoje é 2026-10-03 em São Paulo**; em outro dia,
+recalcule-as com as regras de [data-model.md](./data-model.md).
 
-1. `curl "http://localhost:5276/api/reports/summary?month=2026-09"` — a past month: income 8000,
-   expense 5200, balance 2800, `savingsRate` 35, projection equal to the actual values (5200 and
-   2800); `previousMonth` 8000 / 4000 / 4000 with changes 0, 30 and −30.
-2. `curl "http://localhost:5276/api/reports/summary"` — no month: `month` is `2026-10`. Income 8000,
-   expense 2210, balance 5790, `savingsRate` 72.38; `projectedExpense` 2170 (210 ÷ 3 days × 31) and
-   `projectedBalance` 5830; changes against September 0, −57.5 and 106.79.
-3. `curl "http://localhost:5276/api/reports/summary?month=2026-11"` — a future month: zeros,
-   `savingsRate` null, projection 0; changes against October −100.
-4. `curl "http://localhost:5276/api/reports/summary?month=2026-03"` — a month without data after
-   another one: zeros, `savingsRate` null and every change null (February is zero too).
-5. `curl "http://localhost:5276/api/reports/expensesByCategory?month=2026-09"` — total 5200 and eight
-   entries: Aluguel 2000 (38.46), Mercado 1200 (23.08), Restaurantes 600 (11.54), Lazer 400 (7.69),
-   Transporte 300 (5.77), Saúde 250 (4.81), Educação 200 (3.85), then Outras 250 (4.81) with no id or
-   color (Assinaturas + Pets + Presentes). With `month=2026-08`: Aluguel 2000 (50), Mercado 1500
-   (37.5), Lazer 500 (12.5), no Outras.
-6. `curl "http://localhost:5276/api/reports/incomeVsExpense?month=2026-10"` — twelve months, from
-   `2025-11` to `2026-10`, oldest first: `2025-11` zeros, `2025-12` 7500/2700/4800, `2026-01`
-   7500/2800/4700, `2026-02` to `2026-07` zeros, `2026-08` 8000/4000/4000, `2026-09` 8000/5200/2800,
-   `2026-10` 8000/2210/5790. With `&months=3`: only August to October.
-7. `curl "http://localhost:5276/api/reports/cumulativeExpenses?month=2026-10"` — `currentMonth` stops
-   at day 3 (150, 210, 210); `previousMonth` has the 30 days of September, from 100 on day 1 to 5200
-   on days 28–30; `daysInCurrentMonth` 31, `daysInPreviousMonth` 30. With `month=2026-01`: both
-   series have 31 days, December 2025 ending at 2700 and January 2026 at 2800.
-8. `curl "http://localhost:5276/api/reports/transactions?month=2026-09"` — the twelve September
-   transactions, from "Presente" (28th, `out`, 70) to "Streaming" (1st, `out`, 100); "Salário" is
-   `in`, 8000, with `categoryName` "Salário".
-9. Invalid input — each returns `400` with a `ValidationProblemDetails` body and calls no use case:
-   `?month=2026-13`, `?month=2026-9`, `?month=09-2026` on any report;
-   `incomeVsExpense?months=0`, `?months=25` and `?months=abc`.
+1. `curl "http://localhost:5276/api/reports/summary?month=2026-09"` — um mês passado: receita 8000,
+   despesa 5200, saldo 2800, `savingsRate` 35, projeção igual aos valores reais (5200 e 2800);
+   `previousMonth` 8000 / 4000 / 4000 com variações 0, 30 e −30.
+2. `curl "http://localhost:5276/api/reports/summary"` — sem mês: `month` é `2026-10`. Receita 8000,
+   despesa 2210, saldo 5790, `savingsRate` 72.38; `projectedExpense` 2170 (210 ÷ 3 dias × 31) e
+   `projectedBalance` 5830; variações em relação a setembro 0, −57.5 e 106.79.
+3. `curl "http://localhost:5276/api/reports/summary?month=2026-11"` — um mês futuro: zeros,
+   `savingsRate` null, projeção 0; variações em relação a outubro −100.
+4. `curl "http://localhost:5276/api/reports/summary?month=2026-03"` — um mês sem dados depois de
+   outro também sem dados: zeros, `savingsRate` null e todas as variações null (fevereiro também é
+   zero).
+5. `curl "http://localhost:5276/api/reports/expensesByCategory?month=2026-09"` — total 5200 e oito
+   entradas: Aluguel 2000 (38.46), Mercado 1200 (23.08), Restaurantes 600 (11.54), Lazer 400 (7.69),
+   Transporte 300 (5.77), Saúde 250 (4.81), Educação 200 (3.85) e, por fim, Outras 250 (4.81), sem
+   id nem cor (Assinaturas + Pets + Presentes). Com `month=2026-08`: Aluguel 2000 (50), Mercado 1500
+   (37.5), Lazer 500 (12.5), sem Outras.
+6. `curl "http://localhost:5276/api/reports/incomeVsExpense?month=2026-10"` — doze meses, de
+   `2025-11` a `2026-10`, do mais antigo para o mais recente: `2025-11` zerado, `2025-12`
+   7500/2700/4800, `2026-01` 7500/2800/4700, `2026-02` a `2026-07` zerados, `2026-08`
+   8000/4000/4000, `2026-09` 8000/5200/2800, `2026-10` 8000/2210/5790. Com `&months=3`: só de agosto
+   a outubro.
+7. `curl "http://localhost:5276/api/reports/cumulativeExpenses?month=2026-10"` — `currentMonth` para
+   no dia 3 (150, 210, 210); `previousMonth` tem os 30 dias de setembro, de 100 no dia 1 a 5200 nos
+   dias 28–30; `daysInCurrentMonth` 31, `daysInPreviousMonth` 30. Com `month=2026-01`: as duas
+   séries têm 31 dias, com dezembro de 2025 terminando em 2700 e janeiro de 2026 em 2800.
+8. `curl "http://localhost:5276/api/reports/transactions?month=2026-09"` — as doze transações de
+   setembro, de "Presente" (dia 28, `out`, 70) a "Streaming" (dia 1º, `out`, 100); "Salário" é
+   `in`, 8000, com `categoryName` "Salário".
+9. Entrada inválida — cada uma devolve `400` com um corpo `ValidationProblemDetails` e não chama
+   nenhum caso de uso: `?month=2026-13`, `?month=2026-9`, `?month=09-2026` em qualquer relatório;
+   `incomeVsExpense?months=0`, `?months=25` e `?months=abc`.
 
 ## 5. Volume (SC-002)
 
-Add 10,000 transactions spread over 2025 and 2026, then time each report:
+Adicione 10.000 transações espalhadas por 2025 e 2026 e meça o tempo de cada relatório:
 
 ```sql
 INSERT INTO "Transactions" ("Id", "Description", "Date", "Value", "CategoryId", "CreatedAt", "UpdatedAt")
@@ -153,16 +156,16 @@ for path in "summary?month=2026-09" "expensesByCategory?month=2026-09" "incomeVs
 done
 ```
 
-Expected: every report `200` in well under one second (the first call after start-up also pays
-for warming up EF Core).
+Esperado: todos os relatórios dão `200` em bem menos de um segundo (a primeira chamada depois de
+subir a API também paga o aquecimento do EF Core).
 
-## 6. Clean up
+## 6. Limpeza
 
-Stop the API and drop the scratch database:
+Pare a API e apague o banco descartável:
 
 ```
 psql -U postgres -c "DROP DATABASE denarius_reports_smoke"
 ```
 
-The development database only needs the new index:
+O banco de desenvolvimento só precisa do novo índice:
 `dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI`.

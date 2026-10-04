@@ -1,66 +1,68 @@
-# Quickstart: Validating Category Management
+# Guia rápido: validação da gestão de categorias
 
-This feature is already implemented; this guide validates that it still works, not how to build
-it. Field-level rules are in [data-model.md](./data-model.md); the full request/response shapes
-are in [contracts/categories-api.yaml](./contracts/categories-api.yaml).
+Esta feature já está implementada; este guia confere que ela continua funcionando, e não como
+construí-la. As regras de cada campo estão em [data-model.md](./data-model.md); os formatos
+completos de requisição/resposta estão em [contracts/categories-api.yaml](./contracts/categories-api.yaml).
 
-## Prerequisites
+## Pré-requisitos
 
-- .NET 10 SDK
-- PostgreSQL reachable at the connection string under `ConnectionStrings:DenariusDb` (already
-  set for local dev in `src/Denarius.WebAPI/appsettings.Development.json`)
-- Schema up to date:
+- SDK do .NET 10
+- PostgreSQL acessível pela connection string em `ConnectionStrings:DenariusDb` (já configurada
+  para o desenvolvimento local em `src/Denarius.WebAPI/appsettings.Development.json`)
+- Esquema do banco atualizado:
   ```
   dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI
   ```
 
-## Automated validation (primary — no running server needed)
+## Validação automatizada (a principal — não precisa de servidor rodando)
 
-Run just the Category-related suites:
+Rode só as suítes relacionadas a Category:
 
 ```
 dotnet test tests/Denarius.Domain.Tests --filter FullyQualifiedName~CategoryTests
 dotnet test tests/Denarius.Application.Tests --filter FullyQualifiedName~Categories
 ```
 
-Expected: all tests pass. Together they exercise every functional requirement in `spec.md`
-(FR-001…FR-015) except the HTTP layer itself (see `research.md` → Test coverage gap).
+Esperado: todos os testes passam. Juntas, elas exercitam todos os requisitos funcionais do
+`spec.md` (FR-001…FR-015), exceto a própria camada HTTP (veja `research.md` → Lacuna de cobertura
+de testes).
 
-Or the full suite, matching Constitution Principle IV:
+Ou a suíte completa, como pede o Princípio IV da constituição:
 
 ```
 dotnet test
 ```
 
-## Manual end-to-end smoke test (also exercises the HTTP layer)
+## Smoke test manual de ponta a ponta (também exercita a camada HTTP)
 
-1. Start the API: `dotnet run --project src/Denarius.WebAPI` (HTTP profile listens on
-   `http://localhost:5276`, per `launchSettings.json`).
-2. Create a category:
+1. Suba a API: `dotnet run --project src/Denarius.WebAPI` (o perfil HTTP escuta em
+   `http://localhost:5276`, conforme o `launchSettings.json`).
+2. Crie uma categoria:
    ```
    curl -i -X POST http://localhost:5276/api/categories \
      -H "Content-Type: application/json" \
      -d '{"name":"Lazer","color":"#FF0000"}'
    ```
-   Expected: `201 Created`, a `Location: /api/categories/{id}` header, body echoes the category
-   with `transactionCount: 0` and `balance: 0`.
-3. List categories: `curl http://localhost:5276/api/categories` — expect the new category in the
-   array, sorted by name ascending by default (User Story 1, User Story 3).
-4. Update it:
+   Esperado: `201 Created`, um cabeçalho `Location: /api/categories/{id}` e um corpo que devolve a
+   categoria com `transactionCount: 0` e `balance: 0`.
+3. Liste as categorias: `curl http://localhost:5276/api/categories` — espere a categoria nova no
+   array, ordenado por nome em ordem crescente por padrão (História de usuário 1, História de
+   usuário 3).
+4. Atualize-a:
    ```
    curl -i -X PUT http://localhost:5276/api/categories/{id} \
      -H "Content-Type: application/json" \
      -d '{"name":"Diversao","color":"#0F0"}'
    ```
-   Expected: `200`, name changed, color normalized to `#00FF00`.
-5. Delete it: `curl -i -X DELETE http://localhost:5276/api/categories/{id}` — expect `204`.
-6. Confirm removal: repeat step 3 — expect the category to be gone from the list.
-7. Validation edge case: repeat step 2 with `"name":""` or `"color":"not-a-color"` — expect
-   `400` with a `ProblemDetails` body explaining what's wrong (User Story 1, scenario 5).
-8. Delete-guard edge case: create a category, record a transaction against it via
-   `POST /api/categories` → `POST /api/transactions` (Transactions API — its own feature, out of
-   scope here), then attempt delete — expect `400`; the category should still be present in
-   step 3's list.
-9. Usage stats: repeat step 8 once more with a known transaction value, then `GET
-   /api/categories?dateRef=<that month>` — expect `transactionCount`/`balance` to reflect only
-   that month's transactions (User Story 2).
+   Esperado: `200`, nome alterado e cor normalizada para `#00FF00`.
+5. Exclua-a: `curl -i -X DELETE http://localhost:5276/api/categories/{id}` — espere `204`.
+6. Confirme a remoção: repita o passo 3 — a categoria não deve mais estar na lista.
+7. Caso-limite de validação: repita o passo 2 com `"name":""` ou `"color":"not-a-color"` — espere
+   `400` com um corpo `ProblemDetails` explicando o que está errado (História de usuário 1,
+   cenário 5).
+8. Caso-limite da proteção de exclusão: crie uma categoria, registre uma transação nela via
+   `POST /api/categories` → `POST /api/transactions` (API de transações — feature própria, fora do
+   escopo aqui) e tente excluí-la — espere `400`; a categoria deve continuar na lista do passo 3.
+9. Estatísticas de uso: repita o passo 8 mais uma vez com um valor de transação conhecido e depois
+   faça `GET /api/categories?dateRef=<esse mês>` — espere que `transactionCount`/`balance`
+   reflitam só as transações desse mês (História de usuário 2).

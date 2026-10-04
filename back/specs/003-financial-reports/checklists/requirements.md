@@ -1,43 +1,44 @@
-# Specification Quality Checklist: Financial Reports
+# Checklist de qualidade da especificação: Relatórios financeiros
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-10-03
+**Objetivo**: Validar a completude e a qualidade da especificação antes de seguir para o planejamento
+**Criado em**: 2026-10-03
 **Feature**: [spec.md](../spec.md)
 
-## Content Quality
+## Qualidade do conteúdo
 
-- [x] No implementation details (languages, frameworks, APIs)
-- [x] Focused on user value and business needs
-- [x] Written for non-technical stakeholders
-- [x] All mandatory sections completed
+- [x] Sem detalhes de implementação (linguagens, frameworks, APIs)
+- [x] Focada no valor para o usuário e nas necessidades do negócio
+- [x] Escrita para partes interessadas não técnicas
+- [x] Todas as seções obrigatórias preenchidas
 
-## Requirement Completeness
+## Completude dos requisitos
 
-- [x] No [NEEDS CLARIFICATION] markers remain
-- [x] Requirements are testable and unambiguous
-- [x] Success criteria are measurable
-- [x] Success criteria are technology-agnostic (no implementation details)
-- [x] All acceptance scenarios are defined
-- [x] Edge cases are identified
-- [x] Scope is clearly bounded
-- [x] Dependencies and assumptions identified
+- [x] Nenhum marcador [NEEDS CLARIFICATION] restante
+- [x] Os requisitos são testáveis e sem ambiguidade
+- [x] Os critérios de sucesso são mensuráveis
+- [x] Os critérios de sucesso não dependem de tecnologia (sem detalhes de implementação)
+- [x] Todos os cenários de aceitação estão definidos
+- [x] Os casos-limite estão identificados
+- [x] O escopo está claramente delimitado
+- [x] Dependências e premissas identificadas
 
-## Feature Readiness
+## Prontidão da feature
 
-- [x] All functional requirements have clear acceptance criteria
-- [x] User scenarios cover primary flows
-- [x] Feature meets measurable outcomes defined in Success Criteria
-- [x] No implementation details leak into specification
+- [x] Todos os requisitos funcionais têm critérios de aceitação claros
+- [x] Os cenários de usuário cobrem os fluxos principais
+- [x] A feature atinge os resultados mensuráveis definidos nos critérios de sucesso
+- [x] Nenhum detalhe de implementação vaza para a especificação
 
-## Notes
+## Observações
 
-- First pass failed "No implementation details": FR-016 required dates and categories to be
-  indexed. Reworded to the user-facing outcome (each report reads only the months it covers, adding
-  the amounts up where they are stored); the indexes and database-side aggregation moved to the plan.
-  Second pass: all items pass.
-- No [NEEDS CLARIFICATION] markers were needed: the request fixed the reports, their fields and
-  rules. The open points it delegated ("definir e documentar") are decided in Assumptions — the
-  savings rate without income is not applicable (no value), percentages use a 0–100 scale, a
-  percentage change from zero is not applicable, and "Outras" keeps the list at eight entries.
-- The month format (`YYYY-MM`) and the America/Sao_Paulo time zone appear in the requirements because
-  they are business rules the request set, not implementation choices.
+- A primeira validação reprovou "Sem detalhes de implementação": o FR-016 exigia que as datas e as
+  categorias fossem indexadas. Foi reescrito como o resultado para o usuário (cada relatório lê só
+  os meses que cobre, somando os valores onde eles estão armazenados); os índices e a agregação no
+  banco foram para o plan. Segunda validação: todos os itens passam.
+- Nenhum marcador [NEEDS CLARIFICATION] foi necessário: o pedido definiu os relatórios, os seus
+  campos e as suas regras. Os pontos em aberto que ele delegou ("definir e documentar") estão
+  decididos nas Premissas — a taxa de poupança sem receita não se aplica (sem valor), os percentuais
+  usam a escala 0–100, uma variação percentual a partir de zero não se aplica, e "Outras" mantém a
+  lista em oito entradas.
+- O formato do mês (`YYYY-MM`) e o fuso horário America/Sao_Paulo aparecem nos requisitos porque são
+  regras de negócio que o pedido definiu, e não escolhas de implementação.
