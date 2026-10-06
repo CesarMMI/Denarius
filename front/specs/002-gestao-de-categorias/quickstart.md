@@ -25,9 +25,9 @@ npm run lint
 npm run build
 ```
 
-Esperado: os specs da feature passam (em 2026-10-05: 12 arquivos, 95 testes); a suíte completa passa (em 2026-10-05,
-havia uma falha fora desta feature, em `reports/services/chart-theme.service.spec.ts`; ver Dependências e
-riscos no [plan](./plan.md#dependências-e-riscos)); o lint passa limpo; o build não emite aviso de budget, e o chunk lazy
+Esperado: os specs da feature passam (em 2026-10-05: 12 arquivos, 95 testes); a suíte completa passa (a falha fora desta
+feature, em `reports/services/chart-theme.service.spec.ts`, foi corrigida: bug `verified`, suíte completa em 223 de 223
+testes; ver Dependências e riscos no [plan](./plan.md#dependências-e-riscos)); o lint passa limpo; o build não emite aviso de budget, e o chunk lazy
 `categories-page` aparece fora do "Initial total".
 
 Cobertura dos requisitos pelos specs (linhas dos `*.spec.ts` em 2026-10-05; os testes TC-01 a TC-10 são as tarefas desta

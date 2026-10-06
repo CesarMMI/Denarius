@@ -4,7 +4,7 @@
 
 **Criada em**: 2026-10-04
 
-**Status**: Rascunho
+**Status**: Aprovada
 
 **Entrada**: Descrição do usuário: "Especificação retroativa da página de categorias do front (`/categories`), já
 implementada antes da adoção do Spec Kit, derivada do código atual em `front/src/app/categories` e dos seus testes.

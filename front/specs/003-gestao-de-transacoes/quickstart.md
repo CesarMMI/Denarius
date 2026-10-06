@@ -30,9 +30,10 @@ portão (inicial com aviso em 700 kB e erro em 1 MB; estilos por componente com 
 budget para chunk lazy, e os números abaixo são só referência.
 
 Situação conferida em 2026-10-05 (HEAD `a93db31`): o primeiro comando passa (11 arquivos, 104 testes); lint e build
-passam (Initial total 633,08 kB; `transactions-page` 39,88 kB); a suíte completa tem 222 de 223 testes passando. A falha
-é em `src/app/reports/services/chart-theme.service.spec.ts:29` (`primaryVariant`), fora desta feature e anterior a este
-plano; ela está no fluxo de bugs do front, e o implement desta feature só começa com a suíte completa verde. Depois do
+passam (Initial total 633,08 kB; `transactions-page` 39,88 kB); a suíte completa tinha 222 de 223 testes passando. A
+falha, em `src/app/reports/services/chart-theme.service.spec.ts:29` (`primaryVariant`), fora desta feature e anterior a
+este plano, foi corrigida pelo fluxo de bugs do front (`test.md` `verified`): a suíte completa tem 223 de 223 testes
+passando e não bloqueia mais o implement desta feature. Depois do
 implement, o primeiro comando inclui também os testes de caracterização C1 a C13 e os ajustes A1 a A3 do `plan.md`.
 
 ## 2. Verificação manual
