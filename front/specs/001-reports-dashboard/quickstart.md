@@ -32,7 +32,7 @@ e hoje em 2026-10-03:
    (0% vs. setembro); Despesas -R$ 2.210,00, sem vermelho (↓ 57,5% vs. setembro, verde: o gasto caiu); Taxa de
    poupança 72,4%; Projeção -R$ 2.170,00, saldo projetado R$ 5.830,00.
 2. Barras: doze meses, de nov. 2025 a out. 2026, com meses vazios no meio; tooltips em BRL com o mês por extenso.
-3. Linha: outubro, em vermelho, para no dia 3; setembro, numa cor neutra, cobre 30 dias.
+3. Linha: outubro, na cor primária do tema, para no dia 3; setembro, na cor secundária, cobre 30 dias.
 4. Clique em "Mês anterior" (ou escolha `09/2026`): todos os blocos recarregam uma vez; a rosca mostra quatro
    categorias e "Outras"; a lista mostra as dez mais recentes das doze transações de setembro ("Transações do mês
    (12)"), com as despesas em vermelho. "Ver todas" abre a página de transações com os filtros visíveis em `09/2026`,

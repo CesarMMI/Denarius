@@ -28,6 +28,13 @@ adicionado com `ng add`."
 - P: As despesas ficam vermelhas nos cards de resumo? → R: Não. Os cards as mostram como valores negativos, sem cor,
   porque o vermelho chamava atenção demais; os gráficos e a lista mantêm o vermelho.
 
+### Sessão 2026-10-06
+
+- P: Que cores usam as linhas da comparação acumulada? → R: O par da cor primária do tema: o mês atual em `primary` e
+  o mês anterior em `secondary`, como foi entregue. Isso ressalva, só para a comparação acumulada, a resposta de
+  2026-10-03 de que os gráficos mantêm o vermelho; os demais gráficos e a lista mantêm o vermelho das despesas. A
+  legenda e o tooltip distinguem as duas linhas. (Decisão do dono no bug `chart-theme-teste-tokens-desatualizados`.)
+
 ## Cenários de usuário e testes _(obrigatório)_
 
 ### História de usuário 1 - Ver como está o mês atual (Prioridade: P1)
@@ -132,8 +139,8 @@ cobre todos os dias dele, com tooltips em BRL.
 
 **Cenários de aceitação**:
 
-1. **Dado** o mês atual, **Quando** o gráfico de linha é exibido, **Então** a linha do mês, em vermelho, para em hoje,
-   e a linha do mês anterior, numa cor neutra, cobre o mês inteiro.
+1. **Dado** o mês atual, **Quando** o gráfico de linha é exibido, **Então** a linha do mês, na cor primária do tema
+   (`primary`), para em hoje, e a linha do mês anterior, na cor secundária (`secondary`), cobre o mês inteiro.
 2. **Dado que** o ponteiro está sobre um dia, **Quando** o tooltip abre, **Então** ele mostra os totais dos dois meses
    até aquele dia, em BRL, com os nomes dos meses por extenso.
 
@@ -199,8 +206,9 @@ seguir "Ver todas" até a página de transações filtrada por esse mês.
   e erro, o de erro com um botão que tenta de novo só aquele bloco.
 - **FR-009**: Os valores monetários DEVEM aparecer em BRL com formatação pt-BR, inclusive nos tooltips e eixos dos
   gráficos; os meses DEVEM aparecer por extenso onde são nomeados.
-- **FR-010**: As despesas DEVEM aparecer no mesmo vermelho nos gráficos e na lista; os cards de resumo as mostram como
-  valores negativos, sem cor.
+- **FR-010**: As despesas DEVEM aparecer no mesmo vermelho nos gráficos e na lista, exceto nas linhas da comparação
+  acumulada, que DEVEM usar a cor primária do tema (`primary`) no mês atual e a secundária (`secondary`) no mês
+  anterior; os cards de resumo as mostram como valores negativos, sem cor.
 - **FR-011**: A página DEVE ocupar a altura disponível da janela sem rolagem da página no desktop, numa grade de cards
   com cantos arredondados, espaçamentos consistentes e títulos; janelas estreitas ou baixas DEVEM recolhê-la numa única
   coluna com rolagem.
@@ -223,7 +231,8 @@ seguir "Ver todas" até a página de transações filtrada por esse mês.
 - **SC-002**: Escolher um mês atualiza os cinco blocos com essa única ação.
 - **SC-003**: Um bloco que falha nunca esconde nem bloqueia os outros quatro, e pode ser tentado de novo sozinho.
 - **SC-004**: 100% dos valores monetários da página estão em BRL com formatação pt-BR, e 100% das despesas nos
-  gráficos e na lista usam o mesmo vermelho.
+  gráficos e na lista usam o mesmo vermelho, exceto as linhas da comparação acumulada, que usam `primary` (mês atual) e
+  `secondary` (mês anterior).
 - **SC-005**: Usuários que nunca abrem a página de relatórios não baixam nada a mais quando a aplicação inicia.
 
 ## Premissas
@@ -232,8 +241,8 @@ seguir "Ver todas" até a página de transações filtrada por esse mês.
   antes; os seus formatos estão em `back/specs/003-financial-reports/contracts/reports-api.yaml`.
 - O seletor de mês é o campo de mês que a aplicação já tem, que mostra o mês como `MM/yyyy`; o painel escreve o mês
   por extenso onde nomeia um (comparações, legendas, tooltips).
-- As receitas aparecem no verde do tema (`tertiary`) e as despesas em vermelho; a legenda, os tooltips e a ordem fixa
-  das barras as distinguem para usuários daltônicos.
+- Nas barras, as receitas aparecem no verde do tema (`tertiary`) e as despesas em vermelho; a legenda, os tooltips e a
+  ordem fixa das barras as distinguem para usuários daltônicos.
 - A API mantém os seus próprios limites — categorias agrupadas em "Outras" quando passam de oito, todas as transações
   do mês — e a página os reduz a cinco fatias e dez linhas, então o backend não muda.
 - As barras cobrem doze meses, o padrão da API; escolher a quantidade de meses está fora do escopo.

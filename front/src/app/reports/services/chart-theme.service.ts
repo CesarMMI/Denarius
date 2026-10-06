@@ -40,7 +40,7 @@ export class ChartThemeService {
 			primary: this.resolve('primary'),
 			primaryVariant: this.resolve('secondary'),
 			text: this.resolve('on-surface'),
-			grid: this.resolve('surface-container-highest'),
+			grid: this.resolve('surface-container-high'),
 			surface: this.resolve('surface-container-low'),
 		};
 	});

@@ -14,7 +14,8 @@ do conteúdo da sidenav. Cada bloco é um componente de apresentação que receb
 `transactions-list`. Um pequeno `report-card` dá a todos o mesmo card, título e estados de carregamento / vazio / erro
 com nova tentativa. Os gráficos usam ng2-charts (Chart.js), adicionado com `ng add ng2-charts` e provido na rota lazy,
 para que o bundle inicial não mude. As cores dos gráficos vêm dos tokens do tema do Material, resolvidas para o esquema
-de cores em uso: despesa `error`, receita `tertiary` (o verde do tema), "Outras" `outline` — veja pesquisa → Cores.
+de cores em uso: despesa `error`, receita `tertiary` (o verde do tema), "Outras" `outline`, linhas da comparação
+acumulada `primary`/`secondary` — veja pesquisa → Cores.
 
 ## Contexto técnico
 

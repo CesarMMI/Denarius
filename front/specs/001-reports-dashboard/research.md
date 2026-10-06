@@ -84,17 +84,23 @@
   `.negative` já o usa); os cards de resumo mostram as despesas como valores negativos, sem cor. Receita: `tertiary`, o
   verde do tema. Indicadores de variação: "bom" em `tertiary`, "ruim" em `error`, sempre com ↑/↓ e o percentual em
   texto. A rosca usa a cor de cada categoria, "Outras" em `outline` (a neutra) e um espaço na cor da superfície do card
-  entre as fatias. As linhas de grade usam `surface-container-high`, e o texto dos gráficos, `on-surface`. O canvas não
-  lê variáveis CSS, então o `ChartThemeService` resolve esses tokens para cores concretas por meio de um elemento de
-  sondagem, de novo a cada mudança de `prefers-color-scheme`, e os gráficos recalculam as suas opções a partir dele.
+  entre as fatias. As linhas da comparação acumulada usam `primary` (mês atual) e `secondary` (mês anterior). As
+  linhas de grade usam `surface-container-high`, e o texto dos gráficos, `on-surface`. O canvas não lê variáveis CSS,
+  então o `ChartThemeService` resolve esses tokens para cores concretas por meio de um elemento de sondagem, de novo a
+  cada mudança de `prefers-color-scheme`, e os gráficos recalculam as suas opções a partir dele.
 - **Justificativa**: A primeira versão tinha a receita em `outline`, o par que passou na verificação de daltonismo
   (CVD) do dataviz; depois, o dono escolheu o verde do tema, e a sua semente foi dessaturada (`#4CAF50` → `#71A96C`)
   para não pesar mais que o vermelho no modo escuro, em que `error` é um tom pastel 80. Verde contra vermelho falha na
   verificação de deuteranopia (ΔE 7,0 no claro / 2,8 no escuro), então a legenda, o tooltip e a ordem fixa das barras
   também carregam a identidade. O vermelho nos cards de resumo chamava atenção demais, então o dono o removeu dali. Ler
-  os tokens mantém os gráficos no tema, no claro e no escuro.
+  os tokens mantém os gráficos no tema, no claro e no escuro. As linhas da comparação acumulada usam o par da cor
+  primária por escolha do dono (Esclarecimentos, 2026-10-06); as duas têm a mesma luminância, então a legenda e o
+  tooltip as distinguem. A grade em `surface-container-high` é o mesmo token das divisórias da tabela.
 - **Alternativas consideradas**: Receita em `outline` — a primeira versão, validada, substituída pelo verde do dono;
-  valores hex para uma receita azul — quebra a regra de "só tokens" e se afasta do tema.
+  valores hex para uma receita azul — quebra a regra de "só tokens" e se afasta do tema. Linhas em `error`/`outline`
+  (vermelho e neutra) — a primeira versão, com mais diferença de luminância entre as linhas, substituída pelo par da
+  cor primária do dono; `primary`/`on-primary` — `on-primary` quase some sobre o card (1,11:1 no claro). Grade em
+  `surface-container-highest` — um pouco mais visível, mas diverge das divisórias da tabela.
 
 ## No máximo cinco fatias na rosca
 
@@ -151,8 +157,8 @@
   variação) para o resumo; uma rosca (como pedido; no máximo oito fatias, a API agrupa a cauda em "Outras"); colunas
   agrupadas para receitas vs. despesas (barras de no máximo 24 px, topos arredondados de 4 px, um tooltip por mês
   listando as duas séries); e linhas (2 px, sem marcadores de ponto, exceto no hover) para a comparação acumulada, com
-  o mês atual na cor de destaque (vermelho) e o mês anterior na neutra, com tooltip em modo índice. Todos os gráficos
-  usam a legenda e o tooltip do próprio Chart.js — os rótulos da rosca trazem a participação de cada categoria
+  o mês atual na cor primária (`primary`) e o mês anterior na secundária (`secondary`), com tooltip em modo índice.
+  Todos os gráficos usam a legenda e o tooltip do próprio Chart.js — os rótulos da rosca trazem a participação de cada categoria
   ("Mercado (23,08%)") e o seu tooltip acrescenta o valor. As linhas de grade são finíssimas, os eixos discretos,
   `maintainAspectRatio: false` para o gráfico ocupar o card. Cada canvas recebe um `aria-label` com os valores que
   desenha.

@@ -31,7 +31,7 @@ describe('ChartThemeService', () => {
 			income: 'var(--mat-sys-tertiary)',
 			neutral: 'var(--mat-sys-outline)',
 			primary: 'var(--mat-sys-primary)',
-			primaryVariant: 'var(--mat-sys-on-primary)',
+			primaryVariant: 'var(--mat-sys-secondary)',
 			text: 'var(--mat-sys-on-surface)',
 			grid: 'var(--mat-sys-surface-container-high)',
 			surface: 'var(--mat-sys-surface-container-low)',
