@@ -204,8 +204,7 @@ categoria escolhidos, abri-la por "Editar", mudar o valor e conferir a mudança 
 5. **Dado** um valor vazio ou inválido (com letras, com sinal, com mais de duas casas decimais, como "12,345", igual a
    zero ou com mais de 13 algarismos na parte inteira), **Quando** o usuário tenta salvar, **Então** o diálogo continua
    aberto e mostra "Informe um valor válido"; da mesma forma, sem uma data válida aparece "Informe uma data válida" e,
-   sem categoria, "Escolha uma categoria" (desvio conhecido: hoje o zero e os valores com mais de 13 algarismos na
-   parte inteira passam; ver FR-014).
+   sem categoria, "Escolha uma categoria" (desvio conhecido: hoje o zero passa; ver FR-014).
 6. **Dado** o diálogo aberto, sem um "Salvar" em andamento, **Quando** o usuário escolhe "Cancelar" ou fecha o
    diálogo, **Então** nada é salvo e nenhuma mensagem aparece. O que "Cancelar", Esc ou um clique fora fazem enquanto
    a API responde a um "Salvar" está em aberto (ver FR-016).
@@ -349,15 +348,11 @@ conferir que o mês é ignorado.
   milhar nem sinal: "8.600,00" e "-12" são recusados com "Informe um valor válido", e "8600" é aceito.
 - O formulário recusa, com "Informe um valor válido" e o diálogo aberto, o zero ("0" ou "0,00") e os valores com mais de
   13 algarismos na parte inteira (acima de R$ 9.999.999.999.999,99), porque a partir daí o valor gravado poderia diferir
-  do digitado (FR-014). Desvio conhecido: hoje o formulário não limita o valor. A alteração dos valores com 14 ou mais
-  algarismos fere a integridade dos dados (princípio II do `AGENTS.md`) e bloqueia a entrega desta feature; o zero, que
-  a API recusa, não bloqueia. O zero passa pela validação; ao salvar, o diálogo fecha e a API recusa a transação com "O
-  valor da transação não pode ser zero.". Com centavos, a partir de 14 algarismos na parte inteira o valor salvo pode
-  diferir do digitado, sem aviso: "99999999999999,99" é salvo como 99.999.999.999.999,98, e "999999999999999,99", como
-  1.000.000.000.000.000,00. A partir de cerca de 10^16 (dez quatrilhões), o formulário aceita o valor e a API o recusa
-  com "Ocorreu um erro inesperado.". A API só recusa o zero: não limita a faixa nem a escala do valor, arredonda sem
-  aviso as casas além da segunda e, a partir de cerca de 10^16, responde com o erro inesperado. É um desvio conhecido do
-  back, corrigido pelo fluxo de bugs do back, que não bloqueia esta feature.
+  do digitado (FR-014). Desvio conhecido: hoje o zero passa pela validação; ao salvar, o diálogo fecha e a API recusa a
+  transação com "O valor da transação não pode ser zero.". Como a API o recusa, o zero não bloqueia a entrega desta
+  feature. A API só recusa o zero: não limita a faixa nem a escala do valor, arredonda sem aviso as casas além da
+  segunda e, a partir de cerca de 10^16, responde com o erro inesperado. É um desvio conhecido do back, corrigido pelo
+  fluxo de bugs do back, que não bloqueia esta feature.
 - Com os campos válidos, "Salvar" mantém o diálogo aberto até a resposta da API, sem aceitar um segundo "Salvar";
   quando a API recusa, a mensagem aparece, e o diálogo continua aberto com o que foi digitado (FR-016). Desvio
   conhecido: hoje o diálogo fecha assim que o usuário escolhe "Salvar", antes da resposta da API; quando ela recusa, os
@@ -454,10 +449,10 @@ conferir que o mês é ignorado.
   esquerda ("Informe uma data válida" para qualquer outro formato e para as datas inexistentes); e uma categoria
   ("Escolha uma categoria"). DEVE também limitar a descrição a 255 caracteres, com um contador dos caracteres usados no
   formato "N/255"; com algum campo inválido, "Salvar" DEVE apontar os erros e manter o diálogo aberto. Desvio conhecido:
-  hoje o formulário aceita o zero e valores de qualquer tamanho (ver Casos-limite); a correção segue o fluxo de bugs do
-  front, fora desta spec. Os valores com 14 ou mais algarismos inteiros, gravados hoje diferentes do digitado, ferem a
-  integridade dos dados (princípio II do `AGENTS.md`) e bloqueiam a entrega desta feature; o zero, que a API recusa, não
-  bloqueia. A leitura da data digitada como dia/mês/ano foi corrigida em `front/bugs/data-digitada-como-mes-dia-ano/`.
+  hoje o formulário aceita o zero (ver Casos-limite); a correção segue o fluxo de bugs do front, fora desta spec, e,
+  como a API recusa o zero, não bloqueia a entrega desta feature. O limite do valor foi corrigido em
+  `front/bugs/valor-com-muitos-algarismos/`, e a leitura da data digitada como dia/mês/ano, em
+  `front/bugs/data-digitada-como-mes-dia-ano/`.
 - **FR-015**: Ao salvar, a transação DEVE ser registrada com o valor negativo para "Saída" e positivo para "Entrada",
   com o dia escolhido como data e com a descrição sem os espaços das pontas, ou sem descrição quando ela estiver em
   branco.
@@ -589,11 +584,10 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   descrição longa e de categoria inexistente, o significado de cada filtro e os critérios de ordenação e de desempate. O
   formulário repete a exigência de data e de categoria, o limite da descrição e a recusa do zero, e acrescenta regras
   próprias de formato: o valor sem sinal, com até duas casas decimais, sem separador de milhar e com até 13 algarismos
-  na parte inteira, e a data digitada como dia/mês/ano (FR-014, em que a recusa do zero e o limite do valor são desvios
-  conhecidos); para o resto, mostra a mensagem da API. As mensagens da API estão sempre em
-  português, e a recusa automática de um pedido malformado vem sem mensagem, então cai na mensagem padrão. No valor, a
-  API só recusa o zero e não valida a faixa nem a escala, um desvio conhecido do back, corrigido pelo fluxo de bugs do
-  back e que não bloqueia esta feature.
+  na parte inteira, e a data digitada como dia/mês/ano (FR-014, em que a recusa do zero é um desvio conhecido); para o
+  resto, mostra a mensagem da API. As mensagens da API estão sempre em português, e a recusa automática de um pedido
+  malformado vem sem mensagem, então cai na mensagem padrão. No valor, a API só recusa o zero e não valida a faixa nem
+  a escala, um desvio conhecido do back, corrigido pelo fluxo de bugs do back e que não bloqueia esta feature.
 - A lista não é paginada: todas as transações que atendem aos filtros chegam e aparecem de uma vez. Não há meta de
   tempo: o uso é pessoal, com centenas de transações por mês, e as metas de desempenho desta página são de contagem de
   consultas (SC-007). O volume esperado é o de finanças pessoais, de centenas a poucos milhares de transações, a mesma
@@ -617,15 +611,15 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
 - Onde o comportamento esperado difere do atual, o requisito traz o esperado e marca o atual como desvio conhecido,
   conforme os Esclarecimentos de 2026-10-04, 2026-10-05 e 2026-10-06. Esta spec não tem trabalho para esses desvios,
   todos corrigidos fora dela, pelo fluxo de bugs do front: a data digitada (FR-014, corrigida em
-  `front/bugs/data-digitada-como-mes-dia-ano/`), a recusa do zero e o limite do valor (FR-014), o diálogo aberto até a
-  resposta da API (FR-016), o aviso da transação salva fora dos filtros (FR-017), "Nova
-  transação" sem categorias (FR-019), o dia escolhido no filtro "Mês" (FR-024, ainda a reproduzir, no campo
-  compartilhado com as páginas de categorias e de relatórios), os calendários em português (FR-030, corrigidos em
-  `front/bugs/calendarios-em-ingles/`) e a consulta que não se repete ao escolher de novo a ordenação em uso ou o mesmo
-  mês, nem com o mesmo texto na busca por descrição (FR-031, corrigida em `front/bugs/consulta-repetida-sem-mudanca/`
-  com uma comparação por conteúdo no estado de cada página, e não no menu de ordenação nem no campo "Mês"
-  compartilhados; vale também para as páginas de categorias e de relatórios). Também ficam fora o clique repetido em
-  "Excluir" sem retorno visual (FR-020, corrigido pelo fluxo de bugs do front em
+  `front/bugs/data-digitada-como-mes-dia-ano/`), a recusa do zero (FR-014), o limite do valor (FR-014, corrigido em
+  `front/bugs/valor-com-muitos-algarismos/`), o diálogo aberto até a resposta da API (FR-016), o aviso da transação
+  salva fora dos filtros (FR-017), "Nova transação" sem categorias (FR-019), o dia escolhido no filtro "Mês" (FR-024,
+  ainda a reproduzir, no campo compartilhado com as páginas de categorias e de relatórios), os calendários em português
+  (FR-030, corrigidos em `front/bugs/calendarios-em-ingles/`) e a consulta que não se repete ao escolher de novo a
+  ordenação em uso ou o mesmo mês, nem com o mesmo texto na busca por descrição (FR-031, corrigida em
+  `front/bugs/consulta-repetida-sem-mudanca/` com uma comparação por conteúdo no estado de cada página, e não no menu de
+  ordenação nem no campo "Mês" compartilhados; vale também para as páginas de categorias e de relatórios). Também ficam
+  fora o clique repetido em "Excluir" sem retorno visual (FR-020, corrigido pelo fluxo de bugs do front em
   `front/bugs/clique-repetido-em-excluir/`); a validação da faixa e da escala do valor pela API, pelo fluxo de bugs do
   back; e, como trabalho futuro em features próprias, o indicador de filtro em uso (FR-023) e as melhorias de
   acessibilidade. Bloqueiam a entrega desta feature, pela Governança do `AGENTS.md`, os desvios que contrariam a

@@ -152,6 +152,25 @@ describe('TransactionForm', () => {
 			expect(errors()).toEqual(['Informe um valor válido']);
 		});
 
+		it.each(['99999999999999,99', '12345678901234,56', '10000000000000', '999999999999999,99', '00000000000001'])(
+			'should not save a value with more than 13 integer digits: %s',
+			async (value) => {
+				await type('value', value);
+				await save();
+
+				expect(close).not.toHaveBeenCalled();
+				expect(errors()).toEqual(['Informe um valor válido']);
+			},
+		);
+
+		it('should save the largest value with 13 integer digits exactly', async () => {
+			await type('value', '9999999999999,99');
+			await save();
+
+			expect(close).toHaveBeenCalledWith(expect.objectContaining({ value: -9999999999999.99 }));
+			expect(JSON.stringify(close.mock.calls[0][0].value)).toBe('-9999999999999.99');
+		});
+
 		it('should save a value with a decimal point', async () => {
 			await type('value', '12.50');
 			await save();

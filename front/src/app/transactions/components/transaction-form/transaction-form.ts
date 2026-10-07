@@ -51,7 +51,8 @@ export class TransactionForm {
 		type: new FormControl(this.transaction && this.transaction.value > 0 ? 'in' : 'out', { nonNullable: true }),
 		value: new FormControl(this.transaction ? Math.abs(this.transaction.value).toFixed(2).replace('.', ',') : '', {
 			nonNullable: true,
-			validators: [Validators.required, Validators.pattern(/^\d+([.,]\d{1,2})?$/)],
+			// Up to 13 integer digits: with cents, larger values don't fit in a number (double) without rounding.
+			validators: [Validators.required, Validators.pattern(/^\d{1,13}([.,]\d{1,2})?$/)],
 		}),
 		date: new FormControl(this.transaction ? DateUtils.fromApiDate(this.transaction.date) : new Date(), {
 			nonNullable: true,
