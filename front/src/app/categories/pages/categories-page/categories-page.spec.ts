@@ -6,6 +6,7 @@ import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltip } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { of, Subject } from 'rxjs';
@@ -26,6 +27,7 @@ describe('CategoriesPage', () => {
 		color: '#43A047',
 		transactionCount: 14,
 		balance: -1842.55,
+		canDelete: false,
 	});
 	const educacao = buildCategory({ id: 'educacao', name: 'Educação', transactionCount: 0, balance: 0 });
 	const salario = buildCategory({ id: 'salario', name: 'Salário', transactionCount: 1, balance: 8600 });
@@ -109,6 +111,22 @@ describe('CategoriesPage', () => {
 		return fixture.debugElement.query(By.directive(CategoriesFilters))?.componentInstance;
 	}
 
+	function tooltip(target: HTMLElement) {
+		return fixture.debugElement
+			.queryAll(By.directive(MatTooltip))
+			.find((el) => el.nativeElement === target)!
+			.injector.get(MatTooltip).message;
+	}
+
+	function expectNoListRequest() {
+		TestBed.tick();
+		httpTesting.expectNone((req) => req.method === 'GET' && req.url === baseUrl);
+	}
+
+	function failWithoutResponse(req: TestRequest) {
+		req.error(new ProgressEvent('error'), { status: 0, statusText: '' });
+	}
+
 	function dialogReturns(result: unknown) {
 		dialog.open.mockReturnValue({ afterClosed: () => of(result) });
 	}
@@ -144,6 +162,47 @@ describe('CategoriesPage', () => {
 
 			expect(column('name')).toEqual(['Mercado']);
 		});
+
+		it('should keep the rows, without a spinner, while reloading from the header', async () => {
+			await flushList([mercado, educacao]);
+
+			headerButton('Recarregar')!.click();
+			const req = expectList();
+			fixture.detectChanges();
+
+			expect(column('name')).toEqual(['Mercado', 'Educação']);
+			expect(spinner()).toBeNull();
+
+			req.flush([mercado, educacao, salario]);
+			await fixture.whenStable();
+			expect(column('name')).toEqual(['Mercado', 'Educação', 'Salário']);
+		});
+
+		it('should keep the rows, without a spinner, while reloading after saving', async () => {
+			await flushList([mercado, educacao]);
+			dialogReturns({ name: 'Pets', color: '#123456' });
+			button('Nova categoria').click();
+			httpTesting
+				.expectOne(baseUrl)
+				.flush(buildCategory({ id: 'pets', name: 'Pets' }), { status: 201, statusText: 'Created' });
+
+			const req = expectList();
+			fixture.detectChanges();
+
+			expect(column('name')).toEqual(['Mercado', 'Educação']);
+			expect(spinner()).toBeNull();
+
+			req.flush([mercado, educacao, buildCategory({ id: 'pets', name: 'Pets' })]);
+			await fixture.whenStable();
+			expect(column('name')).toEqual(['Mercado', 'Educação', 'Pets']);
+		});
+
+		it('should be titled "Categorias", with "Recarregar" as the reload tooltip', async () => {
+			await flushList([mercado]);
+
+			expect(element.querySelector('app-page-header h1')?.textContent?.trim()).toBe('Categorias');
+			expect(tooltip(headerButton('Recarregar')!)).toBe('Recarregar');
+		});
 	});
 
 	describe('filters', () => {
@@ -170,6 +229,36 @@ describe('CategoriesPage', () => {
 			expect(expectList().request.params.toString()).toBe(
 				'name=mer&withTransaction=true&dateRef=2026-09-01&orderBy=name&asc=true',
 			);
+		});
+
+		it('should keep the filters, without reloading, while they are hidden', async () => {
+			const chosen = { name: 'mer', withTransaction: true, month: new Date(2026, 8, 1) };
+			headerButton('Exibir filtros')!.click();
+			await fixture.whenStable();
+			filters()!.filters.set(chosen);
+			await flushList([mercado]);
+
+			headerButton('Ocultar filtros')!.click();
+			fixture.detectChanges();
+			expectNoListRequest();
+
+			headerButton('Exibir filtros')!.click();
+			await fixture.whenStable();
+			expectNoListRequest();
+
+			expect(filters()!.filters()).toEqual(chosen);
+			expect(element.querySelector<HTMLInputElement>('app-categories-filters input[matInput]')!.value).toBe('mer');
+			expect(element.querySelector('app-categories-filters mat-select')!.textContent).toContain('Com transações');
+			expect(column('name')).toEqual(['Mercado']);
+		});
+
+		it('should say "Exibir filtros" or "Ocultar filtros" in the tooltip of the filters button', async () => {
+			expect(tooltip(headerButton('Exibir filtros')!)).toBe('Exibir filtros');
+
+			headerButton('Exibir filtros')!.click();
+			await fixture.whenStable();
+
+			expect(tooltip(headerButton('Ocultar filtros')!)).toBe('Ocultar filtros');
 		});
 	});
 
@@ -224,17 +313,17 @@ describe('CategoriesPage', () => {
 		});
 
 		it('should show the API error detail and not reload when saving fails', () => {
-			dialogReturns({ name: 'Mercado', color: '#43A047' });
+			dialogReturns({ name: '   ', color: '#43A047' });
 			button('Nova categoria').click();
 
 			httpTesting
 				.expectOne(baseUrl)
 				.flush(
-					{ status: 409, title: 'Conflict', detail: 'Já existe uma categoria com esse nome.' },
-					{ status: 409, statusText: 'Conflict' },
+					{ status: 400, title: 'Bad Request', detail: 'O nome da categoria não pode ser vazio.' },
+					{ status: 400, statusText: 'Bad Request' },
 				);
 
-			expect(snackBar.open).toHaveBeenCalledWith('Já existe uma categoria com esse nome.', 'Fechar', { duration: 5000 });
+			expect(snackBar.open).toHaveBeenCalledWith('O nome da categoria não pode ser vazio.', 'Fechar', { duration: 5000 });
 			TestBed.tick();
 			httpTesting.expectNone(baseUrl);
 		});
@@ -243,7 +332,7 @@ describe('CategoriesPage', () => {
 			dialogReturns({ name: 'X', color: '#000000' });
 			rowButton(0, 'Editar').click();
 
-			httpTesting.expectOne(`${baseUrl}/${mercado.id}`).flush(null, { status: 500, statusText: 'Server Error' });
+			failWithoutResponse(httpTesting.expectOne(`${baseUrl}/${mercado.id}`));
 
 			expect(snackBar.open).toHaveBeenCalledWith('Não foi possível salvar a categoria.', 'Fechar', { duration: 5000 });
 		});
@@ -283,20 +372,67 @@ describe('CategoriesPage', () => {
 		});
 
 		it('should show why the API refuses to delete a category with transactions', () => {
-			rowButton(0, 'Excluir').click();
+			// The list is stale: the category gained transactions after it loaded.
+			rowButton(1, 'Excluir').click();
 
 			httpTesting
-				.expectOne(`${baseUrl}/${mercado.id}`)
+				.expectOne(`${baseUrl}/${educacao.id}`)
 				.flush(
-					{ status: 400, detail: 'A categoria possui transações vinculadas.' },
+					{ status: 400, detail: 'Não é possível excluir uma categoria que possui transações associadas.' },
 					{ status: 400, statusText: 'Bad Request' },
 				);
 
-			expect(snackBar.open).toHaveBeenCalledWith('A categoria possui transações vinculadas.', 'Fechar', {
-				duration: 5000,
-			});
+			expect(snackBar.open).toHaveBeenCalledWith(
+				'Não é possível excluir uma categoria que possui transações associadas.',
+				'Fechar',
+				{ duration: 5000 },
+			);
 			TestBed.tick();
 			httpTesting.expectNone(baseUrl);
+		});
+
+		it('should show a fallback message when deleting fails without a detail', () => {
+			failWithoutResponse(deleteEducacao());
+
+			expect(snackBar.open).toHaveBeenCalledWith('Não foi possível excluir a categoria.', 'Fechar', {
+				duration: 5000,
+			});
+			expectNoListRequest();
+		});
+
+		describe('when undoing fails', () => {
+			async function undoDeletion() {
+				deleteEducacao().flush(null, { status: 204, statusText: 'No Content' });
+				await flushList([mercado]);
+				snackBar.open.mockClear();
+
+				snackBarAction.next();
+
+				const req = httpTesting.expectOne(baseUrl);
+				expect(req.request.method).toBe('POST');
+				return req;
+			}
+
+			it('should show the API error detail and not reload', async () => {
+				(await undoDeletion()).flush(
+					{ status: 500, title: 'Internal Server Error', detail: 'Ocorreu um erro inesperado.' },
+					{ status: 500, statusText: 'Internal Server Error' },
+				);
+
+				expect(snackBar.open).toHaveBeenCalledExactlyOnceWith('Ocorreu um erro inesperado.', 'Fechar', {
+					duration: 5000,
+				});
+				expectNoListRequest();
+			});
+
+			it('should show a fallback message on a network error and not reload', async () => {
+				failWithoutResponse(await undoDeletion());
+
+				expect(snackBar.open).toHaveBeenCalledExactlyOnceWith('Não foi possível salvar a categoria.', 'Fechar', {
+					duration: 5000,
+				});
+				expectNoListRequest();
+			});
 		});
 	});
 });

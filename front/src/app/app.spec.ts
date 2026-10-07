@@ -51,4 +51,13 @@ describe('AppComponent', () => {
 		const current = links().filter((a) => a.getAttribute('aria-current') === 'page');
 		expect(current.map((a) => a.getAttribute('href'))).toEqual(['/transactions']);
 	});
+
+	it('should mark only the categories link on the categories page', async () => {
+		await TestBed.inject(Router).navigateByUrl('/categories');
+		await fixture.whenStable();
+
+		const current = links().filter((a) => a.getAttribute('aria-current') === 'page');
+		expect(current.map((a) => a.getAttribute('href'))).toEqual(['/categories']);
+		expect(current.map((a) => a.textContent)).toEqual([expect.stringContaining('Categorias')]);
+	});
 });

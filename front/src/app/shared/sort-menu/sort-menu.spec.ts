@@ -1,5 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatTooltip } from '@angular/material/tooltip';
+import { By } from '@angular/platform-browser';
 import { Sort } from '@angular/material/sort';
 import { SortMenu, SortOption } from './sort-menu';
 
@@ -32,6 +34,10 @@ describe('SortMenu', () => {
 		return element.querySelector<HTMLButtonElement>('button')!;
 	}
 
+	function tooltip() {
+		return fixture.debugElement.query(By.directive(MatTooltip)).injector.get(MatTooltip).message;
+	}
+
 	/** The menu opens in an overlay, outside the host. */
 	function items() {
 		return Array.from(document.querySelectorAll<HTMLButtonElement>('.mat-mdc-menu-panel [mat-menu-item]'));
@@ -49,6 +55,16 @@ describe('SortMenu', () => {
 		await fixture.whenStable();
 
 		expect(trigger().getAttribute('aria-label')).toBe('Ordenar: Maior saldo primeiro');
+	});
+
+	it('should show the sort in use in the tooltip of its button', async () => {
+		expect(tooltip()).toBe('Ordenar: Nome (A–Z)');
+
+		host.sort.set({ active: 'balance', direction: 'desc' });
+		await fixture.whenStable();
+
+		expect(tooltip()).toBe('Ordenar: Maior saldo primeiro');
+		expect(tooltip()).toBe(trigger().getAttribute('aria-label'));
 	});
 
 	it('should list the options with the one in use checked', async () => {

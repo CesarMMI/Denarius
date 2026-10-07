@@ -86,6 +86,15 @@ describe('CategoriesTable', () => {
 		expect(positive.classList).not.toContain('negative');
 	});
 
+	it('should show a name with markup as plain text in the chip', async () => {
+		categories.set({ status: 'resolved', value: [buildCategory({ id: 'markup', name: '<b>teste</b>' })] });
+		await fixture.whenStable();
+
+		const chip = element.querySelector('tr[mat-row] mat-chip')!;
+		expect(chip.textContent?.trim()).toBe('<b>teste</b>');
+		expect(chip.querySelector('b')).toBeNull();
+	});
+
 	it('should link the count to the transactions of the category', () => {
 		expect(element.querySelector('tr[mat-row] a')!.getAttribute('href')).toBe('/transactions?categoryId=mercado');
 	});
@@ -139,5 +148,9 @@ describe('CategoriesTable', () => {
 			'Não é possível excluir uma categoria com transações, mesmo que em outros meses.',
 		);
 		expect(tooltip(withoutTransactions)).toBe('Excluir');
+	});
+
+	it('should show "Editar" as the tooltip of the edit button', () => {
+		expect(tooltip(rowButton(0, 'Editar'))).toBe('Editar');
 	});
 });

@@ -50,6 +50,10 @@ describe('CategoryForm', () => {
 			.map((s) => s.getAttribute('aria-label'));
 	}
 
+	function counter() {
+		return element.querySelector('mat-hint')?.textContent?.trim();
+	}
+
 	async function typeName(value: string) {
 		nameInput().value = value;
 		nameInput().dispatchEvent(new Event('input'));
@@ -69,6 +73,26 @@ describe('CategoryForm', () => {
 			expect(swatches().map((s) => s.getAttribute('aria-label'))).toEqual(PALETTE);
 			expect(pressed()).toEqual([PALETTE[0]]);
 			expect(colorInput().value).toBe(PALETTE[0].toLowerCase());
+		});
+
+		it('should limit the name to 100 characters and count them', async () => {
+			expect(nameInput().getAttribute('maxlength')).toBe('100');
+			expect(counter()).toBe('0/100');
+
+			await typeName('Mercado');
+			expect(counter()).toBe('7/100');
+
+			await typeName('a'.repeat(100));
+			expect(counter()).toBe('100/100');
+		});
+
+		it('should group the swatches as "Cor" and name the custom color picker', () => {
+			const group = element.querySelector('[role="group"]')!;
+
+			expect(group.getAttribute('aria-label')).toBe('Cor');
+			expect(group.querySelectorAll('button')).toHaveLength(PALETTE.length);
+			expect(group.contains(colorInput())).toBe(true);
+			expect(colorInput().getAttribute('aria-label')).toBe('Cor personalizada');
 		});
 
 		it('should not save without a name', async () => {
@@ -125,6 +149,16 @@ describe('CategoryForm', () => {
 			await save();
 
 			expect(close).toHaveBeenCalledWith({ name: 'Lazer e cultura', color: '#8E24AA' });
+		});
+	});
+
+	describe('editing a category with a color outside the palette', () => {
+		beforeEach(() => render(buildCategory({ id: 'cat-2', name: 'Pets', color: '#123456' })));
+
+		it('should press no swatch and show the color in the custom color picker', () => {
+			expect(swatches()).toHaveLength(PALETTE.length);
+			expect(pressed()).toEqual([]);
+			expect(colorInput().value).toBe('#123456');
 		});
 	});
 });
