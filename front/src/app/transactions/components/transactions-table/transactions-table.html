@@ -31,12 +31,32 @@
 	<ng-container matColumnDef="actions">
 		<th mat-header-cell *matHeaderCellDef></th>
 		<td mat-cell *matCellDef="let transaction">
+			@let beingDeleted = deleting().has(transaction.id);
 			<div class="actions">
-				<button matIconButton aria-label="Editar" matTooltip="Editar" (click)="edit.emit(transaction)">
+				<!-- disabledInteractive keeps the focus and the tooltip working; the click still fires, hence the guards. -->
+				<button
+					matIconButton
+					aria-label="Editar"
+					matTooltip="Editar"
+					[disabled]="beingDeleted"
+					disabledInteractive
+					(click)="!beingDeleted && edit.emit(transaction)"
+				>
 					<mat-icon>edit</mat-icon>
 				</button>
-				<button matIconButton aria-label="Excluir" matTooltip="Excluir" (click)="delete.emit(transaction)">
-					<mat-icon>delete</mat-icon>
+				<button
+					matIconButton
+					aria-label="Excluir"
+					matTooltip="Excluir"
+					[disabled]="beingDeleted"
+					disabledInteractive
+					(click)="!beingDeleted && delete.emit(transaction)"
+				>
+					@if (beingDeleted) {
+						<mat-progress-spinner mode="indeterminate" diameter="20" />
+					} @else {
+						<mat-icon>delete</mat-icon>
+					}
 				</button>
 			</div>
 		</td>

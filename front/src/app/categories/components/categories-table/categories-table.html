@@ -25,22 +25,34 @@
 	<ng-container matColumnDef="actions">
 		<th mat-header-cell *matHeaderCellDef></th>
 		<td mat-cell *matCellDef="let category">
+			@let beingDeleted = deleting().has(category.id);
 			<div class="actions">
-				<button matIconButton aria-label="Editar" matTooltip="Editar" (click)="edit.emit(category)">
+				<!-- disabledInteractive keeps the focus and the tooltip working; the click still fires, hence the guards. -->
+				<button
+					matIconButton
+					aria-label="Editar"
+					matTooltip="Editar"
+					[disabled]="beingDeleted"
+					disabledInteractive
+					(click)="!beingDeleted && edit.emit(category)"
+				>
 					<mat-icon>edit</mat-icon>
 				</button>
-				<!-- disabledInteractive keeps the tooltip working; the click still fires, hence the guard. -->
 				<button
 					matIconButton
 					aria-label="Excluir"
 					[matTooltip]="
 						category.canDelete ? 'Excluir' : 'Não é possível excluir uma categoria com transações, mesmo que em outros meses.'
 					"
-					[disabled]="!category.canDelete"
+					[disabled]="!category.canDelete || beingDeleted"
 					disabledInteractive
-					(click)="category.canDelete && delete.emit(category)"
+					(click)="category.canDelete && !beingDeleted && delete.emit(category)"
 				>
-					<mat-icon>delete</mat-icon>
+					@if (beingDeleted) {
+						<mat-progress-spinner mode="indeterminate" diameter="20" />
+					} @else {
+						<mat-icon>delete</mat-icon>
+					}
 				</button>
 			</div>
 		</td>

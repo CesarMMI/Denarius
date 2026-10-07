@@ -638,4 +638,228 @@ describe('TransactionsPage', () => {
 			httpTesting.expectNone(baseUrl);
 		});
 	});
+
+	describe('deleting, while in progress', () => {
+		const noContent = { status: 204, statusText: 'No Content' };
+
+		beforeEach(async () => {
+			create();
+			await load([feira, pagamento]);
+		});
+
+		function deleteRequests(id: string): TestRequest[] {
+			TestBed.tick();
+			return httpTesting.match((req) => req.method === 'DELETE' && req.url === `${baseUrl}/${id}`);
+		}
+
+		function rowSpinner(row: number) {
+			return rowButton(row, 'Excluir').querySelector('mat-progress-spinner');
+		}
+
+		function isDisabled(button: HTMLButtonElement) {
+			return button.getAttribute('aria-disabled') === 'true';
+		}
+
+		function progressBar() {
+			return element.querySelector('mat-card.table mat-progress-bar');
+		}
+
+		/** The list takes the response in a later task; `whenStable()` would wait on the reload it may send. */
+		function settle() {
+			return new Promise((resolve) => setTimeout(resolve));
+		}
+
+		it('should not send another DELETE when "Excluir" is clicked again before the response', async () => {
+			rowButton(0, 'Excluir').click();
+			fixture.detectChanges();
+			rowButton(0, 'Excluir').click();
+
+			const requests = deleteRequests(feira.id);
+			expect(requests).toHaveLength(1);
+
+			requests[0].flush(null, noContent);
+			await flushList([pagamento]);
+		});
+
+		it('should not send another DELETE after the deletion is accepted and before the list reloads', async () => {
+			rowButton(0, 'Excluir').click();
+			deleteRequests(feira.id)[0].flush(null, noContent);
+			const reload = expectList();
+			fixture.detectChanges();
+
+			rowButton(0, 'Excluir').click();
+
+			expect(deleteRequests(feira.id)).toHaveLength(0);
+			expect(snackBar.open).toHaveBeenCalledExactlyOnceWith('Transação excluída.', 'Desfazer', { duration: 5000 });
+			reload.flush([pagamento]);
+			await fixture.whenStable();
+			expect(column('description')).toEqual(['Salário']);
+		});
+
+		it('should disable "Excluir" and show a spinner in the row while it is being deleted', async () => {
+			rowButton(0, 'Excluir').click();
+			const request = deleteRequests(feira.id)[0];
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(0, 'Excluir'))).toBe(true);
+			expect(rowSpinner(0)).not.toBeNull();
+
+			request.flush(null, noContent);
+			await flushList([pagamento]);
+		});
+
+		it('should keep "Excluir" of the other rows enabled, without a spinner, while a row is being deleted', async () => {
+			rowButton(0, 'Excluir').click();
+			const feiraRequest = deleteRequests(feira.id)[0];
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(1, 'Excluir'))).toBe(false);
+			expect(rowSpinner(1)).toBeNull();
+
+			rowButton(1, 'Excluir').click();
+			const pagamentoRequests = deleteRequests(pagamento.id);
+			expect(pagamentoRequests).toHaveLength(1);
+
+			feiraRequest.flush(null, noContent);
+			pagamentoRequests[0].flush(
+				{ status: 404, detail: 'Transação não encontrada.' },
+				{ status: 404, statusText: 'Not Found' },
+			);
+			await flushList([pagamento]);
+		});
+
+		it('should enable "Excluir" again when the deletion is refused', async () => {
+			rowButton(0, 'Excluir').click();
+			deleteRequests(feira.id)[0].error(new ProgressEvent('error'));
+			await fixture.whenStable();
+
+			expect(isDisabled(rowButton(0, 'Excluir'))).toBe(false);
+			expect(rowSpinner(0)).toBeNull();
+
+			rowButton(0, 'Excluir').click();
+			const again = deleteRequests(feira.id);
+			expect(again).toHaveLength(1);
+			again[0].flush(null, noContent);
+			await flushList([pagamento]);
+		});
+
+		it('should disable "Editar" while the row is being deleted', async () => {
+			dialogReturns(undefined);
+			rowButton(0, 'Excluir').click();
+			const request = deleteRequests(feira.id)[0];
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(0, 'Editar'))).toBe(true);
+			rowButton(0, 'Editar').click();
+			expect(dialog.open).not.toHaveBeenCalled();
+
+			request.flush(null, noContent);
+			const reload = expectList();
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(0, 'Editar'))).toBe(true);
+			rowButton(0, 'Editar').click();
+			expect(dialog.open).not.toHaveBeenCalled();
+			expect(isDisabled(rowButton(1, 'Editar'))).toBe(false);
+
+			reload.flush([pagamento]);
+			await fixture.whenStable();
+		});
+
+		describe('restoring', () => {
+			const restored = { ...feira, id: RESTAURADA_ID };
+
+			async function undoDeletion() {
+				rowButton(0, 'Excluir').click();
+				deleteRequests(feira.id)[0].flush(null, noContent);
+				await flushList([pagamento]);
+				expect(progressBar()).toBeNull();
+
+				snackBarAction.next();
+				return httpTesting.expectOne((req) => req.method === 'POST' && req.url === baseUrl);
+			}
+
+			it('should show that the restoration is in progress', async () => {
+				const request = await undoDeletion();
+				fixture.detectChanges();
+
+				expect(progressBar()).not.toBeNull();
+				expect(progressBar()!.getAttribute('aria-label')).toBe('Restaurando a transação');
+
+				request.flush(restored, { status: 201, statusText: 'Created' });
+				await flushList([restored, pagamento]);
+			});
+
+			it('should hide the progress once the restoration is accepted', async () => {
+				const request = await undoDeletion();
+
+				request.flush(restored, { status: 201, statusText: 'Created' });
+				const reload = expectList();
+				fixture.detectChanges();
+				expect(progressBar()).toBeNull();
+
+				reload.flush([restored, pagamento]);
+				await fixture.whenStable();
+				expect(column('description')).toEqual(['Feira', 'Salário']);
+			});
+
+			it('should hide the progress once the restoration is refused', async () => {
+				const request = await undoDeletion();
+
+				request.error(new ProgressEvent('error'));
+				await fixture.whenStable();
+
+				expect(progressBar()).toBeNull();
+				expectNoListRequest();
+			});
+		});
+
+		describe('when the list is already loading', () => {
+			it('should reload again when a deletion is accepted during a reload', async () => {
+				rowButton(0, 'Excluir').click();
+				deleteRequests(feira.id)[0].flush(null, noContent);
+				const firstReload = expectList();
+
+				rowButton(1, 'Excluir').click();
+				deleteRequests(pagamento.id)[0].flush(null, noContent);
+
+				// Answered before the API saw the payment go.
+				firstReload.flush([pagamento]);
+				await settle();
+				const secondReload = expectList();
+				fixture.detectChanges();
+
+				expect(column('description')).toEqual(['Salário']);
+				expect(isDisabled(rowButton(0, 'Excluir'))).toBe(true);
+				rowButton(0, 'Excluir').click();
+				expect(deleteRequests(pagamento.id)).toHaveLength(0);
+
+				secondReload.flush([]);
+				await fixture.whenStable();
+				expect(noDataRow()).toBe('Nenhuma transação encontrada.');
+				expectNoListRequest();
+			});
+
+			it('should reload again when a deletion is accepted while the filters load the list', async () => {
+				headerButton('Exibir filtros')!.click();
+				await fixture.whenStable();
+
+				rowButton(0, 'Excluir').click();
+				const request = deleteRequests(feira.id)[0];
+				filters()!.filters.set({ description: '', type: 'out', categoryId: '', month: null });
+				const filtered = expectList();
+
+				request.flush(null, noContent);
+				filtered.flush([feira]);
+				await settle();
+				const reload = expectList();
+				expect(reload.request.params.get('type')).toBe('out');
+
+				reload.flush([]);
+				await fixture.whenStable();
+				expect(noDataRow()).toBe('Nenhuma transação encontrada.');
+				expectNoListRequest();
+			});
+		});
+	});
 });

@@ -396,11 +396,7 @@ conferir que o mês é ignorado.
 - Editar ou excluir uma transação que já não existe (removida em outra janela) é recusado pela API com "Transação não
   encontrada.", e a linha continua na lista até o usuário escolher "Recarregar".
 - Escolher "Excluir" de novo na mesma linha antes de a lista recarregar (por exemplo, num clique duplo) não envia outro
-  pedido, e a página mostra que a exclusão, ou a restauração, está em andamento (FR-020). Desvio conhecido, que
-  contraria o princípio III e bloqueia a entrega desta feature: hoje o segundo clique envia outro pedido, que não exclui
-  nada a mais; a API o recusa (por exemplo, com "Transação não encontrada."), e essa mensagem toma o lugar da que
-  oferece "Desfazer", então a exclusão não pode mais ser desfeita; e nada na página indica que a exclusão ou a
-  restauração está em andamento.
+  pedido, e a página mostra que a exclusão, ou a restauração, está em andamento (FR-020).
 - Editar a mesma transação em duas janelas não gera aviso de conflito: vale a última gravação, e a outra janela continua
   mostrando a versão anterior até o usuário escolher "Recarregar".
 - Ocultar os filtros não os limpa (FR-023): a lista continua filtrada, e nada no cabeçalho indica que há um filtro em
@@ -497,11 +493,8 @@ conferir que o mês é ignorado.
   correção.
 - **FR-020**: "Excluir" DEVE excluir a transação na hora, sem pedir confirmação, recarregar a lista e mostrar "Transação
   excluída." com a ação "Desfazer" por 5 segundos. Um novo "Excluir" na mesma linha antes de a lista recarregar NÃO DEVE
-  enviar outro pedido, e a página DEVE mostrar que a exclusão, ou a restauração (FR-021), está em andamento. Desvio
-  conhecido: hoje um clique repetido envia outro pedido, que a API recusa, e nada indica a exclusão ou a restauração em
-  andamento (ver Casos-limite); isso contraria o princípio III e bloqueia a entrega desta feature. A correção segue o
-  fluxo de bugs do front, fora desta spec, e a forma do retorno visual é definida no `/speckit-bug-assess` dessa
-  correção.
+  enviar outro pedido, e a página DEVE mostrar que a exclusão, ou a restauração (FR-021), está em andamento; a forma
+  do retorno visual está em `front/bugs/clique-repetido-em-excluir/`.
 - **FR-021**: "Desfazer" DEVE registrar de novo a transação excluída, com a mesma data, valor, categoria e descrição,
   mostrar "Transação restaurada." por 3 segundos e recarregar a lista; uma recusa DEVE ser tratada como em FR-018.
 - **FR-022**: Uma exclusão recusada DEVE mostrar, por 5 segundos e com a ação "Fechar", a mensagem da API ou, sem motivo
@@ -636,11 +629,12 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   mês, nem com o mesmo texto na busca por descrição (FR-031, corrigida em `front/bugs/consulta-repetida-sem-mudanca/`
   com uma comparação por conteúdo no estado de cada página, e não no menu de ordenação nem no campo "Mês"
   compartilhados; vale também para as páginas de categorias e de relatórios). Também ficam fora o clique repetido em
-  "Excluir" sem retorno visual (FR-020), pelo fluxo de bugs do front; a validação da faixa e da escala do valor pela
-  API, pelo fluxo de bugs do back; e, como trabalho futuro em features próprias, o indicador de filtro em uso (FR-023) e
-  as melhorias de acessibilidade. Bloqueiam a entrega desta feature, pela Governança do `AGENTS.md`, os desvios que
-  contrariam a constituição: a consulta repetida (FR-031) e o clique repetido em "Excluir" (FR-020), pelo princípio III;
-  os calendários em inglês (FR-030), pela regra de idioma; e a data digitada e os valores com 14 ou mais algarismos
+  "Excluir" sem retorno visual (FR-020, corrigido pelo fluxo de bugs do front em
+  `front/bugs/clique-repetido-em-excluir/`); a validação da faixa e da escala do valor pela API, pelo fluxo de bugs do
+  back; e, como trabalho futuro em features próprias, o indicador de filtro em uso (FR-023) e as melhorias de
+  acessibilidade. Bloqueiam a entrega desta feature, pela Governança do `AGENTS.md`, os desvios que contrariam a
+  constituição: a consulta repetida (FR-031) e o clique repetido em "Excluir" (FR-020), pelo princípio III; os
+  calendários em inglês (FR-030), pela regra de idioma; e a data digitada e os valores com 14 ou mais algarismos
   (FR-014), pelo princípio II. Um bug-fix conta como concluído quando o seu `front/bugs/<slug>/test.md` registra o
   resultado `verified`, o teste que reproduz o bug e a suíte completa passam e o `/speckit-converge` reavalia contra o
   código os requisitos e critérios afetados. Se a reprodução de um desvio deduzido do código não o confirmar, o

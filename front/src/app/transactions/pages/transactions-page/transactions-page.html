@@ -28,9 +28,13 @@
 }
 
 <mat-card class="table">
+	@if (restoring()) {
+		<mat-progress-bar mode="indeterminate" aria-label="Restaurando a transação" />
+	}
 	<app-transactions-table
 		[transactions]="transactions"
 		[categories]="categories"
+		[deleting]="deleting()"
 		(edit)="openForm($event)"
 		(delete)="delete($event)"
 	/>

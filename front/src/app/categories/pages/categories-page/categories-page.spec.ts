@@ -515,4 +515,224 @@ describe('CategoriesPage', () => {
 			});
 		});
 	});
+
+	describe('deleting, while in progress', () => {
+		const pets = buildCategory({ id: 'pets', name: 'Pets', canDelete: true });
+		const noContent = { status: 204, statusText: 'No Content' };
+
+		beforeEach(() => flushList([mercado, educacao, pets]));
+
+		function deleteRequests(id: string): TestRequest[] {
+			TestBed.tick();
+			return httpTesting.match((req) => req.method === 'DELETE' && req.url === `${baseUrl}/${id}`);
+		}
+
+		function rowSpinner(row: number) {
+			return rowButton(row, 'Excluir').querySelector('mat-progress-spinner');
+		}
+
+		function isDisabled(button: HTMLButtonElement) {
+			return button.getAttribute('aria-disabled') === 'true';
+		}
+
+		function progressBar() {
+			return element.querySelector('mat-card.table mat-progress-bar');
+		}
+
+		/** The list takes the response in a later task; `whenStable()` would wait on the reload it may send. */
+		function settle() {
+			return new Promise((resolve) => setTimeout(resolve));
+		}
+
+		it('should not send another DELETE when "Excluir" is clicked again before the response', async () => {
+			rowButton(1, 'Excluir').click();
+			fixture.detectChanges();
+			rowButton(1, 'Excluir').click();
+
+			const requests = deleteRequests(educacao.id);
+			expect(requests).toHaveLength(1);
+
+			requests[0].flush(null, noContent);
+			await flushList([mercado, pets]);
+		});
+
+		it('should not send another DELETE after the deletion is accepted and before the list reloads', async () => {
+			rowButton(1, 'Excluir').click();
+			deleteRequests(educacao.id)[0].flush(null, noContent);
+			const reload = expectList();
+			fixture.detectChanges();
+
+			rowButton(1, 'Excluir').click();
+
+			expect(deleteRequests(educacao.id)).toHaveLength(0);
+			expect(snackBar.open).toHaveBeenCalledExactlyOnceWith('Categoria excluída.', 'Desfazer', { duration: 5000 });
+			reload.flush([mercado, pets]);
+			await fixture.whenStable();
+			expect(column('name')).toEqual(['Mercado', 'Pets']);
+		});
+
+		it('should disable "Excluir" and show a spinner in the row while it is being deleted', async () => {
+			rowButton(1, 'Excluir').click();
+			const request = deleteRequests(educacao.id)[0];
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(1, 'Excluir'))).toBe(true);
+			expect(rowSpinner(1)).not.toBeNull();
+
+			request.flush(null, noContent);
+			await flushList([mercado, pets]);
+		});
+
+		it('should keep "Excluir" of the other rows enabled, without a spinner, while a row is being deleted', async () => {
+			rowButton(1, 'Excluir').click();
+			const educacaoRequest = deleteRequests(educacao.id)[0];
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(2, 'Excluir'))).toBe(false);
+			expect(rowSpinner(2)).toBeNull();
+
+			rowButton(2, 'Excluir').click();
+			const petsRequests = deleteRequests(pets.id);
+			expect(petsRequests).toHaveLength(1);
+
+			educacaoRequest.flush(null, noContent);
+			petsRequests[0].flush({ status: 400, detail: 'Recusada.' }, { status: 400, statusText: 'Bad Request' });
+			await flushList([mercado, pets]);
+		});
+
+		it('should enable "Excluir" again when the deletion is refused', async () => {
+			rowButton(1, 'Excluir').click();
+			deleteRequests(educacao.id)[0].flush(
+				{ status: 400, detail: 'Não é possível excluir uma categoria que possui transações associadas.' },
+				{ status: 400, statusText: 'Bad Request' },
+			);
+			await fixture.whenStable();
+
+			expect(isDisabled(rowButton(1, 'Excluir'))).toBe(false);
+			expect(rowSpinner(1)).toBeNull();
+
+			rowButton(1, 'Excluir').click();
+			const again = deleteRequests(educacao.id);
+			expect(again).toHaveLength(1);
+			again[0].flush(null, noContent);
+			await flushList([mercado, pets]);
+		});
+
+		it('should disable "Editar" while the row is being deleted', async () => {
+			dialogReturns(undefined);
+			rowButton(1, 'Excluir').click();
+			const request = deleteRequests(educacao.id)[0];
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(1, 'Editar'))).toBe(true);
+			rowButton(1, 'Editar').click();
+			expect(dialog.open).not.toHaveBeenCalled();
+
+			request.flush(null, noContent);
+			const reload = expectList();
+			fixture.detectChanges();
+
+			expect(isDisabled(rowButton(1, 'Editar'))).toBe(true);
+			rowButton(1, 'Editar').click();
+			expect(dialog.open).not.toHaveBeenCalled();
+			expect(isDisabled(rowButton(2, 'Editar'))).toBe(false);
+
+			reload.flush([mercado, pets]);
+			await fixture.whenStable();
+		});
+
+		describe('restoring', () => {
+			async function undoDeletion() {
+				rowButton(1, 'Excluir').click();
+				deleteRequests(educacao.id)[0].flush(null, noContent);
+				await flushList([mercado, pets]);
+				expect(progressBar()).toBeNull();
+
+				snackBarAction.next();
+				return httpTesting.expectOne((req) => req.method === 'POST' && req.url === baseUrl);
+			}
+
+			it('should show that the restoration is in progress', async () => {
+				const request = await undoDeletion();
+				fixture.detectChanges();
+
+				expect(progressBar()).not.toBeNull();
+				expect(progressBar()!.getAttribute('aria-label')).toBe('Restaurando a categoria');
+
+				request.flush({ ...educacao, id: 'educacao-2' }, { status: 201, statusText: 'Created' });
+				await flushList([mercado, { ...educacao, id: 'educacao-2' }, pets]);
+			});
+
+			it('should hide the progress once the restoration is accepted', async () => {
+				const request = await undoDeletion();
+
+				request.flush({ ...educacao, id: 'educacao-2' }, { status: 201, statusText: 'Created' });
+				const reload = expectList();
+				fixture.detectChanges();
+				expect(progressBar()).toBeNull();
+
+				reload.flush([mercado, { ...educacao, id: 'educacao-2' }, pets]);
+				await fixture.whenStable();
+				expect(column('name')).toEqual(['Mercado', 'Educação', 'Pets']);
+			});
+
+			it('should hide the progress once the restoration is refused', async () => {
+				const request = await undoDeletion();
+
+				request.flush({ status: 500, detail: 'Ocorreu um erro inesperado.' }, { status: 500, statusText: 'Error' });
+				await fixture.whenStable();
+
+				expect(progressBar()).toBeNull();
+				expectNoListRequest();
+			});
+		});
+
+		describe('when the list is already loading', () => {
+			it('should reload again when a deletion is accepted during a reload', async () => {
+				rowButton(1, 'Excluir').click();
+				deleteRequests(educacao.id)[0].flush(null, noContent);
+				const firstReload = expectList();
+
+				rowButton(2, 'Excluir').click();
+				deleteRequests(pets.id)[0].flush(null, noContent);
+
+				// Answered before the API saw Pets go.
+				firstReload.flush([mercado, pets]);
+				await settle();
+				const secondReload = expectList();
+				fixture.detectChanges();
+
+				expect(column('name')).toEqual(['Mercado', 'Pets']);
+				expect(isDisabled(rowButton(1, 'Excluir'))).toBe(true);
+				rowButton(1, 'Excluir').click();
+				expect(deleteRequests(pets.id)).toHaveLength(0);
+
+				secondReload.flush([mercado]);
+				await fixture.whenStable();
+				expect(column('name')).toEqual(['Mercado']);
+				expectNoListRequest();
+			});
+
+			it('should reload again when a deletion is accepted while the filters load the list', async () => {
+				headerButton('Exibir filtros')!.click();
+				await fixture.whenStable();
+
+				rowButton(1, 'Excluir').click();
+				const request = deleteRequests(educacao.id)[0];
+				filters()!.filters.set({ name: 'e', withTransaction: '', month: null });
+				const filtered = expectList();
+
+				request.flush(null, noContent);
+				filtered.flush([educacao, pets]);
+				await settle();
+				const reload = expectList();
+				expect(reload.request.params.get('name')).toBe('e');
+
+				reload.flush([pets]);
+				await fixture.whenStable();
+				expect(column('name')).toEqual(['Pets']);
+				expectNoListRequest();
+			});
+		});
+	});
 });

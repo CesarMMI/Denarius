@@ -28,6 +28,8 @@ import { Category } from '../../types/category';
 })
 export class CategoriesTable {
 	readonly categories = input.required<Resource<Category[] | undefined>>();
+	/** The ids of the categories being deleted: their actions are disabled, and "Excluir" shows a spinner. */
+	readonly deleting = input<ReadonlySet<string>>(new Set());
 	readonly edit = output<Category>();
 	readonly delete = output<Category>();
 

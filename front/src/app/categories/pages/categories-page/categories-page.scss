@@ -16,3 +16,11 @@ mat-card {
 		overflow: auto;
 	}
 }
+
+// Stays at the top of the scrolling card, over the rows, without pushing the table down.
+mat-progress-bar {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	margin-bottom: calc(-1 * var(--mat-progress-bar-track-height, 4px));
+}

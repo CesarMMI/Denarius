@@ -28,5 +28,13 @@
 }
 
 <mat-card class="table">
-	<app-categories-table [categories]="categories" (edit)="openForm($event)" (delete)="delete($event)" />
+	@if (restoring()) {
+		<mat-progress-bar mode="indeterminate" aria-label="Restaurando a categoria" />
+	}
+	<app-categories-table
+		[categories]="categories"
+		[deleting]="deleting()"
+		(edit)="openForm($event)"
+		(delete)="delete($event)"
+	/>
 </mat-card>

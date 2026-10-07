@@ -30,6 +30,8 @@ export class TransactionsTable {
 	readonly transactions = input.required<Resource<Transaction[] | undefined>>();
 	/** Give the rows their names and colors. */
 	readonly categories = input.required<Resource<Category[] | undefined>>();
+	/** The ids of the transactions being deleted: their actions are disabled, and "Excluir" shows a spinner. */
+	readonly deleting = input<ReadonlySet<string>>(new Set());
 	readonly edit = output<Transaction>();
 	readonly delete = output<Transaction>();
 

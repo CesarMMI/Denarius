@@ -331,10 +331,7 @@ ver FR-004).
 - O "Excluir" desabilitado continua mostrando a sua dica quando o usuário aponta para ele ou chega a ele pelo
   teclado: ele continua alcançável pelo Tab, e escolhê-lo não faz nada.
 - Um segundo clique no "Excluir" da mesma linha, antes de a lista recarregar, não envia outro pedido de exclusão, e a
-  página mostra que a exclusão, ou a restauração pelo "Desfazer", está em andamento (FR-012, FR-013). Desvio
-  conhecido: hoje nada indica a exclusão ou a restauração em andamento, e um segundo clique envia outro pedido, que a
-  API recusa ("Categoria não encontrada."); essa mensagem de erro toma o lugar da que oferece "Desfazer", e a exclusão
-  feita não pode mais ser desfeita.
+  página mostra que a exclusão, ou a restauração pelo "Desfazer", está em andamento (FR-012, FR-013).
 - No diálogo, cada cor da paleta se anuncia pelo seu código hexadecimal (por exemplo, "#F4511E"), e não por um nome de
   cor; um nome para cada cor é trabalho futuro (FR-020).
 - O calendário do campo "Mês" deve se anunciar em português (FR-020).
@@ -427,16 +424,13 @@ ver FR-004).
   por 3 segundos e recarregar a lista.
 - **FR-012**: Cada linha DEVE oferecer "Excluir", que exclui a categoria na hora, sem confirmação; o botão DEVE ficar
   desabilitado para uma categoria com transações em qualquer mês, mesmo fora do mês escolhido, com a dica "Não é
-  possível excluir uma categoria com transações, mesmo que em outros meses.". Durante uma exclusão, um novo clique no
-  "Excluir" da mesma linha NÃO DEVE enviar outro pedido, e a página DEVE mostrar que a exclusão está em andamento.
-  Desvio conhecido: hoje nada indica a exclusão em andamento, e um segundo clique envia outro pedido, inútil, que a API
-  recusa, cuja mensagem de erro toma o lugar da que oferece "Desfazer" (ver Casos-limite); a correção, cuja forma o
-  `/speckit-bug-assess` propõe, segue o fluxo de bugs do front, fora desta spec, contraria o princípio III e vale
-  também para a [[003-gestao-de-transacoes]] (Esclarecimentos, 2026-10-06).
+  possível excluir uma categoria com transações, mesmo que em outros meses.". Do clique até a categoria sair da lista
+  ou até a recusa da exclusão, um novo clique no "Excluir" da mesma linha NÃO DEVE enviar outro pedido, e a página DEVE
+  mostrar que a exclusão está em andamento.
 - **FR-013**: Depois de uma exclusão aceita, a página DEVE recarregar a lista e mostrar "Categoria excluída." por 5
   segundos, com a ação "Desfazer"; "Desfazer" DEVE criar de novo uma categoria com o mesmo nome e a mesma cor, mostrar
   "Categoria restaurada." por 3 segundos e recarregar a lista. Durante a restauração, a página DEVE mostrar que ela está
-  em andamento. Desvio conhecido: hoje nada indica a restauração em andamento (ver FR-012).
+  em andamento.
 - **FR-014**: Quando a API recusar ou falhar ao criar, editar, excluir ou desfazer, a página DEVE mostrar por 5
   segundos, com a ação "Fechar", a mensagem de erro da API ou, sem ela, "Não foi possível salvar a categoria." (criar,
   editar e desfazer) ou "Não foi possível excluir a categoria." (excluir), sem recarregar a lista.
@@ -524,10 +518,10 @@ e dos testes em 2026-10-04), e não padrões em aberto escolhidos para uma featu
   quantidade com o mês (FR-004), o diálogo aberto até a resposta da API (FR-010), o mês do dia escolhido no calendário
   (FR-016, no campo compartilhado), o calendário em português (FR-020, corrigido em
   `front/bugs/calendarios-em-ingles/`), o "Excluir" protegido contra clique repetido, com retorno visual na exclusão e
-  na restauração (FR-012, FR-013), e nenhuma consulta nova ao escolher de novo a ordenação em uso ou o mesmo mês, nem
-  quando o texto aplicado no "Nome" não mudou (FR-023). Também ficam fora, como trabalho futuro em features próprias, o
-  indicador de filtro em uso (FR-015), um nome para cada cor da paleta (FR-020) e os pontos fracos de acessibilidade
-  listados nos Casos-limite.
+  na restauração (FR-012, FR-013, corrigido em `front/bugs/clique-repetido-em-excluir/`), e nenhuma consulta nova ao
+  escolher de novo a ordenação em uso ou o mesmo mês, nem quando o texto aplicado no "Nome" não mudou (FR-023). Também
+  ficam fora, como trabalho futuro em features próprias, o indicador de filtro em uso (FR-015), um nome para cada cor da
+  paleta (FR-020) e os pontos fracos de acessibilidade listados nos Casos-limite.
 - A página consome a API de categorias de [[001-category-management]] (do backend), com o contrato em
   `back/specs/001-category-management/contracts/categories-api.yaml`, e não muda o back.
 - A validação do diálogo (nome obrigatório e com até 100 caracteres) serve à experiência do usuário; a API valida tudo

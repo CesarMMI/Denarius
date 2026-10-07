@@ -153,4 +153,58 @@ describe('CategoriesTable', () => {
 	it('should show "Editar" as the tooltip of the edit button', () => {
 		expect(tooltip(rowButton(0, 'Editar'))).toBe('Editar');
 	});
+
+	describe('while a category is being deleted', () => {
+		const pets = buildCategory({ id: 'pets', name: 'Pets', canDelete: true });
+
+		beforeEach(async () => {
+			categories.set({ status: 'resolved', value: [mercado, educacao, pets] });
+			fixture.componentRef.setInput('deleting', new Set([educacao.id]));
+			await fixture.whenStable();
+		});
+
+		function spinnerIn(button: HTMLButtonElement) {
+			return button.querySelector('mat-progress-spinner');
+		}
+
+		it('should disable its "Excluir" and "Editar", show a spinner in "Excluir" and emit nothing', () => {
+			const edit = vi.fn();
+			const remove = vi.fn();
+			fixture.componentInstance.edit.subscribe(edit);
+			fixture.componentInstance.delete.subscribe(remove);
+
+			rowButton(1, 'Excluir').click();
+			rowButton(1, 'Editar').click();
+
+			expect(rowButton(1, 'Excluir').getAttribute('aria-disabled')).toBe('true');
+			expect(rowButton(1, 'Editar').getAttribute('aria-disabled')).toBe('true');
+			expect(spinnerIn(rowButton(1, 'Excluir'))).not.toBeNull();
+			expect(remove).not.toHaveBeenCalled();
+			expect(edit).not.toHaveBeenCalled();
+		});
+
+		it('should leave the other rows as they are', () => {
+			const edit = vi.fn();
+			const remove = vi.fn();
+			fixture.componentInstance.edit.subscribe(edit);
+			fixture.componentInstance.delete.subscribe(remove);
+
+			expect(rowButton(2, 'Excluir').getAttribute('aria-disabled')).toBeNull();
+			expect(rowButton(2, 'Editar').getAttribute('aria-disabled')).toBeNull();
+			expect(spinnerIn(rowButton(2, 'Excluir'))).toBeNull();
+			expect(spinnerIn(rowButton(0, 'Excluir'))).toBeNull();
+			expect(rowButton(0, 'Excluir').getAttribute('aria-disabled')).toBe('true');
+			expect(tooltip(rowButton(0, 'Excluir'))).toBe(
+				'Não é possível excluir uma categoria com transações, mesmo que em outros meses.',
+			);
+			expect(tooltip(rowButton(1, 'Excluir'))).toBe('Excluir');
+			expect(tooltip(rowButton(2, 'Excluir'))).toBe('Excluir');
+
+			rowButton(2, 'Excluir').click();
+			rowButton(0, 'Editar').click();
+
+			expect(remove).toHaveBeenCalledWith(pets);
+			expect(edit).toHaveBeenCalledWith(mercado);
+		});
+	});
 });

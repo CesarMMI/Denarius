@@ -4,15 +4,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Sort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 import { CategoriesService } from '../../../categories/services/categories.service';
 import { Category } from '../../../categories/types/category';
 import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { PageHeader } from '../../../shared/page-header/page-header';
+import { reloadWhenIdle } from '../../../shared/reload-when-idle/reload-when-idle';
 import { shallowEqual } from '../../../shared/shallow-equal/shallow-equal';
 import { SortMenu, SortOption } from '../../../shared/sort-menu/sort-menu';
 import { TransactionForm, TransactionFormData } from '../../components/transaction-form/transaction-form';
@@ -30,6 +32,7 @@ import { TransactionFilters } from '../../types/transaction-filters';
 		MatButtonModule,
 		MatCardModule,
 		MatIconModule,
+		MatProgressBarModule,
 		MatTooltipModule,
 		PageHeader,
 		SortMenu,
@@ -73,6 +76,13 @@ export class TransactionsPage {
 	protected readonly transactions = httpResource<Transaction[]>(() =>
 		this.transactionsService.list(this.filters(), this.sort()),
 	);
+	/** Reloads after a change the API accepted, even while the list is already loading. */
+	private readonly reloadTransactions = reloadWhenIdle(this.transactions);
+
+	/** The ids of the transactions being deleted, from the click until they leave the list or the API refuses. */
+	protected readonly deleting = signal<ReadonlySet<string>>(new Set());
+	/** How many undone deletions are being restored; they may overlap. */
+	protected readonly restoring = signal(0);
 	/** Name and color the rows, and feed the filters and the form. */
 	protected readonly categories = httpResource<Category[]>(() => this.categoriesService.list());
 	protected readonly categoryList = computed(() => (this.categories.hasValue() ? this.categories.value() : []));
@@ -99,26 +109,36 @@ export class TransactionsPage {
 	}
 
 	protected delete({ id, description, categoryId, value, date }: Transaction) {
+		// Another request for the same row would be refused, and its error would replace the offer to undo.
+		if (this.deleting().has(id)) return;
+		this.deleting.update((ids) => new Set(ids).add(id));
 		this.transactionsService.delete(id).subscribe({
+			// The id stays in `deleting`, so the row stays blocked until it leaves the list: ids are never reused.
 			next: () => {
-				this.transactions.reload();
+				this.reloadTransactions();
 				// The API has no undelete, so undoing creates the transaction again.
 				this.snackBar
 					.open('Transação excluída.', 'Desfazer', { duration: 5000 })
 					.onAction()
-					.subscribe(() =>
-						this.save(this.transactionsService.create({ description, categoryId, value, date }), 'Transação restaurada.'),
-					);
+					.subscribe(() => this.restore(this.transactionsService.create({ description, categoryId, value, date })));
 			},
-			error: (error: HttpErrorResponse) => this.showError(error, 'Não foi possível excluir a transação.'),
+			error: (error: HttpErrorResponse) => {
+				this.deleting.update((ids) => new Set([...ids].filter((other) => other !== id)));
+				this.showError(error, 'Não foi possível excluir a transação.');
+			},
 		});
+	}
+
+	private restore(request: Observable<unknown>) {
+		this.restoring.update((count) => count + 1);
+		this.save(request.pipe(finalize(() => this.restoring.update((count) => count - 1))), 'Transação restaurada.');
 	}
 
 	private save(request: Observable<unknown>, message: string) {
 		request.subscribe({
 			next: () => {
 				this.snackBar.open(message, undefined, { duration: 3000 });
-				this.transactions.reload();
+				this.reloadTransactions();
 			},
 			error: (error: HttpErrorResponse) => this.showError(error, 'Não foi possível salvar a transação.'),
 		});
