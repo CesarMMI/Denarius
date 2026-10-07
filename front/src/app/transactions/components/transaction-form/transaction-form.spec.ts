@@ -1,22 +1,29 @@
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSelectHarness } from '@angular/material/select/testing';
 import { By } from '@angular/platform-browser';
 import { buildCategory } from '../../../categories/testing/category-fixture';
+import { Category } from '../../../categories/types/category';
 import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { buildTransaction } from '../../testing/transaction-fixture';
 import { Transaction } from '../../types/transaction';
 import { TransactionForm } from './transaction-form';
 
+const MERCADO_ID = '3f2a1c4e-0000-4000-8000-0000000000a1';
+const SALARIO_ID = '3f2a1c4e-0000-4000-8000-0000000000a2';
+const PAGAMENTO_ID = '7b1d2e3f-0000-4000-8000-0000000000b2';
+
 describe('TransactionForm', () => {
 	const categories = [
-		buildCategory({ id: 'mercado', name: 'Mercado' }),
-		buildCategory({ id: 'salario', name: 'Salário' }),
+		buildCategory({ id: MERCADO_ID, name: 'Mercado' }),
+		buildCategory({ id: SALARIO_ID, name: 'Salário' }),
 	];
 	const feira = buildTransaction({
-		id: 't1',
+		id: PAGAMENTO_ID,
 		description: 'Feira da semana',
-		categoryId: 'salario',
+		categoryId: SALARIO_ID,
 		value: -186.42,
 		date: '2026-09-24T00:00:00Z',
 	});
@@ -25,12 +32,12 @@ describe('TransactionForm', () => {
 	let element: HTMLElement;
 	let close: ReturnType<typeof vi.fn>;
 
-	async function render(transaction: Transaction | undefined) {
+	async function render(transaction: Transaction | undefined, options: Category[] = categories) {
 		close = vi.fn();
 		TestBed.configureTestingModule({
 			providers: [
 				{ provide: MatDialogRef, useValue: { close } },
-				{ provide: MAT_DIALOG_DATA, useValue: { transaction, categories } },
+				{ provide: MAT_DIALOG_DATA, useValue: { transaction, categories: options } },
 			],
 		});
 		fixture = TestBed.createComponent(TransactionForm);
@@ -58,6 +65,10 @@ describe('TransactionForm', () => {
 		);
 		toggle!.click();
 		await fixture.whenStable();
+	}
+
+	function errors() {
+		return Array.from(element.querySelectorAll('mat-error')).map((error) => error.textContent?.trim());
 	}
 
 	async function save() {
@@ -96,7 +107,7 @@ describe('TransactionForm', () => {
 
 			expect(close).toHaveBeenCalledWith({
 				description: 'Pão',
-				categoryId: 'mercado',
+				categoryId: MERCADO_ID,
 				value: -12.5,
 				date: DateUtils.toApiDate(new Date()),
 			});
@@ -119,6 +130,68 @@ describe('TransactionForm', () => {
 		});
 	});
 
+	describe('validating', () => {
+		beforeEach(() => render(undefined));
+
+		it('should not save without a date', async () => {
+			await type('value', '12,50');
+			await type('date', '');
+			await save();
+
+			expect(close).not.toHaveBeenCalled();
+			expect(errors()).toEqual(['Informe uma data válida']);
+		});
+
+		it.each(['8.600,00', '-12'])('should not save the value %s', async (value) => {
+			await type('value', value);
+			await save();
+
+			expect(close).not.toHaveBeenCalled();
+			expect(errors()).toEqual(['Informe um valor válido']);
+		});
+
+		it('should save a value with a decimal point', async () => {
+			await type('value', '12.50');
+			await save();
+
+			expect(close).toHaveBeenCalledWith(expect.objectContaining({ value: -12.5 }));
+		});
+
+		it('should limit the description to 255 characters and count them', async () => {
+			const hint = () => element.querySelector('mat-hint')?.textContent?.trim();
+			expect(input('description').getAttribute('maxlength')).toBe('255');
+
+			await type('description', 'Pão ');
+			expect(hint()).toBe('4/255');
+
+			await type('description', 'a'.repeat(255));
+			expect(hint()).toBe('255/255');
+		});
+	});
+
+	it('should not save without a category', async () => {
+		await render(undefined, []);
+
+		await type('value', '12,50');
+		await save();
+
+		expect(close).not.toHaveBeenCalled();
+		expect(errors()).toEqual(['Escolha uma categoria']);
+	});
+
+	it('should show the category names as plain text', async () => {
+		await render(undefined, [buildCategory({ id: MERCADO_ID, name: '<b>teste</b>' })]);
+
+		const trigger = element.querySelector('mat-select .mat-mdc-select-value')!;
+		expect(trigger.textContent).toContain('<b>teste</b>');
+		expect(trigger.querySelector('b')).toBeNull();
+
+		await (await TestbedHarnessEnvironment.loader(fixture).getHarness(MatSelectHarness)).open();
+		const options = Array.from(document.querySelectorAll('mat-option'));
+		expect(options.map((option) => option.textContent?.trim())).toEqual(['<b>teste</b>']);
+		expect(options.some((option) => option.querySelector('b'))).toBe(false);
+	});
+
 	describe('editing', () => {
 		it('should prefill the transaction', async () => {
 			await render(feira);
@@ -139,7 +212,7 @@ describe('TransactionForm', () => {
 
 			expect(close).toHaveBeenCalledWith({
 				description: 'Feira da semana',
-				categoryId: 'salario',
+				categoryId: SALARIO_ID,
 				value: 200,
 				date: '2026-09-24T00:00:00.000Z',
 			});

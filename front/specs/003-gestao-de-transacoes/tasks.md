@@ -75,22 +75,22 @@ arquivos de spec.
       `src/app/categories/types/category.ts` (`Category`) e, nos specs, de
       `src/app/categories/testing/category-fixture.ts` (`buildCategory`), sob a exceção à F1 aprovada pelo usuário em
       2026-10-05 (`plan.md` → Acompanhamento de complexidade).
-- [ ] T007 [P] A1: em `src/app/transactions/services/transactions.service.spec.ts`, trocar os ids de categoria e de
+- [X] T007 [P] A1: em `src/app/transactions/services/transactions.service.spec.ts`, trocar os ids de categoria e de
       transação que não são UUID (`'mercado'`, `'salario'`, `'removida'`, `'transporte'`, `'t1'`…`'t10'`) por UUIDs
       (constantes no topo do arquivo), sem mudar nenhuma asserção; o arquivo continua passando.
-- [ ] T008 [P] A1: o mesmo ajuste de T007 em
+- [X] T008 [P] A1: o mesmo ajuste de T007 em
       `src/app/transactions/components/transactions-table/transactions-table.spec.ts` (o `buildCategory` não muda; os
       UUIDs entram como overrides).
-- [ ] T009 [P] A1: o mesmo ajuste de T007 em
+- [X] T009 [P] A1: o mesmo ajuste de T007 em
       `src/app/transactions/components/transactions-filters/transactions-filters.spec.ts`.
-- [ ] T010 [P] A1: o mesmo ajuste de T007 em
+- [X] T010 [P] A1: o mesmo ajuste de T007 em
       `src/app/transactions/components/transaction-form/transaction-form.spec.ts`.
-- [ ] T011 [P] A1: o mesmo ajuste de T007 em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts`.
-- [ ] T012 A2: em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts` (teste do `categoryId` no
+- [X] T011 [P] A1: o mesmo ajuste de T007 em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts`.
+- [X] T012 A2: em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts` (teste do `categoryId` no
       endereço, hoje em `:232-245`, com `categoryId: 'salario'`), usar o UUID da categoria no `queryParamMap` e na
       consulta esperada, de modo que a resposta `200` seja a que a API real daria; as asserções continuam as mesmas
       (depende de T011).
-- [ ] T013 A3: em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts` (teste da mensagem padrão do
+- [X] T013 A3: em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts` (teste da mensagem padrão do
       salvamento, hoje em `:357-361`, com `500` sem corpo), responder com um erro de rede (`req.error(new
       ProgressEvent('error'))`, status 0) no lugar do `500`; a asserção de "Não foi possível salvar a transação."
       continua a mesma (depende de T012).
@@ -110,12 +110,12 @@ agrupamento por data, as cores e os estados (`quickstart.md` → passo 1).
 
 ### Testes da história 1 (caracterização, regra RC) ⚠️
 
-- [ ] T014 [P] [US1] C3 (FR-002): criar `src/app/app.routes.spec.ts` que configura `provideRouter(routes)` com as rotas
+- [X] T014 [P] [US1] C3 (FR-002): criar `src/app/app.routes.spec.ts` que configura `provideRouter(routes)` com as rotas
       reais de `src/app/app.routes.ts`, navega para `''` (por exemplo, com `RouterTestingHarness` ou
       `Router.navigateByUrl('')`) e confere que a URL final é `/transactions`. Se a carga lazy da página exigir
       providers (HTTP), use `provideHttpClient()` e `provideHttpClientTesting()` e descarte as requisições sem
       afirmar sobre elas. Quebra sugerida (RC): trocar o `redirectTo` para `'categories'`.
-- [ ] T015 [US1] C4, parte da tabela (FR-008): em
+- [X] T015 [US1] C4, parte da tabela (FR-008): em
       `src/app/transactions/components/transactions-table/transactions-table.spec.ts`, com `resourceFromSnapshots`:
       (a) numa recarga (`reloading`) com linhas, as linhas continuam à vista e o `mat-progress-spinner` não aparece;
       (b) numa recarga da lista vazia e (c) numa recarga depois de erro, o spinner ocupa o lugar da mensagem ("Nenhuma
@@ -123,17 +123,17 @@ agrupamento por data, as cores e os estados (`quickstart.md` → passo 1).
       `rows()` de `transactions-table.ts`, devolver `[]` quando `transactions.isLoading()`; para (b) e (c), trocar a
       condição do primeiro `@if` de `transactions-table.html` (`transactions().isLoading() ||
       categories().isLoading()`) por `false`, para que a mensagem apareça durante a recarga.
-- [ ] T016 [US1] C4, parte da página (FR-008): em
+- [X] T016 [US1] C4, parte da página (FR-008): em
       `src/app/transactions/pages/transactions-page/transactions-page.spec.ts`, com a lista carregada, escolher
       "Recarregar" e conferir, antes de responder às novas requisições de transações e de categorias, que as linhas
       continuam à vista; depois responder e conferir a lista atualizada. Quebra sugerida (RC): a mesma de T015.
-- [ ] T017 [US1] C5 (FR-011): em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts`, conferir
+- [X] T017 [US1] C5 (FR-011): em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts`, conferir
       que `app-page-header` e o `mat-card.filters` (com os filtros à vista) não estão dentro do `mat-card.table`, e,
       pelo `getComputedStyle`, que o `mat-card.table` tem `overflow: auto` e `flex: 1` (ou `flex-grow: 1`, conforme o
       jsdom resolver o atalho) e o host tem `max-height: 100%`. A rolagem real fica no passo 1 do `quickstart.md`. Se
       os estilos do componente não chegarem ao jsdom, pare e leve a dúvida ao usuário, sem enfraquecer a asserção.
       Quebra sugerida (RC): remover `overflow: auto` de `transactions-page.scss`.
-- [ ] T018 [US1] C13, parte da tabela (SC-008, FR-032): em
+- [X] T018 [US1] C13, parte da tabela (SC-008, FR-032): em
       `src/app/transactions/components/transactions-table/transactions-table.spec.ts`, uma transação com descrição
       `<b>teste</b>` e uma categoria com nome `<b>teste</b>`: a célula "Descrição" e a etiqueta da categoria mostram o
       texto literal (`textContent` contém `<b>teste</b>`) e não há nenhum elemento `b` na célula nem no `mat-chip`.
@@ -172,20 +172,20 @@ Todas em `src/app/transactions/components/transaction-form/transaction-form.spec
 Nenhuma digita texto no campo "Data", usa o valor zero ou valores com mais de 13 algarismos inteiros: esses são
 desvios conhecidos, cujos testes nascem nos bug-fix.
 
-- [ ] T022 [US2] C6 (FR-014): esvaziar o input do campo "Data" (input vazio → `null` → `required`), escolher "Salvar"
+- [X] T022 [US2] C6 (FR-014): esvaziar o input do campo "Data" (input vazio → `null` → `required`), escolher "Salvar"
       e conferir "Informe uma data válida" e que `dialogRef.close` não foi chamado. Quebra sugerida (RC): remover
       `Validators.required` do controle `date` em `transaction-form.ts`.
-- [ ] T023 [US2] C7 (FR-014): formulário isolado com `MAT_DIALOG_DATA` `{ categories: [] }`; "Salvar" mostra
+- [X] T023 [US2] C7 (FR-014): formulário isolado com `MAT_DIALOG_DATA` `{ categories: [] }`; "Salvar" mostra
       "Escolha uma categoria" e o diálogo continua aberto. Afirma só a validação do formulário, não a abertura do
       diálogo pela página (desvio da FR-019). Quebra sugerida (RC): remover `Validators.required` do controle
       `categoryId`.
-- [ ] T024 [US2] C8 (FR-014, caso-limite): `12.50` é aceito e fecha com `value: -12.5` (saída); `8.600,00` e `-12`
+- [X] T024 [US2] C8 (FR-014, caso-limite): `12.50` é aceito e fecha com `value: -12.5` (saída); `8.600,00` e `-12`
       mostram "Informe um valor válido" e não fecham. Quebra sugerida (RC): trocar o padrão
       `/^\d+([.,]\d{1,2})?$/` por `/^-?[\d.,]+$/` em `transaction-form.ts`.
-- [ ] T025 [US2] C9 (FR-014): o input "Descrição" tem `maxlength` 255 e o hint mostra `N/255` com a quantidade de
+- [X] T025 [US2] C9 (FR-014): o input "Descrição" tem `maxlength` 255 e o hint mostra `N/255` com a quantidade de
       caracteres digitados (por exemplo, `4/255` com "Pão " e `255/255` com 255 caracteres). Quebra sugerida (RC):
       mudar `descriptionMaxLength` para 256.
-- [ ] T026 [US2] C13, parte do formulário (SC-008, FR-032): com uma categoria de nome `<b>teste</b>`, as opções do
+- [X] T026 [US2] C13, parte do formulário (SC-008, FR-032): com uma categoria de nome `<b>teste</b>`, as opções do
       campo "Categoria" e o valor escolhido mostram o texto literal, sem elemento `b`. Quebra sugerida (RC): renderizar
       o nome da opção com `[innerHTML]` em `transaction-form.html`.
 
@@ -217,10 +217,10 @@ desvios conhecidos, cujos testes nascem nos bug-fix.
 
 Ambas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts`, em sequência.
 
-- [ ] T029 [US3] C10 (FR-022): a exclusão falha com erro de rede (status 0, sem `detail`); aparece "Não foi possível
+- [X] T029 [US3] C10 (FR-022): a exclusão falha com erro de rede (status 0, sem `detail`); aparece "Não foi possível
       excluir a transação." por 5 s com "Fechar", e nenhuma nova requisição de transações é feita (o `verify()` do
       `afterEach` confirma). Quebra sugerida (RC): trocar a mensagem padrão em `delete()` de `transactions-page.ts`.
-- [ ] T030 [US3] C11 (FR-021): depois da exclusão bem-sucedida, escolher "Desfazer"; (a) o `POST` recusado com
+- [X] T030 [US3] C11 (FR-021): depois da exclusão bem-sucedida, escolher "Desfazer"; (a) o `POST` recusado com
       `detail` mostra o `detail` da API; (b) o `POST` recusado com erro de rede mostra "Não foi possível salvar a
       transação."; nos dois casos, nenhuma recarga além da que segue a exclusão. Quebra sugerida (RC): chamar
       `this.transactions.reload()` também no `error` de `save()`.
@@ -246,7 +246,7 @@ Ambas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts
 
 ### Testes da história 4 (caracterização, regra RC) ⚠️
 
-- [ ] T032 [US4] C13, parte dos filtros (SC-008, FR-032): em
+- [X] T032 [US4] C13, parte dos filtros (SC-008, FR-032): em
       `src/app/transactions/components/transactions-filters/transactions-filters.spec.ts`, com uma categoria de nome
       `<b>teste</b>`, as opções do filtro "Categoria" e o valor escolhido mostram o texto literal, sem elemento `b`.
       Quebra sugerida (RC): renderizar o nome da opção com `[innerHTML]` em `transactions-filters.html`.
@@ -279,14 +279,14 @@ Ambas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts
 Todas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts`, em sequência, com o
 `ActivatedRoute` falso.
 
-- [ ] T036 [US5] C1 (caso-limite, FR-028): `?categoryId=nao-e-uuid`; a consulta leva `categoryId=nao-e-uuid` e a API
+- [X] T036 [US5] C1 (caso-limite, FR-028): `?categoryId=nao-e-uuid`; a consulta leva `categoryId=nao-e-uuid` e a API
       responde `400` com `ValidationProblemDetails` (sem `detail`); a tabela mostra "Não foi possível carregar as
       transações.", os filtros ficam à vista e o filtro "Categoria" não mostra nenhum nome. Quebra sugerida (RC):
       iniciar `filtersVisible` com `false` em `transactions-page.ts`.
-- [ ] T037 [US5] C2 (caso-limite, FR-028): `?categoryId=<UUID de categoria inexistente>`; a API responde `200 []`; a
+- [X] T037 [US5] C2 (caso-limite, FR-028): `?categoryId=<UUID de categoria inexistente>`; a API responde `200 []`; a
       tabela mostra "Nenhuma transação encontrada.". Quebra sugerida (RC): ignorar o `categoryId` do endereço
       (iniciar o filtro com `''`) e responder a consulta sem ele, para ver o teste falhar na consulta esperada.
-- [ ] T038 [US5] C12 (FR-028): `?categoryId=<UUID>&month=2026-09` juntos; a consulta de transações leva `categoryId` e
+- [X] T038 [US5] C12 (FR-028): `?categoryId=<UUID>&month=2026-09` juntos; a consulta de transações leva `categoryId` e
       `dateRef=2026-09-01`, e os filtros abrem à vista com a categoria e o mês preenchidos. Quebra sugerida (RC): ler
       só um dos parâmetros (por exemplo, iniciar `month` com `null`).
 
@@ -313,6 +313,58 @@ Todas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts
       1366×768, muitas transações e filtros à vista: só a lista rola, e o cabeçalho e os filtros continuam à vista);
       registrar no relatório do implement os totais da suíte, o "Initial total", a conferência RC de cada C e o
       resultado da conferência manual da rolagem (depende de T007–T038).
+      **Situação (2026-10-06)**: parte automática concluída (ver o registro abaixo); **pendente só da conferência
+      manual da rolagem (C5)**, que exige um navegador e uma pessoa.
+
+### Registro do implement (2026-10-06)
+
+**Verificações automáticas**, a partir de `front/`:
+
+- `npx ng test --watch=false`: 28 arquivos, **259 de 259 testes passando** (eram 238; 21 testes novos).
+- `npm run lint`: "All files pass linting."
+- `npm run build`: sem erro nem aviso; **Initial total de 633,08 kB** (chunk `transactions-page` de 39,88 kB).
+- `git diff --name-only -- front/src front/public`: só `*.spec.ts` (os cinco specs de `src/app/transactions/`),
+  mais o novo `src/app/app.routes.spec.ts`, sem rastreio no git. Nenhum arquivo de produção foi alterado, e o Prettier só
+  mexeu em spec.
+- Conferência manual da rolagem (C5, passo 1 do `quickstart.md`): **pendente**.
+
+**Ajustes A**: os ids que não eram UUID viraram constantes no topo de cada spec (`MERCADO_ID`, `SALARIO_ID`,
+`REMOVIDA_ID`, `TRANSPORTE_ID`, `FEIRA_ID`, `PAO_ID`, `PAGAMENTO_ID`, `CRIADA_ID`, `RESTAURADA_ID`, `PADARIA_ID`). Nenhuma
+asserção mudou. A2: `create({ categoryId: SALARIO_ID })` e a consulta esperada usam o UUID. A3: o `500` sem corpo virou
+`req.error(new ProgressEvent('error'))`. No spec dos filtros, `Host.categories` passou a ser um `signal` (o template lê
+`categories()`) para o C13 trocar a lista; os testes existentes não mudaram.
+
+**Regra RC**: cada teste passou sem nenhuma quebra; com a quebra, falhou; depois de desfeita a quebra, voltou a passar.
+Depois de cada quebra, `git diff -- front/src` só listava `*.spec.ts`.
+
+| Tarefa | Teste(s) | Quebra usada | Resultado com a quebra |
+| --- | --- | --- | --- |
+| T014 C3 | `routes › should open the transactions page at the root` | `redirectTo: 'categories'` em `app.routes.ts` | falhou (`/categories` ≠ `/transactions`) → voltou a passar |
+| T015 C4 (a) | `TransactionsTable › when reloading › should keep the rows in sight, without a spinner` | `rows()` devolve `[]` quando `transactions.isLoading()` | falhou (`[]` no lugar das linhas) → voltou a passar |
+| T015 C4 (b)(c) | `… when reloading › an empty list…` e `… after an error…` | primeiro `@if` de `transactions-table.html` trocado por `false` | os dois falharam (sem spinner), assim como os testes de carga já existentes → voltaram a passar |
+| T016 C4 página | `TransactionsPage › loading › should keep the rows in sight while reloading from the header` | a mesma quebra de T015 (a) | falhou (`[]` no lugar das linhas) → voltou a passar |
+| T017 C5 | `TransactionsPage › layout › should keep the header and the filters outside the scrolling table card` | `overflow: auto` removido de `transactions-page.scss` | falhou (`''` ≠ `'auto'`) → voltou a passar. O jsdom aplica os estilos do componente: `overflow` `auto`, `flex-grow` `1` e `max-height` `100%` no host |
+| T018 C13 tabela | `TransactionsTable › should show the description and the category name as plain text` | descrição por `[innerHTML]` em `transactions-table.html` | falhou (`'teste'` sem `<b>`) → voltou a passar |
+| T022 C6 | `TransactionForm › validating › should not save without a date` | `Validators.required` removido do controle `date` | falhou (sem "Informe uma data válida") → voltou a passar |
+| T023 C7 | `TransactionForm › should not save without a category` | `Validators.required` removido do controle `categoryId` | falhou (`close` chamado) → voltou a passar |
+| T024 C8 | `… should not save the value 8.600,00` / `-12` e `… should save a value with a decimal point` | padrão trocado por `/^-?[\d.,]+$/` | os dois casos de recusa falharam (`close` chamado), junto com o teste existente do valor inválido → voltaram a passar |
+| T025 C9 | `… should limit the description to 255 characters and count them` | `descriptionMaxLength = 256` | falhou (`'256'` ≠ `'255'`) → voltou a passar |
+| T026 C13 formulário | `TransactionForm › should show the category names as plain text` | opção por `[innerHTML]` em `transaction-form.html` | falhou (valor escolhido vazio) → voltou a passar |
+| T029 C10 | `TransactionsPage › deleting › should show a fallback message and keep the list when the deletion fails without a detail` | (1) mensagem padrão de `delete()` trocada; (2) `this.transactions.reload()` também no `error` de `delete()` | (1) falhou (`snackBar.open` com outra mensagem); (2) falhou no próprio corpo, no `expectNone` do GET da lista ("Expected zero matching requests …, found 1") → voltou a passar |
+| T030 C11 | `… should show the API error detail / a fallback message and not reload when undoing fails` | `this.transactions.reload()` também no `error` de `save()` | os dois falharam no próprio corpo, no `expectNone` do GET da lista ("Expected zero matching requests …, found 1"), e não só no `verify()` → voltaram a passar |
+| T032 C13 filtros | `TransactionsFilters › should show the category names as plain text` | opção por `[innerHTML]` em `transactions-filters.html` | falhou (valor escolhido vazio) → voltou a passar |
+| T036 C1 | `TransactionsPage › category in the query string › should say the transactions failed to load when the API refuses a category that is not a UUID` | `filtersVisible` iniciado com `false` | falhou (filtros ocultos) → voltou a passar |
+| T037 C2 | `… should say there are no transactions for a category that does not exist` | filtro iniciado com `categoryId: ''` | falhou (consulta sem `categoryId`) → voltou a passar |
+| T038 C12 | `… should filter by the category and the month together, showing both` | filtro iniciado com `month: null` | falhou (consulta sem `dateRef`) → voltou a passar |
+
+Em T016, T030, T037 e T038, a quebra também derrubou testes vizinhos do mesmo arquivo: quando o `verify()` do
+`afterEach` falha, o `TestBed` não é reiniciado. Por isso, cada teste-alvo foi rodado também sozinho
+(`--filter`) e falhou pelo motivo da tabela.
+
+Ajuste depois da revisão (2026-10-06): no C10 e no C11, o `httpTesting.expectNone(baseUrl)` com string compara com a
+URL completa, com os parâmetros, e nunca casava com o GET da lista. Nesses dois testes novos, ele virou um predicado
+(`(req) => req.method === 'GET' && req.url === baseUrl`), no estilo do `expectList()`. As quebras acima foram refeitas
+com o teste rodando sozinho. As ocorrências antigas não mudaram.
 
 ---
 

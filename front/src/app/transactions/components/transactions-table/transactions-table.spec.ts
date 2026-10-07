@@ -12,20 +12,26 @@ import { TransactionsTable } from './transactions-table';
 
 registerLocaleData(localePt);
 
+const MERCADO_ID = '3f2a1c4e-0000-4000-8000-0000000000a1';
+const SALARIO_ID = '3f2a1c4e-0000-4000-8000-0000000000a2';
+const FEIRA_ID = '7b1d2e3f-0000-4000-8000-0000000000b1';
+const PAGAMENTO_ID = '7b1d2e3f-0000-4000-8000-0000000000b2';
+const PADARIA_ID = '7b1d2e3f-0000-4000-8000-0000000000b3';
+
 describe('TransactionsTable', () => {
-	const mercado = buildCategory({ id: 'mercado', name: 'Mercado', color: '#43A047' });
-	const salario = buildCategory({ id: 'salario', name: 'Salário', color: '#1E88E5' });
+	const mercado = buildCategory({ id: MERCADO_ID, name: 'Mercado', color: '#43A047' });
+	const salario = buildCategory({ id: SALARIO_ID, name: 'Salário', color: '#1E88E5' });
 	const feira = buildTransaction({
-		id: 't1',
+		id: FEIRA_ID,
 		description: 'Feira',
-		categoryId: 'mercado',
+		categoryId: MERCADO_ID,
 		value: -186.42,
 		date: '2026-09-24T00:00:00Z',
 	});
 	const pagamento = buildTransaction({
-		id: 't2',
+		id: PAGAMENTO_ID,
 		description: 'Salário',
-		categoryId: 'salario',
+		categoryId: SALARIO_ID,
 		value: 8600,
 		date: '2026-09-05T00:00:00Z',
 	});
@@ -82,7 +88,12 @@ describe('TransactionsTable', () => {
 	});
 
 	it('should mark the transactions followed by another of the same date', async () => {
-		const padaria = buildTransaction({ id: 't3', description: 'Padaria', value: -13.58, date: '2026-09-24T00:00:00Z' });
+		const padaria = buildTransaction({
+			id: PADARIA_ID,
+			description: 'Padaria',
+			value: -13.58,
+			date: '2026-09-24T00:00:00Z',
+		});
 		transactions.set({ status: 'resolved', value: [padaria, feira, pagamento] });
 		await fixture.whenStable();
 
@@ -116,6 +127,54 @@ describe('TransactionsTable', () => {
 			expect(column('description')).toEqual([]);
 			expect(noDataRow()).toBe('Não foi possível carregar as transações.');
 		});
+	});
+
+	describe('when reloading', () => {
+		function spinner() {
+			return element.querySelector('td[colspan] mat-progress-spinner');
+		}
+
+		it('should keep the rows in sight, without a spinner', async () => {
+			transactions.set({ status: 'reloading', value: [feira, pagamento] });
+			await fixture.whenStable();
+
+			expect(column('description')).toEqual(['Feira', 'Salário']);
+			expect(spinner()).toBeNull();
+		});
+
+		it('an empty list, should show a spinner instead of the empty message', async () => {
+			transactions.set({ status: 'resolved', value: [] });
+			await fixture.whenStable();
+			transactions.set({ status: 'reloading', value: [] });
+			await fixture.whenStable();
+
+			expect(spinner()).not.toBeNull();
+			expect(noDataRow()).toBe('');
+		});
+
+		it('after an error, should show a spinner instead of the error message', async () => {
+			transactions.set(failed);
+			await fixture.whenStable();
+			transactions.set({ status: 'reloading', value: undefined });
+			await fixture.whenStable();
+
+			expect(spinner()).not.toBeNull();
+			expect(noDataRow()).toBe('');
+		});
+	});
+
+	it('should show the description and the category name as plain text', async () => {
+		const markup = buildCategory({ id: MERCADO_ID, name: '<b>teste</b>' });
+		transactions.set({ status: 'resolved', value: [{ ...feira, description: '<b>teste</b>' }] });
+		categories.set({ status: 'resolved', value: [markup] });
+		await fixture.whenStable();
+
+		const description = element.querySelector('tr[mat-row] .mat-column-description')!;
+		const chip = element.querySelector('tr[mat-row] .mat-column-category mat-chip')!;
+		expect(description.textContent).toContain('<b>teste</b>');
+		expect(chip.textContent).toContain('<b>teste</b>');
+		expect(description.querySelector('b')).toBeNull();
+		expect(chip.querySelector('b')).toBeNull();
 	});
 
 	it('should emit the transaction to edit or delete', () => {

@@ -19,29 +19,38 @@ import { TransactionsPage } from './transactions-page';
 
 registerLocaleData(localePt);
 
+const MERCADO_ID = '3f2a1c4e-0000-4000-8000-0000000000a1';
+const SALARIO_ID = '3f2a1c4e-0000-4000-8000-0000000000a2';
+const REMOVIDA_ID = '3f2a1c4e-0000-4000-8000-0000000000a3';
+const FEIRA_ID = '7b1d2e3f-0000-4000-8000-0000000000b1';
+const PAO_ID = '7b1d2e3f-0000-4000-8000-0000000000b2';
+const PAGAMENTO_ID = '7b1d2e3f-0000-4000-8000-0000000000b3';
+const CRIADA_ID = '7b1d2e3f-0000-4000-8000-0000000000b9';
+const RESTAURADA_ID = '7b1d2e3f-0000-4000-8000-0000000000ba';
+
 describe('TransactionsPage', () => {
 	const baseUrl = `${environment.apiUrl}/transactions`;
 	const categoriesUrl = `${environment.apiUrl}/categories`;
-	const mercado = buildCategory({ id: 'mercado', name: 'Mercado', color: '#43A047' });
-	const salario = buildCategory({ id: 'salario', name: 'Salário', color: '#1E88E5' });
+	const mercado = buildCategory({ id: MERCADO_ID, name: 'Mercado', color: '#43A047' });
+	const salario = buildCategory({ id: SALARIO_ID, name: 'Salário', color: '#1E88E5' });
 	const feira = buildTransaction({
-		id: 't1',
+		id: FEIRA_ID,
 		description: 'Feira',
-		categoryId: 'mercado',
+		categoryId: MERCADO_ID,
 		value: -186.42,
 		date: '2026-09-24T00:00:00Z',
 	});
 	const pao = buildTransaction({
-		id: 't2',
+		id: PAO_ID,
 		description: null,
-		categoryId: 'mercado',
+		categoryId: MERCADO_ID,
 		value: -12.5,
 		date: '2026-09-24T00:00:00Z',
 	});
 	const pagamento = buildTransaction({
-		id: 't3',
+		id: PAGAMENTO_ID,
 		description: 'Salário',
-		categoryId: 'salario',
+		categoryId: SALARIO_ID,
 		value: 8600,
 		date: '2026-09-05T00:00:00Z',
 	});
@@ -186,6 +195,20 @@ describe('TransactionsPage', () => {
 			expect(column('category')).toEqual(['Mercado']);
 		});
 
+		it('should keep the rows in sight while reloading from the header', async () => {
+			await load([feira, pagamento]);
+
+			headerButton('Recarregar')!.click();
+			fixture.detectChanges();
+
+			expect(column('description')).toEqual(['Feira', 'Salário']);
+			expect(spinner()).toBeNull();
+
+			expectCategories().flush([mercado, salario]);
+			await flushList([pagamento]);
+			expect(column('description')).toEqual(['Salário']);
+		});
+
 		it('should not open the form while the categories failed to load', async () => {
 			expectCategories().flush(null, { status: 500, statusText: 'Server Error' });
 			await flushList([feira]);
@@ -221,19 +244,19 @@ describe('TransactionsPage', () => {
 			headerButton('Exibir filtros')!.click();
 			await fixture.whenStable();
 
-			filters()!.filters.set({ description: 'fei', type: 'out', categoryId: 'mercado', month: new Date(2026, 8, 1) });
+			filters()!.filters.set({ description: 'fei', type: 'out', categoryId: MERCADO_ID, month: new Date(2026, 8, 1) });
 
 			expect(expectList().request.params.toString()).toBe(
-				'description=fei&type=out&categoryId=mercado&dateRef=2026-09-01&orderBy=date&asc=false',
+				`description=fei&type=out&categoryId=${MERCADO_ID}&dateRef=2026-09-01&orderBy=date&asc=false`,
 			);
 		});
 	});
 
 	it('should filter by the category given in the query string, showing the filters', async () => {
-		create({ categoryId: 'salario' });
+		create({ categoryId: SALARIO_ID });
 
 		const req = expectList();
-		expect(req.request.params.get('categoryId')).toBe('salario');
+		expect(req.request.params.get('categoryId')).toBe(SALARIO_ID);
 		req.flush([pagamento]);
 		expectCategories().flush([mercado, salario]);
 		await fixture.whenStable();
@@ -267,6 +290,85 @@ describe('TransactionsPage', () => {
 		expect(filters()).toBeUndefined();
 	});
 
+	describe('category in the query string', () => {
+		function categoryField() {
+			return Array.from(element.querySelectorAll('mat-form-field')).find(
+				(field) => field.querySelector('mat-label')?.textContent === 'Categoria',
+			);
+		}
+
+		it('should say the transactions failed to load when the API refuses a category that is not a UUID', async () => {
+			create({ categoryId: 'nao-e-uuid' });
+
+			const req = expectList();
+			expect(req.request.params.get('categoryId')).toBe('nao-e-uuid');
+			req.flush(
+				{
+					type: 'https://tools.ietf.org/html/rfc9110#section-15.5.1',
+					title: 'One or more validation errors occurred.',
+					status: 400,
+					errors: { categoryId: ["The value 'nao-e-uuid' is not valid."] },
+				},
+				{ status: 400, statusText: 'Bad Request' },
+			);
+			expectCategories().flush([mercado, salario]);
+			await fixture.whenStable();
+
+			expect(noDataRow()).toBe('Não foi possível carregar as transações.');
+			expect(filters()).toBeDefined();
+			expect(categoryField()!.querySelector('.mat-mdc-select-value')!.textContent!.trim()).toBe('');
+		});
+
+		it('should say there are no transactions for a category that does not exist', async () => {
+			const unknownId = '3f2a1c4e-0000-4000-8000-0000000000ff';
+			create({ categoryId: unknownId });
+
+			const req = expectList();
+			expect(req.request.params.get('categoryId')).toBe(unknownId);
+			req.flush([]);
+			expectCategories().flush([mercado, salario]);
+			await fixture.whenStable();
+
+			expect(noDataRow()).toBe('Nenhuma transação encontrada.');
+		});
+
+		it('should filter by the category and the month together, showing both', async () => {
+			create({ categoryId: SALARIO_ID, month: '2026-09' });
+
+			const req = expectList();
+			expect(req.request.params.get('categoryId')).toBe(SALARIO_ID);
+			expect(req.request.params.get('dateRef')).toBe('2026-09-01');
+			req.flush([pagamento]);
+			expectCategories().flush([mercado, salario]);
+			await fixture.whenStable();
+
+			expect(filters()).toBeDefined();
+			expect(categoryField()!.textContent).toContain('Salário');
+			expect(element.querySelector<HTMLInputElement>('app-month-field input')!.value).toBe('09/2026');
+		});
+	});
+
+	describe('layout', () => {
+		beforeEach(async () => {
+			create({ month: '2026-09' });
+			await load([feira, pagamento]);
+		});
+
+		it('should keep the header and the filters outside the scrolling table card', () => {
+			const table = element.querySelector<HTMLElement>('mat-card.table')!;
+
+			expect(element.querySelector('app-page-header')).not.toBeNull();
+			expect(element.querySelector('mat-card.filters app-transactions-filters')).not.toBeNull();
+			expect(table.querySelector('app-page-header')).toBeNull();
+			expect(table.querySelector('mat-card.filters')).toBeNull();
+
+			const tableStyle = getComputedStyle(table);
+			expect(tableStyle.overflow).toBe('auto');
+			expect(tableStyle.flexGrow).toBe('1');
+			expect(getComputedStyle(element).maxHeight).toBe('100%');
+		});
+	});
+
 	describe('sorting', () => {
 		beforeEach(async () => {
 			create();
@@ -289,7 +391,7 @@ describe('TransactionsPage', () => {
 	});
 
 	describe('saving', () => {
-		const input = { description: 'Pão', categoryId: 'mercado', value: -12.5, date: '2026-09-24T00:00:00.000Z' };
+		const input = { description: 'Pão', categoryId: MERCADO_ID, value: -12.5, date: '2026-09-24T00:00:00.000Z' };
 
 		beforeEach(async () => {
 			create();
@@ -306,10 +408,10 @@ describe('TransactionsPage', () => {
 			const req = httpTesting.expectOne(baseUrl);
 			expect(req.request.method).toBe('POST');
 			expect(req.request.body).toEqual(input);
-			req.flush(buildTransaction({ id: 't9', ...input }), { status: 201, statusText: 'Created' });
+			req.flush(buildTransaction({ id: CRIADA_ID, ...input }), { status: 201, statusText: 'Created' });
 
 			expect(snackBar.open).toHaveBeenCalledWith('Transação criada.', undefined, { duration: 3000 });
-			await flushList([feira, buildTransaction({ id: 't9', ...input }), pagamento]);
+			await flushList([feira, buildTransaction({ id: CRIADA_ID, ...input }), pagamento]);
 			expect(column('description')).toContain('Pão');
 		});
 
@@ -339,7 +441,7 @@ describe('TransactionsPage', () => {
 		});
 
 		it('should show the API error detail and not reload when saving fails', () => {
-			dialogReturns({ ...input, categoryId: 'removida' });
+			dialogReturns({ ...input, categoryId: REMOVIDA_ID });
 			button('Nova transação').click();
 
 			httpTesting
@@ -358,7 +460,7 @@ describe('TransactionsPage', () => {
 			dialogReturns(input);
 			rowButton(0, 'Editar').click();
 
-			httpTesting.expectOne(`${baseUrl}/${feira.id}`).flush(null, { status: 500, statusText: 'Server Error' });
+			httpTesting.expectOne(`${baseUrl}/${feira.id}`).error(new ProgressEvent('error'));
 
 			expect(snackBar.open).toHaveBeenCalledWith('Não foi possível salvar a transação.', 'Fechar', { duration: 5000 });
 		});
@@ -399,11 +501,48 @@ describe('TransactionsPage', () => {
 				value: feira.value,
 				date: feira.date,
 			});
-			req.flush({ ...feira, id: 't10' }, { status: 201, statusText: 'Created' });
+			req.flush({ ...feira, id: RESTAURADA_ID }, { status: 201, statusText: 'Created' });
 
 			expect(snackBar.open).toHaveBeenCalledWith('Transação restaurada.', undefined, { duration: 3000 });
-			await flushList([{ ...feira, id: 't10' }, pagamento]);
+			await flushList([{ ...feira, id: RESTAURADA_ID }, pagamento]);
 			expect(column('description')).toEqual(['Feira', 'Salário']);
+		});
+
+		it('should show a fallback message and keep the list when the deletion fails without a detail', () => {
+			deleteFeira().error(new ProgressEvent('error'));
+
+			expect(snackBar.open).toHaveBeenCalledWith('Não foi possível excluir a transação.', 'Fechar', { duration: 5000 });
+			TestBed.tick();
+			httpTesting.expectNone((req) => req.method === 'GET' && req.url === baseUrl);
+		});
+
+		it.each([
+			[
+				'the API error detail',
+				(req: TestRequest) =>
+					req.flush(
+						{ status: 404, title: 'Not Found', detail: 'Categoria não encontrada.' },
+						{ status: 404, statusText: 'Not Found' },
+					),
+				'Categoria não encontrada.',
+			],
+			[
+				'a fallback message',
+				(req: TestRequest) => req.error(new ProgressEvent('error')),
+				'Não foi possível salvar a transação.',
+			],
+		])('should show %s and not reload when undoing fails', async (_, fail, message) => {
+			deleteFeira().flush(null, { status: 204, statusText: 'No Content' });
+			await flushList([pagamento]);
+
+			snackBarAction.next();
+			const req = httpTesting.expectOne(baseUrl);
+			expect(req.request.method).toBe('POST');
+			fail(req);
+
+			expect(snackBar.open).toHaveBeenLastCalledWith(message, 'Fechar', { duration: 5000 });
+			TestBed.tick();
+			httpTesting.expectNone((req) => req.method === 'GET' && req.url === baseUrl);
 		});
 
 		it('should show the API error and keep the list when the deletion fails', () => {

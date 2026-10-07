@@ -12,16 +12,19 @@ import { MonthField } from '../../../shared/month-field/month-field';
 import { TransactionFilters } from '../../types/transaction-filters';
 import { TransactionsFilters } from './transactions-filters';
 
+const MERCADO_ID = '3f2a1c4e-0000-4000-8000-0000000000a1';
+const SALARIO_ID = '3f2a1c4e-0000-4000-8000-0000000000a2';
+
 @Component({
 	imports: [TransactionsFilters],
-	template: `<app-transactions-filters [(filters)]="filters" [categories]="categories" />`,
+	template: `<app-transactions-filters [(filters)]="filters" [categories]="categories()" />`,
 })
 class Host {
 	readonly filters = signal<TransactionFilters>({ description: '', type: '', categoryId: '', month: null });
-	readonly categories = [
-		buildCategory({ id: 'mercado', name: 'Mercado' }),
-		buildCategory({ id: 'salario', name: 'Salário' }),
-	];
+	readonly categories = signal([
+		buildCategory({ id: MERCADO_ID, name: 'Mercado' }),
+		buildCategory({ id: SALARIO_ID, name: 'Salário' }),
+	]);
 }
 
 describe('TransactionsFilters', () => {
@@ -69,7 +72,7 @@ describe('TransactionsFilters', () => {
 		expect(host.filters()).toEqual({
 			description: '',
 			type: 'out',
-			categoryId: 'mercado',
+			categoryId: MERCADO_ID,
 			month: new Date(2026, 8, 1),
 		});
 	});
@@ -97,13 +100,30 @@ describe('TransactionsFilters', () => {
 	] as const)('should only offer "%s" while the filter is set, and empty it', async (label, filter) => {
 		expect(await clearButton(label)).toBeNull();
 
-		const filters: TransactionFilters = { description: 'feira', type: 'out', categoryId: 'mercado', month: null };
+		const filters: TransactionFilters = { description: 'feira', type: 'out', categoryId: MERCADO_ID, month: null };
 		host.filters.set(filters);
 		await fixture.whenStable();
 		await (await clearButton(label))!.click();
 
 		expect(host.filters()).toEqual({ ...filters, [filter]: '' });
 		expect(await clearButton(label)).toBeNull();
+	});
+
+	it('should show the category names as plain text', async () => {
+		host.categories.set([buildCategory({ id: MERCADO_ID, name: '<b>teste</b>' })]);
+		host.filters.set({ description: '', type: '', categoryId: MERCADO_ID, month: null });
+		await fixture.whenStable();
+
+		const trigger = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('mat-form-field'))
+			.find((field) => field.querySelector('mat-label')?.textContent === 'Categoria')!
+			.querySelector('.mat-mdc-select-value')!;
+		expect(trigger.textContent).toContain('<b>teste</b>');
+		expect(trigger.querySelector('b')).toBeNull();
+
+		await (await select('Categoria')).open();
+		const options = Array.from(document.querySelectorAll('mat-option'));
+		expect(options.map((option) => option.textContent?.trim())).toEqual(['Todas', '<b>teste</b>']);
+		expect(options.some((option) => option.querySelector('b'))).toBe(false);
 	});
 
 	it('should not open the select whose filter is cleared', async () => {

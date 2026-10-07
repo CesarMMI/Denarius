@@ -6,11 +6,14 @@ import { buildTransaction } from '../testing/transaction-fixture';
 import { TransactionInput } from '../types/transaction';
 import { TransactionsService } from './transactions.service';
 
+const MERCADO_ID = '3f2a1c4e-0000-4000-8000-0000000000a1';
+const TRANSPORTE_ID = '3f2a1c4e-0000-4000-8000-0000000000a4';
+
 describe('TransactionsService', () => {
 	const baseUrl = `${environment.apiUrl}/transactions`;
 	const input: TransactionInput = {
 		description: 'Feira da semana',
-		categoryId: 'mercado',
+		categoryId: MERCADO_ID,
 		value: -186.42,
 		date: '2026-09-24T00:00:00.000Z',
 	};
@@ -49,11 +52,11 @@ describe('TransactionsService', () => {
 
 		it('should send every filter together, with the first day of the month as dateRef', () => {
 			const { params } = service.list(
-				{ description: 'uber', type: 'out', categoryId: 'transporte', month: new Date(2027, 0, 1) },
+				{ description: 'uber', type: 'out', categoryId: TRANSPORTE_ID, month: new Date(2027, 0, 1) },
 				{ active: 'date', direction: 'desc' },
 			);
 			expect(params.toString()).toBe(
-				'description=uber&type=out&categoryId=transporte&dateRef=2027-01-01&orderBy=date&asc=false',
+				`description=uber&type=out&categoryId=${TRANSPORTE_ID}&dateRef=2027-01-01&orderBy=date&asc=false`,
 			);
 		});
 	});
