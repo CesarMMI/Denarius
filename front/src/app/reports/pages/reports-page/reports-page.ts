@@ -6,6 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { MonthField } from '../../../shared/month-field/month-field';
 import { PageHeader } from '../../../shared/page-header/page-header';
+import { shallowEqual } from '../../../shared/shallow-equal/shallow-equal';
 import { CumulativeComparisonChart } from '../../components/cumulative-comparison-chart/cumulative-comparison-chart';
 import { ExpensesByCategoryChart } from '../../components/expenses-by-category-chart/expenses-by-category-chart';
 import { IncomeVsExpenseChart } from '../../components/income-vs-expense-chart/income-vs-expense-chart';
@@ -41,8 +42,11 @@ import {
 export class ReportsPage {
 	private readonly reportsService = inject(ReportsService);
 
-	/** The first day of the month every block shows; the API's current month to begin with. */
-	protected readonly month = signal<Date | null>(DateUtils.currentMonth());
+	/**
+	 * The first day of the month every block shows; the API's current month to begin with. Picking the month shown
+	 * again doesn't notify, so the blocks neither reload nor redraw.
+	 */
+	protected readonly month = signal<Date | null>(DateUtils.currentMonth(), { equal: shallowEqual });
 
 	protected readonly summary = httpResource<MonthlySummary>(() => this.reportsService.summary(this.month()));
 	protected readonly expensesByCategory = httpResource<ExpensesByCategory>(() =>

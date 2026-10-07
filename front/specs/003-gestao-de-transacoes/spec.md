@@ -67,9 +67,10 @@ back."
 - P: Escolher de novo a ordenação em uso, ou o mesmo mês, refaz a consulta e troca as linhas pelo indicador de
   carregamento, embora nada tenha mudado: isso é intencional, um defeito ou uma melhoria futura? → R: Defeito, decidido
   depois da revisão pós-clarify e válido também para a [[002-gestao-de-categorias]]. O esperado é não refazer a
-  consulta: a lista fica como está. O atual é um desvio conhecido, que contraria o princípio III, a corrigir uma só vez
-  pelo fluxo de bugs do front, no menu de ordenação e no campo "Mês" compartilhados, o que vale também para as páginas
-  de categorias e de relatórios, fora desta spec.
+  consulta: a lista fica como está. O desvio, que contrariava o princípio III, foi corrigido uma só vez pelo fluxo de
+  bugs do front (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec: a comparação por conteúdo fica no
+  estado de cada página (filtros e ordenação; nos relatórios, o mês), e não no menu de ordenação nem no campo "Mês"
+  compartilhados, e vale também para as páginas de categorias e de relatórios.
 - P: O `categoryId` inválido no endereço, o endereço que só define os filtros iniciais e a falta de divisória entre
   transações vizinhas da mesma data, em qualquer ordenação, são intencionais, defeitos ou melhorias futuras? → R: O
   usuário viu e não pediu mudança; os três ficam documentados como comportamento atual.
@@ -79,10 +80,10 @@ back."
 - P: Na busca por descrição, redigitar o texto já aplicado, ou digitar e apagar uma letra em menos de 300 ms, refaz a
   consulta com os mesmos filtros e, nesses casos, sair do campo a refaz mais uma vez: isso é intencional, um defeito ou
   uma melhoria futura? → R: Defeito, o mesmo da consulta repetida. O esperado é que o campo "Descrição" não refaça a
-  consulta quando o texto aplicado não mudou. O atual é um desvio conhecido, deduzido do código e ainda não
-  reproduzido, que contraria o princípio III; a correção é a mesma da consulta repetida, pelo fluxo de bugs do front,
-  fora desta spec, começa por um teste que reproduz o problema e vale também para o campo "Nome" da
-  [[002-gestao-de-categorias]].
+  consulta quando o texto aplicado não mudou. O desvio, que contrariava o princípio III, foi reproduzido num teste e
+  corrigido junto com a consulta repetida pelo fluxo de bugs do front (`front/bugs/consulta-repetida-sem-mudanca/`),
+  fora desta spec, pela mesma comparação por conteúdo nos filtros da página; a correção vale também para o campo
+  "Nome" da [[002-gestao-de-categorias]].
 - P: O que o diálogo faz durante a espera pela resposta da API ("Cancelar", Esc, clique fora e uma resposta que chega
   depois de ele fechar)? → R: Fica para o `/speckit-bug-assess` da correção do diálogo (FR-016), que vai propor o
   comportamento para o usuário decidir no portão do bug; até lá, o ponto continua em aberto nesta spec.
@@ -287,7 +288,7 @@ lista recarrega de acordo, e limpar e ocultar os filtros.
    dia escolhido, mas o filtro não muda; ver FR-024).
 8. **Dada** uma ordenação em uso, ou um mês escolhido, **Quando** o usuário escolhe de novo a mesma ordenação no menu,
    ou o mesmo mês no filtro "Mês", **Então** a lista fica como está, sem nova consulta e sem o indicador de
-   carregamento (desvio conhecido: hoje a consulta é refeita e as linhas dão lugar ao indicador; ver FR-031).
+   carregamento.
 
 ---
 
@@ -335,15 +336,8 @@ conferir que o mês é ignorado.
 - Numa recarga da mesma lista ("Recarregar", ou depois de salvar, excluir ou restaurar), as linhas atuais continuam à
   vista, sem indicador de carregamento, até a nova versão chegar; só quando a lista estava vazia ou em erro o
   indicador ocupa o lugar da mensagem durante a recarga.
-- Escolher de novo a ordenação em uso, ou o mesmo mês, não refaz a consulta, e a lista fica como está (FR-031). Desvio
-  conhecido: hoje essa escolha refaz a consulta e troca as linhas pelo indicador de carregamento, embora nada tenha
-  mudado, o que contraria a regra do projeto de não repetir consultas sem necessidade (princípio III do `AGENTS.md`).
-- Na busca por descrição, a consulta só é refeita quando o texto aplicado muda (FR-031). Desvio conhecido, deduzido do
-  código e ainda não reproduzido: hoje redigitar o texto já aplicado, ou digitar e apagar uma letra em menos de 300 ms,
-  refaz a consulta com os mesmos filtros depois da pausa, e as linhas dão lugar ao indicador de carregamento; nesses
-  dois casos, sair do campo depois da pausa refaz a consulta mais uma vez. Sair do campo depois de uma pausa que aplicou
-  um texto novo não refaz nada. Isso contraria o princípio III do `AGENTS.md`. Se a reprodução não confirmar o desvio, o
-  requisito continua valendo e esta nota sai da spec.
+- Escolher de novo a ordenação em uso, ou o mesmo mês, não refaz a consulta, e a lista fica como está (FR-031).
+- Na busca por descrição, a consulta só é refeita quando o texto aplicado muda (FR-031).
 - Uma transação cuja categoria não está entre as carregadas (por exemplo, registrada em outra janela, numa categoria
   criada depois de a página abrir) aparece sem a etiqueta de categoria até o usuário escolher "Recarregar".
 - Uma transação salva que não atende aos filtros em uso não aparece na lista recarregada, e a mensagem de sucesso avisa
@@ -551,12 +545,10 @@ conferir que o mês é ignorado.
 - **FR-031**: A filtragem e a ordenação DEVEM acontecer na fonte dos dados (a API), com uma única nova consulta da lista
   a cada mudança de filtro ou de ordenação; as categorias DEVEM ser buscadas só ao abrir a página e em "Recarregar".
   Escolher de novo a ordenação em uso, ou o mesmo mês, NÃO DEVE refazer a consulta, e a lista DEVE ficar como está; da
-  mesma forma, a busca por descrição NÃO DEVE refazer a consulta quando o texto aplicado não mudou. Desvio conhecido:
-  hoje essa escolha refaz a consulta e troca as linhas pelo indicador de carregamento, e a busca refaz a consulta com o
-  mesmo texto (deduzido do código e ainda não reproduzido; ver Casos-limite), contrariando o princípio III e bloqueando
-  a entrega desta feature; a correção é uma só, pelo fluxo de bugs do front, no menu de ordenação, no campo "Mês"
-  compartilhados e na busca, começa por testes que reproduzem os problemas, vale também para as páginas de categorias
-  (inclusive a busca por nome) e de relatórios e fica fora desta spec.
+  mesma forma, a busca por descrição NÃO DEVE refazer a consulta quando o texto aplicado não mudou. Esse comportamento
+  foi corrigido pelo fluxo de bugs do front (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec, com uma
+  comparação por conteúdo no estado da página (filtros e ordenação), e não no menu de ordenação nem no campo "Mês"
+  compartilhados; a mesma correção vale para as páginas de categorias (inclusive a busca por nome) e de relatórios.
 - **FR-032**: Descrições, nomes de categoria e mensagens da API DEVEM ser exibidos como texto, nunca interpretados como
   marcação.
 
@@ -592,8 +584,7 @@ conferir que o mês é ignorado.
 - **SC-007**: Abrir a página faz uma única consulta de transações e uma de categorias; cada mudança de filtro ou de
   ordenação faz uma única nova consulta de transações, sem buscar as categorias de novo; escolher de novo a ordenação
   em uso, ou o mesmo mês, não faz nenhuma consulta; e digitar uma busca faz no máximo uma consulta por pausa de 300 ms
-  na digitação, e não uma por tecla, e nenhuma quando o texto aplicado não muda (desvio conhecido: hoje escolher de
-  novo a ordenação em uso, ou o mesmo mês, refaz a consulta, e a busca a refaz com o mesmo texto; ver FR-031).
+  na digitação, e não uma por tecla, e nenhuma quando o texto aplicado não muda.
 - **SC-008**: Uma descrição, um nome de categoria ou uma mensagem da API com marcação (por exemplo, `<b>teste</b>`)
   aparece literalmente, como texto, em 100% dos lugares da página: a célula "Descrição" e a etiqueta da categoria na
   lista; as opções e o valor escolhido do filtro "Categoria" e do campo "Categoria" do formulário; e as mensagens (snack
@@ -645,7 +636,9 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   transação" sem categorias (FR-019), o dia escolhido no filtro "Mês" (FR-024, ainda a reproduzir, no campo
   compartilhado com as páginas de categorias e de relatórios), os calendários em português (FR-030) e a consulta que não
   se repete ao escolher de novo a ordenação em uso ou o mesmo mês, nem com o mesmo texto na busca por descrição (FR-031,
-  no menu de ordenação e no campo "Mês" compartilhados com as mesmas páginas e na busca, ainda a reproduzir). Também
+  corrigida em `front/bugs/consulta-repetida-sem-mudanca/` com uma comparação por conteúdo no estado de cada página, e
+  não no menu de ordenação nem no campo "Mês" compartilhados; vale também para as páginas de categorias e de
+  relatórios). Também
   ficam fora o clique repetido em "Excluir" sem retorno visual (FR-020), pelo fluxo de bugs do front; a validação da
   faixa e da escala do valor pela API, pelo fluxo de bugs do back; e, como trabalho futuro em features próprias, o
   indicador de filtro em uso (FR-023) e as melhorias de acessibilidade. Bloqueiam a entrega desta feature, pela

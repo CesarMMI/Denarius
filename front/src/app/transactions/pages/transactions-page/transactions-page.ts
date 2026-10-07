@@ -13,6 +13,7 @@ import { CategoriesService } from '../../../categories/services/categories.servi
 import { Category } from '../../../categories/types/category';
 import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { PageHeader } from '../../../shared/page-header/page-header';
+import { shallowEqual } from '../../../shared/shallow-equal/shallow-equal';
 import { SortMenu, SortOption } from '../../../shared/sort-menu/sort-menu';
 import { TransactionForm, TransactionFormData } from '../../components/transaction-form/transaction-form';
 import { TransactionsFilters } from '../../components/transactions-filters/transactions-filters';
@@ -50,15 +51,14 @@ export class TransactionsPage {
 	private readonly categoryId = this.queryParams.get('categoryId') ?? '';
 	private readonly month = DateUtils.fromMonthKey(this.queryParams.get('month'));
 
-	protected readonly filters = signal<TransactionFilters>({
-		description: '',
-		type: '',
-		categoryId: this.categoryId,
-		month: this.month,
-	});
+	/** The filters and the sort only notify, and reload the list, when their content changes. */
+	protected readonly filters = signal<TransactionFilters>(
+		{ description: '', type: '', categoryId: this.categoryId, month: this.month },
+		{ equal: shallowEqual },
+	);
 	protected readonly filtersVisible = signal<boolean>(!!this.categoryId || !!this.month);
 
-	protected readonly sort = signal<Sort>({ active: 'date', direction: 'desc' });
+	protected readonly sort = signal<Sort>({ active: 'date', direction: 'desc' }, { equal: shallowEqual });
 	protected readonly sortOptions: SortOption[] = [
 		{ active: 'date', direction: 'desc', label: 'Mais recentes primeiro' },
 		{ active: 'date', direction: 'asc', label: 'Mais antigos primeiro' },

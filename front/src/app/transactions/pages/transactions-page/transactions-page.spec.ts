@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@angular/common/http/testing';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDatepicker } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -88,6 +89,11 @@ describe('TransactionsPage', () => {
 	function expectList(): TestRequest {
 		TestBed.tick();
 		return httpTesting.expectOne((req) => req.method === 'GET' && req.url === baseUrl);
+	}
+
+	function expectNoListRequest() {
+		TestBed.tick();
+		httpTesting.expectNone((req) => req.method === 'GET' && req.url === baseUrl);
 	}
 
 	function expectCategories(): TestRequest {
@@ -252,6 +258,79 @@ describe('TransactionsPage', () => {
 		});
 	});
 
+	describe('filters, when nothing changes', () => {
+		beforeEach(async () => {
+			create();
+			await load([feira, pao, pagamento]);
+			headerButton('Exibir filtros')!.click();
+			await fixture.whenStable();
+		});
+
+		function descriptionInput() {
+			return element.querySelector<HTMLInputElement>('app-transactions-filters input[matInput]')!;
+		}
+
+		/** Typed in the DOM: a harness would wait on the request the typing may send. */
+		function typeDescription(text: string) {
+			descriptionInput().value = text;
+			descriptionInput().dispatchEvent(new Event('input'));
+		}
+
+		function pause() {
+			return new Promise((resolve) => setTimeout(resolve, 300));
+		}
+
+		function pickMonth(month: Date) {
+			const datepicker: MatDatepicker<Date> = fixture.debugElement.query(By.directive(MatDatepicker)).componentInstance;
+			datepicker.monthSelected.emit(month);
+		}
+
+		async function applyDescription(text: string) {
+			typeDescription(text);
+			await pause();
+			const req = expectList();
+			expect(req.request.params.get('description')).toBe(text);
+			req.flush([feira]);
+			await fixture.whenStable();
+		}
+
+		it('should not reload when the description is typed again as the text applied', async () => {
+			await applyDescription('fei');
+
+			typeDescription('fe');
+			typeDescription('fei');
+			await pause();
+
+			expectNoListRequest();
+		});
+
+		it('should not reload when leaving the description field after the text applied did not change', async () => {
+			await applyDescription('fei');
+			typeDescription('fe');
+			typeDescription('fei');
+			await pause();
+			// Answers what the typing may have sent; the test above covers it.
+			TestBed.tick();
+			httpTesting.match((req) => req.method === 'GET' && req.url === baseUrl).forEach((req) => req.flush([feira]));
+
+			descriptionInput().dispatchEvent(new Event('blur'));
+
+			expectNoListRequest();
+		});
+
+		it('should not reload when the month in use is picked again', async () => {
+			pickMonth(new Date(2026, 8, 1));
+			const req = expectList();
+			expect(req.request.params.get('dateRef')).toBe('2026-09-01');
+			req.flush([feira]);
+			await fixture.whenStable();
+
+			pickMonth(new Date(2026, 8, 1));
+
+			expectNoListRequest();
+		});
+	});
+
 	it('should filter by the category given in the query string, showing the filters', async () => {
 		create({ categoryId: SALARIO_ID });
 
@@ -387,6 +466,12 @@ describe('TransactionsPage', () => {
 			req.flush([pao, feira, pagamento]);
 			await fixture.whenStable();
 			expect(column('description')).toEqual(['', 'Feira', 'Salário']);
+		});
+
+		it('should not reload when the sort in use is chosen again', async () => {
+			await sortBy('Mais recentes primeiro');
+
+			expectNoListRequest();
 		});
 	});
 

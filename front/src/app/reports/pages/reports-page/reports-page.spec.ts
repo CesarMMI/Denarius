@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@angular/common/http/testing';
 import { LOCALE_ID, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDatepicker } from '@angular/material/datepicker';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
@@ -12,6 +13,7 @@ import { MonthField } from '../../../shared/month-field/month-field';
 import { CumulativeComparisonChart } from '../../components/cumulative-comparison-chart/cumulative-comparison-chart';
 import { ExpensesByCategoryChart } from '../../components/expenses-by-category-chart/expenses-by-category-chart';
 import { IncomeVsExpenseChart } from '../../components/income-vs-expense-chart/income-vs-expense-chart';
+import { TransactionsList } from '../../components/transactions-list/transactions-list';
 import { ChartColors, ChartThemeService } from '../../services/chart-theme.service';
 import { FakeChart } from '../../testing/fake-chart';
 import {
@@ -185,6 +187,43 @@ describe('ReportsPage', () => {
 		}
 		await fixture.whenStable();
 		expect(element.querySelector<HTMLInputElement>('app-month-field input')!.value).toBe('09/2026');
+	});
+
+	describe('when the month shown is picked again', () => {
+		function pickMonth(month: Date) {
+			const datepicker: MatDatepicker<Date> = fixture.debugElement.query(By.directive(MatDatepicker)).componentInstance;
+			datepicker.monthSelected.emit(month);
+		}
+
+		it('should not reload any block', async () => {
+			await load();
+
+			pickMonth(new Date(2026, 9, 1));
+
+			TestBed.tick();
+			const sent = httpTesting.match((req) => req.method === 'GET');
+			sent.forEach((req) => req.flush(null));
+			expect(sent.map((req) => req.request.url)).toEqual([]);
+		});
+
+		it('should keep the month given to the cumulative comparison and to the transactions', async () => {
+			await load();
+			const chart: CumulativeComparisonChart = fixture.debugElement.query(
+				By.directive(CumulativeComparisonChart),
+			).componentInstance;
+			const list: TransactionsList = fixture.debugElement.query(By.directive(TransactionsList)).componentInstance;
+			const shown = chart.month();
+			expect(list.month()).toBe(shown);
+
+			pickMonth(new Date(2026, 9, 1));
+			TestBed.tick();
+			fixture.detectChanges();
+			// Answers what picking the month may have sent; the test above covers it.
+			httpTesting.match((req) => req.method === 'GET').forEach((req) => req.flush(null));
+
+			expect(chart.month()).toBe(shown);
+			expect(list.month()).toBe(shown);
+		});
 	});
 
 	it.each([

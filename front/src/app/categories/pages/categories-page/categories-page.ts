@@ -9,6 +9,7 @@ import { Sort } from '@angular/material/sort';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable } from 'rxjs';
 import { PageHeader } from '../../../shared/page-header/page-header';
+import { shallowEqual } from '../../../shared/shallow-equal/shallow-equal';
 import { SortMenu, SortOption } from '../../../shared/sort-menu/sort-menu';
 import { CategoriesFilters } from '../../components/categories-filters/categories-filters';
 import { CategoriesTable } from '../../components/categories-table/categories-table';
@@ -37,10 +38,14 @@ export class CategoriesPage {
 	private readonly dialog = inject(MatDialog);
 	private readonly snackBar = inject(MatSnackBar);
 
-	protected readonly filters = signal<CategoryFilters>({ name: '', withTransaction: '', month: null });
+	/** The filters and the sort only notify, and reload the list, when their content changes. */
+	protected readonly filters = signal<CategoryFilters>(
+		{ name: '', withTransaction: '', month: null },
+		{ equal: shallowEqual },
+	);
 	protected readonly filtersVisible = signal<boolean>(false);
 
-	protected readonly sort = signal<Sort>({ active: 'name', direction: 'asc' });
+	protected readonly sort = signal<Sort>({ active: 'name', direction: 'asc' }, { equal: shallowEqual });
 	protected readonly sortOptions: SortOption[] = [
 		{ active: 'name', direction: 'asc', label: 'Nome (A–Z)' },
 		{ active: 'name', direction: 'desc', label: 'Nome (Z–A)' },

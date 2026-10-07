@@ -53,9 +53,10 @@ documentada em `back/specs/001-category-management/contracts/` e não muda o bac
 - P: Escolher de novo a ordenação em uso, ou o mesmo mês, que hoje refaz a consulta e troca as linhas pelo indicador de
   carregamento, é intencional, um defeito ou uma melhoria futura? → R: Defeito, decidido depois da revisão
   pós-esclarecimento e válido também para a [[003-gestao-de-transacoes]]. O esperado é não refazer a consulta: a lista
-  fica como está. O atual é um desvio conhecido, contrário ao princípio III, a corrigir de uma vez pelo fluxo de bugs
-  do front, nos componentes compartilhados de ordenação e de mês, fora desta spec; a correção vale para categorias,
-  transações e relatórios.
+  fica como está. O desvio, que contrariava o princípio III, foi corrigido de uma vez pelo fluxo de bugs do front
+  (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec: a comparação por conteúdo fica no estado de cada
+  página (filtros e ordenação; nos relatórios, o mês), e não nos componentes compartilhados de ordenação e de mês, e
+  vale para categorias, transações e relatórios.
 - P: Os demais pontos suspeitos (o nome só com espaços, que passa pelo diálogo e só a API recusa; o "Recarregar" sem
   indicador de carregamento; a paleta, com a falha silenciosa, o preto como cor inicial e a "Cor personalizada"
   sobrescrita; e a exclusão sem confirmação, com o "Desfazer" substituído por outra mensagem) devem mudar? → R: O
@@ -66,10 +67,10 @@ documentada em `back/specs/001-category-management/contracts/` e não muda o bac
 - P: A busca por nome, que pelo código consulta a lista de novo com o mesmo texto (ao redigitar o texto já aplicado,
   ao digitar e apagar uma letra em menos de 300 ms e, depois, se ele sai do campo sem digitar mais nada), é
   intencional, um defeito ou uma melhoria futura? → R: Defeito, o mesmo da consulta repetida. O esperado é o "Nome"
-  não refazer a consulta quando o texto aplicado não mudou. O atual é um desvio conhecido, deduzido do código e ainda
-  não reproduzido, contrário ao princípio III, a corrigir junto com a consulta repetida pelo fluxo de bugs do front,
-  fora desta spec; o diagnóstico começa reproduzindo o problema num teste, e a decisão vale também para a "Descrição" da
-  [[003-gestao-de-transacoes]].
+  não refazer a consulta quando o texto aplicado não mudou. O desvio, que contrariava o princípio III, foi reproduzido
+  num teste e corrigido junto com a consulta repetida pelo fluxo de bugs do front
+  (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec, pela mesma comparação por conteúdo nos filtros da
+  página; a decisão vale também para a "Descrição" da [[003-gestao-de-transacoes]].
 - P: O que o diálogo faz enquanto espera a resposta da API ("Cancelar", Esc, clique fora ou uma resposta que chega com
   o diálogo já fechado)? → R: Fica em aberto nesta spec: o `/speckit-bug-assess` da correção do diálogo propõe o
   comportamento, e o usuário decide no portão desse bug.
@@ -237,7 +238,7 @@ daquele mês; limpar o mês e conferir os totais de todo o período.
 4. **Dada** uma categoria sem transações no mês escolhido, mas com transações em outros meses, **Quando** a lista é
    exibida, **Então** ela mostra quantidade zero, e o "Excluir" dela continua desabilitado.
 5. **Dado** um mês escolhido, **Quando** o usuário escolhe de novo o mesmo mês, **Então** a lista fica como está, sem
-   nova consulta (desvio conhecido: hoje a consulta é refeita; ver FR-023).
+   nova consulta.
 
 ---
 
@@ -279,7 +280,7 @@ com e sem transações e escolher cada opção de ordenação, conferindo a list
 8. **Dados** filtros preenchidos, **Quando** o usuário escolhe "Ocultar filtros", **Então** os filtros continuam
    valendo e a lista continua filtrada; ao exibi-los de novo, eles aparecem como estavam.
 9. **Dada** uma ordenação em uso, **Quando** o usuário a escolhe de novo no menu, **Então** o menu fecha e a lista fica
-   como está, sem nova consulta (desvio conhecido: hoje a consulta é refeita; ver FR-023).
+   como está, sem nova consulta.
 
 ---
 
@@ -350,13 +351,7 @@ ver FR-004).
   até a nova lista chegar, sem nenhum indicador de carregamento: o indicador só aparece quando não há linhas a mostrar.
   Já uma mudança de filtro ou de ordenação troca as linhas pelo indicador.
 - Escolher de novo a ordenação em uso, ou o mesmo mês, não refaz a consulta, e a lista fica como está (FR-023).
-  Desvio conhecido: hoje a consulta é refeita e as linhas dão lugar ao indicador de carregamento, embora nada tenha
-  mudado, o que contraria a regra do projeto de não repetir consultas sem necessidade (princípio III do `AGENTS.md`).
-- No "Nome", a lista não é consultada de novo quando o texto aplicado não mudou (FR-023). Desvio conhecido, deduzido
-  do código e ainda não reproduzido: hoje a lista é consultada de novo com os mesmos filtros, e as linhas dão lugar ao
-  indicador de carregamento, quando o usuário redigita o texto já aplicado ou digita e apaga uma letra em menos de 300
-  ms; se depois ele sai do campo sem digitar mais nada, a consulta sai mais uma vez. Isso contraria a regra do
-  projeto de não repetir consultas sem necessidade (princípio III do `AGENTS.md`).
+- No "Nome", a lista não é consultada de novo quando o texto aplicado não mudou (FR-023).
 - A busca por nome não diferencia maiúsculas de minúsculas, mas diferencia acentos: "MERCADO" e "mer" encontram
   "Mercado", e "educacao" não encontra "Educação" (FR-017). Desvio conhecido: hoje a API também diferencia maiúsculas
   de minúsculas ([[001-category-management]], do backend, cujo contrato não define esse ponto), e "MERCADO" e "mer"
@@ -471,7 +466,7 @@ ver FR-004).
 - **FR-019**: O cabeçalho DEVE ter um menu de ordenação com "Nome (A–Z)" (o padrão), "Nome (Z–A)", "Mais transações
   primeiro", "Menos transações primeiro", "Maior saldo primeiro" e "Menor saldo primeiro"; o botão DEVE se identificar
   pela ordenação em uso ("Ordenar: …"), o menu DEVE marcar a opção em uso, e escolher outra opção DEVE recarregar a
-  lista ordenada pela API; escolher de novo a opção em uso NÃO DEVE recarregar (desvio conhecido; ver FR-023).
+  lista ordenada pela API; escolher de novo a opção em uso NÃO DEVE recarregar (FR-023).
 - **FR-020**: Os botões só com ícone da página DEVEM ter um nome acessível: "Recarregar", "Exibir filtros"/"Ocultar
   filtros", "Ordenar: …", "Editar" e "Excluir", que também aparecem como dica (no "Excluir" desabilitado, a dica é a
   explicação do bloqueio, e o nome continua "Excluir"), e "Limpar nome", "Limpar transações no período" e "Limpar mês",
@@ -486,11 +481,7 @@ ver FR-004).
   sem mudar o back; a API continua sendo a autoridade sobre a validação do nome e da cor, a recusa da exclusão de
   categorias em uso, a regra da busca por nome (FR-017, a corrigir no back) e o cálculo da quantidade e do saldo.
 - **FR-023**: Escolher de novo a ordenação em uso, ou o mesmo mês, NÃO DEVE refazer a consulta, e a lista DEVE ficar
-  como está; o "Nome" também NÃO DEVE refazer a consulta quando o texto aplicado não mudou. Desvio conhecido: hoje a
-  consulta é refeita nesses casos, e as linhas dão lugar ao indicador de carregamento (no "Nome", deduzido do código e
-  ainda não reproduzido; ver Casos-limite); a correção, uma só para a ordenação, o mês e o "Nome", segue o fluxo de
-  bugs do front, fora desta spec, começando por um teste que reproduza o caso do "Nome", e vale também para transações
-  (inclusive a "Descrição") e relatórios.
+  como está; o "Nome" também NÃO DEVE refazer a consulta quando o texto aplicado não mudou.
 
 ### Entidades principais _(inclua se a feature envolver dados)_
 
@@ -518,7 +509,7 @@ ver FR-004).
   entre o texto e o fundo, nos temas claro e escuro.
 - **SC-006**: Cada mudança de filtro ou de ordenação gera uma única nova consulta da lista, digitar na busca por nome
   gera no máximo uma consulta por pausa de 300 ms na digitação, e escolher de novo a ordenação em uso ou o mesmo mês,
-  ou terminar a digitação com o texto já aplicado, não gera nenhuma (desvio conhecido: hoje gera; ver FR-023).
+  ou terminar a digitação com o texto já aplicado, não gera nenhuma.
 - **SC-007**: 100% das falhas ao carregar a lista, salvar, excluir ou desfazer terminam numa mensagem ao usuário;
   nenhuma passa em silêncio (a falha da paleta, silenciosa por decisão do usuário, fica de fora).
 - **SC-008**: O usuário chega às transações de qualquer categoria da lista com um clique.

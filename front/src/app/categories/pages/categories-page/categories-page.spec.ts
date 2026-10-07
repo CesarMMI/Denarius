@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting, TestRequest } from '@angular/common/http/testing';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDatepicker } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -252,6 +253,77 @@ describe('CategoriesPage', () => {
 			expect(column('name')).toEqual(['Mercado']);
 		});
 
+		describe('when nothing changes', () => {
+			beforeEach(async () => {
+				headerButton('Exibir filtros')!.click();
+				await fixture.whenStable();
+			});
+
+			function nameInput() {
+				return element.querySelector<HTMLInputElement>('app-categories-filters input[matInput]')!;
+			}
+
+			/** Typed in the DOM: a harness would wait on the request the typing may send. */
+			function typeName(text: string) {
+				nameInput().value = text;
+				nameInput().dispatchEvent(new Event('input'));
+			}
+
+			function pause() {
+				return new Promise((resolve) => setTimeout(resolve, 300));
+			}
+
+			function pickMonth(month: Date) {
+				const datepicker: MatDatepicker<Date> = fixture.debugElement.query(By.directive(MatDatepicker)).componentInstance;
+				datepicker.monthSelected.emit(month);
+			}
+
+			async function applyName(text: string) {
+				typeName(text);
+				await pause();
+				const req = expectList();
+				expect(req.request.params.get('name')).toBe(text);
+				req.flush([mercado]);
+				await fixture.whenStable();
+			}
+
+			it('should not reload when the name is typed again as the text applied', async () => {
+				await applyName('mer');
+
+				typeName('me');
+				typeName('mer');
+				await pause();
+
+				expectNoListRequest();
+			});
+
+			it('should not reload when leaving the name field after the text applied did not change', async () => {
+				await applyName('mer');
+				typeName('me');
+				typeName('mer');
+				await pause();
+				// Answers what the typing may have sent; the test above covers it.
+				TestBed.tick();
+				httpTesting.match((req) => req.method === 'GET' && req.url === baseUrl).forEach((req) => req.flush([mercado]));
+
+				nameInput().dispatchEvent(new Event('blur'));
+
+				expectNoListRequest();
+			});
+
+			it('should not reload when the month in use is picked again', async () => {
+				pickMonth(new Date(2026, 8, 1));
+				const req = expectList();
+				expect(req.request.params.get('dateRef')).toBe('2026-09-01');
+				req.flush([mercado]);
+				await fixture.whenStable();
+
+				pickMonth(new Date(2026, 8, 1));
+
+				expectNoListRequest();
+			});
+		});
+
 		it('should say "Exibir filtros" or "Ocultar filtros" in the tooltip of the filters button', async () => {
 			expect(tooltip(headerButton('Exibir filtros')!)).toBe('Exibir filtros');
 
@@ -269,6 +341,14 @@ describe('CategoriesPage', () => {
 		await sortBy('Menor saldo primeiro');
 
 		expect(expectList().request.params.toString()).toBe('orderBy=balance&asc=true');
+	});
+
+	it('should not reload when the sort in use is chosen again', async () => {
+		await flushList([mercado, educacao]);
+
+		await sortBy('Nome (A–Z)');
+
+		expectNoListRequest();
 	});
 
 	describe('saving', () => {
