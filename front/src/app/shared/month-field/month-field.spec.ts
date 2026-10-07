@@ -83,4 +83,54 @@ describe('MonthField', () => {
 		expect(host.month()).toBeNull();
 		expect(clearButton()).toBeNull();
 	});
+
+	describe('calendar labels', () => {
+		function calendarButton(selector: string) {
+			return document.querySelector<HTMLButtonElement>(`.mat-datepicker-content ${selector}`)!;
+		}
+
+		function label(selector: string) {
+			return calendarButton(selector).getAttribute('aria-label');
+		}
+
+		function periodDescription() {
+			const id = calendarButton('.mat-calendar-period-button').getAttribute('aria-describedby')!;
+			return document.getElementById(id)!.textContent?.trim();
+		}
+
+		async function switchView() {
+			calendarButton('.mat-calendar-period-button').click();
+			await fixture.whenStable();
+		}
+
+		it('should name the calendar toggle in Portuguese', () => {
+			expect(element.querySelector('mat-datepicker-toggle button')!.getAttribute('aria-label')).toBe('Abrir calendário');
+		});
+
+		it('should name the calendar controls in Portuguese in every view', async () => {
+			host.month.set(new Date(2026, 8, 1));
+			await fixture.whenStable();
+			datepicker().open();
+			await fixture.whenStable();
+
+			expect(label('.mat-calendar-period-button')).toBe('Escolher data');
+			expect(label('.mat-calendar-previous-button')).toBe('Ano anterior');
+			expect(label('.mat-calendar-next-button')).toBe('Próximo ano');
+			expect(calendarButton('.mat-datepicker-close-button').textContent?.trim()).toBe('Fechar calendário');
+
+			await switchView();
+			expect(label('.mat-calendar-period-button')).toBe('Escolher mês e ano');
+			expect(label('.mat-calendar-previous-button')).toBe('Mês anterior');
+			expect(label('.mat-calendar-next-button')).toBe('Próximo mês');
+
+			await switchView();
+			expect(label('.mat-calendar-period-button')).toBe('Escolher data');
+			expect(periodDescription()).toBe('de 2016 a 2039');
+			expect(label('.mat-calendar-previous-button')).toBe('24 anos anteriores');
+			expect(label('.mat-calendar-next-button')).toBe('Próximos 24 anos');
+
+			datepicker().close();
+			await fixture.whenStable();
+		});
+	});
 });

@@ -41,9 +41,9 @@ documentada em `back/specs/001-category-management/contracts/` e não muda o bac
   própria.
 - P: Os nomes acessíveis do calendário do campo "Mês", hoje em inglês, e das cores da paleta, hoje o código
   hexadecimal, são intencionais, defeitos ou melhorias futuras? → R: O calendário em inglês é um defeito: o esperado
-  são rótulos em português em todos os calendários da aplicação, e o atual é um desvio conhecido, a corrigir pelo fluxo
-  de bugs do front, fora desta spec. As cores ficam como melhoria futura: o código hexadecimal continua como requisito,
-  e um nome para cada cor fica como trabalho futuro, numa feature própria.
+  são rótulos em português em todos os calendários da aplicação. O desvio foi corrigido pelo fluxo de bugs do front
+  (`front/bugs/calendarios-em-ingles/`), fora desta spec. As cores ficam como melhoria futura: o código hexadecimal
+  continua como requisito, e um nome para cada cor fica como trabalho futuro, numa feature própria.
 - P: Escolher um dia na visão de dias do campo "Mês", aberta pelo botão do ano, muda o texto do campo sem mudar o
   filtro: isso é intencional, um defeito ou uma melhoria futura? → R: Defeito, decidido no esclarecimento da
   [[003-gestao-de-transacoes]] e válido para o campo compartilhado, usado também nesta página e nos relatórios. O
@@ -337,9 +337,7 @@ ver FR-004).
   feita não pode mais ser desfeita.
 - No diálogo, cada cor da paleta se anuncia pelo seu código hexadecimal (por exemplo, "#F4511E"), e não por um nome de
   cor; um nome para cada cor é trabalho futuro (FR-020).
-- O calendário do campo "Mês" deve se anunciar em português (FR-020). Desvio conhecido: hoje ele usa os rótulos
-  padrão, em inglês, sem tradução, como "Open calendar" (o botão que o abre), "Choose date" (o botão do ano),
-  "Previous year", "Next year" e "Close calendar".
+- O calendário do campo "Mês" deve se anunciar em português (FR-020).
 - No calendário do campo "Mês", o botão do ano leva à visão de dias; escolher um dia ali aplica ao filtro o mês daquele
   dia, e o campo e a lista sempre concordam (FR-016). Desvio conhecido, deduzido do código e ainda não reproduzido:
   hoje o campo passa a mostrar o mês do dia escolhido e o calendário fecha, mas o filtro não muda; a lista continua com
@@ -473,9 +471,8 @@ ver FR-004).
   sem dica. No diálogo, as cores DEVEM ficar num grupo chamado "Cor", cada cor da paleta DEVE se identificar pelo seu
   código hexadecimal e informar se está escolhida, também para tecnologias assistivas, e o seletor livre DEVE se chamar
   "Cor personalizada"; um nome para cada cor da paleta é trabalho futuro, numa feature própria, fora desta spec. Os
-  nomes acessíveis do calendário do campo "Mês" DEVEM estar em português (por exemplo, "Abrir calendário"). Desvio
-  conhecido: hoje eles estão em inglês (ver Casos-limite); a correção segue o fluxo de bugs do front, fora desta spec,
-  e vale para todos os calendários da aplicação.
+  nomes acessíveis do calendário do campo "Mês" DEVEM estar em português (por exemplo, "Abrir calendário"), e
+  vale para todos os calendários da aplicação.
 - **FR-021**: Os nomes das categorias e as mensagens vindas da API DEVEM ser exibidos como texto, nunca interpretados.
 - **FR-022**: A página DEVE usar só o que a API de categorias de [[001-category-management]] (do backend) já oferece,
   sem mudar o back; a API continua sendo a autoridade sobre a validação do nome e da cor, a recusa da exclusão de
@@ -522,14 +519,15 @@ Estas premissas documentam o comportamento atual e verificado da página (esta �
 e dos testes em 2026-10-04), e não padrões em aberto escolhidos para uma feature nova:
 
 - Onde o comportamento esperado difere do atual, o requisito traz o esperado e marca o atual como desvio conhecido,
-  conforme os Esclarecimentos de 2026-10-04, 2026-10-05 e 2026-10-06. Esta spec não tem trabalho para esses desvios, a corrigir
-  fora dela: no back, num ciclo próprio, a busca por nome (FR-017); no front, pelo fluxo de bugs, o link da quantidade
-  com o mês (FR-004), o diálogo aberto até a resposta da API (FR-010), o mês do dia escolhido no calendário (FR-016, no
-  campo compartilhado), o calendário em português (FR-020), o "Excluir" protegido contra clique repetido, com retorno
-  visual na exclusão e na restauração (FR-012, FR-013), e nenhuma consulta nova ao escolher de novo a ordenação em
-  uso ou o mesmo mês, nem quando o texto aplicado no "Nome" não mudou (FR-023). Também ficam fora, como trabalho
-  futuro em features próprias, o indicador de filtro em uso (FR-015), um nome para cada cor da paleta (FR-020) e os
-  pontos fracos de acessibilidade listados nos Casos-limite.
+  conforme os Esclarecimentos de 2026-10-04, 2026-10-05 e 2026-10-06. Esta spec não tem trabalho para esses desvios, a
+  corrigir fora dela: no back, num ciclo próprio, a busca por nome (FR-017); no front, pelo fluxo de bugs, o link da
+  quantidade com o mês (FR-004), o diálogo aberto até a resposta da API (FR-010), o mês do dia escolhido no calendário
+  (FR-016, no campo compartilhado), o calendário em português (FR-020, corrigido em
+  `front/bugs/calendarios-em-ingles/`), o "Excluir" protegido contra clique repetido, com retorno visual na exclusão e
+  na restauração (FR-012, FR-013), e nenhuma consulta nova ao escolher de novo a ordenação em uso ou o mesmo mês, nem
+  quando o texto aplicado no "Nome" não mudou (FR-023). Também ficam fora, como trabalho futuro em features próprias, o
+  indicador de filtro em uso (FR-015), um nome para cada cor da paleta (FR-020) e os pontos fracos de acessibilidade
+  listados nos Casos-limite.
 - A página consome a API de categorias de [[001-category-management]] (do backend), com o contrato em
   `back/specs/001-category-management/contracts/categories-api.yaml`, e não muda o back.
 - A validação do diálogo (nome obrigatório e com até 100 caracteres) serve à experiência do usuário; a API valida tudo

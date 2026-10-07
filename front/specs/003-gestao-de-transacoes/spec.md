@@ -56,8 +56,8 @@ back."
   limpar os filtros, e isso é requisito; um indicador de filtro em uso fica como trabalho futuro, numa feature própria.
 - P: Os nomes acessíveis dos calendários dos campos "Data" e "Mês", hoje em inglês, são intencionais, um defeito ou uma
   melhoria futura? → R: Defeito, decidido junto com [[002-gestao-de-categorias]]. O esperado são rótulos em português
-  em todos os calendários da aplicação. O atual é um desvio conhecido, corrigido pelo fluxo de bugs do front, fora desta
-  spec.
+  em todos os calendários da aplicação. O desvio foi corrigido pelo fluxo de bugs do front
+  (`front/bugs/calendarios-em-ingles/`), fora desta spec.
 - P: A busca por descrição, que não diferencia maiúsculas de minúsculas, mas diferencia acentos, é intencional?
   → R: Sim. O comportamento atual vira requisito como está, sem mudança nesta página nem no back; a busca por nome da
   página de categorias passa a seguir a mesma regra ([[002-gestao-de-categorias]]).
@@ -381,8 +381,7 @@ conferir que o mês é ignorado.
   abre com a lista de categorias vazia (as que chegam depois de ele abrir não aparecem nele), e "Salvar" só mostra
   "Escolha uma categoria", sem indicar como cadastrar uma.
 - Os botões de navegação do calendário, no campo "Data" e no filtro "Mês", devem se anunciar aos leitores de tela em
-  português (FR-030). Desvio conhecido: hoje eles são anunciados em inglês, como "Open calendar", "Previous month",
-  "Previous year" e "Choose date", os rótulos padrão, sem tradução.
+  português (FR-030).
 - No filtro "Mês", o calendário abre na visão dos meses do ano, mas o botão do ano, no topo dele, leva à visão dos dias;
   escolher um dia ali aplica ao filtro o mês daquele dia, e o campo e a lista sempre concordam (FR-024); um dia do mês
   já aplicado não muda nada (FR-031). Desvio conhecido, deduzido da leitura do código e ainda não reproduzido: hoje
@@ -538,10 +537,8 @@ conferir que o mês é ignorado.
 - **FR-030**: Os botões que só mostram um ícone DEVEM ter o nome da ação para leitores de tela ("Recarregar", "Exibir
   filtros"/"Ocultar filtros", "Ordenar: …", "Editar", "Excluir" e os "Limpar …" dos filtros), e os do cabeçalho e das
   linhas DEVEM mostrá-lo também como dica; os "Limpar …" dos filtros ficam sem dica. Os nomes acessíveis dos calendários
-  dos campos "Data" e "Mês" DEVEM estar em português (por exemplo, "Abrir calendário"); o conjunto completo desses
-  rótulos é definido no bug-fix desta correção. Desvio conhecido: hoje eles estão em inglês (ver Casos-limite); a
-  correção segue o fluxo de bugs do front, fora desta spec, e vale para todos os calendários da aplicação. O desvio
-  contraria a regra de idioma do `AGENTS.md` e bloqueia a entrega desta feature.
+  dos campos "Data" e "Mês" DEVEM estar em português (por exemplo, "Abrir calendário"), e vale para todos os
+  calendários da aplicação; o conjunto completo desses rótulos está em `front/bugs/calendarios-em-ingles/`.
 - **FR-031**: A filtragem e a ordenação DEVEM acontecer na fonte dos dados (a API), com uma única nova consulta da lista
   a cada mudança de filtro ou de ordenação; as categorias DEVEM ser buscadas só ao abrir a página e em "Recarregar".
   Escolher de novo a ordenação em uso, ou o mesmo mês, NÃO DEVE refazer a consulta, e a lista DEVE ficar como está; da
@@ -634,18 +631,17 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   todos corrigidos fora dela, pelo fluxo de bugs do front: a data digitada, a recusa do zero e o limite do valor
   (FR-014), o diálogo aberto até a resposta da API (FR-016), o aviso da transação salva fora dos filtros (FR-017), "Nova
   transação" sem categorias (FR-019), o dia escolhido no filtro "Mês" (FR-024, ainda a reproduzir, no campo
-  compartilhado com as páginas de categorias e de relatórios), os calendários em português (FR-030) e a consulta que não
-  se repete ao escolher de novo a ordenação em uso ou o mesmo mês, nem com o mesmo texto na busca por descrição (FR-031,
-  corrigida em `front/bugs/consulta-repetida-sem-mudanca/` com uma comparação por conteúdo no estado de cada página, e
-  não no menu de ordenação nem no campo "Mês" compartilhados; vale também para as páginas de categorias e de
-  relatórios). Também
-  ficam fora o clique repetido em "Excluir" sem retorno visual (FR-020), pelo fluxo de bugs do front; a validação da
-  faixa e da escala do valor pela API, pelo fluxo de bugs do back; e, como trabalho futuro em features próprias, o
-  indicador de filtro em uso (FR-023) e as melhorias de acessibilidade. Bloqueiam a entrega desta feature, pela
-  Governança do `AGENTS.md`, os desvios que contrariam a constituição: a consulta repetida (FR-031) e o clique repetido
-  em "Excluir" (FR-020), pelo princípio III; os calendários em inglês (FR-030), pela regra de idioma; e a data digitada
-  e os valores com 14 ou mais algarismos (FR-014), pelo princípio II. Um bug-fix conta como concluído quando o seu
-  `front/bugs/<slug>/test.md` registra o resultado `verified`, o teste que reproduz o bug e a suíte completa passam e o
-  `/speckit-converge` reavalia contra o código os requisitos e critérios afetados. Se a reprodução de um desvio deduzido
-  do código não o confirmar, o requisito continua valendo e a nota de desvio sai da spec. Os demais casos-limite
-  descrevem o comportamento atual.
+  compartilhado com as páginas de categorias e de relatórios), os calendários em português (FR-030, corrigidos em
+  `front/bugs/calendarios-em-ingles/`) e a consulta que não se repete ao escolher de novo a ordenação em uso ou o mesmo
+  mês, nem com o mesmo texto na busca por descrição (FR-031, corrigida em `front/bugs/consulta-repetida-sem-mudanca/`
+  com uma comparação por conteúdo no estado de cada página, e não no menu de ordenação nem no campo "Mês"
+  compartilhados; vale também para as páginas de categorias e de relatórios). Também ficam fora o clique repetido em
+  "Excluir" sem retorno visual (FR-020), pelo fluxo de bugs do front; a validação da faixa e da escala do valor pela
+  API, pelo fluxo de bugs do back; e, como trabalho futuro em features próprias, o indicador de filtro em uso (FR-023) e
+  as melhorias de acessibilidade. Bloqueiam a entrega desta feature, pela Governança do `AGENTS.md`, os desvios que
+  contrariam a constituição: a consulta repetida (FR-031) e o clique repetido em "Excluir" (FR-020), pelo princípio III;
+  os calendários em inglês (FR-030), pela regra de idioma; e a data digitada e os valores com 14 ou mais algarismos
+  (FR-014), pelo princípio II. Um bug-fix conta como concluído quando o seu `front/bugs/<slug>/test.md` registra o
+  resultado `verified`, o teste que reproduz o bug e a suíte completa passam e o `/speckit-converge` reavalia contra o
+  código os requisitos e critérios afetados. Se a reprodução de um desvio deduzido do código não o confirmar, o
+  requisito continua valendo e a nota de desvio sai da spec. Os demais casos-limite descrevem o comportamento atual.

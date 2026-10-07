@@ -1,10 +1,11 @@
 import { booleanAttribute, Component, input, model } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_NATIVE_DATE_FORMATS, provideNativeDateAdapter } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDatepickerIntl, MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { PtBrDatepickerIntl } from '../datepicker-intl/pt-br-datepicker-intl';
 
 /** Picks a month, as its first day, from the year view of the datepicker. */
 @Component({
@@ -17,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 			...MAT_NATIVE_DATE_FORMATS,
 			display: { ...MAT_NATIVE_DATE_FORMATS.display, dateInput: { month: '2-digit', year: 'numeric' } },
 		}),
+		{ provide: MatDatepickerIntl, useClass: PtBrDatepickerIntl },
 	],
 })
 export class MonthField {

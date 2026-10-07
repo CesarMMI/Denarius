@@ -1,6 +1,7 @@
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { MatDatepicker } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSelectHarness } from '@angular/material/select/testing';
 import { By } from '@angular/platform-browser';
@@ -233,5 +234,25 @@ describe('TransactionForm', () => {
 
 			expect(input('description').value).toBe('');
 		});
+	});
+
+	it('should name the date calendar controls in Portuguese', async () => {
+		await render(feira);
+		const toggle = element.querySelector<HTMLButtonElement>('mat-datepicker-toggle button')!;
+		expect(toggle.getAttribute('aria-label')).toBe('Abrir calendário');
+
+		const picker: MatDatepicker<Date> = fixture.debugElement.query(By.directive(MatDatepicker)).componentInstance;
+		picker.open();
+		await fixture.whenStable();
+
+		const calendarButton = (selector: string) =>
+			document.querySelector<HTMLButtonElement>(`.mat-datepicker-content ${selector}`)!;
+		expect(calendarButton('.mat-calendar-period-button').getAttribute('aria-label')).toBe('Escolher mês e ano');
+		expect(calendarButton('.mat-calendar-previous-button').getAttribute('aria-label')).toBe('Mês anterior');
+		expect(calendarButton('.mat-calendar-next-button').getAttribute('aria-label')).toBe('Próximo mês');
+		expect(calendarButton('.mat-datepicker-close-button').textContent?.trim()).toBe('Fechar calendário');
+
+		picker.close();
+		await fixture.whenStable();
 	});
 });
