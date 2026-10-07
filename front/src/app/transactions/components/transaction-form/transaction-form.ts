@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { DateAdapter, provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerIntl, MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +12,7 @@ import { Category } from '../../../categories/types/category';
 import { DateUtils } from '../../../shared/date-utils/date-utils';
 import { PtBrDatepickerIntl } from '../../../shared/datepicker-intl/pt-br-datepicker-intl';
 import { Transaction, TransactionInput } from '../../types/transaction';
+import { PtBrDateAdapter } from './pt-br-date-adapter';
 
 export interface TransactionFormData {
 	transaction?: Transaction;
@@ -33,7 +34,11 @@ export interface TransactionFormData {
 		MatInputModule,
 		MatSelectModule,
 	],
-	providers: [provideNativeDateAdapter(), { provide: MatDatepickerIntl, useClass: PtBrDatepickerIntl }],
+	providers: [
+		provideNativeDateAdapter(),
+		{ provide: DateAdapter, useClass: PtBrDateAdapter },
+		{ provide: MatDatepickerIntl, useClass: PtBrDatepickerIntl },
+	],
 })
 export class TransactionForm {
 	protected readonly data = inject<TransactionFormData>(MAT_DIALOG_DATA);

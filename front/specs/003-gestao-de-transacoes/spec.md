@@ -217,8 +217,7 @@ categoria escolhidos, abri-la por "Editar", mudar o valor e conferir a mudança 
    não abre e aparece "Não foi possível carregar as categorias. Tente novamente.".
 9. **Dado** o diálogo aberto, **Quando** o usuário digita "5/9/2026" no campo "Data" e salva, **Então** a transação é
    registrada em 5 de setembro de 2026; digitada em outro formato, como "2026-09-24", a data é recusada com "Informe
-   uma data válida" (desvio conhecido: hoje "5/9/2026" é salva como 9 de maio, e "2026-09-24", como 23/09/2026 no fuso
-   do Brasil; ver FR-014).
+   uma data válida" (ver FR-014).
 10. **Dado que** não há nenhuma categoria cadastrada, **Quando** o usuário escolhe "Nova transação", **Então** o diálogo
     não abre e aparece "Cadastre uma categoria antes de registrar uma transação.", com a ação "Ver categorias", que abre
     a página de categorias; e, até a primeira carga das categorias terminar, "Nova transação" fica desabilitado
@@ -367,11 +366,7 @@ conferir que o mês é ignorado.
 - Uma data digitada no campo "Data", em vez de escolhida no calendário, é lida como dia/mês/ano, com o ano em quatro
   algarismos e com ou sem zeros à esquerda: "05/09/2026" e "5/9/2026" são 5 de setembro de 2026. Qualquer outro formato,
   inclusive "2026-09-24", e as datas inexistentes, como "31/02/2026", são recusados com "Informe uma data válida"
-  (FR-014). Desvio conhecido, que fere a integridade dos dados (princípio II) e bloqueia a entrega desta feature: hoje o
-  campo não segue o dia/mês/ano que exibe. "05/09/2026" é lida como mês/dia/ano e salva como 9 de maio de 2026;
-  "24/09/2026" é recusada; e "2026-09-24" é lida como meia-noite do horário universal, que no fuso do Brasil ainda é
-  23/09, e é salva como 23/09/2026. O campo só mostra a data reinterpretada depois que o usuário sai dele; salvando com
-  Enter logo depois de digitar, o diálogo fecha sem mostrá-la.
+  (FR-014).
 - A descrição para de aceitar texto aos 255 caracteres, e o contador mostra quantos foram usados; espaços nas pontas são
   removidos, e uma descrição só com espaços é salva como "sem descrição".
 - O campo "Data" aceita qualquer dia, passado ou futuro, sem limite.
@@ -459,10 +454,10 @@ conferir que o mês é ignorado.
   esquerda ("Informe uma data válida" para qualquer outro formato e para as datas inexistentes); e uma categoria
   ("Escolha uma categoria"). DEVE também limitar a descrição a 255 caracteres, com um contador dos caracteres usados no
   formato "N/255"; com algum campo inválido, "Salvar" DEVE apontar os erros e manter o diálogo aberto. Desvio conhecido:
-  hoje o formulário aceita o zero e valores de qualquer tamanho e não lê a data digitada como dia/mês/ano (ver
-  Casos-limite); a correção segue o fluxo de bugs do front, fora desta spec. A data digitada e os valores com 14 ou mais
-  algarismos inteiros, gravados hoje diferentes do digitado, ferem a integridade dos dados (princípio II do `AGENTS.md`)
-  e bloqueiam a entrega desta feature; o zero, que a API recusa, não bloqueia.
+  hoje o formulário aceita o zero e valores de qualquer tamanho (ver Casos-limite); a correção segue o fluxo de bugs do
+  front, fora desta spec. Os valores com 14 ou mais algarismos inteiros, gravados hoje diferentes do digitado, ferem a
+  integridade dos dados (princípio II do `AGENTS.md`) e bloqueiam a entrega desta feature; o zero, que a API recusa, não
+  bloqueia. A leitura da data digitada como dia/mês/ano foi corrigida em `front/bugs/data-digitada-como-mes-dia-ano/`.
 - **FR-015**: Ao salvar, a transação DEVE ser registrada com o valor negativo para "Saída" e positivo para "Entrada",
   com o dia escolhido como data e com a descrição sem os espaços das pontas, ou sem descrição quando ela estiver em
   branco.
@@ -594,8 +589,8 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   descrição longa e de categoria inexistente, o significado de cada filtro e os critérios de ordenação e de desempate. O
   formulário repete a exigência de data e de categoria, o limite da descrição e a recusa do zero, e acrescenta regras
   próprias de formato: o valor sem sinal, com até duas casas decimais, sem separador de milhar e com até 13 algarismos
-  na parte inteira, e a data digitada como dia/mês/ano (FR-014, em que a recusa do zero, o limite do valor e o formato
-  da data são desvios conhecidos); para o resto, mostra a mensagem da API. As mensagens da API estão sempre em
+  na parte inteira, e a data digitada como dia/mês/ano (FR-014, em que a recusa do zero e o limite do valor são desvios
+  conhecidos); para o resto, mostra a mensagem da API. As mensagens da API estão sempre em
   português, e a recusa automática de um pedido malformado vem sem mensagem, então cai na mensagem padrão. No valor, a
   API só recusa o zero e não valida a faixa nem a escala, um desvio conhecido do back, corrigido pelo fluxo de bugs do
   back e que não bloqueia esta feature.
@@ -621,8 +616,9 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   escopo.
 - Onde o comportamento esperado difere do atual, o requisito traz o esperado e marca o atual como desvio conhecido,
   conforme os Esclarecimentos de 2026-10-04, 2026-10-05 e 2026-10-06. Esta spec não tem trabalho para esses desvios,
-  todos corrigidos fora dela, pelo fluxo de bugs do front: a data digitada, a recusa do zero e o limite do valor
-  (FR-014), o diálogo aberto até a resposta da API (FR-016), o aviso da transação salva fora dos filtros (FR-017), "Nova
+  todos corrigidos fora dela, pelo fluxo de bugs do front: a data digitada (FR-014, corrigida em
+  `front/bugs/data-digitada-como-mes-dia-ano/`), a recusa do zero e o limite do valor (FR-014), o diálogo aberto até a
+  resposta da API (FR-016), o aviso da transação salva fora dos filtros (FR-017), "Nova
   transação" sem categorias (FR-019), o dia escolhido no filtro "Mês" (FR-024, ainda a reproduzir, no campo
   compartilhado com as páginas de categorias e de relatórios), os calendários em português (FR-030, corrigidos em
   `front/bugs/calendarios-em-ingles/`) e a consulta que não se repete ao escolher de novo a ordenação em uso ou o mesmo

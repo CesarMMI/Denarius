@@ -1,4 +1,5 @@
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
+import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatDatepicker } from '@angular/material/datepicker';
@@ -191,6 +192,41 @@ describe('TransactionForm', () => {
 		const options = Array.from(document.querySelectorAll('mat-option'));
 		expect(options.map((option) => option.textContent?.trim())).toEqual(['<b>teste</b>']);
 		expect(options.some((option) => option.querySelector('b'))).toBe(false);
+	});
+
+	describe('typing the date', () => {
+		beforeEach(() => {
+			TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'pt-BR' }] });
+			return render(undefined);
+		});
+
+		it.each([
+			['05/10/2026', '2026-10-05T00:00:00.000Z'],
+			['5/9/2026', '2026-09-05T00:00:00.000Z'],
+		])('should save a typed date as day/month/year: %s', async (typed, date) => {
+			await type('value', '12,50');
+			await type('date', typed);
+			await save();
+
+			expect(close).toHaveBeenCalledWith(expect.objectContaining({ date }));
+		});
+
+		it('should show the typed date unchanged after leaving the field', async () => {
+			await type('date', '5/9/2026');
+			input('date').dispatchEvent(new Event('blur'));
+			await fixture.whenStable();
+
+			expect(input('date').value).toBe('05/09/2026');
+		});
+
+		it.each(['02/30/2026', '2026-09-24', '05/10/26'])('should not save the date %s', async (typed) => {
+			await type('value', '12,50');
+			await type('date', typed);
+			await save();
+
+			expect(close).not.toHaveBeenCalled();
+			expect(errors()).toEqual(['Informe uma data válida']);
+		});
 	});
 
 	describe('editing', () => {
