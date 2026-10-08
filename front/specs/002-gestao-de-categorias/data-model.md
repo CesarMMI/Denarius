@@ -55,6 +55,24 @@ Ordenação (`Sort` do Material): `active` ∈ `name | transactionCount | balanc
 
 Nada disso vai para a URL; cada visita recomeça do padrão (Premissa da spec).
 
+**Atualização (2026-10-08)**, depois dos bugs `front/bugs/consulta-repetida-sem-mudanca/` e
+`front/bugs/clique-repetido-em-excluir/` (`verified`); conferido em `categories-page.ts`:
+
+- `filters` e `sort` são criados com `{ equal: shallowEqual }` (`shared/shallow-equal/`): gravar o mesmo conteúdo
+  (a mesma ordenação, o mesmo mês ou o mesmo texto no "Nome") não notifica, e o `httpResource` não refaz a consulta
+  (FR-023, SC-006).
+- `deleting: WritableSignal<ReadonlySet<string>>`, começa vazio: os ids das categorias em exclusão. O id entra no
+  clique e só sai se a API recusar; depois de aceita a exclusão, continua até a linha sair da lista. Um clique numa
+  linha cujo id já está em `deleting` não envia outro `DELETE`. A tabela recebe `[deleting]`, desabilita "Editar" e
+  "Excluir" da linha (`disabledInteractive`) e troca o ícone do "Excluir" por um spinner (FR-012).
+- `restoring: WritableSignal<number>`, começa em 0: quantas restaurações ("Desfazer") estão em andamento. Sobe ao
+  enviar o `POST` e desce quando ele termina, aceito ou recusado; enquanto é maior que 0, o cartão da lista mostra uma
+  `mat-progress-bar` ("Restaurando a categoria") (FR-013).
+- As recargas depois de salvar, excluir e desfazer usam o `reloadWhenIdle` (`shared/reload-when-idle/`): se a lista
+  já estiver carregando, a recarga fica pendente e sai quando essa carga termina com sucesso; se ela falhar, a recarga
+  é descartada e o "Recarregar" continua sendo a saída. O "Recarregar" do cabeçalho segue chamando `reload()` direto.
+- As citações de linha da tabela acima (`categories-page.ts:40`, `:41`, `:43` e `:53-55`) não valem mais.
+
 ## Paleta padrão
 
 | Item   | Regra                                                                                                                                                                                                        |
@@ -76,4 +94,18 @@ Diálogo:   aberto ──Salvar (válido)──► fechado com CategoryInput ─
 
 Exclusão:  DELETE ──204──► reload + "Categoria excluída." [Desfazer, 5 s] ──Desfazer──► POST {name, color}
                   └─4xx/5xx─► mensagem da API ou "Não foi possível excluir a categoria." [Fechar, 5 s]
+```
+
+**Atualização (2026-10-08)**: as transições acima continuam valendo, com estes acréscimos (ver o Estado da página):
+
+```text
+Lista:     filtro/ordenação com o mesmo conteúdo ──► nada (sem consulta, linhas mantidas)
+           reload depois de salvar/excluir/desfazer com a lista carregando ──► pendente ──carga ok──► reload()
+                                                                                       └─carga com erro─► descartado
+
+Exclusão:  clique ──► id em `deleting` (linha bloqueada, spinner no "Excluir") ──► DELETE
+                  ──204──► id continua em `deleting` até a linha sair da lista
+                  └─4xx/5xx─► id sai de `deleting` (linha liberada) + mensagem de erro
+           novo clique com o id em `deleting` ──► nada
+           Desfazer ──► restoring + 1 (barra "Restaurando a categoria") ──POST termina──► restoring − 1
 ```

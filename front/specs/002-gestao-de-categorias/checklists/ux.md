@@ -87,7 +87,8 @@ requisitos. Não significa que a implementação esteja concluída.
       year", "Close calendar"), e não só o exemplo "Abrir calendário"? [Clareza, Spec §FR-020, Plan §Constitution
       Check, Research §D10] — ok: Plan §Constitution Check (linha Idioma), §Desvios conhecidos, Research §D10, FR-020
       e Casos-limite (rótulos em inglês listados). O critério "nomes acessíveis em português" é verificável contra essa
-      lista; a tradução exata de cada rótulo é detalhe do `/speckit-bug-fix`, e não da spec.
+      lista; a tradução exata de cada rótulo é detalhe do `/speckit-bug-fix`, e não da spec. Fechamento (2026-10-08):
+      resolvido com o `PtBrDatepickerIntl`; bug `front/bugs/calendarios-em-ingles/` `verified`.
 
 ## Estados de carregamento, erro e vazio
 

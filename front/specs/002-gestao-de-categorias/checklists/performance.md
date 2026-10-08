@@ -45,7 +45,8 @@ requisitos. Não significa que a implementação esteja concluída.
 - [x] CHK006 A combinação da pausa de 300 ms com a saída do campo está especificada sem margem para uma consulta
       duplicada (uma pausa seguida de saída do campo gera uma consulta ou duas)? [Clareza, Spec §FR-017, Spec §FR-023]
       — ok: a FR-023 e os Casos-limite dizem que o "Nome" não refaz a consulta quando o texto aplicado não mudou, e
-      registram a consulta extra ao sair do campo depois da pausa como desvio conhecido.
+      registram a consulta extra ao sair do campo depois da pausa como desvio conhecido. Fechamento (2026-10-08):
+      desvio corrigido em `front/bugs/consulta-repetida-sem-mudanca/` (`verified`).
 - [x] CHK007 "Uma única nova consulta" (SC-006) está definida em termos observáveis (requisições HTTP à lista por ação
       do usuário), incluindo se a recarga depois de uma escrita entra na contagem? [Clareza, Spec §SC-006] — ok: a
       "consulta da lista" é o `GET {apiUrl}/categories` (Contracts §API consumida); a SC-006 trata só de mudanças de
@@ -88,6 +89,8 @@ requisitos. Não significa que a implementação esteja concluída.
       de 300 ms, nenhuma ao repetir a escolha), e o plan diz qual delas hoje não é atendida? [Mensurabilidade, Spec
       §SC-006, Plan §Dependências e riscos] — ok: as três partes são contáveis em requisições; o Plan §Contexto técnico
       ("esta última é desvio conhecido"), o Constitution Check III e o §Dependências e riscos dizem qual não é atendida.
+      Fechamento (2026-10-08): o plan registrava a parte não atendida, corrigida em 2026-10-08; hoje ele diz que a SC-006
+      é atendida por completo.
 - [x] CHK015 A SC-009 tem um critério verificável para as duas partes: o chunk `categories-page` fora do "Initial
       total" no build e a requisição da paleta só na primeira abertura do diálogo? [Mensurabilidade, Spec §SC-009,
       Quickstart §1] — ok: segunda rodada (2026-10-06): o Quickstart §1 tem a linha SC-009, com o build (chunk lazy) e, para a paleta, `categories-page.spec.ts:61` (`verify()`), `category-form.spec.ts:29` e `colors.service.spec.ts`.
@@ -122,6 +125,7 @@ requisitos. Não significa que a implementação esteja concluída.
 - [x] CHK022 O plan avalia o efeito no bundle inicial e nas consultas dos bug-fix que bloqueiam a entrega (por exemplo,
       um `MatDatepickerIntl` em português provido para toda a aplicação, ou a mudança nos componentes compartilhados de
       ordenação e de mês)? [Gap, Plan §Dependências e riscos] — ok: segunda rodada (2026-10-06): o Plan §Dependências e riscos registra o risco do `MatDatepickerIntl` no bundle inicial (margem de cerca de 67 kB) e manda o `/speckit-bug-assess` medir com `npm run build` e preferir os chunks lazy.
+      Fechamento (2026-10-08): resolvido; bug `verified`; reavaliado no converge (inicial em 633,08 kB).
 - [x] CHK023 A restrição de estilos por componente abaixo de 4 kB está registrada com a medição atual dos componentes
       próprios desta feature (`category-form.scss`, `categories-table.scss`)? [Completude, Plan §Constitution Check,
       Restrições técnicas] — ok: Plan §Constitution Check, linha Restrições técnicas ("nenhum estilo de componente acima
@@ -133,12 +137,13 @@ requisitos. Não significa que a implementação esteja concluída.
       com destino (fluxo de bugs do front), bloqueio da entrega (D10) e critério de correção objetivo (nenhuma consulta
       ao repetir a ordenação, o mesmo mês ou o texto aplicado)? [Plan §Constitution Check III, Plan §Desvios conhecidos,
       Research §D10] — ok: Plan §Constitution Check III, §Desvios conhecidos, resultado do portão, Research §D10, e o
-      critério na FR-023 e na SC-006.
+      critério na FR-023 e na SC-006. Fechamento (2026-10-08): resolvido; bug `verified`; reavaliado no converge.
 - [x] CHK025 Está registrado que o caso do "Nome" é deduzido do código e ainda não reproduzido, e que a correção começa
       por um teste que o reproduza, com o que fazer se o teste não reproduzir o problema? [Clareza, Spec §FR-023, Plan
       §Desvios conhecidos] — ok: FR-023, Esclarecimentos de 2026-10-05 e Plan §Desvios conhecidos; o que fazer se não
       reproduzir é decidido no portão do `/speckit-bug-assess` (AGENTS.md raiz, Bugs, passo 2), destino que o plan já
-      indica.
+      indica. Fechamento (2026-10-08): o caso do "Nome" foi reproduzido num teste; resolvido; bug `verified`;
+      reavaliado no converge.
 - [x] CHK026 O escopo da correção (ordenação e mês compartilhados, "Nome" de categorias e "Descrição" de transações,
       válida para categorias, transações e relatórios) está listado da mesma forma na spec, no plan e no research?
       [Consistência, Spec §FR-023, Plan §Desvios conhecidos, Research §Filtros, mês e ordenação] — ok: a FR-023 e o Plan
@@ -147,6 +152,7 @@ requisitos. Não significa que a implementação esteja concluída.
 - [x] CHK027 O plan diz como o `/speckit-converge` confere a conclusão do bug-fix da consulta repetida antes de dar a
       feature como entregue (que evidência conta: o `test.md` do bug, a SC-006 reavaliada)? [Clareza, Plan §Dependências
       e riscos, Research §D10] — ok: segunda rodada (2026-10-06): o Plan §Dependências e riscos e o Research §D16 definem a evidência: o `front/bugs/<slug>/test.md` com `verified`, o teste de reprodução e a suíte completa passando, e o converge reavaliando os FR/SC afetados (FR-023 e SC-006; FR-020; FR-012 e FR-013, do novo bloqueio do clique repetido).
+      Fechamento (2026-10-08): resolvido; bug `verified`; reavaliado no converge.
 - [x] CHK028 A exceção à F1 (o `CategoryForm` provoca o `GET` da paleta) registra o ganho de performance que a justifica
       (a paleta só na primeira abertura do diálogo) e a alternativa rejeitada por ir contra a SC-009? [Completude, Plan
       §Acompanhamento de complexidade, Research §D4] — ok: Plan §Acompanhamento de complexidade (atende à SC-009; a

@@ -141,7 +141,9 @@ há, o item diz isso explicitamente.
   (`sort-menu.ts:30-32` e `month-field.html:17` sempre gravam um objeto novo, e o `httpResource` de
   `categories-page.ts:53-55` refaz a requisição; no "Nome", deduzido de `categories-filters.ts:19`), o dia escolhido
   na visão de dias que não chega ao `value` (só o `monthSelected` o grava, `month-field.html:17`) e o calendário sem
-  rótulos em português (nenhum `MatDatepickerIntl` é provido no código).
+  rótulos em português (nenhum `MatDatepickerIntl` é provido no código). **Atualização (2026-10-08)**: dos três, só
+  o dia escolhido na visão de dias (FR-016) continua desvio; a consulta repetida e o calendário foram corrigidos em
+  `front/bugs/consulta-repetida-sem-mudanca/` e `front/bugs/calendarios-em-ingles/`.
 
 ## Lista, estados e link para transações
 
@@ -253,6 +255,7 @@ da revisão independente; D11 a D16 em 2026-10-06, depois da revisão dos checkl
   - Decisão: a feature só é dada como entregue, no fim do `/speckit-converge`, depois de concluídos os bug-fix da
     consulta repetida (FR-023), do calendário em inglês (FR-020) e do clique repetido em "Excluir" (FR-012, FR-013; D11). Até lá, o implement das tarefas de teste pode rodar,
     desde que a suíte completa esteja verde (D7).
+  - Resolvido (2026-10-08): os três bug-fix estão `verified`, e o converge liberou a entrega.
 - **D11 — "Excluir" sem proteção contra clique repetido: desvio conhecido do princípio III, que bloqueia a entrega
   (2026-10-06).**
   - Constatado: `CategoriesPage.delete()` (`categories-page.ts:69-81`) não guarda estado de exclusão em andamento, e o
@@ -263,6 +266,7 @@ da revisão independente; D11 a D16 em 2026-10-06, depois da revisão dos checkl
   - Decisão: defeito, registrado na spec (FR-012, FR-013, Casos-limite e Esclarecimentos de 2026-10-06), a corrigir
     pelo fluxo de bugs do front; a forma da correção fica para o `/speckit-bug-assess`. Bloqueia a entrega desta
     feature e da 003, como a consulta repetida e o calendário em inglês (D10).
+  - Resolvido (2026-10-08): bug `front/bugs/clique-repetido-em-excluir/` `verified`, e o converge liberou a entrega.
 - **D12 — Exibição como texto: novo TC-10 (2026-10-06).**
   - Decisão: teste de caracterização em `categories-table.spec.ts`: um nome `<b>teste</b>` aparece literalmente no
     chip. Só os templates do projeto; o snack bar fica como garantia do Material, sem teste. Um exemplo entrou nos

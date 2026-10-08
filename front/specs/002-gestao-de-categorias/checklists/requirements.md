@@ -91,4 +91,9 @@
     requisitos, com o comportamento esperado, atingem os critérios; na prática, o SC-006 só vale depois da correção da
     FR-023.
   - O limite de 100 caracteres sem teste fica registrado para o plan levar ao usuário.
+- Fechamento (2026-10-08), depois do `/speckit-converge` que liberou a entrega, sem mudar o estado de nenhum item:
+  - "Abrir calendário", que as notas acima chamam de texto esperado que ainda não existia no código, passou a existir
+    com a correção de `front/bugs/calendarios-em-ingles/` (FR-020).
+  - A consulta repetida no "Nome", que as notas acima dizem deduzida do código e ainda não reproduzida, foi reproduzida
+    e corrigida em `front/bugs/consulta-repetida-sem-mudanca/`; o SC-006 vale por inteiro desde a correção da FR-023.
 - Itens marcados como incompletos exigem atualizar a spec antes do `/speckit-clarify` ou do `/speckit-plan`.
