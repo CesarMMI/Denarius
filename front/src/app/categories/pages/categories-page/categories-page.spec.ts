@@ -387,7 +387,7 @@ describe('CategoriesPage', () => {
 			dialogReturns(undefined);
 			button('Nova categoria').click();
 
-			TestBed.tick();
+			expectNoListRequest();
 			httpTesting.expectNone(baseUrl);
 			expect(snackBar.open).not.toHaveBeenCalled();
 		});
@@ -404,8 +404,7 @@ describe('CategoriesPage', () => {
 				);
 
 			expect(snackBar.open).toHaveBeenCalledWith('O nome da categoria não pode ser vazio.', 'Fechar', { duration: 5000 });
-			TestBed.tick();
-			httpTesting.expectNone(baseUrl);
+			expectNoListRequest();
 		});
 
 		it('should show a fallback message when the error has no detail', () => {
@@ -467,8 +466,7 @@ describe('CategoriesPage', () => {
 				'Fechar',
 				{ duration: 5000 },
 			);
-			TestBed.tick();
-			httpTesting.expectNone(baseUrl);
+			expectNoListRequest();
 		});
 
 		it('should show a fallback message when deleting fails without a detail', () => {

@@ -158,11 +158,11 @@ describe('ReportsPage', () => {
 
 		retryButton('app-expenses-by-category-chart')!.click();
 		expectReport('expensesByCategory').flush(reports.expensesByCategory);
+		// Before whenStable(): a reload of the other blocks would leave their requests pending and hang it.
+		TestBed.tick();
+		httpTesting.expectNone((req) => req.method === 'GET');
 		await fixture.whenStable();
 
-		for (const report of names.filter((report) => report !== 'expensesByCategory')) {
-			httpTesting.expectNone(`${baseUrl}/${report}`);
-		}
 		expect(retryButton('app-expenses-by-category-chart')).toBeUndefined();
 		expect(fixture.debugElement.queryAll(By.directive(FakeChart))).toHaveLength(3);
 	});

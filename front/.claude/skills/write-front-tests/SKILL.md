@@ -38,7 +38,7 @@ Read `references/recipes.md` for the skeleton of each kind before writing one fr
 ## Settling the app (zoneless)
 
 - After changing an input, a signal or clicking: `await fixture.whenStable()`.
-- `httpResource` requests and effects only run after `TestBed.tick()`. Put it inside an `expectList()` helper so every `expectOne` is preceded by a tick.
+- `httpResource` requests and effects only run after `TestBed.tick()`. Put it inside an `expectList()` helper so every `expectOne` is preceded by a tick, and pair it with an `expectNoListRequest()` that ticks and asserts no reload.
 - **`whenStable()` waits for pending `httpResource` requests.** To see a loading state, flush nothing and call `fixture.detectChanges()` instead; flush the request at the end so `verify()` passes.
 - Timers are real: for a 300 ms debounce, `await new Promise((r) => setTimeout(r, 300))`.
 - Things rendered in an overlay (menu items, select panels, dialogs) are outside the fixture — query `document`, or use a harness.
@@ -51,6 +51,7 @@ Each of these cost an investigation; the last one hangs the test without an erro
 - **Tables take a `Resource`: don't use HTTP for them.** `resourceFromSnapshots(signal<ResourceSnapshot<T[] | undefined>>({ status: 'resolved', value: [...] }))` and switch with `.set({ status: 'loading' | 'error' | 'resolved', ... })`.
 - **`mat-select` bound with `[formField]` goes through its ControlValueAccessor**: `triggerEventHandler('valueChange')` does not change the form. Use `MatSelectHarness.clickOptions({ text })`. For `MonthField`, `By.directive(MonthField)` then `componentInstance.value.set(new Date(...))`.
 - **Debounced text filters** (`debounce(path.x!, 300)`) update the model only after the pause, or at once on blur (`markAsTouched` flushes). Test both: `MatInputHarness.setValue` + 300 ms; `setValue` + `.blur()`.
+- **`expectOne`/`expectNone` with a string compare it with the URL *with* its query string.** For a request with params (the lists always send `orderBy`/`asc`, the reports `month`), use a predicate on `req.url`, or `expectNone` never fails. And call `expectNone` before awaiting stability: after `await fixture.whenStable()`, a pending reload hangs the test and the assertion never runs.
 - **In page specs, never drive an action through a harness when it triggers an `httpResource` request**: the harness's `whenStable()` waits on the request and hangs forever. Change filters through the filters component's `model` (`filters()!.filters.set({...})`), then `TestBed.tick()` and `expectOne`.
 
 ## What to cover

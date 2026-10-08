@@ -520,7 +520,7 @@ describe('TransactionsPage', () => {
 			dialogReturns(undefined);
 			button('Nova transação').click();
 
-			TestBed.tick();
+			expectNoListRequest();
 			httpTesting.expectNone(baseUrl);
 			expect(snackBar.open).not.toHaveBeenCalled();
 		});
@@ -537,8 +537,7 @@ describe('TransactionsPage', () => {
 				);
 
 			expect(snackBar.open).toHaveBeenCalledWith('Categoria não encontrada.', 'Fechar', { duration: 5000 });
-			TestBed.tick();
-			httpTesting.expectNone(baseUrl);
+			expectNoListRequest();
 		});
 
 		it('should show a fallback message when the error has no detail', () => {
@@ -634,8 +633,7 @@ describe('TransactionsPage', () => {
 			deleteFeira().flush({ status: 404, detail: 'Transação não encontrada.' }, { status: 404, statusText: 'Not Found' });
 
 			expect(snackBar.open).toHaveBeenCalledWith('Transação não encontrada.', 'Fechar', { duration: 5000 });
-			TestBed.tick();
-			httpTesting.expectNone(baseUrl);
+			expectNoListRequest();
 		});
 	});
 

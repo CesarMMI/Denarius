@@ -291,6 +291,10 @@ function expectList(): TestRequest {
 	TestBed.tick();
 	return httpTesting.expectOne((req) => req.method === 'GET' && req.url === baseUrl);
 }
+function expectNoListRequest() {
+	TestBed.tick();
+	httpTesting.expectNone((req) => req.method === 'GET' && req.url === baseUrl);
+}
 async function flushList(items: {Entity}[]) {
 	expectList().flush(items);
 	await fixture.whenStable();
@@ -325,8 +329,7 @@ it('should show the API error detail and not reload when saving fails', () => {
 	button('Nova ...').click();
 	httpTesting.expectOne(baseUrl).flush({ status: 409, detail: 'Já existe ...' }, { status: 409, statusText: 'Conflict' });
 	expect(snackBar.open).toHaveBeenCalledWith('Já existe ...', 'Fechar', { duration: 5000 });
-	TestBed.tick();
-	httpTesting.expectNone(baseUrl);
+	expectNoListRequest();
 });
 // undo: after the DELETE and its reload, snackBarAction.next(), then expect the POST that recreates it
 // sort: click 'app-sort-menu button', await whenStable(), click the item in document '.mat-mdc-menu-panel [mat-menu-item]'
