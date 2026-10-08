@@ -181,3 +181,7 @@ quer dizer que a implementação está pronta.
 - O `/speckit-implement` lê o estado das caixas como portão e não altera as marcações.
 - O `checklists/requirements.md` tem ciclo próprio, mantido pelo `/speckit-specify` e pelo `/speckit-clarify`.
 - Registre achados e comentários ao lado do item; os IDs são sequenciais para facilitar a referência.
+- Converge final (2026-10-08): a data digitada e os valores com 14 ou mais algarismos (FR-014, princípio II) foram
+  corrigidos (`front/bugs/data-digitada-como-mes-dia-ano/` e `front/bugs/valor-com-muitos-algarismos/`, `test.md`
+  `verified`), e o clique repetido em "Excluir" (FR-020), em `front/bugs/clique-repetido-em-excluir/`; todos foram
+  reavaliados contra o código sem achados. O zero continua desvio conhecido, sem bloqueio. Nenhum item mudou de estado.

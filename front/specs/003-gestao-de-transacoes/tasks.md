@@ -388,6 +388,9 @@ a suíte completa do front passam; e o `/speckit-converge` desta feature reavali
 (T007–T040) podem ser implementados antes desses bug-fix. Os demais desvios conhecidos do `plan.md` (zero, FR-016,
 FR-017, FR-019, FR-024, link da 002, `dateRef` e validação do valor no back) não bloqueiam a entrega.
 
+**Situação (2026-10-08)**: os cinco bug-fix estão concluídos e foram reavaliados no `/speckit-converge` final, sem
+tarefas novas; a entrega fica pendente da T040 (conferência manual C5) e do bug do teste intermitente do C3.
+
 **Desvios conhecidos que não bloqueiam a entrega** (`plan.md` → Desvios conhecidos e fluxo de destino). Ficam fora
 deste arquivo: o `/speckit-converge` só os registra como desvios conhecidos, sem anexar tarefas.
 

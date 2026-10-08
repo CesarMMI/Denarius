@@ -198,3 +198,7 @@ quer dizer que a implementação está pronta.
 - O `/speckit-implement` lê o estado das caixas como portão e não altera as marcações.
 - O `checklists/requirements.md` tem ciclo próprio, mantido pelo `/speckit-specify` e pelo `/speckit-clarify`.
 - Registre achados e comentários ao lado do item; os IDs são sequenciais para facilitar a referência.
+- Converge final (2026-10-08): os calendários em português (FR-030, `front/bugs/calendarios-em-ingles/`), a data
+  digitada como dia/mês/ano e o limite do valor (FR-014, `front/bugs/data-digitada-como-mes-dia-ano/` e
+  `front/bugs/valor-com-muitos-algarismos/`) e a consulta repetida (FR-031, `front/bugs/consulta-repetida-sem-mudanca/`)
+  foram corrigidos (`test.md` `verified`) e reavaliados contra o código sem achados. Nenhum item mudou de estado.

@@ -168,3 +168,6 @@ quer dizer que a implementação está pronta.
 - O `/speckit-implement` lê o estado das caixas como portão e não altera as marcações.
 - O `checklists/requirements.md` tem ciclo próprio, mantido pelo `/speckit-specify` e pelo `/speckit-clarify`.
 - Registre achados e comentários ao lado do item; os IDs são sequenciais para facilitar a referência.
+- Converge final (2026-10-08): a consulta repetida (FR-031, SC-007) e o clique repetido em "Excluir" (FR-020) foram
+  corrigidos (`front/bugs/consulta-repetida-sem-mudanca/` e `front/bugs/clique-repetido-em-excluir/`, `test.md`
+  `verified`) e reavaliados contra o código sem achados. Nenhum item mudou de estado.

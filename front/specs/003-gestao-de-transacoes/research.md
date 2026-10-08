@@ -47,14 +47,11 @@ pendência de decisão do usuário.
   [Observação de desempenho fora do escopo do front](#observação-de-desempenho-fora-do-escopo-do-front)); para o front,
   a fonte dos dados é a API.
 - **Alternativas consideradas**: Filtrar e ordenar no cliente — exigiria carregar tudo, contra o princípio III.
-- **Violação conhecida (princípio III)**: escolher de novo a ordenação em uso ou o mesmo mês refaz a consulta, porque o
-  `SortMenu` grava sempre um objeto novo (`shared/sort-menu/sort-menu.ts:30-32`) e o `MonthField` grava a nova `Date`
-  emitida pelo calendário (`shared/month-field/month-field.html:17`); como o `httpResource` compara a requisição por
-  referência, qualquer valor novo dispara uma consulta. Pela leitura do código, o mesmo vale para o campo "Descrição"
-  com o mesmo texto aplicado (não reproduzido). Decidido como defeito nos Esclarecimentos: vai para o fluxo de bugs do
-  front, nos componentes compartilhados (ordenação e mês) e nos filtros de cada feature (Nome/Descrição). Não é exceção
-  aprovada e, pela Governança, bloqueia a entrega desta feature até a correção (decisão do usuário, 2026-10-06; ver o
-  `plan.md`).
+- **Violação corrigida (princípio III)**: escolher de novo a ordenação, o mesmo mês ou o mesmo texto refazia a
+  consulta, porque o `SortMenu` e o `MonthField` gravavam sempre um valor novo e o `httpResource` compara a requisição
+  por referência. Decidido como defeito nos Esclarecimentos, sem exceção aprovada, bloqueava a entrega desta feature
+  (decisão do usuário, 2026-10-06). A correção (`front/bugs/consulta-repetida-sem-mudanca/`) compara o estado da
+  página por conteúdo (`shared/shallow-equal`, `equal` dos signals `filters` e `sort`).
 
 ## Estados de carregamento, vazio e erro (FR-008, FR-009)
 
@@ -95,25 +92,24 @@ pendência de decisão do usuário.
 
 ## Formulário em diálogo (FR-012 a FR-016)
 
-- **Decisão**: `TransactionForm` é um `MatDialog` com Reactive Forms (`transaction-form.ts:44-59`): tipo num
-  `mat-button-toggle-group`, valor como texto com `Validators.pattern(/^\d+([.,]\d{1,2})?$/)` (`:48`), data num
-  `mat-datepicker` com `provideNativeDateAdapter()` (`:35`, `:50-53`), categoria num `mat-select` e descrição com
-  `maxlength` 255 e contador (`transaction-form.html:35-39`). O diálogo **fecha com o `TransactionInput`** pronto
-  (`:61-71`) — o sinal vem do tipo, o número de `parseFloat` com a vírgula trocada por ponto, a descrição com trim ou
-  `null` — e a página faz a chamada depois de fechar (`transactions-page.ts:91-98`). A edição preenche o valor com
-  `Math.abs(value).toFixed(2)` e vírgula (`transaction-form.ts:46`) e o tipo pelo sinal (`:45`). O botão "Salvar" fica
+- **Decisão**: `TransactionForm` é um `MatDialog` com Reactive Forms (`transaction-form.ts:50-66`): tipo num
+  `mat-button-toggle-group`, valor como texto com `Validators.pattern(/^\d{1,13}([.,]\d{1,2})?$/)`, data num
+  `mat-datepicker` com o `PtBrDateAdapter` (dia/mês/ano), categoria num `mat-select` e descrição com `maxlength` 255
+  e contador (`transaction-form.html:35-39`). O diálogo **fecha com o `TransactionInput`** pronto (`submit()`) — o
+  sinal vem do tipo, o número de `parseFloat` com a vírgula trocada por ponto, a descrição com trim ou `null` — e a
+  página faz a chamada depois de fechar (`openForm()` em `transactions-page.ts`). A edição preenche o valor com
+  `Math.abs(value).toFixed(2)` e vírgula (`transaction-form.ts:52`) e o tipo pelo sinal (`:51`). O botão "Salvar" fica
   fora do `<form>` e o submete pelo atributo `form` (`transaction-form.html:45`).
 - **Justificativa**: O formulário fica de apresentação, sem HTTP (F1). Os campos e as mensagens são os do Material
   (F4). O mesmo padrão é usado pelo `CategoryForm`.
 - **Alternativas consideradas**: Signal Forms, como nos filtros — o formulário de diálogo das duas features usa
   Reactive Forms; trocar não está em escopo numa spec retroativa.
 - **Desvios conhecidos ligados a esta decisão** (fluxo de bugs do front): o diálogo fecha antes da resposta da API
-  (FR-016; causa: `dialogRef.close(...)` em `transaction-form.ts:65` antes de qualquer chamada); o padrão do valor
-  aceita zero e qualquer quantidade de algarismos (FR-014; `:48`), e o `parseFloat` (`:64`) converte o texto num número
-  de ponto flutuante, que altera os valores com 14 ou mais algarismos inteiros ("99999999999999.99" vai no JSON como
-  99999999999999.98); o `NativeDateAdapter` lê o texto digitado com `Date.parse`, isto é, como mês/dia/ano ou ISO em UTC
-  (FR-014; `:35`); o diálogo recebe uma cópia da lista de categorias no momento em que abre, vazia se elas ainda não
-  chegaram ou se não há nenhuma (FR-019; `transactions-page.ts:85-90`).
+  (FR-016; causa: `dialogRef.close(...)` em `submit()` de `transaction-form.ts`, antes de qualquer chamada); o padrão do valor
+  aceita zero (FR-014, não bloqueia); o diálogo recebe uma cópia da lista de categorias no momento em que abre, vazia
+  se elas ainda não chegaram ou se não há nenhuma (FR-019; `openForm()` em `transactions-page.ts`). Corrigidos: o limite de 13
+  algarismos inteiros no valor, que evita a alteração pelo `parseFloat` (`front/bugs/valor-com-muitos-algarismos/`), e
+  a data digitada lida como dia/mês/ano pelo `PtBrDateAdapter` (`front/bugs/data-digitada-como-mes-dia-ano/`).
 
 ## Filtros (FR-023 a FR-026)
 
@@ -128,8 +124,8 @@ pendência de decisão do usuário.
 - **Alternativas consideradas**: Destruir e limpar os filtros ao ocultar — contrário à FR-023, decidida como requisito.
 - **Desvios conhecidos ligados a esta decisão**: dia escolhido na visão de dias do "Mês" muda o texto do campo sem
   mudar o filtro (FR-024; `shared/month-field/month-field.html:17` só trata `monthSelected`; deduzido, não
-  reproduzido); calendários anunciados em inglês (FR-030; nenhum `MatDatepickerIntl` em português é provido em
-  `app.config.ts`); consulta repetida (ver acima).
+  reproduzido). Corrigidos: os calendários, em português desde `front/bugs/calendarios-em-ingles/`
+  (`PtBrDatepickerIntl`, FR-030), e a consulta repetida (ver acima).
 
 ## Ordenação (FR-027)
 
@@ -178,11 +174,11 @@ pendência de decisão do usuário.
   existe (princípio IV). A transação volta com outro `id`, `createdAt` e `updatedAt`.
 - **Alternativas consideradas**: Confirmar antes de excluir — mais um clique em todo caso, quando o desfazer já protege
   contra o engano.
-- **Desvio conhecido (princípio III, bloqueia a entrega)**: "Excluir" não tem proteção contra clique repetido nem
-  retorno visual durante a exclusão e a restauração: cada clique emite `delete` (`transactions-table.html:38`) e a
-  página chama a API de novo (`transactions-page.ts:101-102`); o segundo `DELETE` é inútil, a API o recusa com `404`, e
-  o erro toma o lugar do snack bar com "Desfazer". Fluxo de bugs do front, decidido também para a 002; a forma da
-  correção fica para o `/speckit-bug-assess` (decisão do usuário, 2026-10-06).
+- **Desvio corrigido (princípio III; bloqueava a entrega, decisão do usuário, 2026-10-06)**: "Excluir" não tinha
+  proteção contra clique repetido nem retorno visual; o segundo `DELETE` era inútil, a API o recusava com `404`, e o
+  erro tomava o lugar do snack bar com "Desfazer". Corrigido em `front/bugs/clique-repetido-em-excluir/`, decidido
+  também para a 002: o `delete()` ignora a linha já em exclusão, que mostra um spinner, e a restauração mostra uma
+  barra de progresso.
 
 ## Mensagens (FR-017, FR-018, FR-022, SC-006)
 
@@ -331,20 +327,20 @@ registrar, cabe ao back e à implantação. O front não grava a busca no endere
 
 Referência para os `/speckit-bug-assess` que vão corrigi-los; esta feature não tem trabalho para eles.
 
-| Desvio (spec)                                                                                               | Onde está no código hoje                                                                                                                                                                                                                                                                                                                     |
-| ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data digitada lida como mês/dia/ano ou ISO em UTC (FR-014; princípio II, bloqueia)                          | `provideNativeDateAdapter()` em `transaction-form.ts:35`, sem formato de entrada dd/mm/aaaa                                                                                                                                                                                                                                                  |
-| Zero e valores com mais de 13 algarismos inteiros aceitos (FR-014; o zero não bloqueia)                     | `Validators.pattern(/^\d+([.,]\d{1,2})?$/)` em `transaction-form.ts:48`                                                                                                                                                                                                                                                                      |
-| Valores com 14 ou mais algarismos inteiros gravados diferentes do digitado (FR-014; princípio II, bloqueia) | `parseFloat(value.replace(',', '.'))` em `transaction-form.ts:64`: o número de ponto flutuante só guarda cerca de 15 a 17 algarismos significativos, e "99999999999999.99" vai no JSON como 99999999999999.98; a API grava o que recebe                                                                                                      |
-| "Excluir" sem proteção contra clique repetido nem retorno visual (FR-020; princípio III, bloqueia)          | `delete.emit(transaction)` a cada clique em `transactions-table.html:38`; `delete()` em `transactions-page.ts:101-115` sem estado de andamento                                                                                                                                                                                               |
-| API sem validação de faixa e de escala do valor (back; princípio II, não bloqueia)                          | `Transaction.ValidateValue` só recusa o zero (`back/src/Denarius.Domain/Entities/Transaction.cs:60-66`); coluna `numeric(18,2)` (`back/src/Denarius.Infrastructure/Persistence/Configurations/TransactionConfiguration.cs:23-25`): mais de duas casas são arredondadas sem aviso, e a partir de 10^16 o banco estoura e a API responde `500` |
-| Diálogo fecha antes da resposta da API (FR-016)                                                             | `dialogRef.close(...)` em `transaction-form.ts:65`; chamada à API em `transactions-page.ts:94-97`                                                                                                                                                                                                                                            |
-| Sem aviso da transação salva fora dos filtros (FR-017)                                                      | `save()` em `transactions-page.ts:117-125`                                                                                                                                                                                                                                                                                                   |
-| "Nova transação" sem categorias (FR-019)                                                                    | `openForm()` só trata `categories.error()` em `transactions-page.ts:86-90`; o botão não tem `disabled` (`transactions-page.html:18`)                                                                                                                                                                                                         |
-| Dia escolhido no calendário do "Mês" não muda o filtro (FR-024, não reproduzido)                            | `shared/month-field/month-field.html:17` só trata `monthSelected`                                                                                                                                                                                                                                                                            |
-| Calendários anunciados em inglês (FR-030)                                                                   | Nenhum `MatDatepickerIntl` em português em `app.config.ts:8-17`                                                                                                                                                                                                                                                                              |
-| Consulta repetida com a mesma ordenação, o mesmo mês ou o mesmo texto (FR-031)                              | `shared/sort-menu/sort-menu.ts:30-32`, `shared/month-field/month-field.html:17`, `debounce` em `transactions-filters.ts:21`                                                                                                                                                                                                                  |
-| `dateRef` declarado `date-time` no contrato do back (documentação)                                          | `back/specs/002-transaction-management/contracts/transactions-api.yaml:27-33` e o `dateRef` de `back/specs/001-category-management/contracts/categories-api.yaml`                                                                                                                                                                            |
+| Desvio (spec)                                                                                                | Onde está no código hoje                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Data digitada lida como mês/dia/ano ou ISO em UTC (FR-014; princípio II): corrigido                          | Corrigido em `front/bugs/data-digitada-como-mes-dia-ano/`: o `PtBrDateAdapter` (`transaction-form/pt-br-date-adapter.ts`) lê só dia/mês/ano, com o ano em quatro algarismos, e recusa o resto e as datas inexistentes                                                                                                                        |
+| Zero aceito (FR-014; não bloqueia); mais de 13 algarismos inteiros: corrigido                                | O zero continua aceito pelo padrão `Validators.pattern(/^\d{1,13}([.,]\d{1,2})?$/)` em `transaction-form.ts`; o limite de 13 algarismos inteiros foi corrigido em `front/bugs/valor-com-muitos-algarismos/`                                                                                                                                  |
+| Valores com 14 ou mais algarismos inteiros gravados diferentes do digitado (FR-014; princípio II): corrigido | Corrigido em `front/bugs/valor-com-muitos-algarismos/`: o padrão do valor recusa mais de 13 algarismos inteiros, e o `parseFloat` fica exato até 9.999.999.999.999,99                                                                                                                                                                        |
+| "Excluir" sem proteção contra clique repetido nem retorno visual (FR-020; princípio III): corrigido          | Corrigido em `front/bugs/clique-repetido-em-excluir/`: `delete()` em `transactions-page.ts` ignora o id já em `deleting`; a linha mostra um spinner no "Excluir", e a restauração, uma `mat-progress-bar`                                                                                                                                    |
+| API sem validação de faixa e de escala do valor (back; princípio II, não bloqueia)                           | `Transaction.ValidateValue` só recusa o zero (`back/src/Denarius.Domain/Entities/Transaction.cs:60-66`); coluna `numeric(18,2)` (`back/src/Denarius.Infrastructure/Persistence/Configurations/TransactionConfiguration.cs:23-25`): mais de duas casas são arredondadas sem aviso, e a partir de 10^16 o banco estoura e a API responde `500` |
+| Diálogo fecha antes da resposta da API (FR-016)                                                              | `dialogRef.close(...)` em `submit()` de `transaction-form.ts`; chamada à API em `openForm()` de `transactions-page.ts`                                                                                                                                                                                                                       |
+| Sem aviso da transação salva fora dos filtros (FR-017)                                                       | `save()` em `transactions-page.ts`                                                                                                                                                                                                                                                                                                           |
+| "Nova transação" sem categorias (FR-019)                                                                     | `openForm()` só trata `categories.error()` em `transactions-page.ts`; o botão não tem `disabled` (`transactions-page.html:18`)                                                                                                                                                                                                               |
+| Dia escolhido no calendário do "Mês" não muda o filtro (FR-024, não reproduzido)                             | `shared/month-field/month-field.html:17` só trata `monthSelected`                                                                                                                                                                                                                                                                            |
+| Calendários anunciados em inglês (FR-030): corrigido                                                         | Corrigido em `front/bugs/calendarios-em-ingles/`: `PtBrDatepickerIntl` (`shared/datepicker-intl/`) provido no `MonthField` e no `TransactionForm`                                                                                                                                                                                            |
+| Consulta repetida com a mesma ordenação, o mesmo mês ou o mesmo texto (FR-031): corrigido                    | Corrigido em `front/bugs/consulta-repetida-sem-mudanca/`: `shallowEqual` (`shared/shallow-equal/`) no `equal` dos signals `filters` e `sort` de `transactions-page.ts`                                                                                                                                                                       |
+| `dateRef` declarado `date-time` no contrato do back (documentação)                                           | `back/specs/002-transaction-management/contracts/transactions-api.yaml:27-33` e o `dateRef` de `back/specs/001-category-management/contracts/categories-api.yaml`                                                                                                                                                                            |
 
 ## Decisões do usuário (2026-10-05)
 
@@ -367,7 +363,8 @@ As pendências levantadas na primeira versão deste plano foram decididas assim.
   do `/speckit-converge`, depois desses cinco bug-fix, cada um concluído quando o `front/bugs/<slug>/test.md` registra
   `verified`, o teste de reprodução e a suíte completa passam e o `/speckit-converge` reavalia contra o código os FR/SC
   afetados. O implement dos testes pode rodar antes, com a suíte completa verde. Se a reprodução de um desvio deduzido
-  do código não o confirmar, o requisito continua e a nota de desvio sai da spec.
+  do código não o confirmar, o requisito continua e a nota de desvio sai da spec. Os cinco bug-fix foram concluídos e
+  reavaliados no `/speckit-converge` final (2026-10-08).
 - **Integridade (2026-10-06)**: a data digitada e os valores com 14 ou mais algarismos ferem o princípio II; o zero não,
   porque a API o recusa com `400` (continua defeito, sem bloquear).
 - **Validação do valor no back (2026-10-06)**: desvio conhecido do back, como o `dateRef`, corrigido pelo fluxo de bugs

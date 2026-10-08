@@ -89,25 +89,24 @@ feita quando o diálogo abre (`transactions/pages/transactions-page/transactions
 
 ## Conversões
 
-### Formulário → `TransactionInput` (`transaction-form.ts:61-71`)
+### Formulário → `TransactionInput` (`submit()` em `transaction-form.ts`)
 
-| Campo do formulário                                     | Validação no front (hoje)                           | Vai para a API como                                                                                   |
-| ------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `type` (`'in'`/`'out'`)                                 | — (começa em `'out'`)                               | O sinal de `value`                                                                                    |
-| `value` (texto, com o prefixo "R$" e o marcador "0,00") | Obrigatório; `/^\d+([.,]\d{1,2})?$/`                | `parseFloat` com vírgula trocada por ponto (`:64`), um número de ponto flutuante; negativo se `'out'` |
-| `date` (`Date`)                                         | Obrigatório; data válida para o `NativeDateAdapter` | `YYYY-MM-DDT00:00:00.000Z` do dia local (`DateUtils.toApiDate`)                                       |
-| `categoryId`                                            | Obrigatório                                         | Como está                                                                                             |
-| `description`                                           | `maxlength` 255 no input, com o contador "N/255"    | Com trim; `null` se ficar vazia                                                                       |
+| Campo do formulário                                     | Validação no front (hoje)                         | Vai para a API como                                                                                        |
+| ------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `type` (`'in'`/`'out'`)                                 | — (começa em `'out'`)                             | O sinal de `value`                                                                                         |
+| `value` (texto, com o prefixo "R$" e o marcador "0,00") | Obrigatório; `/^\d{1,13}([.,]\d{1,2})?$/`         | `parseFloat` com vírgula trocada por ponto (`submit()`), um número de ponto flutuante; negativo se `'out'` |
+| `date` (`Date`)                                         | Obrigatório; data válida para o `PtBrDateAdapter` | `YYYY-MM-DDT00:00:00.000Z` do dia local (`DateUtils.toApiDate`)                                            |
+| `categoryId`                                            | Obrigatório                                       | Como está                                                                                                  |
+| `description`                                           | `maxlength` 255 no input, com o contador "N/255"  | Com trim; `null` se ficar vazia                                                                            |
 
-Desvios conhecidos nessa validação e conversão (FR-014, fluxo de bugs do front): o padrão aceita zero e qualquer
-quantidade de algarismos; o `parseFloat` altera os valores com 14 ou mais algarismos inteiros ("99999999999999.99" vai
-no JSON como 99999999999999.98); e a data digitada é lida pelo `Date.parse` (mês/dia/ano, ou ISO em UTC), e não como
-dia/mês/ano. A data digitada e os valores com 14 ou mais algarismos gravam um dado diferente do digitado: são violações
-conhecidas do princípio II e bloqueiam a entrega desta feature; o zero, que a API recusa com `400`, não bloqueia. Do
-lado do back, a API só recusa o zero, arredonda sem aviso mais de duas casas e responde `500` a partir de 10^16 (desvio
-conhecido do back, que não bloqueia).
+Desvio conhecido nessa validação (FR-014, fluxo de bugs do front): o padrão aceita zero, que a API recusa com `400`;
+não bloqueia a entrega. O `PtBrDateAdapter` lê a data digitada só como dia/mês/ano, com o ano em quatro algarismos, e o
+limite de 13 algarismos inteiros mantém o `parseFloat` exato: as duas violações do princípio II que bloqueavam a
+entrega foram corrigidas em `front/bugs/data-digitada-como-mes-dia-ano/` e `front/bugs/valor-com-muitos-algarismos/`.
+Do lado do back, a API só recusa o zero, arredonda sem aviso mais de duas casas e responde `500` a partir de 10^16
+(desvio conhecido do back, que não bloqueia).
 
-### `Transaction` → formulário de edição (`transaction-form.ts:45-58`)
+### `Transaction` → formulário de edição (`transaction-form.ts:50-66`)
 
 | Campo         | Valor inicial                                                                             |
 | ------------- | ----------------------------------------------------------------------------------------- |

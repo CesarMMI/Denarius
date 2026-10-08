@@ -33,14 +33,17 @@ Situação conferida em 2026-10-05 (HEAD `a93db31`): o primeiro comando passa (1
 passam (Initial total 633,08 kB; `transactions-page` 39,88 kB); a suíte completa tinha 222 de 223 testes passando. A
 falha, em `src/app/reports/services/chart-theme.service.spec.ts:29` (`primaryVariant`), fora desta feature e anterior a
 este plano, foi corrigida pelo fluxo de bugs do front (`test.md` `verified`): a suíte completa tem 223 de 223 testes
-passando e não bloqueia mais o implement desta feature. Depois do
-implement, o primeiro comando inclui também os testes de caracterização C1 a C13 e os ajustes A1 a A3 do `plan.md`.
+passando e não bloqueia mais o implement desta feature. Depois do implement, o primeiro comando inclui também os
+testes de caracterização C1 a C13 e os ajustes A1 a A3 do `plan.md`.
+
+Situação no converge final (2026-10-08, HEAD `6d3c3c2`): 363 testes, lint limpo, Initial total de 633,08 kB e
+chunk `transactions-page` de 41,61 kB.
 
 ## 2. Verificação manual
 
 Suba o front com `npm start` e abra `http://localhost:4200/` numa janela de 1366×768, a referência desktop, a mesma do
 painel de relatórios. Os passos que dizem "Hoje (desvio …)" descrevem o comportamento atual de um desvio conhecido; os
-desvios que bloqueiam a entrega estão no Resultado do portão do `plan.md`.
+desvios bloqueantes foram corrigidos (ver o Resultado do portão do `plan.md`).
 
 1. **Lista (História 1)**: o endereço vira `/transactions`, "Transações" fica marcado no menu e a lista vem das mais
    recentes para as mais antigas, com data dd/mm/aaaa, descrição, etiqueta da categoria na cor dela e valor em reais; as
@@ -53,18 +56,18 @@ desvios que bloqueiam a entrega estão no Resultado do portão do `plan.md`.
    "Pão" com "-R$ 12,50". "Editar" nela abre com "12,50"; mude para "Entrada" e "200" e salve: "Transação salva." e "R$
    200,00". Hoje (desvio da FR-016) o diálogo fecha assim que "Salvar" é escolhido, antes da resposta da API.
 3. **Validação do formulário**: "12,345", "8.600,00" e "-12" mostram "Informe um valor válido" e o diálogo continua
-   aberto; "12.50" é aceito. Hoje (desvio da FR-014) "0" passa e a API recusa com "O valor da transação não pode ser
-   zero." (não bloqueia); digitar "05/09/2026" na data salva 9 de maio, e "99999999999999,99" é salvo como R$
-   99.999.999.999.999,98 (os dois bloqueiam a entrega).
+   aberto; "12.50" é aceito. Digitar "05/09/2026" na data salva 5 de setembro; "2026-09-24" mostra "Informe uma data
+   válida"; "99999999999999,99" mostra "Informe um valor válido". Hoje "0" ainda passa e a API recusa com "O valor da
+   transação não pode ser zero." (desvio da FR-014, não bloqueia).
 4. **Excluir e desfazer (História 3)**: "Excluir" numa linha a remove na hora e mostra "Transação excluída." com
-   "Desfazer"; escolher "Desfazer" em até 5 s a traz de volta com os mesmos dados e mostra "Transação restaurada.". Hoje
-   (desvio da FR-020, que bloqueia a entrega), nada indica a exclusão em andamento, e um clique duplo em "Excluir"
-   mostra "Transação não encontrada." no lugar da mensagem com "Desfazer".
+   "Desfazer"; escolher "Desfazer" em até 5 s a traz de volta com os mesmos dados e mostra "Transação restaurada.".
+   Durante a exclusão, a linha mostra um spinner no "Excluir" e não aceita outro clique; durante a restauração, uma
+   barra aparece sobre a lista.
 5. **Filtros e ordenação (História 4)**: "Exibir filtros" mostra Descrição, Tipo, Categoria e Mês. Digitar parte de uma
    descrição recarrega a lista depois de uma pausa; "Saídas", uma categoria e um mês restringem a lista; cada "Limpar …"
    desfaz o seu filtro. No menu de ordenação, "Menor valor primeiro" põe a maior saída no topo e o botão passa a se
-   chamar "Ordenar: Menor valor primeiro". "Ocultar filtros" mantém a lista filtrada. Hoje (desvio da FR-031),
-   escolher de novo a mesma ordenação ou o mesmo mês faz o spinner aparecer, porque a consulta é refeita.
+   chamar "Ordenar: Menor valor primeiro". "Ocultar filtros" mantém a lista filtrada. Escolher de novo a mesma
+   ordenação ou o mesmo mês não refaz a consulta.
 6. **Endereço (História 5)**: abra `/transactions?month=2026-09`, `/transactions?categoryId=<id de uma categoria>` e os
    dois juntos: os filtros abrem à vista, preenchidos, e a lista vem filtrada. `/transactions?month=setembro` abre sem
    filtro de mês e com os filtros ocultos. O "Ver todas" do painel de relatórios e o link da quantidade de transações
@@ -74,4 +77,4 @@ desvios que bloqueiam a entrega estão no Resultado do portão do `plan.md`.
    novo para voltar à lista. Edite uma transação já excluída em outra aba: aparece "Transação não encontrada.".
 8. **Consultas (SC-007)**: com a aba Rede das ferramentas do navegador aberta, ao abrir a página há uma consulta a
    `/api/transactions` e uma a `/api/categories`; cada mudança de filtro ou de ordenação faz uma nova consulta só a
-   `/api/transactions`.
+   `/api/transactions`, e nenhuma ao repetir a mesma escolha.

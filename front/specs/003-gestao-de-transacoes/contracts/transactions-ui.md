@@ -89,5 +89,5 @@ Os textos que o usuário vê estão na spec (FR-001 a FR-032). No diálogo, o "V
 "0,00", o grupo de tipo tem o nome acessível "Tipo" e a descrição tem o contador "N/255". Os nomes acessíveis dos botões
 só com ícone são "Recarregar", "Exibir filtros"/"Ocultar filtros", "Ordenar: <opção>", "Editar", "Excluir", "Limpar
 descrição", "Limpar tipo", "Limpar categoria" e "Limpar mês"; os do cabeçalho e das linhas também aparecem como dica, e
-os "Limpar …" ficam sem dica. Os nomes dos controles do calendário ainda são os padrões do Material, em inglês (desvio
-conhecido da FR-030, que bloqueia a entrega); o conjunto completo dos rótulos em português é definido no bug-fix.
+os "Limpar …" ficam sem dica. Os nomes dos controles do calendário estão em português (`PtBrDatepickerIntl`, ver
+`front/bugs/calendarios-em-ingles/`).

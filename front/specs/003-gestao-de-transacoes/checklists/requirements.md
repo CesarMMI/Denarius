@@ -108,4 +108,7 @@
     002), e confirmou que o comportamento do diálogo durante a espera fica para o `/speckit-bug-assess` da correção da
     FR-016, que vai propor o comportamento no portão do bug. Não resta classificação pendente; o SC-007 só vale na
     prática depois da correção da FR-031. Nenhum item do checklist mudou de estado.
+- Converge final (2026-10-08): "Abrir calendário" e os demais rótulos do calendário existem no código
+  (`front/bugs/calendarios-em-ingles/`), e a FR-031 foi corrigida (`front/bugs/consulta-repetida-sem-mudanca/`); a
+  SC-007 vale na prática. Nenhum item mudou de estado.
 - Itens marcados como incompletos exigem atualizar a spec antes do `/speckit-clarify` ou do `/speckit-plan`.
