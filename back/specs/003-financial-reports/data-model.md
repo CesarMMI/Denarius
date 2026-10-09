@@ -47,7 +47,7 @@ arredondados para duas casas decimais (`AwayFromZero`). Os meses são strings `y
 | `TotalExpense` | `decimal` | Soma dos tamanhos dos valores negativos do mês. |
 | `Balance` | `decimal` | `TotalIncome − TotalExpense`. |
 | `SavingsRate` | `decimal?` | `Balance / TotalIncome × 100`; `null` quando `TotalIncome` é 0; negativa quando a despesa passa da receita. |
-| `ProjectedExpense` | `decimal` | Mês atual: `ExpenseToDate / today.Day × DayCount`, em que `ExpenseToDate` cobre do dia 1 até hoje; mês passado: `TotalExpense`; mês futuro: 0. Arredondado para centavos. |
+| `ProjectedExpense` | `decimal` | Mês atual: `ExpenseToDate / today.Day × DayCount` arredondado para centavos, mais `TotalExpense − ExpenseToDate` (a despesa depois de hoje), em que `ExpenseToDate` cobre do dia 1 até hoje; mês passado: `TotalExpense`; mês futuro: 0. |
 | `ProjectedBalance` | `decimal` | Mês atual: `TotalIncome − ProjectedExpense`; mês passado: `Balance`; mês futuro: 0. |
 | `PreviousMonth` | `PreviousMonthSummaryOutput` | Veja abaixo. |
 
@@ -77,7 +77,7 @@ mês sem transações aparece com zeros.
 
 | Campo | Tipo | Regra |
 |---|---|---|
-| `CurrentMonth` | `IEnumerable<AccumulatedExpenseOutput>` | O mês do relatório, do dia 1 ao último dia — até hoje quando é o mês atual, sem nenhum dia quando é um mês futuro. |
+| `CurrentMonth` | `IEnumerable<AccumulatedExpenseOutput>` | O mês do relatório, do dia 1 ao último dia — até o maior entre hoje e o último dia com despesa quando é o mês atual, sem nenhum dia quando é um mês futuro. |
 | `PreviousMonth` | `IEnumerable<AccumulatedExpenseOutput>` | O mês anterior, com a mesma regra. |
 | `DaysInCurrentMonth` | `int` | Dias do mês do relatório. |
 | `DaysInPreviousMonth` | `int` | Dias do mês anterior. |

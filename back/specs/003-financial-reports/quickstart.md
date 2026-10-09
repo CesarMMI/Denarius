@@ -109,8 +109,9 @@ recalcule-as com as regras de [data-model.md](./data-model.md).
    despesa 5200, saldo 2800, `savingsRate` 35, projeção igual aos valores reais (5200 e 2800);
    `previousMonth` 8000 / 4000 / 4000 com variações 0, 30 e −30.
 2. `curl "http://localhost:5276/api/reports/summary"` — sem mês: `month` é `2026-10`. Receita 8000,
-   despesa 2210, saldo 5790, `savingsRate` 72.38; `projectedExpense` 2170 (210 ÷ 3 dias × 31) e
-   `projectedBalance` 5830; variações em relação a setembro 0, −57.5 e 106.79.
+   despesa 2210, saldo 5790, `savingsRate` 72.38; `projectedExpense` 4170 (210 ÷ 3 dias × 31 = 2170,
+   mais os 2000 do aluguel lançado para o dia 10) e `projectedBalance` 3830; variações em relação a
+   setembro 0, −57.5 e 106.79.
 3. `curl "http://localhost:5276/api/reports/summary?month=2026-11"` — um mês futuro: zeros,
    `savingsRate` null, projeção 0; variações em relação a outubro −100.
 4. `curl "http://localhost:5276/api/reports/summary?month=2026-03"` — um mês sem dados depois de
@@ -126,10 +127,14 @@ recalcule-as com as regras de [data-model.md](./data-model.md).
    7500/2700/4800, `2026-01` 7500/2800/4700, `2026-02` a `2026-07` zerados, `2026-08`
    8000/4000/4000, `2026-09` 8000/5200/2800, `2026-10` 8000/2210/5790. Com `&months=3`: só de agosto
    a outubro.
-7. `curl "http://localhost:5276/api/reports/cumulativeExpenses?month=2026-10"` — `currentMonth` para
-   no dia 3 (150, 210, 210); `previousMonth` tem os 30 dias de setembro, de 100 no dia 1 a 5200 nos
+7. `curl "http://localhost:5276/api/reports/cumulativeExpenses?month=2026-10"` — `currentMonth` vai
+   até o dia 10, o do aluguel já lançado (150 no dia 1, 210 do dia 2 ao 9 e 2210 no dia 10; a receita
+   do dia 5 não muda nada); `previousMonth` tem os 30 dias de setembro, de 100 no dia 1 a 5200 nos
    dias 28–30; `daysInCurrentMonth` 31, `daysInPreviousMonth` 30. Com `month=2026-01`: as duas
-   séries têm 31 dias, com dezembro de 2025 terminando em 2700 e janeiro de 2026 em 2800.
+   séries têm 31 dias, com dezembro de 2025 terminando em 2700 e janeiro de 2026 em 2800. Para
+   conferir que uma receita não estende a série, acrescente uma receita depois da última despesa
+   (`('Freela', '2026-10-20', 500.00, 'Salário')` no seed): `currentMonth` continua terminando no dia
+   10, e no resumo só a receita (e com ela o saldo e o saldo projetado) aumenta em 500.
 8. `curl "http://localhost:5276/api/reports/transactions?month=2026-09"` — as doze transações de
    setembro, de "Presente" (dia 28, `out`, 70) a "Streaming" (dia 1º, `out`, 100); "Salário" é
    `in`, 8000, com `categoryName` "Salário".

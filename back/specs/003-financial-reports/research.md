@@ -152,6 +152,16 @@ registrada aqui e em [spec.md](./spec.md) → Premissas.
   conhecida.
 - **Alternativas consideradas**: Usar a despesa total do mês como "despesa até hoje" — exagera o
   ritmo sempre que uma conta futura é registrada antes.
+- **Alteração (2026-10-09)**: No mês atual, a projeção passa a ser
+  `round(expenseToDate / today.Day × daysInMonth, 2) + (totalExpense − expenseToDate)`. A parcela
+  somada é a despesa com data depois de hoje no mês, obtida pela diferença entre as duas somas que o
+  caso de uso já faz, sem consulta nova; as duas são exatas em centavos, então o resultado também é.
+  O ritmo continua só com a despesa até hoje (a alternativa acima continua descartada), e a despesa
+  futura entra inteira, sem extrapolar, o que garante o SC-007 (`daysInMonth ≥ today.Day`). Decisão
+  do usuário (2026-10-09). Alternativas apresentadas a ele: o maior entre a projeção por ritmo e a
+  despesa já lançada (ignora o que está agendado enquanto o ritmo for maior) e manter a projeção
+  como estava (contradiz o acumulado, que passa a mostrar os lançamentos futuros). Também descartada:
+  uma consulta própria para a despesa depois de hoje, porque repete uma soma que já existe.
 
 ## "Outras" nas despesas por categoria
 
@@ -178,6 +188,12 @@ registrada aqui e em [spec.md](./spec.md) → Premissas.
   regra do relatório ("série contínua, sem buracos"), então são preenchidas onde as regras vivem e
   têm testes unitários.
 - **Alternativas consideradas**: `generate_series` em SQL — leva a regra para um SQL sem testes.
+- **Alteração (2026-10-09)**: No mês atual, a série vai até o maior entre hoje e o último dia com
+  despesa do mês. Esse dia sai do dicionário de despesas por dia que o caso de uso já carrega para os
+  dois meses inteiros, sem consulta nova, olhando só as datas do mês acumulado (uma despesa do mês
+  seguinte não estende a série do mês atual). Como só despesas entram nesse dicionário, uma receita
+  futura não estende a série. Decisão do usuário (2026-10-09); a alternativa apresentada foi cobrir o
+  mês inteiro, como num mês passado, o que desenharia uma reta depois do último lançamento.
 
 ## O tipo da transação nas transações do mês
 

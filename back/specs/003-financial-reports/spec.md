@@ -18,6 +18,13 @@ mês atual só até hoje; (5) todas as transações do mês, das mais recentes p
 nome da categoria, o tipo e o valor. Dinheiro em decimais, datas no fuso horário America/Sao_Paulo,
 totais calculados pelo banco e índices em data e categoria onde faltarem."
 
+**Alteração (2026-10-09)**: Pedido do usuário: "Mude a regra para contar lançamentos futuros. O mesmo vale para os
+indicadores nos cards, como taxa de poupança, caso se aplique algum ajuste." No mês atual, a série acumulada passa a ir
+até hoje ou até a última despesa do mês, o que vier depois, e a projeção soma ao ritmo até hoje a despesa já lançada
+para depois de hoje (decisões do usuário, 2026-10-09). Mudaram o FR-006, o FR-012 e o FR-013, os cenários 5, 9 e 10 da
+história 1, os cenários 2, 4 e 5 da história 4, as premissas da projeção e os SC-006 e SC-007. A receita, a despesa, o
+saldo e a taxa de poupança já contavam o mês inteiro e não mudaram.
+
 ## Cenários de usuário e testes *(obrigatório)*
 
 ### História de usuário 1 - Ver num relance como está o mês (Prioridade: P1)
@@ -44,15 +51,21 @@ primeiro mês — sem precisar de nenhum outro relatório.
    **Quando** o resumo é pedido, **Então** ele mostra a receita do mês anterior e um aumento de 25%.
 4. **Dado que** o mês anterior não teve despesas, **Quando** o resumo é pedido, **Então** a
    variação das despesas é informada como não aplicável, e não como erro ou valor infinito.
-5. **Dado que** hoje é dia 10 de um mês de 30 dias e foram gastos 900,00 do dia 1º até hoje,
-   **Quando** o resumo do mês atual é pedido, **Então** a despesa projetada é 2.700,00 e o saldo
-   projetado é a receita do mês menos 2.700,00.
+5. **Dado que** hoje é dia 10 de um mês de 30 dias, foram gastos 900,00 do dia 1º até hoje e não há
+   despesas lançadas para depois de hoje, **Quando** o resumo do mês atual é pedido, **Então** a
+   despesa projetada é 2.700,00 e o saldo projetado é a receita do mês menos 2.700,00.
 6. **Dado que** o mês já terminou, **Quando** o seu resumo é pedido, **Então** a despesa e o saldo
    projetados são iguais à despesa e ao saldo reais.
 7. **Dado que** o mês ainda não começou, **Quando** o seu resumo é pedido, **Então** a despesa e o
    saldo projetados são zero.
 8. **Dado que** nenhum mês foi escolhido, **Quando** o resumo é pedido, **Então** ele cobre o mês
    atual no horário de São Paulo.
+9. **Dado que** hoje é dia 10 de um mês de 30 dias, foram gastos 900,00 do dia 1º até hoje e há
+   300,00 de despesas lançadas para o dia 20, **Quando** o resumo do mês atual é pedido, **Então** a
+   despesa projetada é 3.000,00 (900,00 ÷ 10 × 30 + 300,00) e o saldo projetado é a receita do mês
+   menos 3.000,00.
+10. **Dado que** hoje é o último dia do mês, **Quando** o resumo do mês atual é pedido, **Então** a
+    despesa e o saldo projetados são iguais à despesa e ao saldo do mês.
 
 ---
 
@@ -126,10 +139,17 @@ dois totais acumulados dia a dia, onde eles param e a quantidade de dias de cada
 1. **Dado que** um mês passado tem despesas nos dias 3 e 10, **Quando** os seus gastos acumulados
    são pedidos, **Então** há um valor para cada dia do mês, que não muda entre uma despesa e outra,
    e o último valor é a despesa total do mês.
-2. **Dado que** hoje é dia 15, **Quando** os gastos acumulados do mês atual são pedidos, **Então** a
-   série dele para no dia 15, enquanto a série do mês anterior cobre todos os dias dele.
+2. **Dado que** hoje é dia 15 e não há despesas lançadas para depois de hoje, **Quando** os gastos
+   acumulados do mês atual são pedidos, **Então** a série dele para no dia 15, enquanto a série do mês
+   anterior cobre todos os dias dele.
 3. **Dado que** o mês selecionado é janeiro, **Quando** os seus gastos acumulados são pedidos,
    **Então** ele é comparado com dezembro do ano anterior, e cada mês informa quantos dias tem.
+4. **Dado que** hoje é dia 9 de um mês de 31 dias e há despesas de 100,00 no dia 2, 50,00 no dia 7 e
+   30,00 no dia 15, **Quando** os gastos acumulados do mês atual são pedidos, **Então** a série dele
+   tem os dias 1 a 15, vale 150,00 do dia 7 ao 14 e 180,00 no dia 15; uma receita lançada para
+   depois do dia 15 não estende a série.
+5. **Dado que** hoje é dia 9 e há uma despesa lançada para o último dia do mês, **Quando** os gastos
+   acumulados do mês atual são pedidos, **Então** a série dele cobre o mês inteiro.
 
 ---
 
@@ -172,9 +192,15 @@ e valor.
   informadas como não aplicáveis (sem valor), nunca como zero, infinito ou erro.
 - A variação percentual a partir de um saldo anterior negativo é medida em relação ao tamanho desse
   saldo, então um saldo que vai de −100,00 para 50,00 é um aumento de 150%.
-- No mês atual, a projeção só conta as despesas com data até hoje, inclusive; uma despesa já
-  registrada para um dia posterior do mês não está "gasta até hoje". Hoje conta como dia decorrido,
-  então no dia 1º a projeção é a despesa do dia vezes os dias do mês.
+- No mês atual, o ritmo da projeção só conta as despesas com data até hoje, inclusive. Hoje conta
+  como dia decorrido, então no dia 1º o ritmo projeta a despesa do dia vezes os dias do mês. Uma
+  despesa lançada para depois de hoje no mesmo mês é tratada como certa: é somada à projeção inteira,
+  sem entrar no ritmo, e não é contada duas vezes. Uma despesa até hoje, mesmo que só aconteça uma vez
+  no mês (como o aluguel), entra no ritmo e é extrapolada; o usuário aceitou essa regra simples
+  (2026-10-09). No dia 1º, sem despesa até hoje, a projeção é só a soma das despesas lançadas para
+  depois.
+- Despesas lançadas para meses seguintes não entram no mês atual, nem na série acumulada nem na
+  projeção.
 - O mês anterior a janeiro é dezembro do ano anterior, tanto no resumo quanto na comparação
   acumulada; uma série de meses atravessa a virada do ano do mesmo jeito.
 - Categorias com o mesmo gasto aparecem em ordem alfabética. "Outras" sempre vem por último, como a
@@ -183,7 +209,8 @@ e valor.
 - As participações e as variações percentuais são arredondadas para duas casas decimais, então as
   participações podem não somar exatamente 100%.
 - Na comparação acumulada, um mês que ainda não começou não tem nenhum dia na sua série; um mês
-  passado tem todos.
+  passado tem todos. A regra vale para as duas séries: quando o mês selecionado é o seguinte ao
+  atual, a série dele não tem nenhum dia, e a do mês anterior, que é o mês atual, segue o FR-013.
 
 ## Requisitos *(obrigatório)*
 
@@ -200,8 +227,9 @@ e valor.
 - **FR-005**: O resumo mensal DEVE informar a taxa de poupança como o saldo dividido pela receita
   total, em percentual, e DEVE informá-la como não aplicável quando o mês não tiver receita.
 - **FR-006**: O resumo mensal DEVE projetar a despesa e o saldo do fim do mês: para o mês atual, a
-  despesa do dia 1º até hoje dividida pelos dias decorridos (incluindo hoje) vezes os dias do mês, e
-  a receita do mês menos essa despesa; para um mês passado, os valores reais; para um mês futuro,
+  despesa do dia 1º até hoje dividida pelos dias decorridos (incluindo hoje) vezes os dias do mês,
+  mais a despesa com data depois de hoje no mesmo mês, arredondada para duas casas decimais, e a
+  receita do mês menos essa despesa; para um mês passado, os valores reais; para um mês futuro,
   zero.
 - **FR-007**: O resumo mensal DEVE informar a receita total, a despesa total e o saldo do mês
   anterior e a variação percentual de cada um deles para o mês selecionado, informada como não
@@ -218,10 +246,13 @@ e valor.
 - **FR-011**: O relatório de receitas vs. despesas DEVE cobrir 12 meses por padrão e DEVE rejeitar uma
   quantidade de meses menor que 1 ou maior que 24, explicando o que está errado.
 - **FR-012**: O relatório de despesas acumuladas DEVE devolver, para o mês selecionado e para o mês
-  anterior, o total acumulado da despesa em cada dia, do dia 1º ao último dia do mês, e a
-  quantidade de dias de cada um dos dois meses.
-- **FR-013**: No relatório de despesas acumuladas, a série DEVE parar em hoje no mês atual e NÃO
-  DEVE ter nenhum dia num mês que ainda não começou.
+  anterior, o total acumulado da despesa em cada dia, do dia 1º até onde o FR-013 manda a série
+  parar, e a quantidade de dias de cada um dos dois meses.
+- **FR-013**: No relatório de despesas acumuladas, a série de um mês passado DEVE cobrir o mês
+  inteiro; a série do mês atual DEVE ir até o dia mais tarde entre hoje e a data da última despesa do
+  mês, incluindo as despesas lançadas para depois de hoje (receitas não a estendem); e a série de um
+  mês que ainda não começou NÃO DEVE ter nenhum dia. A regra vale tanto para a série do mês
+  selecionado quanto para a do mês anterior.
 - **FR-014**: O relatório de transações do mês DEVE devolver todas as transações do mês, sem
   paginação nem limite, da data mais recente para a mais antiga (na mesma data, a registrada mais
   recentemente primeiro), cada uma com identificador, data, descrição, nome da categoria, tipo
@@ -263,6 +294,10 @@ e valor.
   lacunas, quaisquer que sejam os meses com movimentação.
 - **SC-005**: A soma dos valores do relatório de despesas por categoria é sempre igual à despesa
   total dele e à despesa total do mês no resumo.
+- **SC-006**: Em 100% dos casos, o último valor da série acumulada do mês atual é igual à despesa
+  total do mês no resumo, inclusive com despesas lançadas para depois de hoje.
+- **SC-007**: No mês atual, a despesa projetada nunca é menor do que a despesa total já lançada no
+  mês.
 
 ## Premissas
 

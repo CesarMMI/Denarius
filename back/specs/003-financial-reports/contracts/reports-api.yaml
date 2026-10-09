@@ -8,7 +8,8 @@ info:
     é decimal e a despesa é sempre um valor positivo; os percentuais estão na escala 0-100,
     arredondados para duas casas decimais. As datas das transações são dias do calendário e nunca são
     deslocadas por fuso horário.
-  version: "1.0.0"
+  # 1.1.0 (2026-10-09): lançamentos futuros na série acumulada e na projeção do mês atual; formato igual.
+  version: "1.1.0"
 paths:
   /api/reports/summary:
     get:
@@ -86,8 +87,9 @@ paths:
       summary: Despesa acumulada do mês vs. o mês anterior
       operationId: getCumulativeExpenseComparison
       description: >
-        O total acumulado da despesa em cada dia do mês e do mês anterior. A série para em hoje no mês
-        atual e fica vazia num mês que ainda não começou.
+        O total acumulado da despesa em cada dia do mês e do mês anterior. No mês atual, a série vai
+        até o maior entre hoje e o último dia com despesa do mês (inclui despesas lançadas para depois
+        de hoje); num mês passado, cobre o mês inteiro; num mês que ainda não começou, fica vazia.
       parameters:
         - $ref: '#/components/parameters/Month'
       responses:
@@ -170,8 +172,9 @@ components:
           type: number
           format: decimal
           description: >
-            Mês atual: despesa do dia 1 até hoje / dias decorridos (incluindo hoje) x dias do mês,
-            arredondada para centavos. Mês passado: totalExpense. Mês futuro: 0.
+            Mês atual: (despesa do dia 1 até hoje / dias decorridos (incluindo hoje) x dias do mês,
+            arredondada para centavos) + despesa com data depois de hoje no mês (já exata em
+            centavos). Mês passado: totalExpense. Mês futuro: 0.
         projectedBalance:
           type: number
           format: decimal
