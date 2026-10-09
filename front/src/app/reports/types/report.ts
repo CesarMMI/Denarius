@@ -45,7 +45,10 @@ export interface IncomeVsExpense {
 	balance: number;
 }
 
-/** A series stops at today in the current month and has no days in a month that hasn't started. */
+/**
+ * In the current month, a series goes up to today or to the month's last expense, whichever is later; it has no days in
+ * a month that hasn't started.
+ */
 export interface CumulativeExpenseComparison {
 	currentMonth: AccumulatedExpense[];
 	previousMonth: AccumulatedExpense[];

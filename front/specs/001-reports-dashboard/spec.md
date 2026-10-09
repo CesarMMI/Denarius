@@ -134,13 +134,15 @@ do mês anterior, para ver cedo se estou gastando mais rápido que o normal.
 
 **Por que esta prioridade**: É um refinamento do card de projeção, mais útil durante o mês.
 
-**Teste independente**: Abrir o mês atual e conferir que a linha dele para em hoje, enquanto a linha do mês anterior
-cobre todos os dias dele, com tooltips em BRL.
+**Teste independente**: Abrir o mês atual e conferir que a linha dele vai até hoje ou até a última despesa lançada no
+mês, o que vier depois, enquanto a linha do mês anterior cobre todos os dias dele, com tooltips em BRL.
 
 **Cenários de aceitação**:
 
 1. **Dado** o mês atual, **Quando** o gráfico de linha é exibido, **Então** a linha do mês, na cor primária do tema
-   (`primary`), para em hoje, e a linha do mês anterior, na cor secundária (`secondary`), cobre o mês inteiro.
+   (`primary`), vai até hoje ou até a última despesa lançada no mês, o que vier depois, e a linha do mês anterior, na
+   cor secundária (`secondary`), cobre o mês inteiro. A série vem pronta da API (`back/specs/003-financial-reports`,
+   FR-013, alterado em 2026-10-09); o front só a desenha.
 2. **Dado que** o ponteiro está sobre um dia, **Quando** o tooltip abre, **Então** ele mostra os totais dos dois meses
    até aquele dia, em BRL, com os nomes dos meses por extenso.
 
