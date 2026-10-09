@@ -304,7 +304,7 @@ Todas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts
 
 **Objetivo**: Confirmar que o trabalho desta feature não quebrou nada e não tocou código de produção.
 
-- [ ] T040 A partir de `front/`, rodar `npx ng test --watch=false` (suíte completa: todos os testes passam, incluindo
+- [X] T040 A partir de `front/`, rodar `npx ng test --watch=false` (suíte completa: todos os testes passam, incluindo
       C1–C13 e os ajustes A1–A3), `npm run lint` (limpo) e `npm run build` (sem erro nem aviso de budget); conferir com
       `git diff --name-only -- front/src front/public` que só mudaram arquivos `*.spec.ts` (de `src/app/transactions/`
       e `src/app/app.routes.spec.ts`; os artefatos em `front/specs/003-gestao-de-transacoes/` podem mudar, com as
@@ -315,6 +315,9 @@ Todas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts
       resultado da conferência manual da rolagem (depende de T007–T038).
       **Situação (2026-10-06)**: parte automática concluída (ver o registro abaixo); **pendente só da conferência
       manual da rolagem (C5)**, que exige um navegador e uma pessoa.
+      **Situação (2026-10-09)**: concluída. O usuário fez a conferência manual (C5): só a tabela rola e o cabeçalho
+      fica fixo. Verificações de novo no HEAD `7d1445f`: 32 arquivos, 363 de 363 testes; lint limpo; build sem aviso,
+      Initial total de 633,08 kB.
 
 ### Registro do implement (2026-10-06)
 
@@ -326,7 +329,8 @@ Todas em `src/app/transactions/pages/transactions-page/transactions-page.spec.ts
 - `git diff --name-only -- front/src front/public`: só `*.spec.ts` (os cinco specs de `src/app/transactions/`),
   mais o novo `src/app/app.routes.spec.ts`, sem rastreio no git. Nenhum arquivo de produção foi alterado, e o Prettier só
   mexeu em spec.
-- Conferência manual da rolagem (C5, passo 1 do `quickstart.md`): **pendente**.
+- Conferência manual da rolagem (C5, passo 1 do `quickstart.md`): feita pelo usuário em 2026-10-09; só a tabela
+  rola, e o cabeçalho fica fixo.
 
 **Ajustes A**: os ids que não eram UUID viraram constantes no topo de cada spec (`MERCADO_ID`, `SALARIO_ID`,
 `REMOVIDA_ID`, `TRANSPORTE_ID`, `FEIRA_ID`, `PAO_ID`, `PAGAMENTO_ID`, `CRIADA_ID`, `RESTAURADA_ID`, `PADARIA_ID`). Nenhuma
