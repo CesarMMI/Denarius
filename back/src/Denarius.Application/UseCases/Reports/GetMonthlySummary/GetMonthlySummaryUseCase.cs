@@ -24,7 +24,7 @@ internal class GetMonthlySummaryUseCase(ITransactionRepository transactionReposi
         {
             < 0 => (expense, balance),
             > 0 => (0m, 0m),
-            _ => await ProjectAsync(month, today, income)
+            _ => await ProjectAsync(month, today, income, expense)
         };
 
         return new MonthlySummaryOutput(
@@ -45,13 +45,14 @@ internal class GetMonthlySummaryUseCase(ITransactionRepository transactionReposi
     }
 
     /// <summary>
-    /// The current month keeps the pace of the expense dated up to today, today included, through its last day. Only the
-    /// expense is projected: the month's income is taken as known.
+    /// The current month keeps the pace of the expense dated up to today, today included, through its last day, plus the
+    /// expense already dated after today, which is certain and not extrapolated. Only the expense is projected: the
+    /// month's income is taken as known.
     /// </summary>
-    private async Task<(decimal Expense, decimal Balance)> ProjectAsync(YearMonth month, DateOnly today, decimal income)
+    private async Task<(decimal Expense, decimal Balance)> ProjectAsync(YearMonth month, DateOnly today, decimal income, decimal monthExpense)
     {
         var expenseToDate = (await transactionRepository.SumByMonthAsync(month.FirstDay, today.AddDays(1))).Sum(t => t.Expense);
-        var expense = Round(expenseToDate * month.DayCount / today.Day);
+        var expense = Round(expenseToDate * month.DayCount / today.Day) + (monthExpense - expenseToDate);
 
         return (expense, income - expense);
     }

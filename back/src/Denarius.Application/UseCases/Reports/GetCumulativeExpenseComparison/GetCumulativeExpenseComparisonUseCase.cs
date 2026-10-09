@@ -21,14 +21,23 @@ internal class GetCumulativeExpenseComparisonUseCase(ITransactionRepository tran
             previousMonth.DayCount);
     }
 
-    /// <summary>The running total of each day of the month that has already come: up to today in the current month.</summary>
+    /// <summary>
+    /// The running total of each day of the month that has already come or already has an expense: in the current month,
+    /// up to today or to its last expense, whichever is later.
+    /// </summary>
     private static List<AccumulatedExpenseOutput> Accumulate(YearMonth month, DateOnly today, Dictionary<DateOnly, decimal> expenses)
     {
+        // The dictionary covers both months: only this month's expenses can extend its series.
+        var lastExpenseDay = expenses.Keys
+            .Where(date => date.Year == month.Year && date.Month == month.Month)
+            .Select(date => date.Day)
+            .DefaultIfEmpty(0)
+            .Max();
         var days = month.CompareTo(YearMonth.FromDate(today)) switch
         {
             < 0 => month.DayCount,
             > 0 => 0,
-            _ => today.Day
+            _ => Math.Max(today.Day, lastExpenseDay)
         };
 
         var series = new List<AccumulatedExpenseOutput>();

@@ -52,7 +52,7 @@ public class GetCumulativeExpenseComparisonUseCaseTests
     }
 
     [Fact]
-    public async Task Execute_CurrentMonth_StopsAtTodayAndKeepsThePreviousMonthWhole()
+    public async Task Execute_CurrentMonth_GoesUpToTheLastExpenseAndKeepsThePreviousMonthWhole()
     {
         var october = new YearMonth(2026, 10);
         Expenses(october,
@@ -64,13 +64,52 @@ public class GetCumulativeExpenseComparisonUseCaseTests
 
         var output = await _useCase.Execute(new GetCumulativeExpenseComparisonInput(october));
 
-        Assert.Equal(
-            [new AccumulatedExpenseOutput(1, 150m), new AccumulatedExpenseOutput(2, 210m), new AccumulatedExpenseOutput(3, 210m)],
-            output.CurrentMonth);
+        Assert.Equal(Enumerable.Range(1, 10), output.CurrentMonth.Select(d => d.Day));
+        Assert.Equal(new AccumulatedExpenseOutput(1, 150m), output.CurrentMonth.First());
+        Assert.All(output.CurrentMonth.Skip(1).Take(8), d => Assert.Equal(210m, d.Accumulated));
+        Assert.Equal(new AccumulatedExpenseOutput(10, 2210m), output.CurrentMonth.Last());
         Assert.Equal(30, output.PreviousMonth.Count());
         Assert.Equal(new AccumulatedExpenseOutput(30, 170m), output.PreviousMonth.Last());
         Assert.Equal(31, output.DaysInCurrentMonth);
         Assert.Equal(30, output.DaysInPreviousMonth);
+    }
+
+    [Fact]
+    public async Task Execute_CurrentMonth_WithoutLaterExpenses_StopsAtToday()
+    {
+        var october = new YearMonth(2026, 10);
+        Expenses(october, (new DateOnly(2026, 10, 1), 150m), (new DateOnly(2026, 10, 2), 60m));
+
+        var output = await _useCase.Execute(new GetCumulativeExpenseComparisonInput(october));
+
+        Assert.Equal(
+            [new AccumulatedExpenseOutput(1, 150m), new AccumulatedExpenseOutput(2, 210m), new AccumulatedExpenseOutput(3, 210m)],
+            output.CurrentMonth);
+    }
+
+    [Fact]
+    public async Task Execute_CurrentMonth_ExpenseOnTheLastDay_CoversTheWholeMonth()
+    {
+        var october = new YearMonth(2026, 10);
+        Expenses(october, (new DateOnly(2026, 10, 2), 60m), (new DateOnly(2026, 10, 31), 40m));
+
+        var output = await _useCase.Execute(new GetCumulativeExpenseComparisonInput(october));
+
+        Assert.Equal(31, output.CurrentMonth.Count());
+        Assert.Equal(new AccumulatedExpenseOutput(31, 100m), output.CurrentMonth.Last());
+    }
+
+    [Fact]
+    public async Task Execute_MonthAfterTheCurrentOne_PreviousMonthGoesUpToItsLastExpense()
+    {
+        var november = new YearMonth(2026, 11);
+        Expenses(november, (new DateOnly(2026, 10, 7), 80m), (new DateOnly(2026, 11, 20), 500m));
+
+        var output = await _useCase.Execute(new GetCumulativeExpenseComparisonInput(november));
+
+        Assert.Empty(output.CurrentMonth);
+        Assert.Equal(Enumerable.Range(1, 7), output.PreviousMonth.Select(d => d.Day));
+        Assert.Equal(new AccumulatedExpenseOutput(7, 80m), output.PreviousMonth.Last());
     }
 
     [Fact]

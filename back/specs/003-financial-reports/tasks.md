@@ -401,3 +401,74 @@ Preparação + Fundação e depois o resumo: os cards de destaque do painel pode
   com duas casas decimais, `null` para não aplicável.
 - As consultas do repositório não têm projeto de testes automatizados; é a execução do quickstart
   da T043 que prova o SQL delas.
+
+---
+
+## Fase 9: Alteração de 2026-10-09 — lançamentos futuros no mês atual
+
+**Objetivo**: No mês atual, a série acumulada vai até o maior entre hoje e o último dia com despesa do mês, e a
+projeção soma ao ritmo até hoje a despesa já lançada para depois de hoje (spec: FR-006, FR-012, FR-013, SC-006,
+SC-007; plan: "Alteração de 2026-10-09"). As tarefas T007, T011, T027 e T031 acima descrevem a regra anterior e
+ficam como registro; esta fase as atualiza.
+
+**Teste independente**: Com hoje no dia 3 e uma despesa lançada para o dia 10, a série do mês atual vai até o dia 10
+e a projeção soma essa despesa ao ritmo (quickstart §4, itens 2 e 7).
+
+### Testes (escrever primeiro e ver falhar)
+
+- [X] T045 [P] [US4] Em `tests/Denarius.Application.Tests/UseCases/Reports/GetCumulativeExpenseComparison/GetCumulativeExpenseComparisonUseCaseTests.cs`:
+      trocar `Execute_CurrentMonth_StopsAtTodayAndKeepsThePreviousMonthWhole` por
+      `Execute_CurrentMonth_GoesUpToTheLastExpenseAndKeepsThePreviousMonthWhole` (mesmos dados: hoje 2026-10-03,
+      despesa de 2000 no dia 10 → dias 1 a 10, 150 no dia 1, 210 do dia 2 ao 9, 2210 no dia 10; setembro com 30 dias
+      terminando em 170) e acrescentar: `Execute_CurrentMonth_WithoutLaterExpenses_StopsAtToday` (despesas só nos dias
+      1 e 2 → dias 1 a 3); `Execute_CurrentMonth_ExpenseOnTheLastDay_CoversTheWholeMonth` (despesa no dia 31 → 31
+      dias, o último igual ao total); `Execute_MonthAfterTheCurrentOne_PreviousMonthGoesUpToItsLastExpense` (mês
+      2026-11, despesas em 2026-10-07 e 2026-11-20 → `CurrentMonth` vazio, `PreviousMonth` com os dias 1 a 7: a
+      despesa de novembro não estende outubro).
+- [X] T046 [P] [US1] Em `tests/Denarius.Application.Tests/UseCases/Reports/GetMonthlySummary/GetMonthlySummaryUseCaseTests.cs`:
+      trocar `Execute_CurrentMonth_ProjectsTheExpenseToDateOverTheDaysElapsed` por
+      `Execute_CurrentMonth_ProjectsThePaceToDatePlusTheExpenseAfterToday` (mesmos dados: hoje 2026-09-10, total 1500,
+      900 até hoje → `ProjectedExpense` 3300 = 900 ÷ 10 × 30 + 600, `ProjectedBalance` 1700) e acrescentar:
+      `Execute_CurrentMonth_WithoutExpensesAfterToday_ProjectsThePaceOnly` (total = até hoje = 900 → 2700, 2300);
+      `Execute_FirstDayWithoutExpenseToDate_ProjectsOnlyTheExpenseAfterToday` (hoje 2026-10-01, até hoje 0, total 300
+      → 300); `Execute_LastDayOfTheCurrentMonth_ProjectsTheActualValues` (hoje 2026-09-30, total = até hoje = 1500,
+      receita 5000 → 1500 e 3500).
+
+### Implementação
+
+- [X] T047 [US4] Em `src/Denarius.Application/UseCases/Reports/GetCumulativeExpenseComparison/GetCumulativeExpenseComparisonUseCase.cs`,
+      `Accumulate`: no mês atual, os dias passam a ser o maior entre `today.Day` e o último dia com despesa entre as
+      chaves do dicionário do mesmo ano e mês; atualizar o resumo XML. Sem consulta nova (depende de T045).
+- [X] T048 [US1] Em `src/Denarius.Application/UseCases/Reports/GetMonthlySummary/GetMonthlySummaryUseCase.cs`,
+      `ProjectAsync`: receber a despesa total do mês e devolver `Round(expenseToDate × DayCount ÷ today.Day) +
+      (expense − expenseToDate)`; atualizar o resumo XML. Sem consulta nova (depende de T046).
+
+### Fechamento
+
+- [X] T049 Em `quickstart.md` §4, acrescentar ao item 7 a conferência de que uma receita lançada depois da última
+      despesa (por exemplo, `('Freela', '2026-10-20', 500.00, 'Salário')`) não estende a série; rodar os itens 2 e 7
+      no PostgreSQL descartável e registrar o resultado nesta tarefa. Esta é a prova do cenário 4 da história 4 (a
+      receita não estende a série): a consulta do repositório só devolve despesas e não tem testes automatizados.
+      **Resultado (2026-10-09, hoje = dia 9, seed com o freela do dia 20)**: resumo de outubro com receita 8500,
+      despesa 2210, `projectedExpense` 2723.33 (210 ÷ 9 × 31 = 723,33 + 2000) e `projectedBalance` 5776.67;
+      `currentMonth` de 1 a 10 (150, 210 do dia 2 ao 9, 2210), sem estender até o freela; com `month=2026-11`,
+      `currentMonth` vazio e `previousMonth` até o dia 10. Banco descartável apagado depois.
+- [X] T050 A partir de `back/`, rodar `dotnet test` (três suítes) e `dotnet build` sem aviso novo; registrar os
+      totais nesta tarefa. Depois, a revisão de fim do implement (agente `reviewer`).
+      **Resultado (2026-10-09)**: `dotnet build` com 0 avisos; `dotnet test` com 35 + 139 + 63 = 237 testes passando.
+      Revisão aprovada, com dois achados LOW: esta marcação e a extração de `lastExpenseDay` em `Accumulate`, feita
+      com a suíte verde de novo.
+
+### Dependências da fase 9
+
+- T045 e T046 são independentes entre si ([P]); T047 depende de T045, e T048 de T046.
+- T049 e T050 dependem de T047 e T048.
+- Depois desta fase, e só com a aprovação do usuário: no front, atualizar o cenário 1 da história 5 de
+  `front/specs/001-reports-dashboard/spec.md` e o comentário de `front/src/app/reports/types/report.ts:48` (fora
+  deste `tasks.md`).
+
+---
+
+## Fase 10: Convergência
+
+- [X] T051 Atualizar o resumo XML de `src/Denarius.Application/IO/Reports/CumulativeExpenseComparisonOutput.cs` para a regra do mês atual (a série vai até o maior entre hoje e o último dia com despesa do mês) per FR-013 (contradicts)

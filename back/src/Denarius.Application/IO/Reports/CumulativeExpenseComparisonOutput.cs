@@ -1,8 +1,8 @@
 namespace Denarius.Application.IO.Reports;
 
 /// <summary>
-/// The running total of money out on each day of a month and of the month before. A series stops at today in the current
-/// month and has no days in a month that hasn't started.
+/// The running total of money out on each day of a month and of the month before. In the current month, a series goes up
+/// to today or to the month's last expense, whichever is later; it has no days in a month that hasn't started.
 /// </summary>
 public record CumulativeExpenseComparisonOutput
 {

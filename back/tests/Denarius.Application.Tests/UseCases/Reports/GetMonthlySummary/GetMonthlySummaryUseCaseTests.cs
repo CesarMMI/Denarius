@@ -109,7 +109,7 @@ public class GetMonthlySummaryUseCaseTests
     }
 
     [Fact]
-    public async Task Execute_CurrentMonth_ProjectsTheExpenseToDateOverTheDaysElapsed()
+    public async Task Execute_CurrentMonth_ProjectsThePaceToDatePlusTheExpenseAfterToday()
     {
         Today(2026, 9, 10);
         var september = new YearMonth(2026, 9);
@@ -119,8 +119,50 @@ public class GetMonthlySummaryUseCaseTests
         var output = await _useCase.Execute(new GetMonthlySummaryInput(september));
 
         Assert.Equal(1500m, output.TotalExpense);
+        Assert.Equal(3300m, output.ProjectedExpense);
+        Assert.Equal(1700m, output.ProjectedBalance);
+    }
+
+    [Fact]
+    public async Task Execute_CurrentMonth_WithoutExpensesAfterToday_ProjectsThePaceOnly()
+    {
+        Today(2026, 9, 10);
+        var september = new YearMonth(2026, 9);
+        Totals(september, (2026, 9, 5000m, 900m));
+        _transactionRepository.SumByMonthAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 9, 11)).Returns([(2026, 9, 5000m, 900m)]);
+
+        var output = await _useCase.Execute(new GetMonthlySummaryInput(september));
+
         Assert.Equal(2700m, output.ProjectedExpense);
         Assert.Equal(2300m, output.ProjectedBalance);
+    }
+
+    [Fact]
+    public async Task Execute_FirstDayWithoutExpenseToDate_ProjectsOnlyTheExpenseAfterToday()
+    {
+        Today(2026, 10, 1);
+        var october = new YearMonth(2026, 10);
+        Totals(october, (2026, 10, 1000m, 300m));
+        _transactionRepository.SumByMonthAsync(new DateOnly(2026, 10, 1), new DateOnly(2026, 10, 2)).Returns([]);
+
+        var output = await _useCase.Execute(new GetMonthlySummaryInput(october));
+
+        Assert.Equal(300m, output.ProjectedExpense);
+        Assert.Equal(700m, output.ProjectedBalance);
+    }
+
+    [Fact]
+    public async Task Execute_LastDayOfTheCurrentMonth_ProjectsTheActualValues()
+    {
+        Today(2026, 9, 30);
+        var september = new YearMonth(2026, 9);
+        Totals(september, (2026, 9, 5000m, 1500m));
+        _transactionRepository.SumByMonthAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1)).Returns([(2026, 9, 5000m, 1500m)]);
+
+        var output = await _useCase.Execute(new GetMonthlySummaryInput(september));
+
+        Assert.Equal(1500m, output.ProjectedExpense);
+        Assert.Equal(3500m, output.ProjectedBalance);
     }
 
     [Fact]
