@@ -22,6 +22,7 @@ Every spec sits next to its file and has a model in the codebase — find the cl
 | Dialog form | fake `MatDialogRef` + `MAT_DIALOG_DATA` in a `render()` helper | `transactions/components/transaction-form/transaction-form.spec.ts` |
 | Page | real `HttpTestingController`, fake `MatDialog` and `MatSnackBar` | `categories/pages/categories-page/categories-page.spec.ts`, `transactions/pages/transactions-page/transactions-page.spec.ts` |
 | App shell / router | `provideRouter` with blank components | `app.spec.ts` |
+| Real routes (redirects, lazy pages) | `provideRouter(routes)` + a side-effect import of each page the navigation loads | `app.routes.spec.ts` |
 
 Read `references/recipes.md` for the skeleton of each kind before writing one from scratch.
 
@@ -52,6 +53,7 @@ Each of these cost an investigation; the last one hangs the test without an erro
 - **`mat-select` bound with `[formField]` goes through its ControlValueAccessor**: `triggerEventHandler('valueChange')` does not change the form. Use `MatSelectHarness.clickOptions({ text })`. For `MonthField`, `By.directive(MonthField)` then `componentInstance.value.set(new Date(...))`.
 - **Debounced text filters** (`debounce(path.x!, 300)`) update the model only after the pause, or at once on blur (`markAsTouched` flushes). Test both: `MatInputHarness.setValue` + 300 ms; `setValue` + `.blur()`.
 - **`expectOne`/`expectNone` with a string compare it with the URL *with* its query string.** For a request with params (the lists always send `orderBy`/`asc`, the reports `month`), use a predicate on `req.url`, or `expectNone` never fails. And call `expectNone` before awaiting stability: after `await fixture.whenStable()`, a pending reload hangs the test and the assertion never runs.
+- **Navigating the real routes loads the lazy pages inside the test.** With `provideRouter(routes)`, `navigateByUrl` runs each `loadChildren`/`loadComponent`, and the first load of a page brings Material and forms (Chart.js for `/reports`) into the worker within the test's 5 s timeout: the test passes alone and times out now and then under the full suite. Import each page the navigation reaches for its side effect (`import './transactions/pages/transactions-page/transactions-page';`), with a comment saying why, so the cost moves to the import phase. Don't raise the timeout.
 - **In page specs, never drive an action through a harness when it triggers an `httpResource` request**: the harness's `whenStable()` waits on the request and hangs forever. Change filters through the filters component's `model` (`filters()!.filters.set({...})`), then `TestBed.tick()` and `expectOne`.
 
 ## What to cover

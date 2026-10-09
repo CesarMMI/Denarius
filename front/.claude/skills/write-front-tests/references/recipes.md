@@ -338,3 +338,14 @@ it('should show the API error detail and not reload when saving fails', () => {
 ## App shell / router
 
 Model: `app.spec.ts`. Register each route with a blank component so links resolve and `routerLinkActive` works; navigate with `TestBed.inject(Router).navigateByUrl(...)` then `await fixture.whenStable()`; assert `href`, text and `aria-current="page"`. A new sidenav link means updating the `links()` expectations there.
+
+Real routes — model: `app.routes.spec.ts`. To check redirects and lazy routes as declared, provide `provideRouter(routes)` (no blank components), `await router.navigateByUrl(...)` and assert the result and `router.url`. Every page the navigation lazy-loads gets a side-effect import at the top of the spec, with the reason in a comment:
+
+```ts
+import { routes } from './app.routes';
+// Loads the page and its Material dependencies at import time, as the other specs do,
+// so the test only times the navigation.
+import './transactions/pages/transactions-page/transactions-page';
+```
+
+Without it, the first `loadComponent` imports the page and its dependencies inside the test and, under the load of the full suite, can exceed the 5 s timeout (`front/bugs/teste-de-rota-raiz-intermitente/`).
