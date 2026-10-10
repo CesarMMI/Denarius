@@ -7,7 +7,7 @@ internal class ListCategoriesUseCase(ICategoryRepository categoryRepository, ITr
 {
     public async Task<IEnumerable<CategoryOutput>> Execute(ListCategoriesInput input)
     {
-        var categories = await categoryRepository.GetAllAsync(input.Name);
+        var categories = await categoryRepository.GetAllAsync(input.Name?.Trim());
         var transactions = await transactionRepository.GetAllAsync();
 
         // Taken before the month filter: a category with transactions in any month cannot be deleted.

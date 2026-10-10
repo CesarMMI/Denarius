@@ -8,6 +8,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Denarius.Application.Tests/Denarius.Application.Tests.csproj" />
     <Project Path="tests/Denarius.Domain.Tests/Denarius.Domain.Tests.csproj" />
+    <Project Path="tests/Denarius.Infrastructure.Tests/Denarius.Infrastructure.Tests.csproj" />
     <Project Path="tests/Denarius.WebAPI.Tests/Denarius.WebAPI.Tests.csproj" />
   </Folder>
 </Solution>

@@ -48,6 +48,17 @@ public class ListCategoriesUseCaseTests
     }
 
     [Fact]
+    public async Task Execute_WithNameFilterSurroundedBySpaces_PassesTrimmedFilterToRepository()
+    {
+        _categoryRepository.GetAllAsync(Arg.Any<string?>()).Returns([]);
+        _transactionRepository.GetAllAsync().Returns([]);
+
+        await _useCase.Execute(new ListCategoriesInput("  Laz  ", null, null));
+
+        await _categoryRepository.Received(1).GetAllAsync("Laz");
+    }
+
+    [Fact]
     public async Task Execute_CalculatesTransactionCountAndBalancePerCategory()
     {
         var lazer = new Category("Lazer", new Color("#FF0000"));

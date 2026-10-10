@@ -11,7 +11,7 @@ Quatro projetos em `src/`, com dependências em um só sentido:
 - `Denarius.Infrastructure`: persistência com EF Core, repositórios e migrations. Depende do `Domain` e do `Application`.
 - `Denarius.WebAPI`: controllers, middleware, CORS e composição por injeção de dependência. Depende do `Application` e do `Infrastructure`.
 
-Cada um tem o seu projeto xUnit em `tests/` (`Denarius.Domain.Tests`, `Denarius.Application.Tests` e `Denarius.WebAPI.Tests`); o `Denarius.WebAPI.Tests` usa `Microsoft.AspNetCore.TestHost` para testes de integração.
+Cada um tem o seu projeto xUnit em `tests/` (`Denarius.Domain.Tests`, `Denarius.Application.Tests`, `Denarius.Infrastructure.Tests` e `Denarius.WebAPI.Tests`). O `Denarius.WebAPI.Tests` usa `Microsoft.AspNetCore.TestHost` para testes de integração, e o `Denarius.Infrastructure.Tests` testa os repositórios e as migrations num PostgreSQL descartável (Testcontainers), por isso o `dotnet test` exige o Docker em execução.
 
 ## Princípios
 
@@ -47,6 +47,6 @@ _Por quê:_ o Denarius guarda dados financeiros; sem um rollback revisado, um de
 
 De dentro de `back/`:
 
-- `dotnet test`: as três suítes passam, e comportamento novo ganha teste no projeto de testes da camada correspondente.
+- `dotnet test`: as quatro suítes passam, e comportamento novo ganha teste no projeto de testes da camada correspondente.
 - Mudou um controller ou DTO: a entrega diz se a mudança é aditiva ou incompatível e, se for incompatível, como foi versionada.
 - Criou uma migration: aplique e reverta localmente (`Up()` e `Down()`) antes de concluir.

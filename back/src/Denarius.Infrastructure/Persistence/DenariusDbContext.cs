@@ -10,6 +10,7 @@ public class DenariusDbContext(DbContextOptions<DenariusDbContext> options) : Db
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("unaccent");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DenariusDbContext).Assembly);
 
         base.OnModelCreating(modelBuilder);

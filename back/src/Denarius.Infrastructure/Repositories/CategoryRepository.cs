@@ -12,7 +12,7 @@ public class CategoryRepository(DenariusDbContext context) : Repository<Category
         var query = Context.Set<Category>().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(name))
-            query = query.Where(c => c.Name.Contains(name));
+            query = query.Where(c => EF.Functions.Unaccent(c.Name).ToLower().Contains(EF.Functions.Unaccent(name).ToLower()));
 
         return await query.ToListAsync();
     }
