@@ -5,6 +5,7 @@ namespace Denarius.Domain.Entities;
 public class Transaction : Entity
 {
     public const int DescriptionMaxLength = 255;
+    public const decimal ValueMaxAbsolute = 9_999_999_999_999.99m;
 
     public string? Description { get; private set; }
     public DateTime Date { get; private set; }
@@ -61,6 +62,13 @@ public class Transaction : Entity
     {
         if (value == 0)
             throw new DomainException("O valor da transação não pode ser zero.");
+
+        // The column keeps two decimal places: more would be rounded without notice, and a sub-cent value would turn into zero.
+        if (value != Math.Round(value, 2))
+            throw new DomainException("O valor da transação não pode ter mais que duas casas decimais.");
+
+        if (Math.Abs(value) > ValueMaxAbsolute)
+            throw new DomainException("O valor da transação não pode passar de 9.999.999.999.999,99, para mais ou para menos.");
 
         return value;
     }

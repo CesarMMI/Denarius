@@ -1,3 +1,4 @@
+using System.Globalization;
 using Denarius.Domain.Entities;
 using Denarius.Domain.Exceptions;
 
@@ -70,6 +71,45 @@ public class TransactionTests
         Assert.Equal(-50m, transaction.Value);
     }
 
+    [Theory]
+    [InlineData("10.125")]
+    [InlineData("-0.001")]
+    [InlineData("0.009")]
+    public void Constructor_ValueWithMoreThanTwoDecimalPlaces_ThrowsDomainException(string value)
+    {
+        Assert.Throws<DomainException>(() => new Transaction("Mercado", ValidDate, decimal.Parse(value, CultureInfo.InvariantCulture), ValidCategoryId));
+    }
+
+    [Theory]
+    [InlineData("10000000000000.00")]
+    [InlineData("-10000000000000.00")]
+    [InlineData("12345678901234567.89")]
+    public void Constructor_ValueAboveTheMaximum_ThrowsDomainException(string value)
+    {
+        Assert.Throws<DomainException>(() => new Transaction("Mercado", ValidDate, decimal.Parse(value, CultureInfo.InvariantCulture), ValidCategoryId));
+    }
+
+    [Theory]
+    [InlineData("0.01")]
+    [InlineData("-0.01")]
+    [InlineData("9999999999999.99")]
+    [InlineData("-9999999999999.99")]
+    [InlineData("10.120")]
+    public void Constructor_ValueAtTheLimits_CreatesTransaction(string value)
+    {
+        var expected = decimal.Parse(value, CultureInfo.InvariantCulture);
+
+        var transaction = new Transaction("Mercado", ValidDate, expected, ValidCategoryId);
+
+        Assert.Equal(expected, transaction.Value);
+    }
+
+    [Fact]
+    public void ValueMaxAbsolute_IsThirteenIntegerDigitsWithCents()
+    {
+        Assert.Equal(9_999_999_999_999.99m, Transaction.ValueMaxAbsolute);
+    }
+
     [Fact]
     public void Constructor_EmptyCategoryId_ThrowsDomainException()
     {
@@ -98,6 +138,19 @@ public class TransactionTests
         var transaction = new Transaction("Mercado", ValidDate, 150.75m, ValidCategoryId);
 
         Assert.Throws<DomainException>(() => transaction.Update("Mercado", ValidDate, 0m, ValidCategoryId));
+        Assert.Equal(150.75m, transaction.Value);
+    }
+
+    [Theory]
+    [InlineData("10.125")]
+    [InlineData("-0.001")]
+    [InlineData("10000000000000.00")]
+    [InlineData("-10000000000000.00")]
+    public void Update_ValueWithMoreThanTwoDecimalPlacesOrAboveTheMaximum_ThrowsDomainExceptionAndKeepsOriginalState(string value)
+    {
+        var transaction = new Transaction("Mercado", ValidDate, 150.75m, ValidCategoryId);
+
+        Assert.Throws<DomainException>(() => transaction.Update("Mercado", ValidDate, decimal.Parse(value, CultureInfo.InvariantCulture), ValidCategoryId));
         Assert.Equal(150.75m, transaction.Value);
     }
 
