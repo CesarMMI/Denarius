@@ -401,7 +401,7 @@ deste arquivo: o `/speckit-converge` só os registra como desvios conhecidos, se
 | Desvio | Requisito | Destino |
 | --- | --- | --- |
 | Valor zero aceito pelo formulário, que fecha o diálogo antes de a API o recusar com `400` | FR-014 | Fluxo de bugs do front |
-| API sem validação de faixa e de escala do valor (só recusa o zero, arredonda mais de duas casas sem aviso e responde `500` a partir de 10^16) | caso-limite do valor; Premissas | Fluxo de bugs do back (validar faixa e escala com `400`) |
+| API sem validação de faixa e de escala do valor (só recusa o zero, arredonda mais de duas casas sem aviso e responde `500` a partir de 10^16) | caso-limite do valor; Premissas | Fluxo de bugs do back (validar faixa e escala com `400`); corrigido em `back/bugs/valor-sem-faixa-e-escala/` |
 | Diálogo que fecha antes da resposta da API e perde o que foi digitado | FR-016 | Fluxo de bugs do front |
 | Sem aviso quando a transação salva fica fora dos filtros em uso | FR-017 | Fluxo de bugs do front |
 | "Nova transação" sem categorias (sem mensagem nem "Ver categorias"; botão habilitado antes de a primeira carga terminar) | FR-019 | Fluxo de bugs do front |

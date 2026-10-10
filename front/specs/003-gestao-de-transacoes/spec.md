@@ -98,10 +98,10 @@ abaixo, sem requisito novo além do comportamento esperado dos desvios que elas 
   diferente do digitado: são violações conhecidas do princípio II do `AGENTS.md` e bloqueiam a entrega desta feature até
   os seus bug-fix. O zero não fere o princípio II, porque a API o recusa; continua defeito, sem bloquear (FR-014 e
   Casos-limite).
-- P: A API, que no valor só recusa o zero, deve validar a faixa e a escala? → R: Sim; é um desvio conhecido do back.
-  Hoje ela arredonda sem aviso as casas além da segunda e, a partir de cerca de 10^16, responde com um erro inesperado;
-  a correção, pelo fluxo de bugs do back, a faz recusar esses valores com uma mensagem clara. Não bloqueia esta feature
-  (Casos-limite e Premissas).
+- P: A API, que no valor só recusa o zero, deve validar a faixa e a escala? → R: Sim; era um desvio conhecido do back.
+  Ela arredondava sem aviso as casas além da segunda e, a partir de cerca de 10^16, respondia com um erro inesperado.
+  O desvio foi corrigido pelo fluxo de bugs do back (`back/bugs/valor-sem-faixa-e-escala/`): a API recusa esses
+  valores com uma mensagem clara. Não bloqueava esta feature (Casos-limite e Premissas).
 - P: O clique repetido em "Excluir", que envia outro pedido que a API recusa, e a falta de retorno visual durante a
   exclusão e a restauração são intencionais? → R: Defeito, decidido também para a [[002-gestao-de-categorias]]. Um novo
   "Excluir" na mesma linha não deve enviar outro pedido, e a página deve mostrar que a exclusão ou a restauração está em
@@ -350,9 +350,9 @@ conferir que o mês é ignorado.
   13 algarismos na parte inteira (acima de R$ 9.999.999.999.999,99), porque a partir daí o valor gravado poderia diferir
   do digitado (FR-014). Desvio conhecido: hoje o zero passa pela validação; ao salvar, o diálogo fecha e a API recusa a
   transação com "O valor da transação não pode ser zero.". Como a API o recusa, o zero não bloqueia a entrega desta
-  feature. A API só recusa o zero: não limita a faixa nem a escala do valor, arredonda sem aviso as casas além da
-  segunda e, a partir de cerca de 10^16, responde com o erro inesperado. É um desvio conhecido do back, corrigido pelo
-  fluxo de bugs do back, que não bloqueia esta feature.
+  feature. A API também recusa, com a mensagem dela, os valores com mais de duas casas decimais e os que passam de
+  R$ 9.999.999.999.999,99, para mais ou para menos; o desvio do back, que os arredondava sem aviso ou respondia com o
+  erro inesperado, foi corrigido em `back/bugs/valor-sem-faixa-e-escala/`.
 - Com os campos válidos, "Salvar" mantém o diálogo aberto até a resposta da API, sem aceitar um segundo "Salvar";
   quando a API recusa, a mensagem aparece, e o diálogo continua aberto com o que foi digitado (FR-016). Desvio
   conhecido: hoje o diálogo fecha assim que o usuário escolhe "Salvar", antes da resposta da API; quando ela recusa, os
@@ -586,8 +586,9 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   próprias de formato: o valor sem sinal, com até duas casas decimais, sem separador de milhar e com até 13 algarismos
   na parte inteira, e a data digitada como dia/mês/ano (FR-014, em que a recusa do zero é um desvio conhecido); para o
   resto, mostra a mensagem da API. As mensagens da API estão sempre em português, e a recusa automática de um pedido
-  malformado vem sem mensagem, então cai na mensagem padrão. No valor, a API só recusa o zero e não valida a faixa nem
-  a escala, um desvio conhecido do back, corrigido pelo fluxo de bugs do back e que não bloqueia esta feature.
+  malformado vem sem mensagem, então cai na mensagem padrão. No valor, a API recusa também mais de duas casas decimais
+  e o que passa de 9.999.999.999.999,99 para mais ou para menos (desvio do back corrigido em
+  `back/bugs/valor-sem-faixa-e-escala/`).
 - A lista não é paginada: todas as transações que atendem aos filtros chegam e aparecem de uma vez. Não há meta de
   tempo: o uso é pessoal, com centenas de transações por mês, e as metas de desempenho desta página são de contagem de
   consultas (SC-007). O volume esperado é o de finanças pessoais, de centenas a poucos milhares de transações, a mesma
@@ -620,9 +621,9 @@ em aberto escolhidos para uma feature nova; onde o esperado difere do atual, a p
   `front/bugs/consulta-repetida-sem-mudanca/` com uma comparação por conteúdo no estado de cada página, e não no menu de
   ordenação nem no campo "Mês" compartilhados; vale também para as páginas de categorias e de relatórios). Também ficam
   fora o clique repetido em "Excluir" sem retorno visual (FR-020, corrigido pelo fluxo de bugs do front em
-  `front/bugs/clique-repetido-em-excluir/`); a validação da faixa e da escala do valor pela API, pelo fluxo de bugs do
-  back; e, como trabalho futuro em features próprias, o indicador de filtro em uso (FR-023) e as melhorias de
-  acessibilidade. Bloqueiam a entrega desta feature, pela Governança do `AGENTS.md`, os desvios que contrariam a
+  `front/bugs/clique-repetido-em-excluir/`); a validação da faixa e da escala do valor pela API (corrigida pelo fluxo de
+  bugs do back em `back/bugs/valor-sem-faixa-e-escala/`); e, como trabalho futuro em features próprias, o indicador
+  de filtro em uso (FR-023) e as melhorias de acessibilidade. Bloqueiam a entrega desta feature, pela Governança do `AGENTS.md`, os desvios que contrariam a
   constituição: a consulta repetida (FR-031) e o clique repetido em "Excluir" (FR-020), pelo princípio III; os
   calendários em inglês (FR-030), pela regra de idioma; e a data digitada e os valores com 14 ou mais algarismos
   (FR-014), pelo princípio II. Um bug-fix conta como concluído quando o seu `front/bugs/<slug>/test.md` registra o

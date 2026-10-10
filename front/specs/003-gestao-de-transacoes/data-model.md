@@ -103,8 +103,8 @@ Desvio conhecido nessa validação (FR-014, fluxo de bugs do front): o padrão a
 não bloqueia a entrega. O `PtBrDateAdapter` lê a data digitada só como dia/mês/ano, com o ano em quatro algarismos, e o
 limite de 13 algarismos inteiros mantém o `parseFloat` exato: as duas violações do princípio II que bloqueavam a
 entrega foram corrigidas em `front/bugs/data-digitada-como-mes-dia-ano/` e `front/bugs/valor-com-muitos-algarismos/`.
-Do lado do back, a API só recusa o zero, arredonda sem aviso mais de duas casas e responde `500` a partir de 10^16
-(desvio conhecido do back, que não bloqueia).
+Do lado do back, a API recusa com `400` o zero, mais de duas casas decimais e o que passa de 9.999.999.999.999,99 para
+mais ou para menos (desvio do back corrigido em `back/bugs/valor-sem-faixa-e-escala/`).
 
 ### `Transaction` → formulário de edição (`transaction-form.ts:50-66`)
 
