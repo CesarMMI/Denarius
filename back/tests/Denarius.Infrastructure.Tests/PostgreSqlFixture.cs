@@ -1,5 +1,6 @@
 using Denarius.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Testcontainers.PostgreSql;
 
 namespace Denarius.Infrastructure.Tests;
@@ -21,4 +22,11 @@ public class PostgreSqlFixture : IAsyncLifetime
 
     public DenariusDbContext CreateContext() =>
         new(new DbContextOptionsBuilder<DenariusDbContext>().UseNpgsql(_postgres.GetConnectionString()).Options);
+
+    /// <summary>A context that passes the text of every SQL command it executes to <paramref name="log"/>.</summary>
+    public DenariusDbContext CreateContext(Action<string> log) =>
+        new(new DbContextOptionsBuilder<DenariusDbContext>()
+            .UseNpgsql(_postgres.GetConnectionString())
+            .LogTo(log, [RelationalEventId.CommandExecuted])
+            .Options);
 }

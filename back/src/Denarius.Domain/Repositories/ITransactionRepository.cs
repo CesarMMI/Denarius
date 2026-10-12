@@ -5,6 +5,10 @@ namespace Denarius.Domain.Repositories;
 public interface ITransactionRepository : IRepository<Transaction>
 {
     Task<IEnumerable<Transaction>> GetAllAsync();
+
+    /// <summary>The transactions that meet every filter of the query, in the order it asks for.</summary>
+    Task<IEnumerable<Transaction>> ListAsync(TransactionListQuery query);
+
     Task<bool> ExistsByCategoryIdAsync(Guid categoryId);
 
     // The report queries add up the transactions dated from `from` up to, but excluding, `to`, and give money out
