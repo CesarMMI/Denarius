@@ -11,6 +11,8 @@ Este arquivo reúne as regras que valem para o repositório inteiro e o fluxo de
 
 | Caminho | Conteúdo |
 | --- | --- |
+| `compose.yaml` | Ambiente de desenvolvimento completo: inclui o `compose.yaml` de cada projeto e liga o `web` à `api`. É só orquestração; os projetos continuam independentes e cada um também sobe sozinho |
+| `<projeto>/Dockerfile`, `<projeto>/compose.yaml` | Ambiente de desenvolvimento do projeto em Docker. Só desenvolvimento: imagens de produção ainda não existem e serão uma feature própria |
 | `.specify/` | Spec Kit compartilhado: scripts, templates, a extensão `bug` e o ponteiro local da feature ativa (`feature.json`) |
 | `.claude/skills/speckit-*` | Skills do Spec Kit, usadas pelos dois projetos |
 | `<projeto>/specs/NNN-nome/` | Artefatos de cada feature, numerados por projeto |
@@ -31,7 +33,7 @@ _Por quê:_ os testes são a única proteção automática contra regressões, e
 
 ### II. Segurança
 
-- Nenhum segredo real no repositório. O único valor versionado é a connection string do banco local de desenvolvimento (`back/src/Denarius.WebAPI/appsettings.Development.json`); fora isso, use user-secrets ou variáveis de ambiente.
+- Nenhum segredo real no repositório. Os únicos valores versionados são a connection string do banco local de desenvolvimento (`back/src/Denarius.WebAPI/appsettings.Development.json`) e a mesma senha local (`root`, como padrão de `${DB_PASSWORD:-root}`) no `back/compose.yaml`; fora isso, use user-secrets ou variáveis de ambiente.
 - A API valida toda entrada externa. A validação do front serve à experiência do usuário e não substitui a do back.
 - Acesso a dados só por consultas parametrizadas (LINQ/EF Core), nunca por SQL montado por concatenação.
 - Erros não expõem detalhes internos (stack trace, SQL, caminhos); um erro inesperado chega ao cliente como uma mensagem genérica.
@@ -150,6 +152,6 @@ Qualquer dúvida (na spec, no plan, na implementação, num conflito entre regra
 - Toda revisão confere a aderência a estas regras. Uma violação bloqueia a entrega até ser corrigida ou até o usuário aprovar uma exceção registrada no `plan.md`.
 - Specs anteriores a 2026-10-04 citam as constituições 1.0.0 de cada projeto (no histórico do git, em `<projeto>/.specify/memory/constitution.md`). Os princípios de lá correspondem aos atuais assim: I (API) → IV, B2 e F2; II (fronteiras) → V, B1 e F1; III (migrations) → B3 e F3; IV (testes) → I.
 
-**Versão**: 3.0.2 | **Ratificada**: 2026-09-21 | **Última alteração**: 2026-10-11
+**Versão**: 3.1.0 | **Ratificada**: 2026-09-21 | **Última alteração**: 2026-10-11
 
 Para manter ou atualizar o Spec Kit (adaptações locais, upgrades, Python dos scripts), leia [`.specify/README.md`](.specify/README.md).

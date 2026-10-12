@@ -35,6 +35,10 @@ _Por quê:_ um link salvo que quebra é a primeira regressão que o usuário vê
 - **Segurança**: nada de `innerHTML` com conteúdo dinâmico nem de `bypassSecurityTrust*`.
 - **Qualidade**: o código passa no `ng lint` (angular-eslint) e segue o Prettier do projeto.
 
+## Ambiente local (Docker)
+
+De dentro de `front/`, `docker compose up` sobe o `ng serve` com hot reload em `http://localhost:4200`. O `node_modules` fica num volume e é reinstalado (`npm ci`) quando o `package-lock.json` muda. A API não faz parte deste compose: suba o `back/` ou use o `compose.yaml` da raiz.
+
 ## Testes e verificação
 
 De dentro de `front/`:

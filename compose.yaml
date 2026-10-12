@@ -1,0 +1,11 @@
+# Ambiente de desenvolvimento completo: back (PostgreSQL, migrations e API) + front.
+# Cada projeto também sobe sozinho com o compose.yaml da sua pasta.
+# Uso: docker compose up (front em http://localhost:4200, API em http://localhost:5276).
+include:
+  - back/compose.yaml
+  - front/compose.yaml
+
+services:
+  web:
+    depends_on:
+      - api

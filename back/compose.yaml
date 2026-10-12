@@ -1,0 +1,58 @@
+# Ambiente de desenvolvimento do back: PostgreSQL, migrations e API com hot reload.
+# Uso: docker compose up (API em http://localhost:5276; banco em localhost:${DB_PORT:-5433}).
+x-back: &back
+  build: .
+  working_dir: /app
+  environment:
+    ASPNETCORE_ENVIRONMENT: Development
+    ConnectionStrings__DenariusDb: Host=db;Port=5432;Database=denarius;Username=postgres;Password=${DB_PASSWORD:-root}
+    # Artefatos de build fora do código montado: os obj/ do Windows não servem no container.
+    UseArtifactsOutput: "true"
+    ArtifactsPath: /artifacts
+    DOTNET_USE_POLLING_FILE_WATCHER: "1"
+    DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER: "1"
+  volumes:
+    - ./src:/app/src
+    - artifacts:/artifacts
+    - nuget:/root/.nuget/packages
+
+services:
+  db:
+    image: postgres:18.0
+    environment:
+      POSTGRES_DB: denarius
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - ./.data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "denarius"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    <<: *back
+    command: >-
+      sh -c "dotnet restore src/Denarius.WebAPI &&
+      dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI"
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *back
+    command: dotnet watch run --project src/Denarius.WebAPI --no-launch-profile --urls http://0.0.0.0:5276
+    ports:
+      - "5276:5276"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  artifacts:
+    name: denarius-back-artifacts
+  nuget:
+    name: denarius-nuget

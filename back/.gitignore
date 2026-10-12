@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Dados do PostgreSQL do ambiente Docker de desenvolvimento
+.data/
