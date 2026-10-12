@@ -10,7 +10,7 @@ public class TransactionRepository(DenariusDbContext context) : Repository<Trans
 {
     public async Task<IEnumerable<Transaction>> GetAllAsync()
     {
-        return await Context.Set<Transaction>().ToListAsync();
+        return await Context.Set<Transaction>().AsNoTracking().ToListAsync();
     }
 
     public async Task<IEnumerable<Transaction>> ListAsync(TransactionListQuery query)

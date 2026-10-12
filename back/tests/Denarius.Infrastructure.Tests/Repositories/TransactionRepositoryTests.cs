@@ -359,6 +359,19 @@ public class TransactionRepositoryTests(PostgreSqlFixture fixture) : IClassFixtu
     }
 
     [Fact]
+    public async Task GetAllAsync_ReturnsTheTransactionsWithoutTrackingThem()
+    {
+        var category = await AddCategoryAsync();
+        await AddAsync(category, ("Mercado", Utc(2026, 3, 1), -10m), ("Padaria", Utc(2026, 3, 2), -10m));
+        await using var context = fixture.CreateContext();
+
+        var transactions = await new TransactionRepository(context).GetAllAsync();
+
+        Assert.Equal(2, transactions.Count());
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
+
+    [Fact]
     public async Task ListAsync_RunsTheFiltersAndTheOrderingInTheDatabase()
     {
         var category = await AddCategoryAsync();
