@@ -64,8 +64,8 @@ persistida. Todos os campos são opcionais, e os filtros se combinam com AND.
 
 | Campo | Tipo | Padrão | Regras |
 |---|---|---|---|
-| `Description` | `string?` | `null` | Com trim; busca parcial, sem diferenciar maiúsculas de minúsculas, em `Transaction.Description`. `null`/em branco = sem filtro. Transações sem descrição nunca aparecem. |
-| `DateRef` | `DateTime?` | `null` | Qualquer data dentro do mês desejado; mantém as transações com `Date` do primeiro instante desse mês até o último tick, inclusive. `null` = todos os meses. |
+| `Description` | `string?` | `null` | Com trim; busca parcial, sem diferenciar maiúsculas de minúsculas nem acentos, em `Transaction.Description`. `null`/em branco = sem filtro. Transações sem descrição nunca aparecem. |
+| `DateRef` | `DateTime?` | `null` | Qualquer data dentro do mês desejado; mantém as transações com `Date` desde o início desse mês, inclusive, até o início do mês seguinte, exclusive. `null` = todos os meses. |
 | `Type` | `TransactionType` | `All` | `All` = sem filtro; `In` = `Value > 0`; `Out` = `Value < 0`. |
 | `CategoryId` | `Guid?` | `null` | Mantém só as transações com esse `CategoryId`. `null` = todas as categorias. Um id que não corresponde a nenhuma categoria só produz uma lista vazia. |
 | `OrderBy` | `TransactionOrderField` | `Date` | `Date`, `Description`, `Value` (com sinal) ou `CategoryName` (o nome atual da categoria referenciada). Empates são desfeitos pela `Date` mais recente e depois pelo `CreatedAt`; ordenando por `Date`, eles seguem a direção dela. |
@@ -73,3 +73,28 @@ persistida. Todos os campos são opcionais, e os filtros se combinam com AND.
 
 A saída continua sendo `IEnumerable<TransactionOutput>`, com o formato inalterado — `CategoryName`
 é só uma chave de ordenação e não é adicionado à resposta.
+
+## Alteração de 2026-10-11: consulta no banco
+
+Nenhuma tabela, coluna ou índice muda. `Transactions` e `Categories` ficam como estão.
+
+**Banco**
+
+- **Collation `pt_br_icu`** (nova, por migration): provedor `icu`, locale `pt-BR`, determinística. Usada só na
+  ordenação de `Transactions.Description` e `Categories.Name` dentro da consulta da lista; as colunas não a recebem.
+  `Up()` cria (`CREATE COLLATION pt_br_icu (LOCALE = 'pt-BR', PROVIDER = icu, DETERMINISTIC = True)`); `Down()` remove
+  (`DROP COLLATION pt_br_icu`), ambos gerados pelo Npgsql e conferidos com `dotnet ef migrations script`, dentro de uma
+  transação (a `AddUnaccentExtension` precisou de SQL explícito para a extensão; a collation não precisa). Verificada
+  aplicando, revertendo e reaplicando numa base descartável, com
+  conferência em `pg_collation` de que a collation existe depois do `Up()` e some depois do `Down()` (B3). A collation
+  não depende da extensão `unaccent`. A busca por descrição e as comparações de igualdade não usam a collation.
+
+**Domain** (novos tipos, sem persistência; a `ListTransactionsInput` do `Application` é convertida neles)
+
+| Tipo | Campos | Uso |
+| --- | --- | --- |
+| `TransactionListQuery` | `Description` (já aparada, opcional), `From` e `To` (`DateTime?`, `From` inclusive e `To` exclusive), `Type` (`TransactionKind`), `CategoryId?`, `SortBy` (`TransactionSortField`), `Ascending` | Entrada de `ITransactionRepository.ListAsync` |
+| `TransactionKind` | `All`, `In`, `Out` | Espelha `TransactionType` do `Application` |
+| `TransactionSortField` | `Date`, `Description`, `Value`, `CategoryName` | Espelha `TransactionOrderField` |
+
+A API (`TransactionType`, `TransactionOrderField`) não muda.

@@ -26,6 +26,92 @@ uso `List` recebe um `ListTransactionsInput` (descrição, mês `DateRef`, tipo,
 `orderBy`/`asc`) e aplica os filtros e a ordenação em memória sobre as transações carregadas; não
 há paginação.
 
+## Alteração de 2026-10-11: filtros e ordenação no banco
+
+Pedido e decisões na nota de alteração da [spec](./spec.md) (FR-013, FR-018 a FR-021, história 4 e SC-007 a SC-010),
+aprovada pelo usuário em 2026-10-11, com o plan aprovado na mesma data. Decisões e alternativas em
+[research.md](./research.md#alteração-de-2026-10-11-filtros-e-ordenação-no-banco). Esta seção substitui, para a lista, o
+que o Resumo acima diz sobre filtrar "em memória".
+
+**Resumo**: A lista de transações (`GET /api/transactions`) hoje lê todas as transações e filtra e ordena em memória no
+`ListTransactionsUseCase`. Passa a ser uma consulta SQL: um novo `ITransactionRepository.ListAsync(TransactionListQuery)`
+aplica busca, mês, tipo, categoria e ordenação no PostgreSQL, e o caso de uso só traduz o input e monta os outputs. A
+busca ignora acentos (`unaccent`, como a de categorias), a ordem alfabética usa uma collation ICU pt-BR declarada em
+migration, e o mês vira o intervalo meio-aberto `[início, início do mês seguinte)`. Rotas, parâmetros e formato da
+resposta não mudam; o contrato vai para a 1.3.0.
+
+**Contexto técnico da alteração**: C# / .NET 10; EF Core 10.0.11 e Npgsql EF Core 10.0.3 (nenhuma dependência nova);
+PostgreSQL 18 (extensão `unaccent` já instalada; collation `pt_br_icu` nova); xUnit, com Testcontainers
+(`postgres:18.0`) nos testes de repositório e de migration. Meta: SC-008 (lista do mês e da categoria pelo menos 5
+vezes mais rápida, 10.000 transações, 200 no filtro, mediana de 20 requisições). Volume: centenas a poucos milhares de
+transações por ano, sem paginação.
+
+### Constitution Check da alteração
+
+| Princípio | Resultado | Como |
+| --- | --- | --- |
+| I. TDD | PASSA | Os testes do `tasks.md` vêm antes do código: repositório (Testcontainers), caso de uso (mocks) e migration. Os testes atuais de `ListTransactionsUseCaseTests` que simulam `GetAllAsync` passam a simular `ListAsync` e mantêm as asserções de saída; nenhum é apagado ou enfraquecido. Os que hoje verificam filtro e ordem feitos pelo caso de uso migram para o teste de repositório, onde isso passa a acontecer; o `tasks.md` traz a tabela "teste antigo → teste novo" que torna isso rastreável, e a tradução de input em consulta (trim, branco vira nulo, tipo, campo, direção, `Kind` UTC) fica coberta no caso de uso |
+| II. Segurança | PASSA | Texto buscado como parâmetro (`Unaccent`/`Contains` do EF); o nome da collation é constante; nenhum parâmetro de entrada novo; erros seguem pelo `GlobalExceptionHandler`; nada de descrição ou busca em log (FR-021). Nenhuma dependência nova |
+| III. Performance | PASSA | Filtros e ordenação na fonte (é o objetivo); `AsNoTracking()`; índices em `Date` e `CategoryId` já existem; busca e tipo não ganham índice sem medição. SC-008 medido antes e depois |
+| IV. Contrato | PASSA | `contracts/transactions-api.yaml` 1.3.0, aditivo; o front não muda. A ordem de strings passa a ser independente do ambiente (FR-018) |
+| V. Escopo e simplicidade | PASSA | Só a lista de transações. A listagem de categorias fica como está (dívida registrada na spec). Sem abstração nova além da consulta tipada |
+| B1. Camadas | PASSA | Consulta no `Infrastructure` atrás de interface do `Domain`; os tipos da consulta ficam no `Domain`; o `Application` não vê EF |
+| B2. Compatibilidade | PASSA, mudança aditiva | Rotas, parâmetros, status e `ProblemDetails` iguais; contrato 1.3.0 em `contracts/` |
+| B3. Migrations | PASSA, a cumprir no implement | Uma migration cria a collation; o `Down()` gerado pelo Npgsql já traz o `DROP COLLATION pt_br_icu` (conferido em `dotnet ef migrations script`), então não há SQL explícito, e a migration roda numa transação; `Up()` e `Down()` aplicados, revertidos e reaplicados numa base descartável, conferindo `pg_collation` |
+| Idioma | PASSA | Artefatos em português; código e comentários em inglês |
+
+### Código da alteração
+
+```text
+back/
+├── src/
+│   ├── Denarius.Domain/Repositories/
+│   │   ├── ITransactionRepository.cs      # + ListAsync(TransactionListQuery)
+│   │   └── TransactionListQuery.cs        # novo, com TransactionKind e TransactionSortField
+│   ├── Denarius.Application/UseCases/Transactions/List/
+│   │   └── ListTransactionsUseCase.cs     # só traduz o input; sem ICategoryRepository
+│   └── Denarius.Infrastructure/
+│       ├── Persistence/DenariusDbContext.cs          # + HasCollation("pt_br_icu", ...)
+│       ├── Repositories/TransactionRepository.cs     # + ListAsync
+│       └── Migrations/<timestamp>_AddPortugueseCollation.cs   # nova
+└── tests/
+    ├── Denarius.Infrastructure.Tests/Repositories/TransactionRepositoryTests.cs   # novo; inclui o caso de uso real contra o repositório, com `dateRef`
+    ├── Denarius.Infrastructure.Tests/Migrations/PortugueseCollationMigrationTests.cs   # novo; migra até o alvo anterior, aplica, reverte e reaplica com `IMigrator`
+    ├── Denarius.Application.Tests/UseCases/Transactions/List/ListTransactionsUseCaseTests.cs   # adaptado
+    └── Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs   # contrato da lista, sem mudança de formato
+```
+
+Sem projeto novo; segue o `CategoryRepository`/`CategoryRepositoryTests` da correção da busca de categorias.
+
+### Testes previstos
+
+- **Repositório (Testcontainers)**: busca (acentos, caixa, espaços já aparados pelo caso de uso, `%`, `_`, `\`, nulos),
+  mês (00:00 do dia 1 e 23:59:59,999 do último dia), tipo, categoria, combinação, cada campo de ordenação nas duas
+  direções com desempates, posição das sem descrição, ordem "agua, Agua, água, Água, Banana", nome da categoria atual.
+- **Caso de uso (mocks)**: conversão de input em consulta (trim, mês em intervalo UTC, tipo, campo, direção) e mapeamento
+  do output.
+- **Migration**: aplicar, reverter e reaplicar a collation.
+- **WebAPI**: formato e parâmetros da lista inalterados.
+
+### Dependências e riscos da alteração
+
+- **Docker desligado na máquina de desenvolvimento** (`docker version` falhou em 2026-10-11): só o
+  `Denarius.Infrastructure.Tests` usa banco real (Testcontainers); o `Denarius.WebAPI.Tests` usa `TestServer` com casos
+  de uso falsos. Subir o Docker Desktop antes do implement. Como a WebAPI não toca o banco, o caminho completo de
+  `dateRef` (model binding, caso de uso e repositório) é coberto no `Infrastructure.Tests`.
+- **Ordem de implantação**: a migration vai antes do código novo, porque `COLLATE "pt_br_icu"` com a collation
+  inexistente responde `500`; o inverso também vale (reverter a migration com o código novo no ar quebra a lista). A
+  migration, sozinha, é compatível com o código antigo. Se a migration falhar, o código novo ainda não está no ar e a
+  lista continua como antes; reverter é rodar o `Down()` (que remove a collation) e só depois voltar o código antigo.
+- **Collation ICU**: assume PostgreSQL com ICU (o `postgres:18.0` oficial tem). Em instalação sem ICU, a migration falha
+  explicitamente, sem ordenar errado em silêncio.
+- **Base de dev**: ainda falta aplicar a migration `AddUnaccentExtension` (da correção da busca de categorias); o
+  `dotnet ef database update` aplica as duas.
+- **SC-008**: pode não chegar a 5 vezes se a latência fixa de HTTP dominar; a medição de base decide, e o resultado sobe
+  para o usuário se o alvo não for atingido.
+- **Pós-alteração**: atualizar a exceção do `back/AGENTS.md` por `/speckit-constitution` (tarefa T053, só com o aval do
+  usuário) e a spec 003 do front pelo fluxo do front, com a aprovação do usuário (fora do `tasks.md` do back).
+
 ## Contexto técnico
 
 **Linguagem/versão**: C# 13 / .NET 10 (`net10.0`)

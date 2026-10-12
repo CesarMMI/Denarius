@@ -7,7 +7,10 @@ info:
     uma proposta. A 1.1.0 (2026-09-24) adicionou os parâmetros de query opcionais do List (mudança aditiva).
     A 1.2.0 (2026-10-09) documenta a faixa e a escala do valor na criação e na edição, que antes
     respondiam 500 ou gravavam um valor diferente do enviado (back/bugs/valor-sem-faixa-e-escala).
-  version: "1.2.0"
+    A 1.3.0 (alteração de 2026-10-11 da feature 002) faz a busca por descrição ignorar também os acentos e fixa a ordem alfabética das
+    descrições e dos nomes de categoria no português do Brasil, igual em qualquer ambiente. Os parâmetros, as
+    respostas e o formato não mudam (mudança compatível: nenhum consumidor precisa mudar).
+  version: "1.3.0"
 paths:
   /api/transactions:
     get:
@@ -24,15 +27,18 @@ paths:
           schema:
             type: string
           description: >
-            Busca parcial, sem diferenciar maiúsculas de minúsculas, em Transaction.description (com
-            trim; em branco é ignorada). Transações sem descrição nunca aparecem.
+            Busca parcial em Transaction.description, sem diferenciar maiúsculas de minúsculas nem
+            letras acentuadas das sem acento (com trim; em branco é ignorada). `%`, `_` e `\` são
+            procurados como texto. Transações sem descrição nunca aparecem.
         - name: dateRef
           in: query
           required: false
           schema:
             type: string
             format: date-time
-          description: Qualquer data dentro do mês do calendário cujas transações devem ser mantidas.
+          description: >
+            Qualquer data dentro do mês do calendário cujas transações devem ser mantidas: do início do
+            mês, inclusive, ao início do mês seguinte, exclusive.
         - name: type
           in: query
           required: false
@@ -52,7 +58,11 @@ paths:
             $ref: '#/components/schemas/TransactionOrderField'
           description: >-
             Ordena a lista inteira. Empates são desfeitos pela data mais recente e depois pelo
-            horário de criação; ordenando por `date`, eles seguem a direção dela.
+            horário de criação; ordenando por `date`, eles seguem a direção dela. Descrições e nomes
+            de categoria seguem a ordem alfabética do português do Brasil: comparam-se primeiro sem
+            acentos e sem diferenciar maiúsculas, depois a letra sem acento vem antes da acentuada e,
+            por fim, a minúscula antes da maiúscula ("agua", "Agua", "água", "Água", "Banana"). As
+            transações sem descrição ficam no início na ordem crescente e no fim na decrescente.
         - name: asc
           in: query
           required: false

@@ -27,7 +27,7 @@ dotnet test tests/Denarius.Application.Tests --filter FullyQualifiedName~Transac
 ```
 
 Esperado: todos os testes passam. Juntas, elas exercitam todos os requisitos funcionais do
-`spec.md` (FR-001…FR-018), exceto a própria camada HTTP, que o
+`spec.md` (FR-001…FR-021), exceto a própria camada HTTP, que o
 `tests/Denarius.WebAPI.Tests/Transactions/TransactionsControllerTests.cs` cobre à parte (veja
 `research.md` → Lacuna de cobertura de testes).
 
@@ -87,3 +87,25 @@ dotnet test
 9. Caso-limite referencial: repita o passo 3 com um `categoryId` aleatório (por exemplo,
    `"00000000-0000-0000-0000-000000000000"`) — espere `404` explicando que a categoria não foi
    encontrada.
+
+## Alteração de 2026-10-11: validação dos filtros no banco
+
+Pré-requisito: Docker em execução (os testes do `Denarius.Infrastructure.Tests` usam Testcontainers). Os comandos partem
+de `back/`.
+
+1. **Linha de base (antes de alterar código)**: suba uma base descartável com as migrations atuais e gere 10.000
+   transações (200 no mês de teste, 200 na categoria de teste) com `generate_series`. Suba a API contra ela e meça 20
+   requisições de `GET /api/transactions?dateRef=<mês>` e de `...?categoryId=<id>`, com 3 de aquecimento descartadas antes; registre
+   a mediana de cada uma na tabela de [research.md](./research.md#medição-de-base-preencher-no-implement).
+2. **Comportamento**: `dotnet test`. Esperado: as quatro suítes passam, cobrindo a busca com e sem acentos, maiúsculas,
+   espaços, `%`, `_`, `\` e descrição nula (história 3, cenários 7 a 10), a combinação de filtros, os desempates, a
+   posição das transações sem descrição, a ordem "agua, Agua, água, Água, Banana" nas duas direções e os limites do mês
+   (história 4), e as rotas e o formato da resposta sem mudança.
+3. **Migration**: aplicar, reverter e reaplicar a da collation numa base descartável:
+   ```bash
+   dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI
+   dotnet ef database update <migration anterior> --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI
+   dotnet ef database update --project src/Denarius.Infrastructure --startup-project src/Denarius.WebAPI
+   ```
+4. **Desempenho (SC-008)**: repita a carga do passo 1 depois da implementação e preencha a coluna "depois" do
+   research.md. Esperado: a razão antes/depois é pelo menos 5 para o mês e para a categoria.

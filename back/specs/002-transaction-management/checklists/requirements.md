@@ -48,3 +48,15 @@
   lista não difere mais da de categorias por não ter filtros.
 - Itens marcados como incompletos exigem atualizar a spec antes do `/speckit-clarify` ou do
   `/speckit-plan`.
+
+## Alteração de 2026-10-11 (filtros e ordenação no banco)
+
+- [x] Nenhum marcador [NEEDS CLARIFICATION] restante (a ordem alfabética foi decidida pelo usuário: pt-BR, igual em
+      qualquer ambiente)
+- [x] Os requisitos novos (FR-013 e FR-018 alterados, FR-019 a FR-021) e a história 4 são testáveis e têm critérios de
+      sucesso mensuráveis (SC-007 a SC-010)
+- [x] A alteração atinge os resultados mensuráveis definidos nos critérios de sucesso (verificado em 2026-10-11: SC-008 medido, 7,2 e 7,5 vezes; SC-007, SC-009 e SC-010 pelos testes)
+
+Revisão independente da spec em 2026-10-11 (duas rodadas): aprovada, sem CRITICAL nem HIGH. Os achados corrigidos foram o
+FR-019 amplo demais (só mês e categoria são seletivos), a ordem entre variantes de acento e caixa sem definição, o limite
+do mês com fração de segundo, o contrato a republicar em `contracts/` e a falta de uma linha sobre entrada e log (FR-021).
