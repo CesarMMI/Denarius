@@ -65,7 +65,7 @@ export class ExpensesByCategoryChart {
 			cutout: '62%',
 			plugins: {
 				legend: {
-					position: 'bottom',
+					position: 'left',
 					labels: { color: this.theme.colors().text, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 },
 				},
 				tooltip: {

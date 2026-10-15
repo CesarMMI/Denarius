@@ -93,7 +93,7 @@ export class CumulativeComparisonChart {
 			},
 			plugins: {
 				legend: {
-					position: 'bottom',
+					position: 'top',
 					labels: { color: colors.text, usePointStyle: true, pointStyle: 'line' },
 				},
 				tooltip: {

@@ -74,7 +74,7 @@ export class IncomeVsExpenseChart {
 			},
 			plugins: {
 				legend: {
-					position: 'bottom',
+					position: 'top',
 					labels: { color: colors.text, usePointStyle: true, pointStyle: 'rectRounded', boxWidth: 8 },
 				},
 				tooltip: {
