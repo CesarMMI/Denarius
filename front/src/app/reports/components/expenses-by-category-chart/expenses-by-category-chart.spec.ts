@@ -137,7 +137,7 @@ describe('ExpensesByCategoryChart', () => {
 
 		expect(chart()!.data()!.labels).toEqual(['Mercado (56,73%)', 'Aluguel (38,46%)', 'Outras (4,81%)']);
 		expect(legend.display).not.toBe(false);
-		expect(legend.position).toBe('bottom');
+		expect(legend.position).toBe('left');
 		expect(legend.labels).toEqual(expect.objectContaining({ color: 'ink', usePointStyle: true }));
 		expect(chart()!.options()!.maintainAspectRatio).toBe(false);
 	});
