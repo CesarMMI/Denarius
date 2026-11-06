@@ -40,7 +40,7 @@ _Por quê:_ o Denarius guarda dados financeiros; sem um rollback revisado, um de
 
 ## Restrições técnicas
 
-- **Performance**: consultas de leitura com `AsNoTracking()`; filtros, agrupamentos e somas traduzidos para SQL, como no `TransactionRepository`; índice, criado por migration, para colunas usadas em filtros frequentes; I/O assíncrono de ponta a ponta. A lista de transações filtra e ordena no banco (busca sem acentos com `unaccent` e ordem alfabética pt-BR pela collation `pt_br_icu`, declarada em migration); só a listagem de categorias ainda filtra em memória, e levá-la para o banco é trabalho de uma feature própria, e não um ajuste de passagem.
+- **Performance**: consultas de leitura com `AsNoTracking()`; filtros, agrupamentos e somas traduzidos para SQL, como no `TransactionRepository`; índice, criado por migration, para colunas usadas em filtros frequentes; I/O assíncrono de ponta a ponta. A lista de transações filtra e ordena no banco (busca sem acentos com `unaccent` e ordem alfabética pt-BR pela collation `pt_br_icu`, declarada em migration); a listagem de categorias também filtra no banco, e o filtro por nome ignora maiúsculas e acentos (`unaccent`, como no `CategoryRepository`).
 - **Segurança**: CORS só com as origens da seção `Cors` do `appsettings` de cada ambiente; exceções passam pelo `GlobalExceptionHandler`, e um erro inesperado responde 500 com mensagem genérica; `UseHttpsRedirection` fora de desenvolvimento; segredos locais em user-secrets (o `Denarius.WebAPI` já tem `UserSecretsId`).
 
 ## Ambiente local (Docker)

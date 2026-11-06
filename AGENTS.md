@@ -152,6 +152,6 @@ Qualquer dúvida (na spec, no plan, na implementação, num conflito entre regra
 - Toda revisão confere a aderência a estas regras. Uma violação bloqueia a entrega até ser corrigida ou até o usuário aprovar uma exceção registrada no `plan.md`.
 - Specs anteriores a 2026-10-04 citam as constituições 1.0.0 de cada projeto (no histórico do git, em `<projeto>/.specify/memory/constitution.md`). Os princípios de lá correspondem aos atuais assim: I (API) → IV, B2 e F2; II (fronteiras) → V, B1 e F1; III (migrations) → B3 e F3; IV (testes) → I.
 
-**Versão**: 3.1.0 | **Ratificada**: 2026-09-21 | **Última alteração**: 2026-10-11
+**Versão**: 3.1.1 | **Ratificada**: 2026-09-21 | **Última alteração**: 2026-11-05
 
 Para manter ou atualizar o Spec Kit (adaptações locais, upgrades, Python dos scripts), leia [`.specify/README.md`](.specify/README.md).
