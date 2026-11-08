@@ -21,7 +21,7 @@ Rótulo definido pelo usuário para agrupar transações, com um nome e uma cor.
 
 - Nome vazio, só com espaços ou acima de 100 caracteres é recusado (`DomainException`).
 - **Exclusão:** uma categoria com ao menos uma transação, em qualquer mês, não pode ser excluída (`DomainException`: "Não é possível excluir uma categoria que possui transações associadas."). Categoria inexistente: `NotFoundException`.
-- **Derivados na listagem:** `TransactionCount` e `Balance` (soma dos valores) saem das transações da categoria, no período pedido (um mês ou todo o histórico). `CanDelete` é falso quando há transação em qualquer mês, mesmo fora do período pedido.
+- **Derivados na listagem:** `TransactionCount` e `Balance` (soma dos valores) saem das transações da categoria no mês pedido, ou em todo o histórico sem mês. `CanDelete` reflete a regra de exclusão e por isso ignora o mês pedido (`ListCategoriesUseCase.cs:13`).
 - A busca por nome na listagem ignora maiúsculas e acentos, e é feita no banco (`unaccent`).
 
 ## Relações

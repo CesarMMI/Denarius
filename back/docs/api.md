@@ -20,12 +20,10 @@ O formato é `ProblemDetails` (`GlobalExceptionHandler`):
 | Origem | Status | `detail` |
 | --- | --- | --- |
 | `NotFoundException` (categoria ou transação inexistente) | 404 | a mensagem da exceção |
-| `DomainException` (regra de domínio violada) | 400 | a mensagem da exceção, em português, própria para mostrar ao usuário |
+| `DomainException` (regra de domínio violada) | 400 | a mensagem da exceção, em português |
 | `AppException` | 400 | a mensagem da exceção |
 | Qualquer outra exceção | 500 | "Ocorreu um erro inesperado.", sem detalhes internos |
 | Parâmetro inválido na ligação do MVC (mês malformado, `months` fora de 1 a 24) | 400 | validação padrão do MVC |
-
-O front mostra o `detail` ao usuário nos erros 400 e 404.
 
 ## Regras que cruzam endpoints
 
