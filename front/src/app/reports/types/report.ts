@@ -1,4 +1,4 @@
-// The reports API (back/specs/003-financial-reports/contracts/reports-api.yaml): months are `YYYY-MM`, money out
+// The reports API (back/docs/features/003-financial-reports/contracts/reports-api.yaml): months are `YYYY-MM`, money out
 // is a positive amount, and percentages are on a 0–100 scale, null where they don't apply.
 
 export interface MonthlySummary {
