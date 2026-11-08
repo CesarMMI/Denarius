@@ -15,7 +15,7 @@ _Por quê:_ essas fronteiras mantêm cada feature testável isoladamente e conce
 
 ### F2. Contrato e rotas
 
-- Os tipos em `types/` espelham o contrato do back (`back/specs/*/contracts/`), sem campos supostos.
+- Os tipos em `types/` espelham o contrato do back (o OpenAPI da API, `back/docs/api.md` e `back/docs/features/*/contracts/`), sem campos supostos.
 - As rotas do front são públicas (o usuário as salva e compartilha): renomear ou remover uma rota exige redirecionar o caminho antigo.
 
 _Por quê:_ um link salvo que quebra é a primeira regressão que o usuário vê.
@@ -47,3 +47,4 @@ De dentro de `front/`:
 - `npm run lint`
 - `npm run build`: sem erro de budget.
 - Se o back também mudou, `dotnet test` em `back/` passa.
+- Mudou a identidade visual ou um padrão de interface de forma permanente: atualize `docs/design.md` (tarefa obrigatória do `plan.md`).

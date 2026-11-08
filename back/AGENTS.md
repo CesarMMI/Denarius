@@ -27,7 +27,7 @@ _Por quê:_ as camadas mantêm a regra de negócio testável isoladamente e a in
 
 - Rotas, DTOs, status codes e o formato de erro (`ProblemDetails`) continuam compatíveis com os consumidores atuais (princípio IV da raiz).
 - Mudança incompatível (endpoint removido ou renomeado, formato alterado, semântica de status code diferente) só sai com versionamento e caminho de migração documentados. Adições compatíveis, como um endpoint novo ou um campo opcional, não pedem nova versão.
-- Todo contrato novo ou alterado é documentado em `specs/NNN-nome/contracts/`.
+- Todo contrato novo ou alterado é documentado em `docs/features/NNN-nome/contracts/`, e a convenção ou regra que vale para vários endpoints entra em `docs/api.md`.
 
 _Por quê:_ a API é o único ponto de integração do front; uma quebra não coordenada derruba o front sem aviso.
 
@@ -54,3 +54,4 @@ De dentro de `back/`:
 - `dotnet test`: as quatro suítes passam, e comportamento novo ganha teste no projeto de testes da camada correspondente.
 - Mudou um controller ou DTO: a entrega diz se a mudança é aditiva ou incompatível e, se for incompatível, como foi versionada.
 - Criou uma migration: aplique e reverta localmente (`Up()` e `Down()`) antes de concluir.
+- Mudou o domínio ou a API de forma permanente: atualize `docs/dominio/` e `docs/api.md` (tarefa obrigatória do `plan.md`).
