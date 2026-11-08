@@ -66,6 +66,8 @@ export interface MonthlyTransaction {
 	date: string;
 	description: string | null;
 	categoryName: string;
+	/** The category's current color, `#RRGGBB` in uppercase; the API never leaves it null. */
+	color: string;
 	type: 'in' | 'out';
 	amount: number;
 }

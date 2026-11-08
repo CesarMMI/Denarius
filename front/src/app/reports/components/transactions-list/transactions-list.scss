@@ -27,14 +27,22 @@ td {
 .mat-column-description {
 	width: 100%;
 	max-width: 0;
-
-	div {
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
 }
 
-.category {
-	font: var(--mat-sys-body-small);
-	color: var(--mat-sys-on-surface-variant);
+// The chip stays inside the column and its text is cut with an ellipsis.
+mat-chip {
+	max-width: 100%;
+}
+
+.label {
+	display: block;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+// Only the days are divided, so no border between transactions of the same day.
+.same-date {
+	--mat-table-row-item-outline-color: transparent;
 }

@@ -2,7 +2,9 @@ import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { LOCALE_ID, resourceFromSnapshots, ResourceSnapshot, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { MatChipColor } from '../../../shared/mat-chip-color/mat-chip-color';
 import { buildMonthlyTransaction } from '../../testing/report-fixtures';
 import { MonthlyTransaction } from '../../types/report';
 import { TransactionsList } from './transactions-list';
@@ -15,6 +17,7 @@ describe('TransactionsList', () => {
 		date: '2026-09-28T00:00:00Z',
 		description: 'Presente',
 		categoryName: 'Presentes',
+		color: '#D81B60',
 		type: 'out',
 		amount: 70,
 	});
@@ -23,6 +26,7 @@ describe('TransactionsList', () => {
 		date: '2026-09-05T00:00:00Z',
 		description: null,
 		categoryName: 'Salário',
+		color: '#1E88E5',
 		type: 'in',
 		amount: 8000,
 	});
@@ -56,10 +60,75 @@ describe('TransactionsList', () => {
 
 	it('should list the transactions in the API order with their date and category', () => {
 		expect(column('date').map(text)).toEqual(['28/09', '05/09']);
-		expect(column('description').map((cell) => Array.from(cell.querySelectorAll('div')).map(text))).toEqual([
-			['Presente', 'Presentes'],
-			['Salário'],
-		]);
+		expect(column('description').map(text)).toEqual(['Presente', 'Salário']);
+	});
+
+	it('should show each description in a chip, the category name when there is no description', () => {
+		const chips = column('description').map((cell) => cell.querySelector('mat-chip'));
+
+		expect(chips.map(text)).toEqual(['Presente', 'Salário']);
+		expect(chips.every((chip) => chip !== null)).toBe(true);
+	});
+
+	it('should not repeat the category name under the description', () => {
+		expect(element.querySelector('.category')).toBeNull();
+		expect(column('description').map(text)).not.toContain('Presente Presentes');
+	});
+
+	it('should paint each chip with the color the API gave its category, the same for the same category', async () => {
+		const feira = buildMonthlyTransaction({ id: 't3', description: 'Feira', categoryName: 'Mercado', color: '#43A047' });
+		const padaria = buildMonthlyTransaction({
+			id: 't4',
+			description: 'Padaria',
+			categoryName: 'Mercado',
+			color: '#43A047',
+		});
+		transactions.set({ status: 'resolved', value: [presente, feira, salario, padaria] });
+		await fixture.whenStable();
+
+		const colors = fixture.debugElement
+			.queryAll(By.directive(MatChipColor))
+			.map((chip) => chip.injector.get(MatChipColor).color());
+
+		expect(colors).toEqual(['#D81B60', '#43A047', '#1E88E5', '#43A047']);
+	});
+
+	it('should keep the chip text in its own label, the element that gets cut with an ellipsis', () => {
+		const labels = column('description').map((cell) => cell.querySelector('mat-chip .label'));
+
+		expect(labels.map(text)).toEqual(['Presente', 'Salário']);
+	});
+
+	it('should mark the transactions followed by another of the same day, whatever the time', async () => {
+		const manha = buildMonthlyTransaction({ id: 'a', date: '2026-09-10T00:00:00Z' });
+		const tarde = buildMonthlyTransaction({ id: 'b', date: '2026-09-10T15:30:00Z' });
+		const ontem = buildMonthlyTransaction({ id: 'c', date: '2026-09-09T00:00:00Z' });
+		transactions.set({ status: 'resolved', value: [manha, tarde, ontem] });
+		await fixture.whenStable();
+
+		const rows = Array.from(element.querySelectorAll('tr[mat-row]'));
+		expect(rows.map((row) => row.classList.contains('same-date'))).toEqual([true, false, false]);
+	});
+
+	it('should not mark the rows of different days, nor a single row', async () => {
+		expect(Array.from(element.querySelectorAll('tr[mat-row].same-date'))).toHaveLength(0);
+
+		transactions.set({ status: 'resolved', value: [presente] });
+		await fixture.whenStable();
+		expect(Array.from(element.querySelectorAll('tr[mat-row].same-date'))).toHaveLength(0);
+	});
+
+	it('should look only at the ten rows shown when marking the same day', async () => {
+		const days = Array.from({ length: 11 }, (_, index) =>
+			buildMonthlyTransaction({ id: `d${index}`, date: `2026-09-${String(28 - index).padStart(2, '0')}T00:00:00Z` }),
+		);
+		days[10] = { ...days[10], date: days[9].date };
+		transactions.set({ status: 'resolved', value: days });
+		await fixture.whenStable();
+
+		const rows = Array.from(element.querySelectorAll('tr[mat-row]'));
+		expect(rows).toHaveLength(10);
+		expect(rows.some((row) => row.classList.contains('same-date'))).toBe(false);
 	});
 
 	it('should sign the amounts and mark the expenses in red', () => {

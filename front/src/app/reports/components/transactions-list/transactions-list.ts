@@ -1,9 +1,11 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, computed, input, output, Resource } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
 import { DateUtils } from '../../../shared/date-utils/date-utils';
+import { MatChipColor } from '../../../shared/mat-chip-color/mat-chip-color';
 import { MonthlyTransaction } from '../../types/report';
 import { ReportCard } from '../report-card/report-card';
 
@@ -12,7 +14,16 @@ import { ReportCard } from '../report-card/report-card';
 	selector: 'app-transactions-list',
 	templateUrl: './transactions-list.html',
 	styleUrl: './transactions-list.scss',
-	imports: [CurrencyPipe, DatePipe, MatButtonModule, MatTableModule, RouterLink, ReportCard],
+	imports: [
+		CurrencyPipe,
+		DatePipe,
+		MatButtonModule,
+		MatChipsModule,
+		MatChipColor,
+		MatTableModule,
+		RouterLink,
+		ReportCard,
+	],
 })
 export class TransactionsList {
 	readonly transactions = input.required<Resource<MonthlyTransaction[] | undefined>>();
@@ -28,6 +39,11 @@ export class TransactionsList {
 	});
 	/** The API lists the month newest first; the card shows the ten most recent and counts them all. */
 	protected readonly latest = computed(() => this.rows().slice(0, 10));
+	/** The rows shown followed by another of the same day, compared by the day the date column shows (UTC). */
+	protected readonly sameDate = computed(() => {
+		const rows = this.latest();
+		return new Set(rows.filter((t, i) => rows[i + 1]?.date.slice(0, 10) === t.date.slice(0, 10)));
+	});
 	protected readonly empty = computed(() => this.transactions().hasValue() && this.rows().length === 0);
 	protected readonly heading = computed(() => `Transações do mês (${this.rows().length})`);
 	/** The query string that opens the transactions page on the month. */

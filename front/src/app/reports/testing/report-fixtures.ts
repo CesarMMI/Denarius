@@ -94,6 +94,7 @@ export function buildMonthlyTransaction(overrides: Partial<MonthlyTransaction> =
 		date: '2026-09-20T00:00:00Z',
 		description: 'Feira',
 		categoryName: 'Mercado',
+		color: '#43A047',
 		type: 'out',
 		amount: 500,
 		...overrides,

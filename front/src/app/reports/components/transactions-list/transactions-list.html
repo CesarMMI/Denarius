@@ -16,10 +16,9 @@
 				<ng-container matColumnDef="description">
 					<th mat-header-cell *matHeaderCellDef>Descrição</th>
 					<td mat-cell *matCellDef="let transaction">
-						<div>{{ transaction.description ?? transaction.categoryName }}</div>
-						@if (transaction.description) {
-							<div class="category">{{ transaction.categoryName }}</div>
-						}
+						<mat-chip [appMatChipColor]="transaction.color">
+							<span class="label">{{ transaction.description ?? transaction.categoryName }}</span>
+						</mat-chip>
 					</td>
 				</ng-container>
 
@@ -31,7 +30,7 @@
 				</ng-container>
 
 				<tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
-				<tr mat-row *matRowDef="let row; columns: columns"></tr>
+				<tr mat-row *matRowDef="let row; columns: columns" [class.same-date]="sameDate().has(row)"></tr>
 			</table>
 		</div>
 		<a matButton routerLink="/transactions" [queryParams]="monthFilter()">Ver todas</a>
