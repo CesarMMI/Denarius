@@ -23,6 +23,6 @@ public interface ITransactionRepository : IRepository<Transaction>
     /// <summary>The money out of each day that has expenses.</summary>
     Task<IEnumerable<(DateOnly Date, decimal Expense)>> SumExpensesByDayAsync(DateOnly from, DateOnly to);
 
-    /// <summary>Each transaction, with the name of its category.</summary>
-    Task<IEnumerable<(Transaction Transaction, string CategoryName)>> GetWithCategoryNameAsync(DateOnly from, DateOnly to);
+    /// <summary>Each transaction, with its category.</summary>
+    Task<IEnumerable<(Transaction Transaction, Category Category)>> GetWithCategoryAsync(DateOnly from, DateOnly to);
 }

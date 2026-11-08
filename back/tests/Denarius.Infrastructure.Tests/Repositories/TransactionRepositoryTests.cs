@@ -23,10 +23,10 @@ public class TransactionRepositoryTests(PostgreSqlFixture fixture) : IClassFixtu
     private static DateTime Utc(int year, int month, int day, int hour = 0, int minute = 0, int second = 0, int millisecond = 0) =>
         new(year, month, day, hour, minute, second, millisecond, DateTimeKind.Utc);
 
-    private async Task<Category> AddCategoryAsync(string name = "Mercado")
+    private async Task<Category> AddCategoryAsync(string name = "Mercado", string color = "#FF0000")
     {
         await using var context = fixture.CreateContext();
-        var category = new Category(name, new Color("#FF0000"));
+        var category = new Category(name, new Color(color));
         context.Categories.Add(category);
         await context.SaveChangesAsync();
 
@@ -547,5 +547,55 @@ public class TransactionRepositoryTests(PostgreSqlFixture fixture) : IClassFixtu
         var output = await useCase.Execute(new ListTransactionsInput(dateRef: dateRef));
 
         Assert.Equal(["fim de março", "início de março"], output.Select(t => t.Description));
+    }
+
+    [Fact]
+    public async Task GetWithCategoryAsync_ReturnsEachTransactionOfTheRangeWithItsCategoryNameAndColor()
+    {
+        var mercado = await AddCategoryAsync("Mercado", "#FF0000");
+        var lazer = await AddCategoryAsync("Lazer", "#00ff00");
+        await AddAsync(mercado, ("Feira", Utc(2026, 9, 3), -50m), ("Padaria", Utc(2026, 9, 4), -10m));
+        await AddAsync(lazer, ("Cinema", Utc(2026, 9, 5), -40m));
+
+        await using var context = fixture.CreateContext();
+        var items = await new TransactionRepository(context).GetWithCategoryAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1));
+
+        Assert.Equal(
+            [("Cinema", "Lazer", "#00FF00"), ("Feira", "Mercado", "#FF0000"), ("Padaria", "Mercado", "#FF0000")],
+            items.Select(i => (i.Transaction.Description!, i.Category.Name, i.Category.Color.HexCode)).OrderBy(i => i.Item1));
+    }
+
+    [Fact]
+    public async Task GetWithCategoryAsync_ReadsOnlyTheRangeFromInclusiveToExclusive()
+    {
+        var category = await AddCategoryAsync();
+        await AddAsync(category,
+            ("fim de agosto", Utc(2026, 8, 31, 23, 59, 59, 999), -10m),
+            ("início de setembro", Utc(2026, 9, 1), -10m),
+            ("fim de setembro", Utc(2026, 9, 30, 23, 59, 59, 999), -10m),
+            ("início de outubro", Utc(2026, 10, 1), -10m));
+
+        await using var context = fixture.CreateContext();
+        var items = await new TransactionRepository(context).GetWithCategoryAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1));
+
+        Assert.Equal(["fim de setembro", "início de setembro"], items.Select(i => i.Transaction.Description!).OrderBy(d => d));
+    }
+
+    [Fact]
+    public async Task GetWithCategoryAsync_AfterTheCategoryChangesColor_ReturnsTheCurrentColor()
+    {
+        var category = await AddCategoryAsync("Mercado", "#FF0000");
+        await AddAsync(category, ("Feira", Utc(2026, 9, 3), -50m));
+        await using (var context = fixture.CreateContext())
+        {
+            var stored = await context.Categories.SingleAsync(c => c.Id == category.Id);
+            stored.Update("Mercado", new Color("#0000FF"));
+            await context.SaveChangesAsync();
+        }
+
+        await using var readContext = fixture.CreateContext();
+        var items = await new TransactionRepository(readContext).GetWithCategoryAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1));
+
+        Assert.Equal("#0000FF", Assert.Single(items).Category.Color.HexCode);
     }
 }

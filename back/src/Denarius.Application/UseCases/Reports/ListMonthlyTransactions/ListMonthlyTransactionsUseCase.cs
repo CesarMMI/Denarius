@@ -9,13 +9,13 @@ internal class ListMonthlyTransactionsUseCase(ITransactionRepository transaction
     {
         var month = input.Month ?? YearMonth.FromDate(timeProvider.GetTodayInSaoPaulo());
 
-        var transactions = await transactionRepository.GetWithCategoryNameAsync(month.FirstDay, month.AddMonths(1).FirstDay);
+        var transactions = await transactionRepository.GetWithCategoryAsync(month.FirstDay, month.AddMonths(1).FirstDay);
 
         // Every transaction of the month, newest first; on the same date, the one recorded last comes first.
         return transactions
             .OrderByDescending(t => t.Transaction.Date)
             .ThenByDescending(t => t.Transaction.CreatedAt)
-            .Select(t => new MonthlyTransactionOutput(t.Transaction, t.CategoryName))
+            .Select(t => new MonthlyTransactionOutput(t.Transaction, t.Category))
             .ToList();
     }
 }

@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  title: Transações do mês: cor da categoria
+  description: >
+    Acréscimo ao contrato de relatórios (../../003-financial-reports/contracts/reports-api.yaml, versão 1.1.0); esta é a versão 1.2.0 do contrato dos relatórios, sem mudar o que a 1.1.0 define.
+    Só o schema MonthlyTransactionOutput muda, com o campo color; rota, parâmetros, ordenação e
+    status continuam como na 003: ordenação, ausência de paginação e a resposta 400 para mês inválido valem como em `reports-api.yaml` (operação `listMonthlyTransactions`).
+  version: "1.2.0"
+paths:
+  /api/reports/transactions:
+    get:
+      summary: Transações do mês
+      operationId: listMonthlyTransactions
+      parameters:
+        - name: month
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: '^\d{4}-(0[1-9]|1[0-2])$'
+      responses:
+        '200':
+          description: As transações do mês, cada uma com a cor da sua categoria.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyTransactionOutput'
+        '400':
+          description: Mês inválido, como na 003 (ProblemDetails).
+components:
+  schemas:
+    MonthlyTransactionOutput:
+      type: object
+      description: Os campos da 003, mais color (mudança aditiva).
+      properties:
+        id: { type: string, format: uuid }
+        date: { type: string, format: date-time }
+        description: { type: string, nullable: true }
+        categoryName: { type: string }
+        color:
+          type: string
+          pattern: '^#[0-9A-F]{6}$'
+          example: '#43A047'
+          description: A cor atual da categoria da transação. Nunca nula.
+        type: { type: string, enum: [in, out] }
+        amount: { type: number, format: decimal }
+      required: [id, date, description, categoryName, color, type, amount]

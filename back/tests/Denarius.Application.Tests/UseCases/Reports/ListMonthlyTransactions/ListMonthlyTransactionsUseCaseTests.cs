@@ -3,6 +3,7 @@ using Denarius.Application.IO.Transactions;
 using Denarius.Application.UseCases.Reports.ListMonthlyTransactions;
 using Denarius.Domain.Entities;
 using Denarius.Domain.Repositories;
+using Denarius.Domain.ValueObjects;
 using NSubstitute;
 
 namespace Denarius.Application.Tests.UseCases.Reports.ListMonthlyTransactions;
@@ -10,6 +11,8 @@ namespace Denarius.Application.Tests.UseCases.Reports.ListMonthlyTransactions;
 public class ListMonthlyTransactionsUseCaseTests
 {
     private static readonly YearMonth September = new(2026, 9);
+    private static readonly Category Mercado = new("Mercado", new Color("#43A047"));
+    private static readonly Category Salario = new("Salário", new Color("#1E88E5"));
 
     private readonly ITransactionRepository _transactionRepository = Substitute.For<ITransactionRepository>();
     private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
@@ -19,25 +22,25 @@ public class ListMonthlyTransactionsUseCaseTests
     {
         _useCase = new ListMonthlyTransactionsUseCase(_transactionRepository, _timeProvider);
         _timeProvider.GetUtcNow().Returns(new DateTimeOffset(2026, 10, 3, 15, 0, 0, TimeSpan.Zero));
-        _transactionRepository.GetWithCategoryNameAsync(Arg.Any<DateOnly>(), Arg.Any<DateOnly>()).Returns([]);
+        _transactionRepository.GetWithCategoryAsync(Arg.Any<DateOnly>(), Arg.Any<DateOnly>()).Returns([]);
     }
 
-    private void Transactions(params (Transaction Transaction, string CategoryName)[] transactions) =>
-        _transactionRepository.GetWithCategoryNameAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1)).Returns(transactions);
+    private void Transactions(params (Transaction Transaction, Category Category)[] transactions) =>
+        _transactionRepository.GetWithCategoryAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1)).Returns(transactions);
 
     [Fact]
     public async Task Execute_MapsEachTransactionWithItsCategoryNameTypeAndAmount()
     {
         var salario = new Transaction("Salário", new DateTime(2026, 9, 5, 0, 0, 0, DateTimeKind.Utc), 8000m, Guid.NewGuid());
         var feira = new Transaction(null, new DateTime(2026, 9, 3, 0, 0, 0, DateTimeKind.Utc), -50m, Guid.NewGuid());
-        Transactions((feira, "Mercado"), (salario, "Salário"));
+        Transactions((feira, Mercado), (salario, Salario));
 
         var output = await _useCase.Execute(new ListMonthlyTransactionsInput(September));
 
         Assert.Equal(
             [
-                new MonthlyTransactionOutput(salario, "Salário"),
-                new MonthlyTransactionOutput(feira, "Mercado")
+                new MonthlyTransactionOutput(salario, Salario),
+                new MonthlyTransactionOutput(feira, Mercado)
             ],
             output);
         var expense = output.Last();
@@ -45,6 +48,8 @@ public class ListMonthlyTransactionsUseCaseTests
         Assert.Equal(new DateTime(2026, 9, 3, 0, 0, 0, DateTimeKind.Utc), expense.Date);
         Assert.Null(expense.Description);
         Assert.Equal("Mercado", expense.CategoryName);
+        Assert.Equal("#43A047", expense.Color);
+        Assert.Equal("#1E88E5", output.First().Color);
         Assert.Equal(TransactionType.Out, expense.Type);
         Assert.Equal(50m, expense.Amount);
         Assert.Equal(TransactionType.In, output.First().Type);
@@ -59,7 +64,7 @@ public class ListMonthlyTransactionsUseCaseTests
         var last = new Transaction("Lançada por último", new DateTime(2026, 9, 10), -10m, categoryId) { CreatedAt = new DateTime(2026, 9, 10, 18, 0, 0) };
         var older = new Transaction("Antiga", new DateTime(2026, 9, 1), -10m, categoryId) { CreatedAt = new DateTime(2026, 9, 20) };
         var newer = new Transaction("Recente", new DateTime(2026, 9, 28), -10m, categoryId) { CreatedAt = new DateTime(2026, 9, 1) };
-        Transactions((older, "Mercado"), (first, "Mercado"), (newer, "Mercado"), (last, "Mercado"));
+        Transactions((older, Mercado), (first, Mercado), (newer, Mercado), (last, Mercado));
 
         var output = await _useCase.Execute(new ListMonthlyTransactionsInput(September));
 
@@ -67,11 +72,25 @@ public class ListMonthlyTransactionsUseCaseTests
     }
 
     [Fact]
+    public async Task Execute_TransactionsOfTheSameCategory_ShareItsColor()
+    {
+        var categoryId = Guid.NewGuid();
+        Transactions(
+            (new Transaction("Feira", new DateTime(2026, 9, 3), -50m, categoryId), Mercado),
+            (new Transaction("Padaria", new DateTime(2026, 9, 4), -10m, categoryId), Mercado),
+            (new Transaction("Salário", new DateTime(2026, 9, 5), 8000m, categoryId), Salario));
+
+        var output = await _useCase.Execute(new ListMonthlyTransactionsInput(September));
+
+        Assert.Equal(["#1E88E5", "#43A047", "#43A047"], output.Select(o => o.Color));
+    }
+
+    [Fact]
     public async Task Execute_ManyTransactions_ReturnsEveryOne()
     {
         var categoryId = Guid.NewGuid();
         Transactions(Enumerable.Range(1, 30)
-            .Select(day => (new Transaction($"Dia {day}", new DateTime(2026, 9, day), -day, categoryId), "Mercado"))
+            .Select(day => (new Transaction($"Dia {day}", new DateTime(2026, 9, day), -day, categoryId), Mercado))
             .ToArray());
 
         var output = await _useCase.Execute(new ListMonthlyTransactionsInput(September));
@@ -92,7 +111,7 @@ public class ListMonthlyTransactionsUseCaseTests
     {
         await _useCase.Execute(new ListMonthlyTransactionsInput(new YearMonth(2026, 12)));
 
-        await _transactionRepository.Received(1).GetWithCategoryNameAsync(new DateOnly(2026, 12, 1), new DateOnly(2027, 1, 1));
+        await _transactionRepository.Received(1).GetWithCategoryAsync(new DateOnly(2026, 12, 1), new DateOnly(2027, 1, 1));
     }
 
     [Fact]
@@ -102,6 +121,6 @@ public class ListMonthlyTransactionsUseCaseTests
 
         await _useCase.Execute(new ListMonthlyTransactionsInput());
 
-        await _transactionRepository.Received(1).GetWithCategoryNameAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1));
+        await _transactionRepository.Received(1).GetWithCategoryAsync(new DateOnly(2026, 9, 1), new DateOnly(2026, 10, 1));
     }
 }

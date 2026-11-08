@@ -7,6 +7,7 @@ using Denarius.Application.UseCases.Reports.GetIncomeVsExpense;
 using Denarius.Application.UseCases.Reports.GetMonthlySummary;
 using Denarius.Application.UseCases.Reports.ListMonthlyTransactions;
 using Denarius.Domain.Entities;
+using Denarius.Domain.ValueObjects;
 using Denarius.WebAPI.Controllers;
 using Denarius.WebAPI.Middleware;
 using Denarius.WebAPI.Routing;
@@ -45,8 +46,8 @@ public class ReportsControllerTests
 
     private static readonly IEnumerable<MonthlyTransactionOutput> Transactions =
     [
-        new(new Transaction("Salário", new DateTime(2026, 9, 5, 0, 0, 0, DateTimeKind.Utc), 8000m, Guid.NewGuid()), "Salário"),
-        new(new Transaction(null, new DateTime(2026, 9, 3, 0, 0, 0, DateTimeKind.Utc), -50m, Guid.NewGuid()), "Mercado")
+        new(new Transaction("Salário", new DateTime(2026, 9, 5, 0, 0, 0, DateTimeKind.Utc), 8000m, Guid.NewGuid()), new Category("Salário", new Color("#1E88E5"))),
+        new(new Transaction(null, new DateTime(2026, 9, 3, 0, 0, 0, DateTimeKind.Utc), -50m, Guid.NewGuid()), new Category("Mercado", new Color("#43A047")))
     ];
 
     private static async Task<IHost> CreateHostAsync(
@@ -392,10 +393,12 @@ public class ReportsControllerTests
         Assert.Equal(2, body.Count);
         Assert.Equal("Salário", body[0].GetProperty("description").GetString());
         Assert.Equal("Salário", body[0].GetProperty("categoryName").GetString());
+        Assert.Equal("#1E88E5", body[0].GetProperty("color").GetString());
         Assert.Equal("in", body[0].GetProperty("type").GetString());
         Assert.Equal(8000m, body[0].GetProperty("amount").GetDecimal());
         Assert.Equal(new DateTime(2026, 9, 5, 0, 0, 0, DateTimeKind.Utc), body[0].GetProperty("date").GetDateTime());
         Assert.Equal(JsonValueKind.Null, body[1].GetProperty("description").ValueKind);
+        Assert.Equal("#43A047", body[1].GetProperty("color").GetString());
         Assert.Equal("out", body[1].GetProperty("type").GetString());
         Assert.Equal(50m, body[1].GetProperty("amount").GetDecimal());
     }

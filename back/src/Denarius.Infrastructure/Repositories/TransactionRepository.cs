@@ -124,13 +124,13 @@ public class TransactionRepository(DenariusDbContext context) : Repository<Trans
         return expenses.Select(e => (new DateOnly(e.Year, e.Month, e.Day), e.Expense)).ToList();
     }
 
-    public async Task<IEnumerable<(Transaction Transaction, string CategoryName)>> GetWithCategoryNameAsync(DateOnly from, DateOnly to)
+    public async Task<IEnumerable<(Transaction Transaction, Category Category)>> GetWithCategoryAsync(DateOnly from, DateOnly to)
     {
         var transactions = await DatedBetween(from, to)
-            .Join(Context.Set<Category>(), t => t.CategoryId, c => c.Id, (t, c) => new { Transaction = t, CategoryName = c.Name })
+            .Join(Context.Set<Category>(), t => t.CategoryId, c => c.Id, (t, c) => new { Transaction = t, Category = c })
             .ToListAsync();
 
-        return transactions.Select(t => (t.Transaction, t.CategoryName)).ToList();
+        return transactions.Select(t => (t.Transaction, t.Category)).ToList();
     }
 
     /// <summary>Transaction dates are calendar days, stored as their UTC midnight.</summary>
