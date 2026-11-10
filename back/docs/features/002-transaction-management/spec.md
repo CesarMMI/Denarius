@@ -1,334 +1,71 @@
-# Especificação da feature: Gestão de transações
+# Gestão de transações
 
-**Branch da feature**: `002-transaction-management`
+## Objetivo
 
-**Criada em**: 2026-09-22
+Registrar, listar, editar e excluir transações financeiras, cada uma ligada a exatamente uma [categoria](../001-category-management/spec.md), e encontrar uma transação ou entender para onde foi o dinheiro filtrando e ordenando a lista. Entidade em [docs/dominio/transacao.md](../../dominio/transacao.md).
 
-**Status**: Rascunho
+## Cenários
 
-**Entrada**: Descrição do usuário: "Especificação retroativa da capacidade existente de gestão de
-transações — criar, visualizar, listar, editar e excluir transações financeiras, cada uma ligada a
-exatamente uma categoria — derivada da implementação atual
-(Denarius.Domain/Denarius.Application/Denarius.Infrastructure/Denarius.WebAPI) e da sua suíte de
-testes automatizados. Segue a mesma abordagem retroativa já usada em 001-category-management: a
-spec deve documentar o comportamento atual verificado, e não propor trabalho novo."
+1. **Dado que** existe uma categoria, **quando** o usuário registra uma transação com data, valor e essa categoria, **então** ela aparece com esses dados.
+2. **Dado que** existe uma transação, **quando** o usuário muda descrição, data, valor ou categoria, **então** ela mostra os novos dados em todos os lugares onde aparece.
+3. **Dado que** existe uma transação, **quando** o usuário a exclui, **então** ela deixa de aparecer na lista.
+4. **Dado** valor zero, nenhuma data, descrição com mais de 255 caracteres ou categoria inexistente, **quando** o usuário cria ou edita, **então** a solicitação é rejeitada com uma explicação clara. Uma descrição em branco é salva como "sem descrição", e não rejeitada.
+5. **Dado que** várias transações foram registradas, **quando** a lista é exibida, **então** todas aparecem com data, valor, categoria e descrição, das mais recentes para as mais antigas; sem transações, a lista vem vazia.
+6. **Dado** transações variadas, **quando** o usuário busca por parte da descrição, escolhe um mês, "entradas" ou "saídas" ou uma categoria, **então** só aparecem as que atendem a todos os filtros pedidos.
+7. **Dado** transações variadas, **quando** o usuário ordena por data, descrição, valor ou nome da categoria, em ordem crescente ou decrescente, **então** a lista segue a ordem pedida, com o alfabeto do português do Brasil nos textos (FR-018).
+8. **Dado** a transação "Farmácia São João", **quando** o usuário busca "farmacia sao", "FARMÁCIA" ou "  são joão  ", **então** ela aparece; a busca "padariá" encontra "Padaria", "acai" e "AÇAÍ" encontram "Açaí", e "farma" encontra "Farmácia" mas não "Mercado".
+9. **Dado** um texto buscado com `%`, `_` ou `\`, **quando** a lista é pedida, **então** esses caracteres são procurados como texto, e não como curingas.
+10. **Dado** transações com as descrições "Banana", "Água", "agua", "água" e "Agua", **quando** o usuário ordena por descrição crescente, **então** a ordem é "agua", "Agua", "água", "Água", "Banana", e a decrescente é a inversa.
+11. **Dado** transações às 00:00 do dia 1 e às 23:59:59,999 do último dia de um mês, **quando** o usuário filtra esse mês, **então** as duas aparecem, e a primeira não aparece no mês anterior.
+12. Casos-limite: busca ou combinação sem resultado, ou com categoria inexistente, devolve lista vazia, e não erro; busca em branco equivale a "sem busca" e os espaços das pontas são ignorados; transação sem descrição nunca aparece numa busca por descrição; tipo ou campo de ordenação desconhecido, ou identificador de categoria malformado, é rejeitado com explicação, e não ignorado.
 
-**Atualizada em**: 2026-09-24 — História de usuário 3 (filtrar e ordenar a lista de transações)
-adicionada junto com a sua implementação: filtros por descrição, mês (com o mesmo significado de
-[[001-category-management]]), tipo (todas/entradas/saídas) e categoria; ordenação por data
-(padrão), descrição, valor ou nome da categoria.
+## Requisitos
 
-**Alteração (2026-10-11)**: Pedido do usuário: "Levar os filtros e a ordenação da listagem de transações (description,
-dateRef, type, categoryId, orderBy, asc) para a consulta no banco, em vez de carregar todas as transações e filtrar em
-memória. A busca por descrição passa a ignorar também acentos (além de maiúsculas/minúsculas e espaços das pontas, que
-já ignora), igual à busca de categorias por nome corrigida em `back/bugs/busca-de-nome-diferencia-maiusculas`. O formato
-da resposta e os demais comportamentos (ordenação, desempates, filtros) não mudam." Decisões do usuário em 2026-10-11: a
-ordem alfabética é a do português do Brasil, igual em qualquer ambiente, com acentos e maiúsculas só desempatando; o mês
-vai do início do mês, inclusive, ao início do mês seguinte, exclusive; a listagem de categorias fica fora. Mudaram o
-FR-013 e o FR-018, o cenário 1 e o cenário 6 da história 3, os casos-limite do mês e da busca, a premissa do mês e a
-premissa da lista sem paginação. São novos: os cenários 7 a 10 da história 3, a história 4, os FR-019 a FR-021 e os
-SC-007 a SC-010. Os FR-014 a FR-017 continuam como estão.
-
-## Clarificações
-
-### Sessão 2026-10-11
-
-- Q: Qual regra de ordem alfabética a lista segue para descrições e nomes de categoria, qualquer que seja o servidor ou o banco? → A: Alfabética do português do Brasil (pt-BR); acentos e maiúsculas só desempatam.
-
-## Cenários de usuário e testes *(obrigatório)*
-
-### História de usuário 1 - Registrar e manter transações individuais (Prioridade: P1)
-
-Como alguém que acompanha as finanças pessoais, quero registrar uma transação com data, valor e
-categoria — e uma observação opcional — e depois editá-la ou removê-la, para manter um registro
-fiel do dinheiro que recebi ou gastei.
-
-**Por que esta prioridade**: Nada mais nesta feature é possível enquanto não der para registrar
-uma transação. É o mínimo necessário para que o controle de transações tenha alguma utilidade, e
-é o que dá às categorias de [[001-category-management]] algo a que se vincular.
-
-**Teste independente**: Pode ser testada por completo criando uma transação numa categoria
-existente, confirmando que ela aparece com a data/valor/categoria/descrição escolhidos, editando-a
-e excluindo-a — sem precisar de nenhuma outra transação.
-
-**Cenários de aceitação**:
-
-1. **Dado que** existe uma categoria, **Quando** o usuário registra uma transação com data, valor
-   e essa categoria, **Então** a transação aparece com esses dados.
-2. **Dado que** existe uma transação, **Quando** o usuário muda a sua descrição, data, valor ou
-   categoria, **Então** a transação mostra os novos dados em todos os lugares onde aparece.
-3. **Dado que** existe uma transação, **Quando** o usuário a exclui, **Então** ela deixa de
-   aparecer na lista de transações.
-4. **Dado que** o usuário informa valor zero, nenhuma data, uma descrição com mais de 255
-   caracteres ou uma categoria inexistente, **Quando** tenta criar ou editar uma transação,
-   **Então** a solicitação é rejeitada com uma explicação clara do que está errado.
-5. **Dado que** o usuário deixa a descrição em branco, **Quando** cria ou edita uma transação,
-   **Então** a transação é salva sem descrição, em vez de ser rejeitada.
-
----
-
-### História de usuário 2 - Revisar as transações registradas (Prioridade: P2)
-
-Como alguém que revisa as próprias finanças, quero ver todas as transações que registrei, para
-conferir o histórico de gastos e de receitas num só lugar.
-
-**Por que esta prioridade**: Registrar transações (História 1) vale pouco se elas nunca puderem
-ser revisadas depois. Depende da História 1, mas não acrescenta nenhuma ação nova de ciclo de
-vida.
-
-**Teste independente**: Pode ser testada por completo registrando várias transações e confirmando
-que todas aparecem quando a lista de transações é exibida, e que a lista fica vazia quando nenhuma
-foi registrada.
-
-**Cenários de aceitação**:
-
-1. **Dado que** várias transações foram registradas, **Quando** a lista de transações é exibida,
-   **Então** todas as transações registradas aparecem com data, valor, categoria e descrição, das
-   mais recentes para as mais antigas.
-2. **Dado que** nenhuma transação foi registrada, **Quando** a lista de transações é exibida,
-   **Então** aparece uma lista vazia.
-
----
-
-### História de usuário 3 - Filtrar e reordenar a lista de transações (Prioridade: P3)
-
-Como alguém com um histórico longo de transações, quero buscar pela descrição, ver um único mês,
-mostrar só o dinheiro recebido ou só o gasto, mostrar uma única categoria e ordenar por data,
-descrição, valor ou categoria, para encontrar rapidamente uma transação ou entender para onde foi
-o meu dinheiro.
-
-**Por que esta prioridade**: É só um refinamento da navegação numa lista que já funciona (História
-2). Ganha valor quando o histórico cresce, mas não é necessário para a feature ser útil desde o
-primeiro dia — a mesma posição que a história de busca/filtro/ordenação ocupa em
-[[001-category-management]].
-
-**Teste independente**: Pode ser testada por completo registrando várias transações com
-descrições, datas, sinais e categorias variados e confirmando que cada filtro e cada opção de
-ordenação, por si só, filtra ou reordena a lista corretamente, e que a combinação de filtros
-restringe a lista às transações que atendem a todos eles.
-
-**Cenários de aceitação**:
-
-1. **Dado que** existem várias transações, **Quando** o usuário busca por parte de uma descrição,
-   **Então** só aparecem as transações cuja descrição contém esse texto, sem diferenciar
-   maiúsculas de minúsculas nem letras acentuadas das sem acento.
-2. **Dado que** existem transações com datas em meses diferentes, **Quando** o usuário escolhe um
-   mês, **Então** só aparecem as transações com data dentro desse mês do calendário.
-3. **Dado que** foram registrados tanto dinheiro recebido quanto dinheiro gasto, **Quando** o
-   usuário escolhe "entradas" ou "saídas", **Então** só aparecem as transações positivas ou só as
-   negativas; escolher "todas" mostra as duas.
-4. **Dado que** existem transações em várias categorias, **Quando** o usuário escolhe uma
-   categoria, **Então** só aparecem as transações dessa categoria.
-5. **Dado que** o usuário aplica vários filtros ao mesmo tempo, **Quando** a lista é exibida,
-   **Então** só aparecem as transações que atendem a todos os filtros.
-6. **Dado que** existem transações com datas, descrições, valores e categorias diferentes,
-   **Quando** o usuário ordena por data, descrição, valor ou nome da categoria (em ordem crescente
-   ou decrescente), **Então** a lista é ordenada de acordo, na ordem alfabética do português do
-   Brasil para descrição e nome da categoria (FR-018).
-7. **Dado que** existe uma transação "Farmácia São João", **Quando** o usuário busca "farmacia sao", "FARMÁCIA" ou
-   "  são joão  ", **Então** ela aparece na lista; e **Dado que** existe uma transação "Padaria", **Quando** busca
-   "padariá", **Então** ela aparece.
-8. **Dado que** existem transações "Farmácia" e "Mercado", **Quando** o usuário busca "farma", **Então** só "Farmácia"
-   aparece.
-9. **Dado que** existe uma transação "Açaí", **Quando** o usuário busca "acai" ou "AÇAÍ", **Então** ela aparece na
-   lista: "ç" casa com "c", e uma letra acentuada maiúscula casa com a minúscula.
-10. **Dado que** o usuário busca um texto com `%`, `_` ou `\`, **Quando** a lista é pedida, **Então** esses caracteres
-    são procurados como texto, e não como curingas.
-
----
-
-### História de usuário 4 - Lista que não fica mais lenta com o histórico (Prioridade: P4)
-
-Como alguém que registra transações há anos, quero que a lista de um mês, de um tipo ou de uma categoria responda tão
-rápido quanto hoje, mesmo com muito mais transações em outros meses.
-
-**Por que esta prioridade**: Hoje a lista lê todo o histórico a cada pedido, então ela fica mais lenta a cada mês
-registrado, mesmo quando o usuário só quer ver um mês. O resultado não muda; muda o custo de obtê-lo.
-
-**Teste independente**: Com o mesmo conjunto de transações, comparar a lista antes e depois da mudança para cada filtro
-e cada ordenação: o conteúdo e a ordem devem ser iguais (fora a busca sem acentos e a ordem alfabética do FR-018), e o
-tempo deve atender ao SC-008.
-
-**Cenários de aceitação**:
-
-1. **Dado** transações em vários meses, tipos e categorias, **Quando** o usuário combina mês, tipo, categoria e busca,
-   **Então** aparecem só as transações que atendem a todos os filtros, como hoje.
-2. **Dado** qualquer combinação de filtros, **Quando** o usuário pede a lista ordenada por data, descrição, valor ou nome
-   da categoria, em ordem crescente ou decrescente, **Então** a ordem é a de hoje, inclusive nos desempates: pela data e
-   depois pelo horário de criação, ambos decrescentes, exceto na ordenação por data crescente, em que os desempates
-   também são crescentes.
-3. **Dado** transações com e sem descrição, **Quando** o usuário ordena por descrição, **Então** as sem descrição ficam
-   no início na ordem crescente e no fim na decrescente, como hoje.
-4. **Dado** nenhum filtro, **Quando** o usuário pede a lista, **Então** todas as transações aparecem, das mais recentes
-   para as mais antigas, como hoje.
-5. **Dado** transações com as descrições "Banana", "Água", "agua", "água" e "Agua", **Quando** o usuário ordena por
-   descrição crescente, **Então** a ordem é "agua", "Agua", "água", "Água", "Banana", e a decrescente é a inversa
-   (FR-018).
-6. **Dado** transações às 00:00 do dia 1 e às 23:59:59,999 do último dia de um mês, **Quando** o usuário filtra esse
-   mês, **Então** as duas aparecem, e a primeira não aparece no filtro do mês anterior.
-
----
-
-### Casos-limite
-
-- Um valor de transação exatamente zero é rejeitado de imediato, tanto na criação quanto na
-  edição; fora isso, um valor negativo (dinheiro gasto) ou positivo (dinheiro recebido) é aceito
-  sem restrição.
-- Uma transação sem data (ou com uma data padrão/não definida) é rejeitada de imediato, tanto na
-  criação quanto na edição.
-- Uma descrição em branco ou só com espaços não é rejeitada — é tratada como "sem descrição", e
-  não como erro.
-- Espaços no início e no fim de uma descrição informada são removidos automaticamente.
-- Uma descrição com mais de 255 caracteres é rejeitada de imediato, tanto na criação quanto na
-  edição.
-- Criar ou editar uma transação numa categoria inexistente é rejeitado com um resultado claro de
-  "não encontrada" para a categoria, tanto na criação quanto na edição.
-- Visualizar, editar ou excluir uma transação que não existe (ou que já foi excluída) é rejeitado
-  com um resultado claro de "não encontrada".
-- A exclusão de uma transação nunca é bloqueada por outros dados — hoje, nada depende de uma
-  transação do jeito que as transações dependem das categorias.
-- Uma busca ou combinação de filtros sem nenhum resultado devolve uma lista vazia, e não um erro;
-  uma categoria inexistente no filtro também devolve uma lista vazia.
-- Uma busca por descrição em branco ou só com espaços é tratada como "sem busca", e os espaços no
-  início e no fim do texto buscado são ignorados.
-- Uma transação sem descrição nunca aparece numa busca por descrição.
-- Um mês informado por qualquer dia dele (por exemplo, o dia 15) mantém só as transações daquele mês do calendário:
-  desde as 00:00 do dia 1, inclusive, até as 00:00 do dia 1 do mês seguinte, exclusive. Uma transação às 00:00 do dia 1
-  é do mês dele, e nunca do anterior; uma às 23:59:59,999 do último dia é do mês dele.
-- Descrições que só diferem por acentos ou maiúsculas ("Farmacia" e "farmácia") ficam juntas na ordenação, na ordem
-  definida no FR-018.
-- A ordenação por valor usa o valor com sinal, então a ordem crescente põe a maior despesa
-  primeiro e a decrescente põe a maior receita primeiro.
-- Pedir um tipo ou campo de ordenação desconhecido, ou um identificador de categoria malformado, é
-  rejeitado com uma explicação clara, em vez de ser ignorado em silêncio.
-
-## Requisitos *(obrigatório)*
-
-### Requisitos funcionais
-
-- **FR-001**: O sistema DEVE permitir que o usuário crie uma transação informando data, valor e
-  categoria, com uma descrição opcional.
-- **FR-002**: O sistema DEVE rejeitar um valor de transação igual a zero, explicando o que está
-  errado.
-- **FR-003**: O sistema DEVE permitir que o valor da transação seja positivo (dinheiro recebido)
-  ou negativo (dinheiro gasto).
+- **FR-001**: O sistema DEVE permitir criar uma transação informando data, valor e categoria, com descrição opcional.
+- **FR-002**: O sistema DEVE rejeitar um valor igual a zero, explicando o que está errado.
+- **FR-003**: O valor DEVE poder ser positivo (dinheiro recebido) ou negativo (dinheiro gasto).
 - **FR-004**: O sistema DEVE rejeitar uma transação sem data, explicando o que está errado.
-- **FR-005**: O sistema DEVE rejeitar uma transação que referencie uma categoria inexistente,
-  explicando o que está errado.
-- **FR-006**: O sistema DEVE remover os espaços nas pontas da descrição informada e tratar uma
-  descrição em branco ou só com espaços como ausência de descrição, em vez de rejeitá-la.
-- **FR-007**: O sistema DEVE rejeitar uma descrição com mais de 255 caracteres, explicando o que
-  está errado.
-- **FR-008**: O sistema DEVE permitir que o usuário veja os detalhes de uma transação específica.
-- **FR-009**: O sistema DEVE permitir que o usuário veja a lista completa de transações
-  registradas.
-- **FR-010**: O sistema DEVE permitir que o usuário edite a descrição, a data, o valor e/ou a
-  categoria de uma transação a qualquer momento, com a mesma validação da criação.
-- **FR-011**: O sistema DEVE permitir que o usuário exclua uma transação de forma definitiva, sem
-  restrição baseada em outros dados.
-- **FR-012**: O sistema DEVE rejeitar qualquer tentativa de visualizar, editar ou excluir uma
-  transação inexistente, com um resultado claro de "não encontrada".
-- **FR-013**: O sistema DEVE permitir que o usuário busque na lista de transações por parte da
-  descrição, sem diferenciar maiúsculas de minúsculas nem letras acentuadas das sem acento, depois de remover os
-  espaços das pontas do texto buscado. Todos os caracteres do texto buscado, inclusive `%`, `_` e `\`, são tratados
-  como texto, sem curingas.
-- **FR-014**: O sistema DEVE permitir que o usuário restrinja a lista de transações a um único mês
-  do calendário.
-- **FR-015**: O sistema DEVE permitir que o usuário restrinja a lista de transações a todas as
-  transações, só ao dinheiro recebido (valor positivo) ou só ao dinheiro gasto (valor negativo).
-- **FR-016**: O sistema DEVE permitir que o usuário restrinja a lista de transações a uma única
-  categoria.
-- **FR-017**: O sistema DEVE aplicar juntos todos os filtros pedidos, mostrando só as transações
-  que atendem a todos eles.
-- **FR-018**: O sistema DEVE permitir que o usuário ordene a lista de transações por data,
-  descrição, valor ou nome da categoria, em ordem crescente ou decrescente, com o padrão data em
-  ordem decrescente (mais recentes primeiro). A direção, os desempates (pela data e depois pelo horário de criação,
-  ambos decrescentes, exceto na ordenação por data crescente, em que também são crescentes) e a posição das
-  transações sem descrição (no início da ordem crescente e no fim da decrescente) continuam como estão. A ordem
-  alfabética das descrições e dos nomes de categoria DEVE ser a do português do Brasil e a mesma em qualquer ambiente
-  em que a API rode, em vez de depender da configuração da máquina: compara-se primeiro sem acentos e sem diferenciar
-  maiúsculas; em seguida, a letra sem acento vem antes da acentuada; por fim, a minúscula vem antes da maiúscula.
-  Assim, na ordem crescente: "agua", "Agua", "água", "Água", "Banana". Só textos idênticos caem nos desempates de data
-  e de criação.
-- **FR-019**: A lista filtrada por mês, por categoria ou por ambos NÃO DEVE ter o tempo de resposta dependente da
-  quantidade de transações de outros meses ou categorias. A busca por descrição e o filtro por tipo avaliam só as
-  transações que passaram pelos outros filtros presentes; quando são os únicos filtros, avaliam todas, e o tempo cresce
-  com o total (o plan decide se algum índice se justifica). A ordenação por nome da categoria exige juntar as duas
-  tabelas e não tem meta de tempo própria.
-- **FR-020**: Os parâmetros aceitos e as respostas de erro da lista NÃO DEVEM mudar, nem o formato da resposta nem o
-  conjunto de transações devolvido, salvo o FR-013 e o limite do mês das premissas, que só difere de antes para uma
-  transação com fração de segundo no último instante do mês. O contrato da lista é republicado em `contracts/`, na versão 1.3.0
-  (aditiva), dizendo que a busca também ignora acentos e qual é a regra de ordem alfabética. A ordem alfabética passa
-  a ser deliberadamente independente do ambiente, e a diferença para a de antes, onde houver, é consequência do
-  FR-018, e não uma quebra de compatibilidade.
-- **FR-021**: Nenhum parâmetro novo é aceito, a validação de entrada atual se mantém, e o texto buscado e as descrições
-  das transações NÃO DEVEM ser registrados em log.
+- **FR-005**: O sistema DEVE rejeitar uma transação que referencie uma categoria inexistente, explicando o que está errado.
+- **FR-006**: O sistema DEVE remover os espaços nas pontas da descrição e tratar uma descrição em branco ou só com espaços como ausência de descrição, em vez de rejeitá-la.
+- **FR-007**: O sistema DEVE rejeitar uma descrição com mais de 255 caracteres, explicando o que está errado.
+- **FR-008**: ~~Ver os detalhes de uma transação específica.~~ Retirado em `085573b`: `GET /api/transactions/{id}` não existe mais, porque o front edita a partir dos dados da lista. O número fica reservado.
+- **FR-009**: O sistema DEVE permitir ver a lista completa das transações registradas.
+- **FR-010**: O sistema DEVE permitir editar descrição, data, valor e/ou categoria a qualquer momento, com a mesma validação da criação.
+- **FR-011**: O sistema DEVE permitir excluir uma transação de forma definitiva, sem restrição baseada em outros dados.
+- **FR-012**: O sistema DEVE rejeitar editar ou excluir uma transação inexistente (ou já excluída), com um resultado claro de "não encontrada".
+- **FR-013**: O sistema DEVE permitir buscar na lista por parte da descrição, sem diferenciar maiúsculas de minúsculas nem acentos, depois de remover os espaços das pontas do texto. Todos os caracteres do texto, inclusive `%`, `_` e `\`, valem como texto, sem curingas.
+- **FR-014**: O sistema DEVE permitir restringir a lista a um único mês do calendário.
+- **FR-015**: O sistema DEVE permitir restringir a lista a todas as transações, só ao dinheiro recebido (valor positivo) ou só ao gasto (valor negativo).
+- **FR-016**: O sistema DEVE permitir restringir a lista a uma única categoria.
+- **FR-017**: O sistema DEVE aplicar juntos todos os filtros pedidos, mostrando só as transações que atendem a todos.
+- **FR-018**: O sistema DEVE permitir ordenar a lista por data, descrição, valor ou nome da categoria, crescente ou decrescente, com padrão data decrescente. Os desempates (data e depois horário de criação, ambos decrescentes, exceto na ordenação por data crescente, em que também são crescentes) e a posição das transações sem descrição (início da ordem crescente, fim da decrescente) são fixos. A ordem alfabética de descrições e nomes de categoria DEVE ser a do português do Brasil e a mesma em qualquer ambiente, em vez de depender da configuração da máquina: compara-se primeiro sem acentos e sem diferenciar maiúsculas; depois a letra sem acento vem antes da acentuada; por fim, a minúscula antes da maiúscula. Só textos idênticos caem nos desempates.
+- **FR-019**: A lista filtrada por mês, por categoria ou por ambos NÃO DEVE ter o tempo de resposta dependente da quantidade de transações de outros meses ou categorias. A busca por descrição e o filtro por tipo avaliam só as transações que passaram pelos outros filtros presentes; quando são os únicos filtros, avaliam todas, e o tempo cresce com o total. A ordenação por nome da categoria exige juntar as duas tabelas e não tem meta de tempo própria.
+- **FR-020**: Os parâmetros aceitos e as respostas de erro da lista NÃO DEVEM mudar, nem o formato da resposta nem o conjunto de transações devolvido, salvo o FR-013 e o limite do mês das regras abaixo. A ordem alfabética do FR-018 é deliberadamente independente do ambiente: a diferença para a de antes, onde houver, é consequência dele, e não quebra de compatibilidade. O contrato da lista é republicado em `contracts/` (1.3.0, aditivo), dizendo que a busca ignora acentos e qual é a regra de ordem alfabética.
+- **FR-021**: Nenhum parâmetro novo é aceito, a validação de entrada atual se mantém, e o texto buscado e as descrições NÃO DEVEM ser registrados em log.
 
-### Entidades principais *(inclua se a feature envolver dados)*
+## Regras de negócio e erros
 
-- **Transação**: Uma movimentação de dinheiro registrada, com data, valor (positivo ou negativo),
-  referência obrigatória a uma categoria, descrição opcional e as datas de criação e da última
-  atualização.
-- **Categoria** *(entidade existente, de [[001-category-management]])*: Cada transação pertence a
-  exatamente uma categoria, que já precisa existir quando a transação é criada ou muda de
-  categoria.
+- Campos, limites e o tipo pelo sinal do valor estão em [docs/dominio/transacao.md](../../dominio/transacao.md), inclusive a faixa e a escala do valor (corrigidas em [valor-sem-faixa-e-escala](../../bugs/valor-sem-faixa-e-escala/fix.md)).
+- Categoria inexistente na criação ou na edição, e transação inexistente na edição ou na exclusão, respondem "não encontrada". A exclusão nunca é bloqueada: nada depende de uma transação.
+- "Mês" é sempre o mês do calendário inteiro, escolhido por qualquer data dentro dele, do início do mês (inclusive) ao início do seguinte (exclusive), com o mesmo significado do recorte das categorias. Uma transação às 23:59:59,999 do último dia é do mês dele; só uma com fração de segundo além disso muda de mês em relação ao comportamento anterior.
+- "Entradas" e "saídas" derivam do sinal do valor; não há tipo armazenado. A ordenação por valor usa o valor com sinal: a crescente põe a maior despesa primeiro.
+- A ordenação por categoria usa o nome atual dela, então renomear uma categoria muda a posição das suas transações.
+- Ignorar acentos vale só para a busca; na ordenação eles só desempatam. A lista não é paginada (volume de finanças pessoais, de centenas a poucos milhares por ano).
 
-## Critérios de sucesso *(obrigatório)*
+## Critérios de sucesso
 
-### Resultados mensuráveis
+- **SC-001**: O usuário registra uma transação utilizável (data, valor, categoria) em um único passo, e ela aparece imediatamente na lista.
+- **SC-002**: 100% das transações trazem, diretamente, a informação de serem dinheiro recebido ou gasto.
+- **SC-003**: O usuário remove de forma definitiva qualquer transação com uma única ação, sem recusa inesperada.
+- **SC-004**: O usuário revisa todo o histórico numa única solicitação, sem paginação nem consulta manual.
+- **SC-005**: 100% das tentativas de registrar uma transação numa categoria inexistente, ou movê-la para uma, são rejeitadas com explicação.
+- **SC-006**: O usuário vê tudo o que gastou numa categoria durante um mês numa única solicitação.
+- **SC-007**: Todas as buscas dos cenários 8 a 10 encontram exatamente as transações esperadas.
+- **SC-008**: Com 10.000 transações, das quais 200 no mês pedido e 200 na categoria pedida, a lista desse mês e a dessa categoria respondem, cada uma, pelo menos 5 vezes mais rápido que antes da alteração de 2026-10-11, medindo antes e depois no mesmo ambiente, com os mesmos dados e a mediana de 20 requisições. Não há teto absoluto de tempo.
+- **SC-009**: Para o mesmo conjunto de transações, cada combinação de filtro e ordenação coberta pelos testes de antes da alteração devolve o mesmo conteúdo, na mesma ordem, antes e depois, exceto o que o FR-013, o limite do mês e a ordem alfabética do FR-018 alteram de propósito.
+- **SC-010**: Nenhum consumidor da API precisa mudar: requisições e respostas da lista mantêm o formato.
 
-- **SC-001**: O usuário consegue registrar uma transação utilizável (data, valor, categoria) em um
-  único passo, e ela aparece imediatamente na sua lista de transações.
-- **SC-002**: O usuário consegue saber se qualquer transação registrada foi dinheiro recebido ou
-  gasto sem nenhuma consulta adicional — 100% das transações trazem essa informação diretamente.
-- **SC-003**: O usuário consegue remover de forma definitiva qualquer transação que não queira mais
-  com uma única ação, sem recusa inesperada.
-- **SC-004**: O usuário consegue revisar todo o histórico de transações registradas numa única
-  solicitação, sem paginação nem consulta manual.
-- **SC-005**: Tentar registrar uma transação numa categoria inexistente, ou movê-la para uma, nunca
-  dá certo em silêncio — 100% dessas tentativas são rejeitadas com uma explicação.
-- **SC-006**: O usuário consegue ver tudo o que gastou numa categoria durante um mês numa única
-  solicitação, sem cruzar o histórico completo à mão.
-- **SC-007**: Todas as buscas dos cenários 7 a 10 da história 3 encontram exatamente as transações esperadas.
-- **SC-008**: Com 10.000 transações registradas, das quais 200 no mês pedido e 200 na categoria pedida, a lista desse
-  mês e a dessa categoria respondem, cada uma, pelo menos 5 vezes mais rápido que antes da alteração de 2026-10-11,
-  medindo antes e depois no mesmo ambiente, com os mesmos dados e a mediana de 20 requisições. A medida de antes é
-  tomada antes de alterar o código e registrada no plan. Não há teto absoluto de tempo: por decisão do usuário em
-  2026-10-11, vale só a razão de 5 vezes.
-- **SC-009**: Para o mesmo conjunto de transações, cada combinação de filtro e ordenação coberta pelos testes de antes
-  da alteração devolve o mesmo conteúdo, na mesma ordem, antes e depois, exceto o que o FR-013, o limite do mês das
-  premissas e a ordem alfabética do
-  FR-018 alteram de propósito.
-- **SC-010**: Nenhum consumidor da API precisa mudar: as requisições e as respostas da lista continuam com o mesmo
-  formato.
+## Fora de escopo
 
-## Premissas
-
-Estas premissas documentam o comportamento atual e verificado da capacidade (esta é uma spec
-retroativa), e não padrões em aberto escolhidos para uma feature nova:
-
-- A lista de transações permite busca, filtro e ordenação (História de usuário 3), mas não é
-  paginada — todas as transações que atendem aos filtros vêm juntas. O volume é o de finanças pessoais, de centenas a
-  poucos milhares de transações por ano; o SC-008 usa 10.000 como folga sobre esse volume.
-- Um "mês", no filtro, é sempre um mês do calendário inteiro (do início do mês, inclusive, ao início do mês seguinte,
-  exclusive), escolhido informando qualquer data dentro dele — o mesmo significado que
-  [[001-category-management]] usa no recorte do uso das categorias.
-- Ignorar acentos vale só para a busca; na ordenação, os acentos só desempatam (FR-018).
-- A listagem de categorias, que também lê todas as transações para calcular quantidade e saldo, ordena os nomes pela
-  configuração da máquina, e a de transações passa a ordenar pela regra fixa do FR-018. A diferença é dívida conhecida,
-  candidata à feature própria que levar a listagem de categorias ao banco.
-- A exceção da lista de transações registrada no `back/AGENTS.md` ("as listagens [...] ainda filtram em memória") é
-  atualizada pelo `/speckit-constitution` ao fim da alteração de 2026-10-11.
-- O front não muda de comportamento. A spec 003 do front, que registra a busca por descrição como diferenciando
-  acentos, é atualizada pelo fluxo do front depois da alteração, com a aprovação do usuário.
-- "Entradas" e "saídas" são derivadas do sinal do valor; nenhum tipo de transação é armazenado à
-  parte.
-- A ordenação por categoria usa o nome atual da categoria, então renomear uma categoria muda a
-  posição das suas transações nessa ordenação.
-- Uma transação pode ser movida para qualquer categoria existente a qualquer momento, pela edição;
-  não há restrição análoga à proteção de exclusão das categorias, porque hoje nada depende de uma
-  transação do jeito que as transações dependem das categorias.
-- Não há campo de moeda — supõe-se que todos os valores estão numa única moeda implícita, como no
-  resto da aplicação.
-- Quem pode gerenciar as transações (um único usuário ou vários usuários/contas, permissões) está
-  fora do escopo — esta spec supõe o mesmo modelo de uso single-tenant do resto da aplicação.
+- Moeda (todos os valores estão numa única moeda implícita) e quem pode gerenciar as transações (uso single-tenant, como no resto da aplicação).
+- A spec 003 do front ainda registra a busca por descrição como diferenciando acentos; atualizá-la é do fluxo do front, com aprovação do usuário.
