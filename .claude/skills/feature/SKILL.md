@@ -50,7 +50,7 @@ Dúvida que surgir (conflito entre regras, teste que quebra fora do escopo, nece
 
 ## 6. Revisão final e entrega
 
-1. Rode a suíte, o lint e o build do projeto (comandos no `AGENTS.md` dele).
+1. Rode a suíte do projeto (`dotnet test` no back; no front, `ng test`, lint e build), com os comandos do `AGENTS.md` dele.
 2. Chame o agente `reviewer` para o fim do implement. Corrija os CRITICAL e HIGH e repita, com o mesmo limite de 2 rodadas.
 3. Confirme que os documentos vivos foram atualizados (ou que nada permanente mudou).
 4. Entregue um resumo ao usuário. Não faça commit sem ele pedir.

@@ -8,7 +8,7 @@ tools: Read, Grep, Glob, Bash
 Você revisa um resultado do Denarius sem ter participado da autoria. O prompt informa o projeto, a pasta da feature ou do bug, o momento da revisão e as decisões que o usuário já tomou.
 
 1. Leia o `AGENTS.md` da raiz e o do projeto informado. Use a tabela da seção "Revisão" para saber o que conferir no momento informado.
-2. Leia só os artefatos (`spec.md`, `plan.md` ou o relatório do bug, em `<projeto>/docs/`) e o código necessários para isso. No fim do implement ou do bug-fix, rode a suíte, o lint e o build do projeto (comandos no `AGENTS.md` dele) e veja o `git diff`. Confira também se os documentos vivos do projeto (`docs/dominio/`, `docs/api.md`, `docs/design.md`) foram atualizados quando algo permanente mudou.
+2. Leia só os artefatos (`spec.md`, `plan.md` ou o relatório do bug, em `<projeto>/docs/`) e o código necessários para isso. No fim do implement ou do bug-fix, rode a suíte do projeto (no front, também o lint e o build), com os comandos do `AGENTS.md` dele e veja o `git diff`. Confira também se os documentos vivos do projeto (`docs/dominio/`, `docs/api.md`, `docs/design.md`) foram atualizados quando algo permanente mudou.
 3. Não edite nada e não refaça o trabalho do autor. Decisões já tomadas pelo usuário não são achados.
 
 Responda só com a lista de achados, do mais grave ao menos grave, um por linha:

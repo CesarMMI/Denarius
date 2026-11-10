@@ -7,7 +7,7 @@ Plano retroativo: documenta a arquitetura já entregue em `front/src/app/categor
 ## Conferência com as regras
 
 - Organização (F1): `categories/` com `pages/`, `components/`, `services/`, `types/` e `testing/`; URLs só nos services; a página guarda o estado e orquestra diálogo e mensagens; tabela, filtros e formulário não fazem HTTP. **Exceção aprovada pelo usuário**: o `CategoryForm` injeta o `ColorsService`, cujo `httpResource` (`providedIn: 'root'`) busca a paleta estática `public/data/default-colors.json` na primeira abertura do diálogo (`category-form.ts`, `colors.service.ts`); a paleta não é a API, e o service faz o papel de cache (SC-009); a alternativa, a página buscar a paleta e passá-la ao diálogo, a carregaria antes da hora. Também vale a exceção de `transactions/` (importa `categories.service.ts`, `types/category.ts` e `testing/category-fixture.ts`), registrada no [plan da 003](../002-transacoes/plan.md), até um ciclo de refatoração mover isso para `shared/`.
-- Contrato (F2 e IV): só os endpoints de categorias de `back/docs/api.md` e do contrato; `types/category.ts` espelha `CategoryOutput` (oito campos) e `CategoryInput`. O contrato ainda documenta `dateRef` como `format: date-time`, quando o back aceita e testa só `YYYY-MM-DD`, que é o que o front envia (`categories.service.ts`): erro de documentação no back, sem efeito no front.
+- Contrato (F2 e IV): só os endpoints de categorias de `back/docs/api.md` e do contrato; `types/category.ts` espelha `CategoryOutput` (oito campos) e `CategoryInput`. O contrato ainda documenta `dateRef` como `format: date-time`, e o front envia só `YYYY-MM-DD` (`categories.service.ts`); a API aceita a data sem hora, então não há efeito no front.
 - Rotas (F2): `/categories`, pública e não renomeada; o link da quantidade usa `/transactions?categoryId=<id>`, que a 003 recebe.
 - Banco (F3): nenhuma migration.
 - Material (F4): componentes e tokens do Material em toda a página. Código próprio mínimo: a paleta de botões com `input type="color"` (o Material não tem seletor de cor) e a diretiva `shared/mat-chip-color` (contraste de 7:1, SC-005). Só desktop (diálogo de 400 px).
@@ -39,7 +39,7 @@ Um `*.spec.ts` ao lado de cada arquivo de código (só `categories.routes.ts`, `
 
 ## Riscos
 
-- Desvios ainda abertos, cada um num fluxo de bugs próprio, sem bloquear: link da quantidade sem o mês (FR-004, `categories-table.html`); diálogo que fecha antes da resposta (FR-010, vale também para transações); dia escolhido no `month-field` que não muda o filtro (FR-016, campo compartilhado); `dateRef` como `date-time` no contrato do back.
+- Desvios ainda abertos, cada um num fluxo de bugs próprio, sem bloquear: link da quantidade sem o mês (FR-004, `categories-table.html`); diálogo que fecha antes da resposta (FR-010, vale também para transações); dia escolhido no `month-field` que não muda o filtro (FR-016, campo compartilhado).
 - Trabalho futuro, em ciclos próprios: remover `ColorsService.reload()`, sem uso em produção (`colors.service.ts:15`); mover `Category`, a fixture e a requisição da lista para `shared/` (exceção da F1 acima); uma feature de acessibilidade (pontos da spec). As correções no `shared/month-field` e essa refatoração mexem em peças desta página e precisam rodar os specs de `categories/`.
 
 ## Verificação

@@ -100,7 +100,7 @@ registrada aqui e em [spec.md](./spec.md) → Premissas.
   uso de listagem existentes carregam todas as transações e filtram em memória, o que o pedido
   descarta aqui). Manter as somas no repositório e as regras nos casos de uso deixa os dois
   testáveis: as regras em `Denarius.Application.Tests`, com um repositório substituído, e o SQL na
-  execução do quickstart contra o PostgreSQL. Tuplas nomeadas já aparecem nas assinaturas deste
+  execução da Verificação do `plan.md` contra o PostgreSQL. Tuplas nomeadas já aparecem nas assinaturas deste
   código (o `(Guid Id, UpdateTransactionInput Input)` do `IUpdateTransactionUseCase`) e evitam, em
   `Domain`, tipos de leitura que só essas consultas usariam; o `DateOnly` mantém o "um dia é
   armazenado como a sua meia-noite UTC" dentro de Infrastructure.
@@ -242,7 +242,7 @@ registrada aqui e em [spec.md](./spec.md) → Premissas.
   (`GetUtcNow()` com stub, por exemplo `2026-10-01T02:00Z` para provar o mês em São Paulo); o
   `YearMonth` ganha testes próprios; os testes de controller seguem o `TransactionsControllerTests`
   (fakes escritos à mão, `TestServer`, `AddApplicationPart`). As consultas do repositório são
-  exercitadas de ponta a ponta pelo quickstart, num banco PostgreSQL descartável populado com
+  exercitadas de ponta a ponta pela Verificação do `plan.md`, num banco PostgreSQL descartável populado com
   linhas conhecidas.
 - **Justificativa**: Segue os projetos de teste existentes e o Princípio IV da constituição; não há
   projeto de testes de Infrastructure, e criar um (com banco) está fora do escopo.
@@ -260,8 +260,8 @@ registrada aqui e em [spec.md](./spec.md) → Premissas.
 ### Origem da cor
 
 - **Decisão**: o repositório devolve `(Transaction, Category)`, renomeando `GetWithCategoryNameAsync` para `GetWithCategoryAsync`; o output lê `Category.Name` e `Category.Color.HexCode`.
-- **Motivo**: segue `SumExpensesByCategoryAsync`, que já devolve `Category`; o `Join` já traz a linha da categoria, então o custo é praticamente o mesmo (traz as colunas da categoria, não só o nome), e o quickstart (item 4) é a verificação do SC-003. A cor sai atual a cada consulta (FR-003).
-- **Alternativas**: (a) `(Transaction, string, Color)`: carrega menos colunas, mas foge do padrão de `SumExpensesByCategoryAsync`; fica como opção se a medição do SC-003 reprovar; (b) segunda consulta por categoria: viola SC-003.
+- **Motivo**: segue `SumExpensesByCategoryAsync`, que já devolve `Category`; o `Join` já traz a linha da categoria, então o custo é praticamente o mesmo (traz as colunas da categoria, não só o nome), e o item 7 da Verificação do `plan.md` é a verificação do SC-010. A cor sai atual a cada consulta (FR-020).
+- **Alternativas**: (a) `(Transaction, string, Color)`: carrega menos colunas, mas foge do padrão de `SumExpensesByCategoryAsync`; fica como opção se a medição do SC-010 reprovar; (b) segunda consulta por categoria: viola SC-010.
 
 ### Formato e nulidade
 
@@ -270,9 +270,9 @@ registrada aqui e em [spec.md](./spec.md) → Premissas.
 
 ### Contrato
 
-- **Decisão**: contrato novo em `contracts/monthly-transactions-api.yaml` (só a operação e o schema alterados); o da 003 não é reescrito (FR-005).
+- **Decisão**: contrato novo em `contracts/monthly-transactions-api.yaml` (só a operação e o schema alterados); o da 003 não é reescrito (FR-022).
 - **Alternativa**: editar o da 003: reescreve o contrato de uma feature entregue e perde o histórico.
 
 ### Compatibilidade
 
-- Serialização por propriedade: um cliente que ignora campos desconhecidos continua funcionando (aditivo). Os campos existentes, a ordenação e os status não mudam (FR-004).
+- Serialização por propriedade: um cliente que ignora campos desconhecidos continua funcionando (aditivo). Os campos existentes, a ordenação e os status não mudam (FR-021).

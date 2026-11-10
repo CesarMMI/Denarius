@@ -59,7 +59,7 @@ Registrar, listar, editar e excluir transações financeiras, cada uma ligada a 
 - **SC-004**: O usuário revisa todo o histórico numa única solicitação, sem paginação nem consulta manual.
 - **SC-005**: 100% das tentativas de registrar uma transação numa categoria inexistente, ou movê-la para uma, são rejeitadas com explicação.
 - **SC-006**: O usuário vê tudo o que gastou numa categoria durante um mês numa única solicitação.
-- **SC-007**: Todas as buscas dos cenários 8 a 10 encontram exatamente as transações esperadas.
+- **SC-007**: Todas as buscas dos cenários 8 e 9 encontram exatamente as transações esperadas.
 - **SC-008**: Com 10.000 transações, das quais 200 no mês pedido e 200 na categoria pedida, a lista desse mês e a dessa categoria respondem, cada uma, pelo menos 5 vezes mais rápido que antes da alteração de 2026-10-11, medindo antes e depois no mesmo ambiente, com os mesmos dados e a mediana de 20 requisições. Não há teto absoluto de tempo.
 - **SC-009**: Para o mesmo conjunto de transações, cada combinação de filtro e ordenação coberta pelos testes de antes da alteração devolve o mesmo conteúdo, na mesma ordem, antes e depois, exceto o que o FR-013, o limite do mês e a ordem alfabética do FR-018 alteram de propósito.
 - **SC-010**: Nenhum consumidor da API precisa mudar: requisições e respostas da lista mantêm o formato.
