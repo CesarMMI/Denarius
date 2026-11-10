@@ -25,10 +25,10 @@ formato das datas já estão em pt-BR.
 
 ## Requisitos violados
 
-- `front/docs/features/001-categorias/spec.md`: FR-020 (linhas 476-478), Casos-limite (340-342) e Esclarecimentos
-  (42-46 e 90-91, onde a correção bloqueia a entrega da 001 e da 002).
-- `front/docs/features/002-transacoes/spec.md`: FR-030 (540-544), Casos-limite (383-385) e Esclarecimentos (57-60,
-  110-121). O FR-030 diz que "o conjunto completo desses rótulos é definido no bug-fix desta correção"; esta avaliação
+- `front/docs/features/001-categorias/spec.md`: FR-020 (linha 59), Casos-limite e Esclarecimentos
+  (removidos na conversão; a correção bloqueava a entrega da 001 e da 002).
+- `front/docs/features/002-transacoes/spec.md`: FR-030 (linha 89), Casos-limite e Esclarecimentos (removidos na conversão).
+  O FR-030 diz que "o conjunto completo desses rótulos é definido no bug-fix desta correção"; esta avaliação
   propõe o conjunto (ver P2).
 - `front/docs/features/003-relatorios/spec.md`: não tem requisito equivalente. A FR-009 e a SC-004 tratam só da
   formatação pt-BR de valores; o seletor de mês da página é o mesmo `MonthField`, então vale a regra de Idioma do
@@ -208,9 +208,9 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em segurança; nenhuma dependência
   nova.
 - **Specs**: depois da correção, as notas "Desvio conhecido" sobre os calendários em inglês deixam de valer: na 001, a
-  FR-020 (476-478) e os Casos-limite (340-342); na 002, a FR-030 (540-544, inclusive a frase de que o conjunto dos
-  rótulos é definido no bug-fix) e os Casos-limite (383-385). Os Esclarecimentos são histórico e ficam. As listas de
-  desvios nas Premissas (001: 524-528; 002: 632-637) e a de bloqueios (002: 110-112, 643-646) citam o desvio como
+  FR-020 (linha 59) e os Casos-limite; na 002, a FR-030 (linha 89, inclusive a frase de que o conjunto dos
+  rótulos é definido no bug-fix) e os Casos-limite. Os Esclarecimentos são histórico e ficam. As listas de
+  desvios nas Premissas e a de bloqueios (removidas na conversão) citam o desvio como
   pendente e podem dizer que ele foi corrigido em `front/docs/bugs/calendarios-em-ingles/`, como foi feito para a consulta
   repetida. Ver P3.
 

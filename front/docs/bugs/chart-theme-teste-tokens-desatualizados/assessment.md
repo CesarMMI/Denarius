@@ -60,19 +60,19 @@ Código e testes:
 
 Artefatos da 003 (`front/docs/features/003-relatorios/`) que descrevem as cores das linhas e da grade:
 
-- `spec.md:135-136` (US5, AC1): "a linha do mês, em vermelho, para em hoje, e a linha do mês anterior, numa cor
-  neutra, cobre o mês inteiro". A entrada da spec também pede "despesas em vermelho em todo lugar" (`spec.md:15`).
-- `spec.md:202-203` (FR-010, obrigatório): "As despesas DEVEM aparecer no mesmo vermelho nos gráficos e na lista".
+- `spec.md:17` (cenário da linha acumulada; era US5, AC1): "a linha do mês, em vermelho, para em hoje, e a linha do mês anterior, numa cor
+  neutra, cobre o mês inteiro". A entrada da spec também pede "despesas em vermelho em todo lugar" (removida na conversão).
+- `spec.md:37` (FR-010, obrigatório): "As despesas DEVEM aparecer no mesmo vermelho nos gráficos e na lista".
   A comparação acumulada é um gráfico de despesas.
-- `spec.md:225-226` (SC-004): "100% das despesas nos gráficos e na lista usam o mesmo vermelho".
-- `spec.md:28-29` (Esclarecimentos, sessão 2026-10-03): "os gráficos e a lista mantêm o vermelho".
-- `spec.md:207` (FR-012): "A página DEVE seguir os temas claro e escuro da aplicação".
-- `data-model.md:89`: "duas linhas […], atual em vermelho, anterior neutra".
-- `quickstart.md:35`: "outubro, em vermelho, para no dia 3; setembro, numa cor neutra, cobre 30 dias".
+- `spec.md:63` (SC-004): "100% das despesas nos gráficos e na lista usam o mesmo vermelho".
+- `spec.md` (Esclarecimentos, sessão 2026-10-03; removidos na conversão): "os gráficos e a lista mantêm o vermelho".
+- `spec.md:39` (FR-012): "A página DEVE seguir os temas claro e escuro da aplicação".
+- `data-model.md`: "duas linhas […], atual em vermelho, anterior neutra".
+- `quickstart.md`: "outubro, em vermelho, para no dia 3; setembro, numa cor neutra, cobre 30 dias".
 - `research.md:154` (Formas e marcas): "o mês atual na cor de destaque (vermelho) e o mês anterior na neutra". A
   "neutra" é `outline` (`research.md:86`).
 - `research.md:87` (Cores): "As linhas de grade usam `surface-container-high`".
-- `tasks.md:203-206` (T025): alinhou os specs às "mudanças posteriores do dono", entre elas as "cores dos gráficos
+- `tasks.md` (T025): alinhou os specs às "mudanças posteriores do dono", entre elas as "cores dos gráficos
   (receita `tertiary`, linhas `primary` e `on-primary`, texto `on-surface`)".
 
 ## Hipótese de causa raiz
@@ -86,7 +86,7 @@ de commit posterior.
 
 | Fonte | Mês atual | Mês anterior |
 | --- | --- | --- |
-| `spec.md` US5/AC1, FR-010, SC-004 e Esclarecimentos (2026-10-03); `data-model.md:89`, `quickstart.md:35`, `research.md:154` | vermelho (`error`) | neutra (`outline`) |
+| `spec.md` US5/AC1, FR-010, SC-004 e Esclarecimentos (2026-10-03); `data-model.md`, `quickstart.md`, `research.md:154` | vermelho (`error`) | neutra (`outline`) |
 | `tasks.md` T025 ("mudanças posteriores do dono") e `chart-theme.service.spec.ts` | `primary` | `on-primary` |
 | Código (`chart-theme.service.ts`, `cumulative-comparison-chart.ts`) | `primary` | `secondary` |
 
@@ -156,8 +156,8 @@ Artefatos da 003, conforme a P3:
 
 - Se P1 = A: no `spec.md`, o FR-010 e o SC-004 passam a excetuar as linhas da comparação acumulada do "mesmo
   vermelho"; o US5/AC1 passa a dizer `primary`/`secondary`; e o Esclarecimento de 2026-10-03 ("os gráficos e a lista
-  mantêm o vermelho") é ressalvado por uma nova entrada em Esclarecimentos. O `data-model.md:89`, o
-  `quickstart.md:35` e o `research.md` (Cores e Formas e marcas) também passam a dizer `primary`/`secondary`.
+  mantêm o vermelho") é ressalvado por uma nova entrada em Esclarecimentos. O `data-model.md`, o
+  `quickstart.md` e o `research.md` (Cores e Formas e marcas) também passam a dizer `primary`/`secondary`.
 - Se P1 = B: a spec já está certa; só a T025 fica como registro histórico, citada no `fix.md`.
 - Se P2 = `highest`: o `research.md:87` muda.
 
@@ -210,7 +210,7 @@ fakes de `ChartColors` em `expenses-by-category-chart.spec.ts`, `income-vs-expen
   - **Recomendação**: (B). É a decisão escrita e coerente com a tabela, e nenhum registro justifica a troca. Prefira
     (A) se o dono achar a grade apagada demais na tela.
 - **P3 — Onde realinhar os artefatos da 003** (`spec.md` FR-010, SC-004, US5/AC1 e Esclarecimentos;
-  `data-model.md:89`, `quickstart.md:35`; `research.md` em Cores e em Formas e marcas): [NEEDS CLARIFICATION: no
+  `data-model.md`, `quickstart.md`; `research.md` em Cores e em Formas e marcas): [NEEDS CLARIFICATION: no
   bug-fix ou num ciclo à parte?]
   - (A) No próprio `/speckit-bug-fix`, registrado no `fix.md`. Se mudar requisito, critério de sucesso ou cenário
     (P1 = A), a decisão tomada neste portão entra também numa nova entrada de Esclarecimentos da spec da 003, que

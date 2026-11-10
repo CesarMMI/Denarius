@@ -102,5 +102,5 @@ Nenhum na correção. Registros:
 
 - Documentar na skill `write-front-tests` o import por efeito num spec que navega pelas rotas reais com carga lazy
   (por exemplo, um teste futuro de `/reports`, que arrasta o Chart.js). Mudança separada, fora deste bug.
-- A pendência registrada na 002 (`tasks.md:392`, `plan.md:107`) fica para o `/speckit-converge` da 002.
+- A pendência registrada na 002 (`tasks.md`, `plan.md`) fica para o `/speckit-converge` da 002.
 - Próximo passo: `/speckit-bug-test project=front slug=teste-de-rota-raiz-intermitente`.

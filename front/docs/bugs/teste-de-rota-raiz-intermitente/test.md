@@ -81,4 +81,4 @@ Application bundle generation complete.
 Encerrar o bug: a prova vermelho/verde com 300 ms se repetiu no HEAD, o C3 caiu de 1,5-2,7 s para 20-27 ms na suíte
 completa, e a suíte (363 testes), o lint e o build do front estão verdes, sem aviso de budget. Ficam as pendências do
 `fix.md`: documentar o import por efeito na skill `write-front-tests` (mudança separada) e atualizar a pendência da
-002 (`tasks.md:392`, `plan.md:107`) pelo `/speckit-converge`.
+002 (`tasks.md`, `plan.md`) pelo `/speckit-converge`.

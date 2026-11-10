@@ -1,7 +1,7 @@
 # Avaliação do bug: a busca de categorias por nome diferencia maiúsculas de minúsculas
 
 - **Slug**: busca-de-nome-diferencia-maiusculas · **Projeto**: back · **Criada em**: 2026-10-09
-- **Origem**: desvio registrado na FR-017 de `front/docs/features/001-categorias/spec.md` (Esclarecimentos, linha 23) e em `plan.md:94`
+- **Origem**: desvio registrado na FR-017 de `front/docs/features/001-categorias/spec.md` (hoje na linha 56; as notas de Esclarecimentos e do plan foram removidas na conversão)
 - **Veredito**: válido · **Severidade**: medium
 
 ## Sintoma e reprodução

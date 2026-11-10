@@ -24,8 +24,8 @@ valores com mais de 13 algarismos na parte inteira (acima de R$ 9.999.999.999.99
 
 ## Requisitos violados
 
-- `front/docs/features/002-transacoes/spec.md`: FR-014 (linhas 451-460), cenário 5 da História 2 (204-208),
-  Casos-limite (350-360) e Esclarecimentos (31-34, 96-100 e 110-112; o segundo e o terceiro classificam o desvio como
+- `front/docs/features/002-transacoes/spec.md`: FR-014 (linha 73), cenário 5 da História 2,
+  Casos-limite e Esclarecimentos (removidos na conversão; o segundo e o terceiro classificam o desvio como
   violação do princípio II que bloqueia a entrega da 002).
 - `AGENTS.md` da raiz, princípio II (Segurança): o dado financeiro gravado difere do digitado, sem aviso.
 
@@ -186,17 +186,17 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
   deste bug (o formulário não grava nada diferente do digitado) e improvável em finanças pessoais.
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em dependências.
 - **Specs (desvios conhecidos)**: depois da correção, deixam de valer na 002 (ver P2):
-  - o cenário 5 da História 2 (207-208): o parêntese passa a citar só o zero ("hoje o zero passa; ver FR-014");
-  - os Casos-limite (350-360): sai "Desvio conhecido: hoje o formulário não limita o valor." e a descrição dos valores
+  - o cenário 5 da História 2: o parêntese passa a citar só o zero ("hoje o zero passa; ver FR-014");
+  - os Casos-limite: sai "Desvio conhecido: hoje o formulário não limita o valor." e a descrição dos valores
     com 14 ou mais algarismos salvos diferentes do digitado e de 10^16 aceito pelo formulário; ficam a regra esperada,
     o desvio do zero (que passa e a API recusa) e o desvio do back sobre faixa e escala;
-  - a FR-014 (456-460): "hoje o formulário aceita o zero e valores de qualquer tamanho" passa a citar só o zero, e o
+  - a FR-014: "hoje o formulário aceita o zero e valores de qualquer tamanho" passa a citar só o zero, e o
     trecho sobre os valores com 14 ou mais algarismos e o princípio II dá lugar à menção "o limite do valor foi
     corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`";
-  - as Premissas (592-593): "em que a recusa do zero e o limite do valor são desvios conhecidos" passa a citar só o
-    zero; a lista de desvios (620) registra o limite do valor como corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`,
-    e a de bloqueios (633-634) segue o mesmo padrão adotado para a data digitada;
-  - os Esclarecimentos (31-34, 96-100 e 110-112) são histórico e ficam.
+  - as Premissas: "em que a recusa do zero e o limite do valor são desvios conhecidos" passa a citar só o
+    zero; a lista de desvios registra o limite do valor como corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`,
+    e a de bloqueios segue o mesmo padrão adotado para a data digitada;
+  - os Esclarecimentos são histórico e ficam.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-07)
 

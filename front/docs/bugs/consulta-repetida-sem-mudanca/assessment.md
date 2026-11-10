@@ -24,12 +24,12 @@ escolher o mesmo mês refaz as cinco consultas. O esperado é nenhuma consulta e
 
 ## Requisitos violados
 
-- `front/docs/features/001-categorias/spec.md`: FR-023 (488-493), SC-006 (519-521) e Casos-limite (352-359). O
+- `front/docs/features/001-categorias/spec.md`: FR-023 (linha 62), SC-006 (linha 75) e Casos-limite. O
   FR-023 pede uma correção só, pelo fluxo de bugs, "começando por um teste que reproduza o caso do 'Nome'", e que valha
   também para transações e relatórios.
-- `front/docs/features/002-transacoes/spec.md`: FR-031 (551-558), SC-007 (592-596) e Casos-limite (338-346).
-- `front/docs/features/003-relatorios/spec.md`: não tem requisito equivalente explícito. O FR-002 (192-193) e a SC-002
-  (231) só pedem que escolher um mês atualize os cinco blocos. Vale o princípio III do `AGENTS.md` da raiz ("Nada de
+- `front/docs/features/002-transacoes/spec.md`: FR-031 (linha 90), SC-007 (linha 105) e Casos-limite.
+- `front/docs/features/003-relatorios/spec.md`: não tem requisito equivalente explícito. O FR-002 (linha 29) e a SC-002
+  (linha 61) só pedem que escolher um mês atualize os cinco blocos. Vale o princípio III do `AGENTS.md` da raiz ("Nada de
   requisições, consultas ou cálculos repetidos sem necessidade"), e o próprio FR-023 da 001 estende a correção aos
   relatórios.
 
@@ -283,13 +283,13 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
 ## Perguntas em aberto
 
 - **P1 — Onde corrigir**: [NEEDS CLARIFICATION: comparar a consulta, o estado das páginas ou cada origem?]
-  Atenção: o FR-031 da 002 (`front/docs/features/002-transacoes/spec.md:557-558`, e também a sessão de esclarecimentos, linhas 70-72) diz que a correção fica "no menu de
+  Atenção: o FR-031 da 002 (`front/docs/features/002-transacoes/spec.md`, FR-031 na linha 90, e também a sessão de esclarecimentos, removida na conversão) diz que a correção fica "no menu de
   ordenação, no campo 'Mês' compartilhados e na busca", o que descreve (B). O FR-023 da 001 só pede uma correção
   única, pelo fluxo de bugs, sem dizer onde.
   - (A) Helper `distinctRequest` em `shared/`, envolvendo os 7 `httpResource` das três páginas. Compara a própria
     consulta e por isso cobre qualquer caminho de gravação, de hoje ou futuro. Consequências: o `month()` dos
     relatórios continua mudando de referência, e o recálculo do gráfico e da lista fica fora deste bug; os componentes
-    compartilhados continuam emitindo; o bug-fix ajusta as frases do FR-031 e do esclarecimento (linhas 70-72) sobre o lugar da correção, junto com as notas
+    compartilhados continuam emitindo; o bug-fix ajusta as frases do FR-031 e do esclarecimento sobre o lugar da correção, junto com as notas
     da P2, e registra a decisão no `fix.md`.
   - (B) Corrigir cada origem: guardas no `SortMenu` e no `MonthField` e `equal` nos `signal` de filtros das páginas,
     necessário por causa do signal form. Segue o FR-031 à risca, os componentes compartilhados param de emitir, e o
@@ -309,7 +309,7 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
   parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`. Saem as notas "Desvio conhecido" ligadas ao FR-023 e ao
     FR-031, às SC-006 e SC-007 e aos Casos-limite, como as próprias specs mandam fazer quando o desvio for corrigido.
-    Se a P1 for (A) ou (C), as frases do FR-031 e do esclarecimento (linhas 70-72) sobre o lugar da correção também passam a dizer onde ela ficou. Os
+    Se a P1 for (A) ou (C), as frases do FR-031 e do esclarecimento sobre o lugar da correção também passam a dizer onde ela ficou. Os
     requisitos e critérios em si não mudam.
   - (B) Deixar as specs como estão e só citá-las no `fix.md`. As notas e a frase do FR-031 continuam descrevendo um
     comportamento e um lugar de correção que não existem mais, até uma revisão à parte.

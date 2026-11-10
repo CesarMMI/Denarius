@@ -21,9 +21,9 @@ na grade, e a spec, o research, o data-model e o quickstart da 003 passaram a de
 | `front/src/app/reports/services/chart-theme.service.ts`      | modificado       | `grid`: `surface-container-highest` → `surface-container-high` (decisão P2 = B).                                                                                                  |
 | `front/docs/features/003-relatorios/spec.md`                  | modificado       | Nova sessão de Esclarecimentos (2026-10-06); FR-010, SC-004 e US5/AC1 reescritos.                                                                                                 |
 | `front/docs/features/003-relatorios/research.md`              | modificado       | Cores (decisão, justificativa e alternativas) e Formas e marcas.                                                                                                                  |
-| `front/docs/features/003-relatorios/data-model.md`            | modificado       | Linha "Comparação acumulada" da tabela de estado derivado (antes na linha 89).                                                                                                    |
-| `front/docs/features/003-relatorios/quickstart.md`            | modificado       | Passo 3 (linha 35).                                                                                                                                                               |
-| `front/docs/features/003-relatorios/plan.md`                  | modificado       | Resumo de cores (linha 17) cita as linhas da comparação acumulada. Ampliação pedida na revisão (R-01).                                                                            |
+| `front/docs/features/003-relatorios/data-model.md`            | modificado       | Linha "Comparação acumulada" da tabela de estado derivado.                                                                                                    |
+| `front/docs/features/003-relatorios/quickstart.md`            | modificado       | Passo 3.                                                                                                                                                               |
+| `front/docs/features/003-relatorios/plan.md`                  | modificado       | Resumo de cores (hoje em Decisões, linha 31) cita as linhas da comparação acumulada. Ampliação pedida na revisão (R-01).                                                                            |
 
 Nada mudou em `cumulative-comparison-chart.*`, nos outros gráficos, nos fakes de `ChartColors`, em `categories/`,
 `transactions/`, `shared/`, nas specs 001/003 nem no back.
@@ -69,7 +69,7 @@ Nos outros artefatos da 003:
 - `quickstart.md`: "Linha: outubro, na cor primária do tema, para no dia 3; setembro, na cor secundária, cobre 30
   dias."
 
-A entrada original da spec ("despesas em vermelho em todo lugar", linha 15) é a citação do pedido do usuário e ficou
+A entrada original da spec ("despesas em vermelho em todo lugar") é a citação do pedido do usuário e ficou
 como estava; a nova entrada de Esclarecimentos a ressalva.
 
 ## Testes adicionados ou atualizados

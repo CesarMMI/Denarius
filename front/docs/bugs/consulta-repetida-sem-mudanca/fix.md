@@ -118,7 +118,7 @@ Só saíram ressalvas e a referência ao lugar da correção; nenhum requisito, 
   - SC-007: saiu "(desvio conhecido: hoje escolher de novo… ver FR-031)".
 - Por decisão do usuário (a lista inicial de seções era exemplo, não limite), saíram também as demais notas deste bug:
   - 001, cenários de aceitação 5 e 9: saiu "(desvio conhecido: hoje a consulta é refeita; ver FR-023)";
-  - 001, requisito do menu de ordenação (linha ~469): "(desvio conhecido; ver FR-023)" passou a "(FR-023)";
+  - 001, requisito do menu de ordenação: "(desvio conhecido; ver FR-023)" passou a "(FR-023)";
   - 002, cenário 8: saiu "(desvio conhecido: hoje a consulta é refeita e as linhas dão lugar ao indicador; ver
     FR-031)";
   - 001, esclarecimento da ordenação/mês repetidos: "a corrigir… nos componentes compartilhados de ordenação e de mês"
@@ -159,7 +159,7 @@ Só saíram ressalvas e a referência ao lugar da correção; nenhum requisito, 
 - O `reload()` redundante depois do `month.set()` em "Mês anterior"/"Próximo mês" dos relatórios continua fora deste
   bug.
 - `plan.md`, `research.md` e checklists das 001 e 002 ainda descrevem o desvio como conhecido ou a corrigir nos
-  componentes compartilhados (`001-categorias/plan.md:84`, `002-transacoes/plan.md:74,125,198`,
+  componentes compartilhados (`001-categorias/plan.md`, `002-transacoes/plan.md`,
   `002-transacoes/research.md:55`, `checklists/requirements.md` e `checklists/performance.md`); a reavaliar
   no `/speckit-converge`.
 - O estouro intermitente de 5 s em `app.routes.spec.ts` › "should open the transactions page at the root" já existia

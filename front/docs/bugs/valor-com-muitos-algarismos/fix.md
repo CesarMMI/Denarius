@@ -97,7 +97,7 @@ Em `front/`:
 
 ## Desvios da avaliação
 
-- Na lista de bloqueios das Premissas (frase "Bloqueiam a entrega desta feature…", linhas 633-634 da avaliação), a
+- Na lista de bloqueios das Premissas (frase "Bloqueiam a entrega desta feature…"), a
   avaliação previa seguir o padrão da data digitada; por instrução do orquestrador, essa frase ficou como histórico,
   sem mudança, que é o mesmo padrão adotado no `data-digitada-como-mes-dia-ano`.
 - Os testes de reprodução ganharam o caso "00000000000001", que cobre a decisão P1.

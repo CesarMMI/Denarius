@@ -26,9 +26,9 @@ formato e as datas inexistentes.
 
 ## Requisitos violados
 
-- `front/docs/features/002-transacoes/spec.md`: FR-014 (linhas 456-465), cenário 9 da História 2 (218-221),
-  Casos-limite (367-374) e Esclarecimentos (26-30 e 96-100; o segundo classifica o desvio como violação do princípio II
-  que bloqueia a entrega da 002; ver também 110-112 e 635-638).
+- `front/docs/features/002-transacoes/spec.md`: FR-014 (linha 73), cenário 9 da História 2,
+  Casos-limite e Esclarecimentos (removidos na conversão; o segundo classifica o desvio como violação do princípio II
+  que bloqueia a entrega da 002).
 - `AGENTS.md` da raiz, princípio II (Segurança): o dado financeiro gravado difere do digitado, sem aviso.
 
 ## Reprodução
@@ -228,16 +228,16 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em segurança além de impedir a
   gravação de uma data diferente da digitada (o que cumpre o princípio II).
 - **Specs (desvios conhecidos)**: depois da correção, deixam de valer na 002:
-  - o cenário 9 da História 2 (218-221): sai o parêntese "desvio conhecido: hoje '5/9/2026' é salva como 9 de maio…";
-  - os Casos-limite (367-374): sai a parte "Desvio conhecido, que fere a integridade dos dados… diálogo fecha sem
+  - o cenário 9 da História 2: sai o parêntese "desvio conhecido: hoje '5/9/2026' é salva como 9 de maio…";
+  - os Casos-limite: sai a parte "Desvio conhecido, que fere a integridade dos dados… diálogo fecha sem
     mostrá-la", ficando a regra esperada;
-  - a FR-014 (461-465): sai "e não lê a data digitada como dia/mês/ano" e a menção à data digitada no trecho sobre o
+  - a FR-014: sai "e não lê a data digitada como dia/mês/ano" e a menção à data digitada no trecho sobre o
     princípio II, mas **continuam** os desvios do zero e dos valores com 14 ou mais algarismos, que são de outro bug;
-  - as Premissas (597-598): "o formato da data" sai da lista de desvios conhecidos;
-  - a lista de desvios das Premissas (~622-634: a data digitada é citada na 624, e a menção "corrigidos em" dos
-    calendários está na 627) e a de bloqueios (635-638) registram a data digitada como corrigida em
+  - as Premissas: "o formato da data" sai da lista de desvios conhecidos;
+  - a lista de desvios das Premissas (a data digitada é citada nela, e a menção "corrigidos em" dos
+    calendários) e a de bloqueios registram a data digitada como corrigida em
     `front/docs/bugs/data-digitada-como-mes-dia-ano/`, como foi feito para os calendários e a consulta repetida.
-  - Os Esclarecimentos (26-30, 96-100 e 110-112) são histórico e ficam. Ver P3.
+  - Os Esclarecimentos são histórico e ficam. Ver P3.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-07)
 

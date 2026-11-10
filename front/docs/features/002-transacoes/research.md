@@ -293,8 +293,8 @@ usuário](#decisões-do-usuário-2026-10-05)).
 ### Divergências entre o que o front envia e o contrato
 
 - `dateRef`: o front envia uma data sem hora (`dateRef=2026-09-01`, `transactions.service.ts:22`), e o contrato declara
-  `format: date-time` (`transactions-api.yaml:27-33`). A API aceita (o quickstart do backend, removido (ver `8b26163`), usava o mesmo formato, em
-  `back/docs/features/002-transacoes/quickstart.md:62` em `8b26163`), então não há defeito observável; a divergência é de
+  `format: date-time` (`transactions-api.yaml:27-33`). A API aceita (o quickstart do backend, removido (ver `8b26163`), usava o mesmo formato),
+  então não há defeito observável; a divergência é de
   documentação. O `categories-api.yaml` tem a mesma declaração, e a 002 registra o mesmo ponto.
 - **Decisão (usuário, 2026-10-05)**: desvio conhecido do back, só de documentação do contrato (`transactions-api.yaml` e
   `categories-api.yaml`), corrigido pelo fluxo de bugs no back, fora desta spec. Não bloqueia esta feature e não vira
@@ -309,7 +309,7 @@ usuário](#decisões-do-usuário-2026-10-05)).
   `transactionCount`, `balance` e `canDelete` de cada categoria.
 - O `GET /api/transactions` carrega todas as transações e só depois filtra e ordena em memória
   (`back/src/Denarius.Application/UseCases/Transactions/List/ListTransactionsUseCase.cs:11`), postura já documentada
-  no plan do back (`back/docs/features/002-transacoes/plan.md:26` e `:53`). Para o front, a filtragem e a
+  no plan do back (`back/docs/features/002-transacoes/plan.md`). Para o front, a filtragem e a
   ordenação acontecem na fonte dos dados, que é a API.
 
 O front consome os endpoints que o contrato oferece (princípio IV), então nada disso é violação do front. **Decisão

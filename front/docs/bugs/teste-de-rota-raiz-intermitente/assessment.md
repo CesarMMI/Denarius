@@ -16,7 +16,7 @@
 > suspeita é lentidão do import dinâmico sob a carga da suíte em paralelo.
 
 O `fix.md` do bug `consulta-repetida-sem-mudanca` registra o estouro em 1 de 3 execuções; o `test.md` do mesmo bug, uma
-execução sem o estouro. O `tasks.md` (linha 392) e o `plan.md` (linha 107) da 002 deixam a entrega pendente deste bug.
+execução sem o estouro. O `tasks.md` e o `plan.md` da 002 deixam a entrega pendente deste bug.
 
 ## Sintoma
 
@@ -187,8 +187,8 @@ a margem (20 s contra o máximo observado de 2,7 s), sem um vermelho/verde deter
 - **Medição**: a ausência de falhas nas 6 execuções desta avaliação não contradiz o relato; o estouro depende da carga
   total da máquina, que aqui foi menor. Os tempos medidos (até 54% do limite) mostram que a margem é pequena.
 - **Escopo**: só o spec do front. Nenhum código de produção, contrato da API, dado ou segurança é afetado. As pastas
-  `front/docs/features/002-*` e `003-*` não são tocadas por esta avaliação; a pendência que a 002 registra (tasks.md:392,
-  plan.md:107) é atualizada pelo `/speckit-converge` da 002, e não por este bug.
+  `front/docs/features/002-*` e `003-*` não são tocadas por esta avaliação; a pendência que a 002 registra (tasks.md,
+  plan.md) é atualizada pelo `/speckit-converge` da 002, e não por este bug.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-08)
 
