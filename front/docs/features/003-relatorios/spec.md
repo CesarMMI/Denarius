@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Uma página `/reports` que mostre, de relance, como está um mês das finanças do usuário: resumo, gastos por categoria, tendência de receitas e despesas, ritmo de gastos e as transações mais recentes. O usuário escolhe o mês e todos os blocos o acompanham. Os dados vêm de [back/docs/features/003-financial-reports](../../../../back/docs/features/003-financial-reports/); a identidade visual está em [design.md](../../design.md).
+Uma página `/reports` que mostre, de relance, como está um mês das finanças do usuário: resumo, gastos por categoria, tendência de receitas e despesas, ritmo de gastos e as transações mais recentes. O usuário escolhe o mês e todos os blocos o acompanham. Os dados vêm de [back/docs/features/003-relatorios](../../../../back/docs/features/003-relatorios/); a identidade visual está em [design.md](../../design.md). Na lista de transações, a categoria aparece como chip na cor dela, e o divisor separa só dias diferentes.
 
 ## Cenários
 
@@ -17,7 +17,11 @@ Uma página `/reports` que mostre, de relance, como está um mês das finanças 
 - **Dado** o mês atual, **então** a linha do mês (`primary`) vai até hoje ou até a última despesa lançada no mês, o que vier depois, e a do mês anterior (`secondary`) cobre o mês inteiro. A série vem pronta da API (back FR-013, alterado em 2026-10-09); o front só a desenha. O tooltip mostra os totais dos dois meses até o dia, em BRL.
 - **Dado** um mês com transações, **então** a lista mostra as dez mais recentes, da mais nova à mais antiga, com data (dd/MM), descrição, categoria e valor, despesas em vermelho, sob um título que conta todas as transações do mês; só a lista rola, não a página.
 - **Dado** a lista, **quando** o usuário escolhe "Ver todas", **então** a página de transações abre com os filtros visíveis e definidos para o mês.
+- **Dado** uma transação com descrição, **quando** a lista é exibida, **então** a descrição aparece dentro de um chip com a cor da categoria, e o nome da categoria não aparece numa linha abaixo; **dado** uma transação sem descrição, o chip mostra o nome da categoria, com a cor dela; duas transações da mesma categoria têm chips da mesma cor.
+- **Dado** uma descrição mais larga que a coluna, **então** o chip fica dentro do cartão, com o texto cortado por reticências, sem rolagem horizontal.
+- **Dado** duas transações seguidas com a mesma data exibida, **então** não há divisor entre elas, mesmo com horários de registro diferentes (a comparação é pelo dia exibido); com datas diferentes, há divisor.
 - Casos-limite: mês com dez transações ou menos lista todas e mantém "Ver todas"; mês futuro tem projeção zero e nenhuma linha para os dias que não chegaram; nomes de categoria vêm do usuário e são exibidos como texto; recarregar um bloco que já tem dados os mantém visíveis, esmaecidos, até os novos chegarem.
+- Na lista de transações, uma única transação não tem divisor, e o divisor considera só as linhas exibidas (as dez mais recentes).
 
 ## Requisitos
 
@@ -34,6 +38,14 @@ Uma página `/reports` que mostre, de relance, como está um mês das finanças 
 - **FR-011**: A página DEVE ocupar a altura disponível da janela sem rolagem da página no desktop, numa grade de cards com cantos arredondados, espaçamentos consistentes e títulos; janelas estreitas ou baixas DEVEM recolhê-la numa única coluna com rolagem.
 - **FR-012**: A página DEVE seguir os temas claro e escuro da aplicação; os gráficos são redesenhados quando o tema do sistema muda.
 - **FR-013**: A página de transações DEVE aceitar um mês no seu endereço (`?month=YYYY-MM`) e abrir com os filtros visíveis e definidos para esse mês.
+- **FR-014**: Cada linha da lista de transações do mês DEVE exibir a descrição da transação dentro de um chip com a cor da categoria, no mesmo estilo do chip de categoria da tabela da página de Transações.
+- **FR-015**: Sem descrição, o chip DEVE mostrar o nome da categoria.
+- **FR-016**: O nome da categoria DEVE deixar de aparecer numa linha separada abaixo da descrição.
+- **FR-017**: A cor do chip DEVE ser a que a API devolve para a transação (campo `color`, ver [monthly-transactions-api.yaml](../../../../back/docs/features/003-relatorios/contracts/monthly-transactions-api.yaml)); o front não a infere de outra fonte.
+- **FR-018**: Entre duas linhas seguidas da lista com o mesmo dia NÃO DEVE haver divisor; entre dias diferentes DEVE haver. A lista cobre um único mês, então dia e mês bastam.
+- **FR-019**: O chip DEVE respeitar a largura da coluna: descrição longa é cortada por reticências, sem rolagem horizontal nova.
+- **FR-020**: Valor, data, ordenação, o limite de 10 linhas, "Ver todas" e os estados vazio, de carga e de erro da lista DEVEM permanecer como estão.
+- **FR-021**: A tabela da página de Transações e o back DEVEM permanecer sem alteração por esta mudança.
 
 ## Fluxo e estados
 
@@ -41,6 +53,7 @@ Uma página `/reports` que mostre, de relance, como está um mês das finanças 
 - Carregando: indicador no bloco. Erro: o que falhou e "Tentar novamente".
 - Vazio: "Sem movimentações neste mês." no resumo e na lista; a rosca e a linha dizem que não houve despesas; as barras só ficam vazias se o período inteiro não teve movimentação.
 - O recolhimento da grade em telas estreitas é o único comportamento responsivo.
+- Risco de acessibilidade aceito pelo usuário: na lista de transações, com descrição, a categoria passa a ser indicada só pela cor, o que prejudica quem não distingue cores. Recuperar o nome por outro meio (dica de ferramenta ou rótulo de acessibilidade) está fora de escopo.
 
 ## Critérios de sucesso
 
@@ -49,7 +62,11 @@ Uma página `/reports` que mostre, de relance, como está um mês das finanças 
 - **SC-003**: Um bloco que falha nunca esconde nem bloqueia os outros quatro, e pode ser tentado de novo sozinho.
 - **SC-004**: 100% dos valores monetários da página estão em BRL com formatação pt-BR, e 100% das despesas nos gráficos e na lista usam o mesmo vermelho, exceto as linhas da comparação acumulada (`primary` e `secondary`).
 - **SC-005**: Usuários que nunca abrem a página de relatórios não baixam nada a mais quando a aplicação inicia.
+- **SC-006**: Em 100% das linhas da lista de transações, a cor do chip é a que a API devolveu para a categoria da transação.
+- **SC-007**: Em qualquer sequência de transações, o número de divisores é igual ao número de mudanças de dia entre as linhas exibidas.
+- **SC-008**: Com 10 linhas e descrições de até 255 caracteres, a lista não ganha rolagem horizontal (verificação visual; os testes conferem só a estrutura que recebe o corte).
+- **SC-009**: O painel não faz nenhuma requisição a mais por causa do chip e do divisor.
 
 ## Fora de escopo
 
-Mudanças no back (a API já limita as categorias a oito e devolve todas as transações do mês; a página reduz a cinco fatias e dez linhas); escolher a quantidade de meses das barras (doze, o padrão da API); uma linha de saldo sobre as barras (testada e descartada: poluía o gráfico); responsividade além de recolher a grade.
+Mudanças no back (a API já limita as categorias a oito e devolve todas as transações do mês; a página reduz a cinco fatias e dez linhas); escolher a quantidade de meses das barras (doze, o padrão da API); uma linha de saldo sobre as barras (testada e descartada: poluía o gráfico); responsividade além de recolher a grade; agrupar as datas da lista de transações numa célula só (ideia descartada).

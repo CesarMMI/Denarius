@@ -12,7 +12,7 @@ Opção (C) da P1, escolhida pelo usuário: um comparador por conteúdo em `shar
 mesmo conteúdo (a ordenação em uso, o mesmo mês, o texto já aplicado, inclusive o `flushSync` ao sair do campo) não
 notifica o `signal`, então o `httpResource` não refaz a consulta. Nos relatórios, o `month()` também mantém a
 referência, e o gráfico de comparação acumulada e a lista de transações não recalculam. Pela P2 (A), saíram das specs
-002 e 003 as notas "Desvio conhecido" pedidas.
+001 e 002 as notas "Desvio conhecido" pedidas.
 
 ## Alterações
 
@@ -26,8 +26,8 @@ referência, e o gráfico de comparação acumulada e a lista de transações n�
 | `front/src/app/transactions/pages/transactions-page/transactions-page.spec.ts` | testes adicionados | 4 testes de regressão |
 | `front/src/app/reports/pages/reports-page/reports-page.ts` | modificado | `{ equal: shallowEqual }` em `month` |
 | `front/src/app/reports/pages/reports-page/reports-page.spec.ts` | testes adicionados | 2 testes de regressão (consulta e referência do mês) |
-| `front/specs/002-gestao-de-categorias/spec.md` | modificado | notas "Desvio conhecido" do FR-023, da SC-006 e dos Casos-limite removidas |
-| `front/specs/003-gestao-de-transacoes/spec.md` | modificado | notas "Desvio conhecido" do FR-031, da SC-007 e dos Casos-limite removidas; frases do FR-031 e do esclarecimento sobre o lugar da correção ajustadas |
+| `front/specs/001-categorias/spec.md` | modificado | notas "Desvio conhecido" do FR-023, da SC-006 e dos Casos-limite removidas |
+| `front/specs/002-transacoes/spec.md` | modificado | notas "Desvio conhecido" do FR-031, da SC-007 e dos Casos-limite removidas; frases do FR-031 e do esclarecimento sobre o lugar da correção ajustadas |
 
 Nenhuma mudança no back, nos services, nos tipos, no contrato da API, no `sort-menu` nem no `month-field`.
 
@@ -97,12 +97,12 @@ Em `front/`:
 
 Só saíram ressalvas e a referência ao lugar da correção; nenhum requisito, critério ou cenário mudou.
 
-- `front/specs/002-gestao-de-categorias/spec.md`:
+- `front/specs/001-categorias/spec.md`:
   - Casos-limite: os itens "Escolher de novo a ordenação em uso, ou o mesmo mês…" e "No 'Nome', a lista não é
     consultada de novo…" ficaram só com a regra e a referência ao FR-023; saíram as notas "Desvio conhecido".
   - FR-023: saiu a nota "Desvio conhecido: hoje a consulta é refeita… e relatórios."
   - SC-006: saiu "(desvio conhecido: hoje gera; ver FR-023)".
-- `front/specs/003-gestao-de-transacoes/spec.md`:
+- `front/specs/002-transacoes/spec.md`:
   - Esclarecimento (Sessão, P sobre a ordenação e o mês repetidos): "O atual é um desvio conhecido… a corrigir… no menu
     de ordenação e no campo 'Mês' compartilhados…" passou a "O desvio, que contrariava o princípio III, foi corrigido
     uma só vez pelo fluxo de bugs do front (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec: a comparação
@@ -124,7 +124,7 @@ Só saíram ressalvas e a referência ao lugar da correção; nenhum requisito, 
   - 002, esclarecimento da ordenação/mês repetidos: "a corrigir… nos componentes compartilhados de ordenação e de mês"
     passou a dizer que foi corrigido por este bug, com a comparação no estado de cada página, e não nos componentes
     compartilhados;
-  - 002 e 003, Sessão 2026-10-05 (P do "Nome" e P da "Descrição"): "O atual é um desvio conhecido, deduzido do código e
+  - 001 e 002, Sessão 2026-10-05 (P do "Nome" e P da "Descrição"): "O atual é um desvio conhecido, deduzido do código e
     ainda não reproduzido…" passou a dizer que o desvio foi reproduzido num teste e corrigido por este bug, pela mesma
     comparação nos filtros da página.
   - 003, Premissas: o parêntese "(FR-031, no menu de ordenação e no campo 'Mês' compartilhados com as mesmas páginas e
@@ -158,9 +158,9 @@ Só saíram ressalvas e a referência ao lugar da correção; nenhum requisito, 
   ter o problema (risco já registrado na avaliação).
 - O `reload()` redundante depois do `month.set()` em "Mês anterior"/"Próximo mês" dos relatórios continua fora deste
   bug.
-- `plan.md`, `research.md` e checklists das 002 e 003 ainda descrevem o desvio como conhecido ou a corrigir nos
-  componentes compartilhados (`002-gestao-de-categorias/plan.md:84`, `003-gestao-de-transacoes/plan.md:74,125,198`,
-  `003-gestao-de-transacoes/research.md:55`, `checklists/requirements.md` e `checklists/performance.md`); a reavaliar
+- `plan.md`, `research.md` e checklists das 001 e 002 ainda descrevem o desvio como conhecido ou a corrigir nos
+  componentes compartilhados (`001-categorias/plan.md:84`, `002-transacoes/plan.md:74,125,198`,
+  `002-transacoes/research.md:55`, `checklists/requirements.md` e `checklists/performance.md`); a reavaliar
   no `/speckit-converge`.
 - O estouro intermitente de 5 s em `app.routes.spec.ts` › "should open the transactions page at the root" já existia
   e não tem relação com esta correção (a revisão rodou a suíte 3 vezes sem repetir o problema).

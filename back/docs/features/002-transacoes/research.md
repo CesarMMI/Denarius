@@ -7,7 +7,7 @@ abaixo resolve o que, de outro modo, seria um `NEEDS CLARIFICATION` no Contexto 
 ## Tecnologia de persistência
 
 - **Decisão**: PostgreSQL via migrations code-first do EF Core, com o `DenariusDbContext`
-  compartilhado por todo o projeto — o mesmo banco que [001-category-management](../001-category-management/research.md)
+  compartilhado por todo o projeto — o mesmo banco que [001-categorias](../001-categorias/research.md)
   usa.
 - **Justificativa**: Herdado da stack do projeto, e não decidido por feature. `Transaction` não tem
   nenhum requisito que justifique outro banco.
@@ -304,7 +304,7 @@ ms e a por nome da categoria 33,2 ms; sem o filtro de mês ou de categoria, essa
   `Cors`/`Middleware`/`Categories` em `Denarius.WebAPI.Tests` (registra o `TransactionsController`
   via `AddApplicationPart`, sem precisar de banco), com fakes escritos à mão para as cinco
   interfaces de casos de uso. É exatamente como
-  [001-category-management](../001-category-management/research.md) fechou a sua lacuna
+  [001-categorias](../001-categorias/research.md) fechou a sua lacuna
   equivalente.
 
 **Resultado**: Todos os itens do Contexto técnico acima estão resolvidos; não resta nenhum

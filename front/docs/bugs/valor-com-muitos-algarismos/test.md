@@ -74,4 +74,4 @@ Application bundle generation complete.
 
 Encerrar o bug: os 5 testes de reprodução falham sem a correção e passam com ela, o teste-limite passa nos dois casos,
 e a suíte (363 testes), o lint e o build do front estão verdes, sem aviso de budget. A conferência no navegador é
-opcional e não impede o fechamento; em seguida, rodar o `/speckit-converge` da feature 003.
+opcional e não impede o fechamento; em seguida, rodar o `/speckit-converge` da feature 002.

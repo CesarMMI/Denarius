@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Transações do mês: cor da categoria
   description: >
-    Acréscimo ao contrato de relatórios (../../003-financial-reports/contracts/reports-api.yaml, versão 1.1.0); esta é a versão 1.2.0 do contrato dos relatórios, sem mudar o que a 1.1.0 define.
+    Acréscimo ao contrato de relatórios (reports-api.yaml, versão 1.1.0); esta é a versão 1.2.0 do contrato dos relatórios, sem mudar o que a 1.1.0 define.
     Só o schema MonthlyTransactionOutput muda, com o campo color; rota, parâmetros, ordenação e
     status continuam como na 003: ordenação, ausência de paginação e a resposta 400 para mês inválido valem como em `reports-api.yaml` (operação `listMonthlyTransactions`).
   version: "1.2.0"

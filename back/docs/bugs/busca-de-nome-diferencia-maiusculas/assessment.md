@@ -1,7 +1,7 @@
 # Avaliação do bug: a busca de categorias por nome diferencia maiúsculas de minúsculas
 
 - **Slug**: busca-de-nome-diferencia-maiusculas · **Projeto**: back · **Criada em**: 2026-10-09
-- **Origem**: desvio registrado na FR-017 de `front/specs/002-gestao-de-categorias/spec.md` (Esclarecimentos, linha 23) e em `plan.md:94`
+- **Origem**: desvio registrado na FR-017 de `front/specs/001-categorias/spec.md` (Esclarecimentos, linha 23) e em `plan.md:94`
 - **Veredito**: válido · **Severidade**: medium
 
 ## Sintoma e reprodução
@@ -13,7 +13,7 @@ O esperado é a busca não diferenciar maiúsculas de minúsculas, como a busca 
 ## Causa raiz (confiança alta)
 
 - `src/Denarius.Infrastructure/Repositories/CategoryRepository.cs:15`: o `c.Name.Contains(name)` vira uma comparação exata no PostgreSQL.
-- `specs/001-category-management/contracts/categories-api.yaml:19`: o contrato deixa a regra "a cargo do banco", sem defini-la.
+- `specs/001-categorias/contracts/categories-api.yaml:19`: o contrato deixa a regra "a cargo do banco", sem defini-la.
 - Nenhum teste pega o problema: `ListCategoriesUseCaseTests.cs:37` usa um repositório mock, `CategoriesControllerTests.cs:211` só confere o binding, e não existe projeto de testes do `Infrastructure`.
 
 ## Correção proposta
@@ -37,4 +37,4 @@ O esperado é a busca não diferenciar maiúsculas de minúsculas, como a busca 
 
 ## Decisões do usuário (portão, 2026-10-09)
 
-- P2: (A). P1: (A), e a busca também deixa de diferenciar acentos ("educacao" encontra "Educação"). A comparação passa a ser `lower(unaccent(...))` nos dois lados. A extensão `unaccent` (1.1, disponível no PostgreSQL 18.6 local) entra por migration, com `Down()`. Isso diverge da FR-017 da spec 002 do front e da busca por descrição das transações, que diferenciam acentos.
+- P2: (A). P1: (A), e a busca também deixa de diferenciar acentos ("educacao" encontra "Educação"). A comparação passa a ser `lower(unaccent(...))` nos dois lados. A extensão `unaccent` (1.1, disponível no PostgreSQL 18.6 local) entra por migration, com `Down()`. Isso diverge da FR-017 da spec 001 do front e da busca por descrição das transações, que diferenciam acentos.

@@ -3,7 +3,7 @@
 ## API consumida
 
 Definida pelo back em
-[`back/specs/001-category-management/contracts/categories-api.yaml`](../../../../back/specs/001-category-management/contracts/categories-api.yaml)
+[`back/specs/001-categorias/contracts/categories-api.yaml`](../../../../back/specs/001-categorias/contracts/categories-api.yaml)
 (não copiada nem alterada aqui). Toda requisição passa pelo `CategoriesService`
 (`front/src/app/categories/services/categories.service.ts`); `{apiUrl}` vem de `src/environments/`.
 
@@ -31,7 +31,7 @@ Desvios conhecidos do back, com destino fora desta feature (ver a tabela de desv
   `CategoriesPage`), com o item "Categorias" (ícone `sell`) em terceiro no menu, depois de "Relatórios" e "Transações".
 - **Endereço gerado** pelo link da quantidade: `/transactions?categoryId=<id>`. Esperado pela FR-004 (desvio
   conhecido): `/transactions?categoryId=<id>&month=YYYY-MM` com um mês escolhido. Quem recebe esse endereço é a
-  [003-gestao-de-transacoes](../../003-gestao-de-transacoes/spec.md).
+  [002-transacoes](../../002-transacoes/spec.md).
 - **Módulos que outras features importam**: `services/categories.service.ts`, `types/category.ts` e
   `testing/category-fixture.ts` são importados por `transactions/`, com exceção à F1 registrada no plan da 003, até um
   ciclo de refatoração movê-los para `shared/` (D5 da pesquisa).

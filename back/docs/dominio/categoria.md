@@ -30,4 +30,4 @@ Uma categoria tem muitas [transações](transacao.md); cada transação tem exat
 
 ## Origem
 
-Specs [001-category-management](../features/001-category-management/spec.md) e [004-cor-categoria-transacoes-mes](../features/004-cor-categoria-transacoes-mes/spec.md).
+Specs [001-categorias](../features/001-categorias/spec.md) e [003-relatorios](../features/003-relatorios/spec.md).

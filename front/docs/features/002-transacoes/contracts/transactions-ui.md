@@ -5,10 +5,10 @@
 Definida pelo backend, sem mudança por esta feature:
 
 - transações:
-  [`back/specs/002-transaction-management/contracts/transactions-api.yaml`](../../../../back/specs/002-transaction-management/contracts/transactions-api.yaml)
+  [`back/specs/002-transacoes/contracts/transactions-api.yaml`](../../../../back/specs/002-transacoes/contracts/transactions-api.yaml)
   (versão 1.1.0);
 - categorias, só a lista:
-  [`back/specs/001-category-management/contracts/categories-api.yaml`](../../../../back/specs/001-category-management/contracts/categories-api.yaml)
+  [`back/specs/001-categorias/contracts/categories-api.yaml`](../../../../back/specs/001-categorias/contracts/categories-api.yaml)
   (versão 1.0.0).
 
 Toda URL e todo parâmetro ficam nos services (`front/src/app/transactions/services/transactions.service.ts` e
@@ -59,8 +59,8 @@ mensagens vão como texto para o `MatSnackBar.open`, e o `SimpleSnackBar` do Mat
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/`                                              | Redireciona para `/transactions` (`app.routes.ts:4-8`)                                                                                                                     |
 | `/transactions`                                  | Página de transações, carregada sob demanda (`loadChildren` → `loadComponent`); filtros ocultos, "Mais recentes primeiro"                                                  |
-| `/transactions?categoryId=<uuid>`                | Filtros à vista, com a categoria; usado pelo link da quantidade de transações da página de categorias ([002-gestao-de-categorias](../../002-gestao-de-categorias/spec.md)) |
-| `/transactions?month=YYYY-MM`                    | Filtros à vista, com o mês; usado pelo "Ver todas" do painel de relatórios ([001-reports-dashboard](../../001-reports-dashboard/contracts/reports-ui.md))                  |
+| `/transactions?categoryId=<uuid>`                | Filtros à vista, com a categoria; usado pelo link da quantidade de transações da página de categorias ([001-categorias](../../001-categorias/spec.md)) |
+| `/transactions?month=YYYY-MM`                    | Filtros à vista, com o mês; usado pelo "Ver todas" do painel de relatórios ([003-relatorios](../../003-relatorios/contracts/reports-ui.md))                  |
 | `/transactions?categoryId=<uuid>&month=YYYY-MM`  | Os dois filtros juntos                                                                                                                                                     |
 | `month` fora de `YYYY-MM` ou com mês inexistente | O mês é ignorado; sem outro parâmetro, os filtros ficam ocultos                                                                                                            |
 | `categoryId` malformado ou inexistente           | Usado como veio: malformado → erro na tabela; inexistente → lista vazia                                                                                                    |

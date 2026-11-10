@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Dar ao painel de relatórios cinco relatórios somente leitura, um por necessidade, cada um sobre um mês do calendário: resumo mensal, despesas por categoria, receitas vs. despesas dos últimos meses, despesa diária acumulada contra a do mês anterior e transações do mês. Os totais saem do banco e as datas seguem o fuso America/Sao_Paulo.
+Dar ao painel de relatórios cinco relatórios somente leitura, um por necessidade, cada um sobre um mês do calendário: resumo mensal, despesas por categoria, receitas vs. despesas dos últimos meses, despesa diária acumulada contra a do mês anterior e transações do mês. Os totais saem do banco e as datas seguem o fuso America/Sao_Paulo. Cada transação do mês traz a cor da categoria, para o painel pintá-la sem uma segunda consulta.
 
 ## Cenários
 
@@ -41,6 +41,9 @@ Dar ao painel de relatórios cinco relatórios somente leitura, um por necessida
 1. **Dado** um mês com 30 transações, **quando** o relatório é pedido, **então** voltam as 30, sem paginação nem limite.
 2. **Dado** uma despesa de 50,00 em Mercado, **quando** o relatório é pedido, **então** ela traz o nome "Mercado", o tipo "saída" e o valor 50,00.
 3. **Dado** duas transações no mesmo dia, **quando** o relatório é pedido, **então** a registrada por último vem primeiro.
+4. **Dado** um mês com transações em categorias de cores diferentes, **quando** o relatório é pedido, **então** cada item traz a cor da categoria da sua transação, como `#` e 6 dígitos hexadecimais em maiúsculas, o mesmo formato do relatório de despesas por categoria.
+5. **Dado** uma categoria cuja cor foi alterada depois de criada, **quando** o relatório é pedido, **então** os itens dela trazem a cor atual.
+6. **Dado** um cliente que só conhece os campos anteriores do relatório, **quando** ele o consulta, **então** continua recebendo todos eles, com os mesmos nomes, tipos e valores.
 
 **Casos-limite**
 
@@ -53,6 +56,7 @@ Dar ao painel de relatórios cinco relatórios somente leitura, um por necessida
 - Categorias com o mesmo gasto vêm em ordem alfabética. "Outras" vem sempre por último, mesmo que seu total passe o de categorias listadas.
 - Participações e variações são arredondadas para duas casas, então as participações podem não somar exatamente 100%.
 - Mês que ainda não começou não tem dia algum na série acumulada; mês passado tem todos. Quando o selecionado é o seguinte ao atual, a série dele fica vazia e a do mês anterior (o atual) segue o FR-013.
+- Na lista de transações do mês, várias transações da mesma categoria trazem a mesma cor, e um mês sem transações continua devolvendo lista vazia.
 
 ## Requisitos
 
@@ -73,12 +77,19 @@ Dar ao painel de relatórios cinco relatórios somente leitura, um por necessida
 - **FR-015**: Os valores monetários DEVEM ser decimais exatos; os valores projetados e os percentuais DEVEM ser arredondados para duas casas.
 - **FR-016**: Cada relatório DEVE trabalhar só com os meses que cobre, somando os valores onde estão armazenados, em vez de ler todo o histórico a cada solicitação.
 - **FR-017**: O comportamento existente de transações e de categorias e os seus contratos NÃO DEVEM mudar.
+- **FR-018**: Cada item do relatório de transações do mês DEVE incluir a cor da categoria da transação.
+- **FR-019**: A cor DEVE ter o formato `#` seguido de 6 dígitos hexadecimais em maiúsculas, o mesmo da cor do relatório de despesas por categoria.
+- **FR-020**: A cor devolvida DEVE ser a cor atual da categoria no momento da consulta.
+- **FR-021**: A inclusão da cor DEVE ser aditiva: os campos, os tipos, a ordenação, os filtros e os status do relatório permanecem como estão.
+- **FR-022**: O contrato do relatório de transações do mês DEVE descrever a cor como campo obrigatório e não nulo, em `contracts/monthly-transactions-api.yaml`, que estende o `reports-api.yaml` sem reescrevê-lo.
+- **FR-023**: A listagem `/transactions` e os demais relatórios DEVEM permanecer inalterados pela inclusão da cor.
 
 ## Regras de negócio e erros
 
 - Entrada e saída seguem o sinal do valor da transação ([transação](../../dominio/transacao.md)); a despesa é informada como positiva. Moeda única implícita (BRL), uso single-tenant.
 - Percentuais na escala 0–100 (25,5 é 25,5%), com duas casas. A taxa de poupança (saldo ÷ receita × 100) pode ser negativa quando a despesa passa da receita.
 - Mês inválido e quantidade de meses fora de 1 a 24 respondem 400 (`ValidationProblemDetails`), sem executar o relatório.
+- A cor da transação do mês nunca é nula: toda transação pertence a uma categoria, que sempre tem cor (o `null` de "Outras", no relatório por categoria, não se aplica aqui). A cor não é dado sensível e não há entrada nova.
 
 ## Critérios de sucesso
 
@@ -89,6 +100,9 @@ Dar ao painel de relatórios cinco relatórios somente leitura, um por necessida
 - **SC-005**: A soma dos valores do relatório de despesas por categoria é sempre igual à despesa total dele e à despesa total do mês no resumo.
 - **SC-006**: Em 100% dos casos, o último valor da série acumulada do mês atual é igual à despesa total do mês no resumo, inclusive com despesas lançadas para depois de hoje.
 - **SC-007**: No mês atual, a despesa projetada nunca é menor do que a despesa total já lançada no mês.
+- **SC-008**: Em 100% dos itens do relatório de transações de qualquer mês, a cor devolvida é igual à cor da categoria da transação.
+- **SC-009**: 100% dos testes de contrato anteriores à cor continuam passando sem modificação.
+- **SC-010**: O relatório de transações de um mês continua sendo obtido com uma única consulta ao banco, sem consulta por transação, e o tempo de resposta com a mesma massa de dados não passa de 110% do anterior à cor.
 
 ## Fora de escopo
 

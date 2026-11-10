@@ -167,11 +167,11 @@ há, o item diz isso explicitamente.
 ## Contrato consumido
 
 - **Decisão**: A página consome só `GET/POST /api/categories` e `PUT/DELETE /api/categories/{id}` de
-  `back/specs/001-category-management/contracts/categories-api.yaml`; `types/category.ts` espelha os oito campos de
+  `back/specs/001-categorias/contracts/categories-api.yaml`; `types/category.ts` espelha os oito campos de
   `CategoryOutput`, e `CategoryInput` (`Pick<Category, 'name' | 'color'>`) espelha `Create/UpdateCategoryInput`.
 - **Justificativa**: Princípio IV e F2.
 - **Divergências**: o contrato declara `dateRef` como `format: date-time` (`categories-api.yaml:26-32`; o mesmo em
-  `back/specs/002-transaction-management/contracts/transactions-api.yaml:27-33`), mas o front envia só a data
+  `back/specs/002-transacoes/contracts/transactions-api.yaml:27-33`), mas o front envia só a data
   (`YYYY-MM-DD`), e o back a aceita — o próprio teste do controller usa `dateRef=2026-09-01`
   (`back/tests/Denarius.WebAPI.Tests/Categories/CategoriesControllerTests.cs:211`). O usuário decidiu (D3) que é um
   desvio conhecido do back, só de documentação do contrato, a corrigir pelo fluxo de bugs no back, fora desta spec;
@@ -228,7 +228,7 @@ da revisão independente; D11 a D16 em 2026-10-06, depois da revisão dos checkl
     a paleta é um asset estático, e não a API; o service `root` funciona como cache; e assim a paleta só é baixada na
     primeira abertura do diálogo (SC-009).
 - **D5 — Imports de `categories/` por `transactions/` (decidido no plan da 003).**
-  - Decisão: exceção registrada no plan da [003-gestao-de-transacoes](../003-gestao-de-transacoes/plan.md), válida até
+  - Decisão: exceção registrada no plan da [002-transacoes](../002-transacoes/plan.md), válida até
     um ciclo próprio de refatoração mover `Category`, a fixture e a requisição da lista de categorias para `shared/`;
     esse ciclo também tocará `categories/`. Aqui, só a referência.
 - **D6 — `ColorsService.reload()` sem uso em produção: remover depois.**

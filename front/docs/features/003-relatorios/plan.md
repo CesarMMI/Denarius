@@ -1,6 +1,6 @@
 # Plano: Painel de relatórios
 
-**Spec**: [spec.md](./spec.md) · **Entregue em**: `257afad` · **Contrato consumido**: [back/docs/features/003-financial-reports/contracts/reports-api.yaml](../../../../back/docs/features/003-financial-reports/contracts/reports-api.yaml)
+**Spec**: [spec.md](./spec.md) · **Entregue em**: `257afad`, e o chip e o divisor da lista de transações em `2171566` · **Contrato consumido**: [back/docs/features/003-relatorios/contracts/reports-api.yaml](../../../../back/docs/features/003-relatorios/contracts/reports-api.yaml), com o `color` de [monthly-transactions-api.yaml](../../../../back/docs/features/003-relatorios/contracts/monthly-transactions-api.yaml)
 
 ## Conferência com as regras
 
@@ -12,6 +12,7 @@
 - Segurança (II): nomes de categoria interpolados com `{{ }}`, sem `innerHTML` nem `bypassSecurityTrust*`.
 - Performance (III): SC-005; o Chart.js só carrega com a rota (bundle inicial ~630 kB, aviso do budget em 700 kB); estilos de componente abaixo do budget de 4 kB.
 - Dependência nova: `ng2-charts@10.0.0` e `chart.js` 4.x, pedidos para a feature, adicionados por `ng add ng2-charts`; é a versão mais recente compatível com o Angular 21 (a 11.x exige o 22).
+- Chip e divisor na lista de transações (2026-11-07): só `reports/components/transactions-list` (apresentação, sem HTTP); reaproveita `shared/mat-chip-color`, sem rota, banco nem dependência novos; consome o `color` que o back já entrega (F2 e IV); a descrição, que vem do usuário, continua interpolada com `{{ }}`, e a cor só chega à diretiva (II); sem requisição nova, e o conjunto de linhas "mesmo dia" é um `computed` sobre as dez exibidas (SC-009).
 
 ## Mudanças
 
@@ -19,6 +20,7 @@
 - **Serviços e tipos**: `ReportsService` (um método por relatório, devolvendo `{ url, params }`), `ChartThemeService` (cores do tema por esquema de cores), `types/report.ts`.
 - **Fora de `reports/`**: link "Relatórios" por último na sidenav (`app.ts`); `toMonthKey` e `currentMonth` (São Paulo) em `shared/date-utils`; `?month=YYYY-MM` na página de transações (FR-013).
 - **`docs/design.md`**: registrar o painel (grade bento, cores dos gráficos, estados por bloco).
+- **Chip e divisor por dia (2026-11-07)**: em `transactions-list.{ts,html,scss}`, `<mat-chip [appMatChipColor]="transaction.color">` com `description ?? categoryName` no lugar do texto e da linha da categoria, e a classe `same-date` nas linhas seguidas do mesmo dia, que tira o divisor como em `transactions-table`. `types/report.ts` ganha `MonthlyTransaction.color: string`, e `testing/report-fixtures.ts` ganha `color: '#43A047'` por padrão. O `docs/design.md` não muda: o chip segue o padrão já documentado.
 
 ## Decisões
 
@@ -28,6 +30,7 @@ Detalhes e alternativas em [research.md](./research.md).
 - **Um `httpResource` por bloco, na página**: cada bloco tem carregamento, erro e nova tentativa próprios (FR-008) sem HTTP em `components/` (F1).
 - **Cores**: despesa `error`, receita `tertiary`, "Outras" `outline`; linhas da comparação acumulada `primary`/`secondary`, decisão do dono no bug `chart-theme-teste-tokens-desatualizados` (FR-010).
 - **Rosca e lista**: a página reduz a cinco fatias e dez linhas o que a API devolve; o back não muda.
+- **Chip**: reaproveitar `MatChipColor`, o mesmo visual da tabela de Transações; `description ?? categoryName` basta porque o back normaliza descrição em branco para `null`. **Corte (FR-019)**: texto em `span.label` dentro do chip, com as reticências no `.label`; o jsdom não mede layout, então o teste confere só a estrutura. **Divisor (FR-018)**: `computed` `sameDate` sobre `latest()`, pelo `date.slice(0, 10)` (data exibida em UTC), sem extrair a regra para `shared/` para não mexer em `transactions-table` (FR-021). **Tipo**: `color: string` não nulo, como no contrato.
 
 ## Testes previstos
 
@@ -38,7 +41,8 @@ Vitest com `HttpTestingController` para service e página, `resourceFromSnapshot
 - Gráficos: no máximo cinco fatias e "Outras" (FR-004); doze meses com zeros (FR-005); séries da linha (FR-006); cores (FR-010, SC-004); tooltips em BRL.
 - Lista: dez linhas, ordem, título com a contagem, "Ver todas" com `?month=` (FR-007, FR-013).
 - Estados vazio, de carga e de erro de cada bloco; `ChartThemeService` nos dois esquemas.
+- **Chip e divisor** (em `transactions-list.spec.ts`, fixture com `color` primeiro): texto do chip (descrição, ou categoria sem descrição); nenhum elemento `.category` na coluna de descrição; cor por categoria (SC-006), comparando com uma instância de `MatChipColor` da mesma cor, porque a diretiva grava `--mat-chip-*` em `light-dark(...)` e não o `#RRGGBB`; `same-date` entre linhas do mesmo dia (inclusive com horários diferentes), ausente entre dias diferentes e numa linha só, considerando só as dez exibidas (SC-007); o texto em `span.label` dentro do chip. Só os testes de `column('description')` mudaram, porque a linha da categoria saiu.
 
 ## Verificação
 
-`npx ng test --watch=false`, `npm run lint` e `npm run build` sem erro nem aviso de budget; o "Initial total" fica em ~630 kB. Manual, com a API de relatórios no ar e dados de vários meses (seed do quickstart do back): a página abre no mês atual com os cinco cards; barras com doze meses e meses vazios; linha do mês parando em hoje; "Mês anterior" recarrega cada bloco uma vez e "Ver todas" abre as transações filtradas; um mês sem dados mostra os estados vazios; com a API parada, cada bloco mostra seu erro e só o bloco tentado recarrega; em 1366×768 nada rola além da lista, abaixo de 1200 px a grade empilha, e o modo escuro redesenha os gráficos.
+`npx ng test --watch=false`, `npm run lint` e `npm run build` sem erro nem aviso de budget; o "Initial total" fica em ~630 kB. Manual, com a API de relatórios no ar e dados de vários meses (seed do quickstart do back): a página abre no mês atual com os cinco cards; barras com doze meses e meses vazios; linha do mês parando em hoje; "Mês anterior" recarrega cada bloco uma vez e "Ver todas" abre as transações filtradas; um mês sem dados mostra os estados vazios; com a API parada, cada bloco mostra seu erro e só o bloco tentado recarrega; em 1366×768 nada rola além da lista, abaixo de 1200 px a grade empilha, e o modo escuro redesenha os gráficos. Chip e divisor: visual, com a API no ar, chip na cor da categoria sem a linha menor, divisor só entre dias, e descrição de 255 caracteres cortada dentro do chip, sem rolagem horizontal (SC-008); na aba de rede, as mesmas requisições de antes (SC-009).

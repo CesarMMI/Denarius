@@ -19,14 +19,14 @@ na grade, e a spec, o research, o data-model e o quickstart da 001 passaram a de
 | ------------------------------------------------------------ | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `front/src/app/reports/services/chart-theme.service.spec.ts` | teste atualizado | `primaryVariant`: `on-primary` → `secondary` (decisão P1 = A); `grid` já esperava `surface-container-high` e ficou igual. Continua comparando os oito tokens por igualdade exata. |
 | `front/src/app/reports/services/chart-theme.service.ts`      | modificado       | `grid`: `surface-container-highest` → `surface-container-high` (decisão P2 = B).                                                                                                  |
-| `front/specs/001-reports-dashboard/spec.md`                  | modificado       | Nova sessão de Esclarecimentos (2026-10-06); FR-010, SC-004 e US5/AC1 reescritos.                                                                                                 |
-| `front/specs/001-reports-dashboard/research.md`              | modificado       | Cores (decisão, justificativa e alternativas) e Formas e marcas.                                                                                                                  |
-| `front/specs/001-reports-dashboard/data-model.md`            | modificado       | Linha "Comparação acumulada" da tabela de estado derivado (antes na linha 89).                                                                                                    |
-| `front/specs/001-reports-dashboard/quickstart.md`            | modificado       | Passo 3 (linha 35).                                                                                                                                                               |
-| `front/specs/001-reports-dashboard/plan.md`                  | modificado       | Resumo de cores (linha 17) cita as linhas da comparação acumulada. Ampliação pedida na revisão (R-01).                                                                            |
+| `front/specs/003-relatorios/spec.md`                  | modificado       | Nova sessão de Esclarecimentos (2026-10-06); FR-010, SC-004 e US5/AC1 reescritos.                                                                                                 |
+| `front/specs/003-relatorios/research.md`              | modificado       | Cores (decisão, justificativa e alternativas) e Formas e marcas.                                                                                                                  |
+| `front/specs/003-relatorios/data-model.md`            | modificado       | Linha "Comparação acumulada" da tabela de estado derivado (antes na linha 89).                                                                                                    |
+| `front/specs/003-relatorios/quickstart.md`            | modificado       | Passo 3 (linha 35).                                                                                                                                                               |
+| `front/specs/003-relatorios/plan.md`                  | modificado       | Resumo de cores (linha 17) cita as linhas da comparação acumulada. Ampliação pedida na revisão (R-01).                                                                            |
 
 Nada mudou em `cumulative-comparison-chart.*`, nos outros gráficos, nos fakes de `ChartColors`, em `categories/`,
-`transactions/`, `shared/`, nas specs 002/003 nem no back.
+`transactions/`, `shared/`, nas specs 001/002 nem no back.
 
 ## Destaques do diff
 

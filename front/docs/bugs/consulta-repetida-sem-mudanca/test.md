@@ -70,7 +70,7 @@ Application bundle generation complete.
 - O `shallowEqual` compara o estado, e não a consulta: nos relatórios, um `Date` de outro dia do mesmo mês ainda
   geraria consulta repetida, caso que o `MonthField` não produz hoje.
 - O `reload()` redundante depois do `month.set()` em "Mês anterior"/"Próximo mês" dos relatórios ficou fora deste bug.
-- `plan.md`, `research.md` e checklists das features 002 e 003 ainda descrevem o desvio como conhecido ou a corrigir
+- `plan.md`, `research.md` e checklists das features 001 e 002 ainda descrevem o desvio como conhecido ou a corrigir
   nos componentes compartilhados; ficam para o `/speckit-converge` (pendência do `fix.md`).
 - O estouro intermitente de 5 s em `app.routes.spec.ts` › "should open the transactions page at the root" já existia
   antes da correção e não tem relação com ela; não se repetiu nesta verificação.
@@ -78,5 +78,5 @@ Application bundle generation complete.
 ## Recomendação
 
 Encerrar o bug: os 10 testes de regressão passam com a correção e falham sem ela, e a suíte (285 testes), o lint e o
-build do front estão verdes, sem aviso de budget. As pendências listadas (artefatos das 002 e 003 e o estouro
+build do front estão verdes, sem aviso de budget. As pendências listadas (artefatos das 001 e 002 e o estouro
 intermitente do `app.routes.spec.ts`) seguem em separado e não impedem o fechamento.

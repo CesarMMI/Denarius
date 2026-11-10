@@ -17,4 +17,4 @@
 ## Desvios e pendências
 
 - O trim do `name` entrou no escopo por pedido do usuário depois do portão. O `assessment.md` foi encurtado até 40 linhas a pedido do revisor, sem mudar as decisões.
-- Pendências: atualizar a FR-017 da spec 002 do front, que ainda diz que a busca diferencia acentos (depende de aval), e rodar `dotnet ef database update` na base de dev antes de reiniciar a API, porque sem isso a busca responde 500.
+- Pendências: atualizar a FR-017 da spec 001 do front, que ainda diz que a busca diferencia acentos (depende de aval), e rodar `dotnet ef database update` na base de dev antes de reiniciar a API, porque sem isso a busca responde 500.

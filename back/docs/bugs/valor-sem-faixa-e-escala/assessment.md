@@ -1,7 +1,7 @@
 # Avaliação do bug: a API não valida a faixa nem a escala do valor da transação
 
 - **Slug**: valor-sem-faixa-e-escala · **Projeto**: back · **Criada em**: 2026-10-09
-- **Origem**: desvio registrado em `front/specs/003-gestao-de-transacoes/research.md:336` e `spec.md:101,353`
+- **Origem**: desvio registrado em `front/specs/002-transacoes/research.md:336` e `spec.md:101,353`
 - **Veredito**: válido · **Severidade**: high
 
 ## Sintoma e reprodução
@@ -18,7 +18,7 @@ O esperado, pelo princípio II, é a API recusar com `400` todo valor que ela n�
 - `src/Denarius.Domain/Entities/Transaction.cs:60-66`: `ValidateValue` só recusa o zero.
 - `src/Denarius.Infrastructure/Persistence/Configurations/TransactionConfiguration.cs:23-25`: a coluna `numeric(18,2)` arredonda as casas a mais e estoura a partir de 10^16. O estouro vira `500` em `GlobalExceptionHandler.cs:35`.
 - O EF monta a `Transaction` pelo construtor público, que valida o valor (a pilha do log passa por `ValidateValue`). Por isso, um zero gravado quebra toda consulta que carrega transações.
-- O contrato `specs/002-transaction-management/contracts/transactions-api.yaml` não documenta nenhum limite para o `value`.
+- O contrato `specs/002-transacoes/contracts/transactions-api.yaml` não documenta nenhum limite para o `value`.
 
 ## Correção proposta
 

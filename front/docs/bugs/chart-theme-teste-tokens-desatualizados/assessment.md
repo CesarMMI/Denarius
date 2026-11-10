@@ -58,7 +58,7 @@ Código e testes:
   na variante", com os fakes `amber`/`brown`.
 - `cumulative-comparison-chart.ts:86-89` e `income-vs-expense-chart.ts:67-70`: os consumidores de `grid`.
 
-Artefatos da 001 (`front/specs/001-reports-dashboard/`) que descrevem as cores das linhas e da grade:
+Artefatos da 001 (`front/specs/003-relatorios/`) que descrevem as cores das linhas e da grade:
 
 - `spec.md:135-136` (US5, AC1): "a linha do mês, em vermelho, para em hoje, e a linha do mês anterior, numa cor
   neutra, cobre o mês inteiro". A entrada da spec também pede "despesas em vermelho em todo lugar" (`spec.md:15`).

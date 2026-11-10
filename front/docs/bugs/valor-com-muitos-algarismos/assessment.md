@@ -3,7 +3,7 @@
 - **Slug**: valor-com-muitos-algarismos
 - **Projeto**: front
 - **Criada em**: 2026-10-07
-- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` da feature 003)
+- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` da feature 002)
 - **Veredito**: válido
 - **Severidade**: high
 
@@ -24,7 +24,7 @@ valores com mais de 13 algarismos na parte inteira (acima de R$ 9.999.999.999.99
 
 ## Requisitos violados
 
-- `front/specs/003-gestao-de-transacoes/spec.md`: FR-014 (linhas 451-460), cenário 5 da História 2 (204-208),
+- `front/specs/002-transacoes/spec.md`: FR-014 (linhas 451-460), cenário 5 da História 2 (204-208),
   Casos-limite (350-360) e Esclarecimentos (31-34, 96-100 e 110-112; o segundo e o terceiro classificam o desvio como
   violação do princípio II que bloqueia a entrega da 003).
 - `AGENTS.md` da raiz, princípio II (Segurança): o dado financeiro gravado difere do digitado, sem aviso.
@@ -76,7 +76,7 @@ Passos manuais equivalentes:
 - **Conversão e envio** (`transaction-form.ts:70-75`): `parseFloat(value.replace(',', '.'))`, com o sinal aplicado pelo
   tipo, vai como `number` em `TransactionInput.value` (`types/transaction.ts:5,11`), e o `HttpClient` o serializa com
   `JSON.stringify` (`transactions.service.ts:28,32`), que escreve a menor representação decimal do double.
-- **Contrato** (`back/specs/002-transaction-management/contracts/transactions-api.yaml:213-215 e 232-234`): `value` é
+- **Contrato** (`back/specs/002-transacoes/contracts/transactions-api.yaml:213-215 e 232-234`): `value` é
   `type: number, format: decimal`, um número JSON. O contrato não prevê o valor como string; mudar isso seria uma
   mudança de contrato, no back, fora deste bug. O back lê o número JSON como `decimal` (lê o texto, sem passar por
   double) e grava em `numeric(18,2)` (`TransactionConfiguration.cs:24`): até 16 algarismos inteiros. Acima disso a
@@ -151,7 +151,7 @@ até 16 inteiros. A validação de faixa e escala na API continua como desvio co
 
 - `front/src/app/transactions/components/transaction-form/transaction-form.ts` (a regex e o comentário);
 - `front/src/app/transactions/components/transaction-form/transaction-form.spec.ts` (testes);
-- `front/specs/003-gestao-de-transacoes/spec.md` (notas de desvio; ver P2).
+- `front/specs/002-transacoes/spec.md` (notas de desvio; ver P2).
 
 Nenhuma mudança no back, nos services, nos tipos, no contrato da API, no template ou nas dependências.
 

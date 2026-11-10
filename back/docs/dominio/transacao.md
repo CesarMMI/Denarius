@@ -24,4 +24,4 @@ Uma movimentação de dinheiro: entrada (valor positivo) ou saída (valor negati
 
 ## Origem
 
-Specs [002-transaction-management](../features/002-transaction-management/spec.md) e [003-financial-reports](../features/003-financial-reports/spec.md).
+Specs [002-transacoes](../features/002-transacoes/spec.md) e [003-relatorios](../features/003-relatorios/spec.md).

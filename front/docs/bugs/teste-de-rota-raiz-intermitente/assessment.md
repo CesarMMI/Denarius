@@ -10,7 +10,7 @@
 
 ## Relato (resumido)
 
-> O teste `app.routes.spec.ts` › "should open the transactions page at the root" (C3, T014 da feature 003) estoura o
+> O teste `app.routes.spec.ts` › "should open the transactions page at the root" (C3, T014 da feature 002) estoura o
 > timeout de 5 s em cerca de 1 de cada 3 execuções da suíte completa (`npx ng test --watch=false`). Rodado sozinho,
 > passa. Ele usa as rotas reais e navega até `''`, o que carrega a rota lazy de transações via import dinâmico. A
 > suspeita é lentidão do import dinâmico sob a carga da suíte em paralelo.

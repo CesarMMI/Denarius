@@ -6,7 +6,7 @@
 
 - `src/Denarius.Domain/Entities/Transaction.cs`: a nova constante `ValueMaxAbsolute` define o máximo, e `ValidateValue` recusa com `400` um valor com mais de duas casas decimais ou com módulo acima dele.
 - `tests/Denarius.Domain.Tests/Entities/TransactionTests.cs`: `Constructor_ValueWithMoreThanTwoDecimalPlaces_*`, `Constructor_ValueAboveTheMaximum_*`, `Constructor_ValueAtTheLimits_*`, `ValueMaxAbsolute_*` e `Update_ValueWithMoreThanTwoDecimalPlacesOrAboveTheMaximum_*`.
-- `specs/002-transaction-management/contracts/transactions-api.yaml` 1.2.0: o `value` da criação e da edição ganha `minimum`, `maximum` e `multipleOf`. A mudança só restringe valores que antes davam `500` ou eram gravados diferentes do enviado.
+- `specs/002-transacoes/contracts/transactions-api.yaml` 1.2.0: o `value` da criação e da edição ganha `minimum`, `maximum` e `multipleOf`. A mudança só restringe valores que antes davam `500` ou eram gravados diferentes do enviado.
 
 ## Verificação
 
@@ -17,4 +17,4 @@
 
 - A mensagem de erro traz o máximo por extenso, sem depender da cultura do runtime.
 - O `assessment.md` foi enxugado até o limite de 40 linhas, a pedido do revisor, sem mudar o conteúdo.
-- Pendência no front, que depende de aprovação: as notas de "desvio conhecido" na spec 003.
+- Pendência no front, que depende de aprovação: as notas de "desvio conhecido" na spec 002.

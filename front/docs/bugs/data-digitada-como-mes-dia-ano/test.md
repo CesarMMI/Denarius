@@ -81,4 +81,4 @@ Application bundle generation complete.
 
 Encerrar o bug: os 17 testes de reprodução falham sem a correção e passam com ela, os guardas passam nos dois casos, e
 a suíte (357 testes, também com `TZ=America/Sao_Paulo`), o lint e o build do front estão verdes, sem aviso de budget.
-A conferência no navegador é opcional e não impede o fechamento; em seguida, rodar o `/speckit-converge` da feature 003.
+A conferência no navegador é opcional e não impede o fechamento; em seguida, rodar o `/speckit-converge` da feature 002.

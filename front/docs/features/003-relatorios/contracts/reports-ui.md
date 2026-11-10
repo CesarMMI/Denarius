@@ -3,7 +3,7 @@
 ## API consumida
 
 Definida pelo backend em
-[`back/specs/003-financial-reports/contracts/reports-api.yaml`](../../../../back/specs/003-financial-reports/contracts/reports-api.yaml).
+[`back/specs/003-relatorios/contracts/reports-api.yaml`](../../../../back/specs/003-relatorios/contracts/reports-api.yaml).
 Toda requisição passa pelo `ReportsService`, que devolve `{ url, params }` para um `httpResource`. O `month` é enviado
 como `YYYY-MM`; sem mês, a API informa o mês atual em São Paulo.
 

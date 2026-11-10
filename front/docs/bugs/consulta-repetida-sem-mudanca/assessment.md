@@ -3,7 +3,7 @@
 - **Slug**: consulta-repetida-sem-mudanca
 - **Projeto**: front
 - **Criada em**: 2026-10-07
-- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` das features 002 e 003)
+- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` das features 001 e 002)
 - **Veredito**: válido
 - **Severidade**: medium
 
@@ -24,11 +24,11 @@ escolher o mesmo mês refaz as cinco consultas. O esperado é nenhuma consulta e
 
 ## Requisitos violados
 
-- `front/specs/002-gestao-de-categorias/spec.md`: FR-023 (488-493), SC-006 (519-521) e Casos-limite (352-359). O
+- `front/specs/001-categorias/spec.md`: FR-023 (488-493), SC-006 (519-521) e Casos-limite (352-359). O
   FR-023 pede uma correção só, pelo fluxo de bugs, "começando por um teste que reproduza o caso do 'Nome'", e que valha
   também para transações e relatórios.
-- `front/specs/003-gestao-de-transacoes/spec.md`: FR-031 (551-558), SC-007 (592-596) e Casos-limite (338-346).
-- `front/specs/001-reports-dashboard/spec.md`: não tem requisito equivalente explícito. O FR-002 (192-193) e a SC-002
+- `front/specs/002-transacoes/spec.md`: FR-031 (551-558), SC-007 (592-596) e Casos-limite (338-346).
+- `front/specs/003-relatorios/spec.md`: não tem requisito equivalente explícito. O FR-002 (192-193) e a SC-002
   (231) só pedem que escolher um mês atualize os cinco blocos. Vale o princípio III do `AGENTS.md` da raiz ("Nada de
   requisições, consultas ou cálculos repetidos sem necessidade"), e o próprio FR-023 da 002 estende a correção aos
   relatórios.
@@ -52,7 +52,7 @@ páginas com `HttpTestingController`, respondia a cada GET e registrava as requi
 | Relatórios: escolher no "Mês" o mês já mostrado | 5: `summary`, `expensesByCategory`, `incomeVsExpense`, `cumulativeExpenses`, `transactions` |
 | Relatórios: "Mês anterior" | 5 (esperado; nenhuma em dobro) |
 
-Isso confirma também os desvios que as specs 002 e 003 marcavam como "deduzidos do código e ainda não reproduzidos"
+Isso confirma também os desvios que as specs 001 e 002 marcavam como "deduzidos do código e ainda não reproduzidos"
 (o "Nome" e a "Descrição", inclusive a consulta a mais ao sair do campo, que só acontece quando o texto aplicado não
 mudou). A "Descrição" de transações usa o mesmo código do "Nome" (`debounce(path.description!, 300)`) e não foi
 rodada à parte.
@@ -124,7 +124,7 @@ conteúdo igual. Três caminhos gravam valores novos sem mudança: o menu de ord
 dos filtros (que reescreve o objeto raiz depois da pausa e de novo ao sair do campo). Não falta comparação num ponto
 específico da interface: falta uma comparação, em qualquer ponto, entre a consulta nova e a anterior.
 
-**É bug, e não comportamento novo.** As specs 002 e 003 já exigem o comportamento (FR-023, FR-031, SC-006, SC-007) e
+**É bug, e não comportamento novo.** As specs 001 e 002 já exigem o comportamento (FR-023, FR-031, SC-006, SC-007) e
 registram o desvio como conhecido, encaminhado ao fluxo de bugs. Nos relatórios, o princípio III da constituição já
 proíbe a consulta repetida.
 
@@ -263,7 +263,7 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
   hoje não faz nada, porque o recurso já está carregando; a reprodução mostrou cinco requisições, nenhuma em dobro. A
   correção não muda isso. A chamada redundante fica fora deste bug.
 - **Campo de mês com dia de outro mês**: o desvio do "Mês" que aplica no campo o mês de um dia escolhido sem mudar o
-  filtro (FR-023/FR-024 da 002 e 003) é outro bug, com correção própria no `month-field`, fora deste. Nenhuma das
+  filtro (FR-023/FR-024 da 001 e 002) é outro bug, com correção própria no `month-field`, fora deste. Nenhuma das
   opções o resolve. Em categorias e transações o `dateRef` usa o dia inteiro (`toDateKey`), então um `Date` em outro
   dia do mês gera outra consulta em (A), (B) ou (C). Só nos relatórios, cujo parâmetro é o mês (`toMonthKey`), (A)
   trataria esse `Date` como a mesma consulta.
@@ -283,7 +283,7 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
 ## Perguntas em aberto
 
 - **P1 — Onde corrigir**: [NEEDS CLARIFICATION: comparar a consulta, o estado das páginas ou cada origem?]
-  Atenção: o FR-031 da 003 (`front/specs/003-gestao-de-transacoes/spec.md:557-558`, e também a sessão de esclarecimentos, linhas 70-72) diz que a correção fica "no menu de
+  Atenção: o FR-031 da 003 (`front/specs/002-transacoes/spec.md:557-558`, e também a sessão de esclarecimentos, linhas 70-72) diz que a correção fica "no menu de
   ordenação, no campo 'Mês' compartilhados e na busca", o que descreve (B). O FR-023 da 002 só pede uma correção
   única, pelo fluxo de bugs, sem dizer onde.
   - (A) Helper `distinctRequest` em `shared/`, envolvendo os 7 `httpResource` das três páginas. Compara a própria
@@ -305,7 +305,7 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
     espelhar os parâmetros. O custo é deixar o recálculo do gráfico e da lista dos relatórios fora deste bug e ajustar
     a frase do FR-031. Se o usuário quiser resolver também o recálculo nos relatórios sem mexer nos componentes
     compartilhados, a escolha é (C). Se quiser seguir o FR-031 como está escrito, é (B).
-- **P2 — Specs 002 e 003**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou deixar para uma revisão à
+- **P2 — Specs 001 e 002**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou deixar para uma revisão à
   parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`. Saem as notas "Desvio conhecido" ligadas ao FR-023 e ao
     FR-031, às SC-006 e SC-007 e aos Casos-limite, como as próprias specs mandam fazer quando o desvio for corrigido.

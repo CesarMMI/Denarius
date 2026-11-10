@@ -3,7 +3,7 @@
 - **Slug**: clique-repetido-em-excluir
 - **Projeto**: front
 - **Criada em**: 2026-10-07
-- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` das features 002 e 003)
+- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` das features 001 e 002)
 - **Veredito**: válido
 - **Severidade**: medium
 
@@ -24,10 +24,10 @@ restauração em andamento.
 
 ## Requisitos violados
 
-- `front/specs/002-gestao-de-categorias/spec.md`: FR-012 (428-435) e FR-013 (436-439), Casos-limite (333-337),
+- `front/specs/001-categorias/spec.md`: FR-012 (428-435) e FR-013 (436-439), Casos-limite (333-337),
   Esclarecimentos (83-91, que pedem a forma da correção a este assess e dizem que ela bloqueia a entrega da 002 e da
   003) e Premissas (526-527). A SC-004 (503-504) depende disso: hoje uma exclusão pode perder o "Desfazer".
-- `front/specs/003-gestao-de-transacoes/spec.md`: FR-020 (498-504, "a forma do retorno visual é definida no
+- `front/specs/002-transacoes/spec.md`: FR-020 (498-504, "a forma do retorno visual é definida no
   `/speckit-bug-assess` dessa correção"), FR-021 (505-506), Casos-limite (398-403), Esclarecimentos (105-115) e
   Premissas (638-642). A SC-004 (575-576) depende disso, como na 002.
 - `AGENTS.md` da raiz, princípio III: "Nada de requisições, consultas ou cálculos repetidos sem necessidade".
@@ -137,7 +137,7 @@ Uma causa secundária, que a correção não pode ignorar: a recarga depois da e
 `reload()` sem conferir o retorno, e um `reload()` com a lista já carregando é descartado pelo Angular. A lista que
 chega pode, então, ainda conter a linha excluída.
 
-**É bug, e não comportamento novo**: as specs 002 e 003 já exigem o bloqueio e o retorno visual e registram o atual
+**É bug, e não comportamento novo**: as specs 001 e 002 já exigem o bloqueio e o retorno visual e registram o atual
 como desvio conhecido, encaminhado ao fluxo de bugs.
 
 ## Correção proposta
@@ -206,7 +206,7 @@ seria uma abstração para duas linhas (princípio V); ver P2. Só a recarga do 
 - novo: `front/src/app/shared/reload-when-idle/reload-when-idle.ts` e `.spec.ts` (passo 4, se a P5 ficar com (a));
 - os `.scss` das páginas, para o `position: sticky` do `mat-progress-bar` (medidas mínimas);
 - se a P6 ficar com (A), as tabelas também desabilitam o "Editar" (já listadas acima);
-- as specs 002 e 003 (notas de desvio; ver abaixo e P4).
+- as specs 001 e 002 (notas de desvio; ver abaixo e P4).
 
 Nenhuma mudança no back, nos services, nos tipos, nas rotas nem no contrato da API; nenhuma dependência nova (o
 `MatProgressBarModule` e o `MatProgressSpinnerModule` são do Angular Material, já instalado; o primeiro entra só no
@@ -311,7 +311,7 @@ escolheu:
 - **P1**: (A), spinner no "Excluir" da linha durante a exclusão e `mat-progress-bar` no cartão durante a restauração.
 - **P2**: (A), o estado `deleting`/`restoring` em cada página; só a recarga do passo 4 vai para `shared/`.
 - **P3**: (A), bloqueio do clique até a linha sair da lista ou até a recusa, com a FR-012 da 002 alinhada.
-- **P4**: (A), as specs 002 e 003 são ajustadas no próprio `/speckit-bug-fix`, com registro no `fix.md`.
+- **P4**: (A), as specs 001 e 002 são ajustadas no próprio `/speckit-bug-fix`, com registro no `fix.md`.
 - **P5**: (a), recarregar quando a carga em curso terminar, **só depois de sucesso** (`resolved`); num erro, a marca é
   descartada.
 - **P6**: (A), o "Editar" da linha também fica desabilitado enquanto ela estiver em `deleting`.
@@ -349,7 +349,7 @@ escolheu:
     recarga continua enviando um pedido inútil e apagando o "Desfazer"; contraria os Casos-limite da 002 e a FR-020 da
     003.
   - **Recomendação**: (A).
-- **P4 — Specs 002 e 003**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou numa revisão à parte?]
+- **P4 — Specs 001 e 002**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou numa revisão à parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`: saem as notas de desvio listadas em "Riscos e considerações";
     a FR-020 da 003 aponta para este bug quanto à forma do retorno; a FR-012 da 002 ganha o prazo da P3; as Premissas
     registram o desvio como corrigido. Os requisitos em si não mudam além do prazo.

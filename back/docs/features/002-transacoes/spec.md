@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Registrar, listar, editar e excluir transações financeiras, cada uma ligada a exatamente uma [categoria](../001-category-management/spec.md), e encontrar uma transação ou entender para onde foi o dinheiro filtrando e ordenando a lista. Entidade em [docs/dominio/transacao.md](../../dominio/transacao.md).
+Registrar, listar, editar e excluir transações financeiras, cada uma ligada a exatamente uma [categoria](../001-categorias/spec.md), e encontrar uma transação ou entender para onde foi o dinheiro filtrando e ordenando a lista. Entidade em [docs/dominio/transacao.md](../../dominio/transacao.md).
 
 ## Cenários
 
@@ -67,4 +67,3 @@ Registrar, listar, editar e excluir transações financeiras, cada uma ligada a 
 ## Fora de escopo
 
 - Moeda (todos os valores estão numa única moeda implícita) e quem pode gerenciar as transações (uso single-tenant, como no resto da aplicação).
-- A spec 003 do front ainda registra a busca por descrição como diferenciando acentos; atualizá-la é do fluxo do front, com aprovação do usuário.

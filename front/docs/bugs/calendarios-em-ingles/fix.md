@@ -11,7 +11,7 @@ Opção (A) da P1, escolhida pelo usuário: uma subclasse do `MatDatepickerIntl`
 (`PtBrDatepickerIntl`), fornecida nos `providers` do `MonthField` e do `TransactionForm`, ao lado do
 `provideNativeDateAdapter` que já estava lá. O provider do componente vence o `MatDatepickerIntl` que o
 `MatDatepickerModule` declara, e por isso a correção não está no `app.config.ts`. Pela P2 (A), a classe traz o conjunto
-completo de rótulos. Pela P3 (A), saíram das specs 002 e 003 as notas "Desvio conhecido" deste bug.
+completo de rótulos. Pela P3 (A), saíram das specs 001 e 002 as notas "Desvio conhecido" deste bug.
 
 ## Alterações
 
@@ -23,8 +23,8 @@ completo de rótulos. Pela P3 (A), saíram das specs 002 e 003 as notas "Desvio 
 | `front/src/app/shared/month-field/month-field.spec.ts` | testes adicionados | 2 testes de regressão (`describe('calendar labels')`) |
 | `front/src/app/transactions/components/transaction-form/transaction-form.ts` | modificado | o mesmo provider, ao lado do `provideNativeDateAdapter()` (que não mudou) |
 | `front/src/app/transactions/components/transaction-form/transaction-form.spec.ts` | teste adicionado | 1 teste de regressão |
-| `front/specs/002-gestao-de-categorias/spec.md` | modificado | notas "Desvio conhecido" deste bug removidas (ver abaixo) |
-| `front/specs/003-gestao-de-transacoes/spec.md` | modificado | notas "Desvio conhecido" deste bug removidas; o conjunto de rótulos passa a apontar para este bug |
+| `front/specs/001-categorias/spec.md` | modificado | notas "Desvio conhecido" deste bug removidas (ver abaixo) |
+| `front/specs/002-transacoes/spec.md` | modificado | notas "Desvio conhecido" deste bug removidas; o conjunto de rótulos passa a apontar para este bug |
 
 Nenhuma mudança no back, no contrato da API, nos services, nos tipos, nas rotas, no `app.config.ts` nem no formato do
 `provideNativeDateAdapter`. Nenhuma dependência nova.
@@ -81,7 +81,7 @@ Em `front/`:
 Só saíram as notas de desvio deste bug e a referência a ele; o texto e o sentido de requisitos, critérios e cenários
 não mudaram, e a frase "e vale para todos os calendários da aplicação" continua na FR-020 da 002 e na FR-030 da 003.
 
-- `front/specs/002-gestao-de-categorias/spec.md`:
+- `front/specs/001-categorias/spec.md`:
   - Esclarecimento do calendário e das cores: "o atual é um desvio conhecido, a corrigir pelo fluxo de bugs do front,
     fora desta spec" passou a "O desvio foi corrigido pelo fluxo de bugs do front (`front/bugs/calendarios-em-ingles/`),
     fora desta spec".
@@ -92,7 +92,7 @@ não mudaram, e a frase "e vale para todos os calendários da aplicação" conti
     aplicação."
   - Premissas: "o calendário em português (FR-020)" passou a "(FR-020, corrigido em
     `front/bugs/calendarios-em-ingles/`)".
-- `front/specs/003-gestao-de-transacoes/spec.md`:
+- `front/specs/002-transacoes/spec.md`:
   - Esclarecimento dos calendários: "O atual é um desvio conhecido, corrigido pelo fluxo de bugs do front, fora desta
     spec" passou a "O desvio foi corrigido pelo fluxo de bugs do front (`front/bugs/calendarios-em-ingles/`), fora
     desta spec".
@@ -121,6 +121,6 @@ Nenhum. A correção seguiu a opção preferida, com os arquivos e os testes pre
   dos dois componentes servem de modelo.
 - Numa atualização do Angular Material, conferir se o `MatDatepickerIntl` ganhou rótulos novos (o teste da classe
   lista os atuais).
-- `plan.md`, `research.md`, `tasks.md` e checklists das 002 e 003 podem ainda citar o desvio como pendente; a
+- `plan.md`, `research.md`, `tasks.md` e checklists das 001 e 002 podem ainda citar o desvio como pendente; a
   reavaliar no `/speckit-converge`.
 - Próximo passo: `/speckit-bug-test project=front slug=calendarios-em-ingles`.

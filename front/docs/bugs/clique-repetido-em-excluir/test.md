@@ -74,11 +74,11 @@ Application bundle generation complete.
   do input `deleting`); as outras linhas são protegidas também pelos guardas das páginas, que passaram antes e depois.
 - O "Recarregar" do cabeçalho continua chamando o `reload()` direto e é ignorado se a lista já carrega (fora do escopo,
   pendência do `fix.md`).
-- `plan.md`, `research.md`, `tasks.md` e checklists das features 002 e 003 podem ainda citar o desvio como pendente;
+- `plan.md`, `research.md`, `tasks.md` e checklists das features 001 e 002 podem ainda citar o desvio como pendente;
   ficam para o `/speckit-converge`.
 
 ## Recomendação
 
 Encerrar o bug: os 18 testes de reprodução falham sem a correção e passam com ela, os guardas das páginas passam nos
 dois casos, e a suíte (335 testes), o lint e o build do front estão verdes, sem aviso de budget. A conferência visual
-no navegador é opcional e não impede o fechamento; em seguida, rodar o `/speckit-converge` das features 002 e 003.
+no navegador é opcional e não impede o fechamento; em seguida, rodar o `/speckit-converge` das features 001 e 002.

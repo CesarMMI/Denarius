@@ -64,7 +64,7 @@ Application bundle generation complete.
   lista os atuais.
 - A conferência no navegador não foi feita; o anúncio pelo leitor de tela real não foi observado, só os atributos e
   textos no DOM.
-- `plan.md`, `research.md`, `tasks.md` e checklists das features 002 e 003 podem ainda citar o desvio como pendente;
+- `plan.md`, `research.md`, `tasks.md` e checklists das features 001 e 002 podem ainda citar o desvio como pendente;
   ficam para o `/speckit-converge` (pendência do `fix.md`).
 
 ## Recomendação

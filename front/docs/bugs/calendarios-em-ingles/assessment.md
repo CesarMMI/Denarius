@@ -3,7 +3,7 @@
 - **Slug**: calendarios-em-ingles
 - **Projeto**: front
 - **Criada em**: 2026-10-07
-- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` das features 002 e 003)
+- **Origem**: texto colado (relato do orquestrador, a partir do `/speckit-converge` das features 001 e 002)
 - **Veredito**: válido
 - **Severidade**: medium
 
@@ -25,14 +25,14 @@ formato das datas já estão em pt-BR.
 
 ## Requisitos violados
 
-- `front/specs/002-gestao-de-categorias/spec.md`: FR-020 (linhas 476-478), Casos-limite (340-342) e Esclarecimentos
+- `front/specs/001-categorias/spec.md`: FR-020 (linhas 476-478), Casos-limite (340-342) e Esclarecimentos
   (42-46 e 90-91, onde a correção bloqueia a entrega da 002 e da 003).
-- `front/specs/003-gestao-de-transacoes/spec.md`: FR-030 (540-544), Casos-limite (383-385) e Esclarecimentos (57-60,
+- `front/specs/002-transacoes/spec.md`: FR-030 (540-544), Casos-limite (383-385) e Esclarecimentos (57-60,
   110-121). O FR-030 diz que "o conjunto completo desses rótulos é definido no bug-fix desta correção"; esta avaliação
   propõe o conjunto (ver P2).
-- `front/specs/001-reports-dashboard/spec.md`: não tem requisito equivalente. A FR-009 e a SC-004 tratam só da
+- `front/specs/003-relatorios/spec.md`: não tem requisito equivalente. A FR-009 e a SC-004 tratam só da
   formatação pt-BR de valores; o seletor de mês da página é o mesmo `MonthField`, então vale a regra de Idioma do
-  `AGENTS.md` da raiz e a frase "vale para todos os calendários da aplicação" das specs 002 e 003.
+  `AGENTS.md` da raiz e a frase "vale para todos os calendários da aplicação" das specs 001 e 002.
 - `AGENTS.md` da raiz, seção Idioma: "textos exibidos ao usuário em português".
 
 ## Reprodução
@@ -121,7 +121,7 @@ filtros, e o `TransactionForm`, criado pelo `MatDialog`) e esconde qualquer prov
 Ou seja, um provider só no `app.config.ts`, como sugeria a evidência preliminar, **não corrige nada** enquanto os
 componentes importarem o `MatDatepickerModule`.
 
-**É bug, e não comportamento novo**: as specs 002 e 003 já exigem os rótulos em português e registram o atual como
+**É bug, e não comportamento novo**: as specs 001 e 002 já exigem os rótulos em português e registram o atual como
 desvio conhecido, encaminhado ao fluxo de bugs.
 
 ## Correção proposta
@@ -221,7 +221,7 @@ três perguntas abaixo:
 
 - **P1**: (A), o provider da subclasse nos `providers` do `MonthField` e do `TransactionForm`.
 - **P2**: (A), o conjunto completo de rótulos, com o `formatYearRangeLabel` "de 2016 a 2039".
-- **P3**: (A), as specs 002 e 003 são ajustadas no próprio `/speckit-bug-fix`, com registro no `fix.md`.
+- **P3**: (A), as specs 001 e 002 são ajustadas no próprio `/speckit-bug-fix`, com registro no `fix.md`.
 
 ## Perguntas (respondidas)
 
@@ -246,7 +246,7 @@ três perguntas abaixo:
   - (B) Traduzir só os rótulos que aparecem hoje (sem os de intervalo e o `calendarLabel`). Menos linhas, mas deixa
     textos em inglês para um seletor de período futuro.
   - **Recomendação**: (A), completo e literal, para não restar nenhum texto em inglês no serviço.
-- **P3 — Specs 002 e 003**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou numa revisão à parte?]
+- **P3 — Specs 001 e 002**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou numa revisão à parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`: saem as notas "Desvio conhecido" da FR-020 e dos
     Casos-limite da 002, e da FR-030 e dos Casos-limite da 003; a frase do FR-030 sobre o conjunto passa a apontar
     para `front/bugs/calendarios-em-ingles/`; as listas das Premissas e de bloqueios registram o desvio como
