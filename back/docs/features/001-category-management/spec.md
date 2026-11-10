@@ -24,7 +24,6 @@ Criar, listar, editar e excluir categorias (nome e cor) e ver, em cada uma, quan
 - **FR-002**: O sistema DEVE rejeitar nome vazio, só com espaços ou com mais de 100 caracteres, explicando o erro.
 - **FR-003**: O sistema DEVE remover os espaços no início e no fim do nome.
 - **FR-004**: O sistema DEVE rejeitar uma cor que não seja um código de cor válido, explicando o erro.
-- **FR-005**: ~~Ver os detalhes de uma categoria específica.~~ Retirado em `085573b`: `GET /api/categories/{id}` não existe mais, porque o front edita a partir dos dados da lista (FR-006). O número fica reservado.
 - **FR-006**: O sistema DEVE permitir ver a lista completa de categorias.
 - **FR-007**: O sistema DEVE permitir renomear e/ou mudar a cor a qualquer momento, com a mesma validação da criação.
 - **FR-008**: O sistema DEVE permitir excluir uma categoria sem transações.

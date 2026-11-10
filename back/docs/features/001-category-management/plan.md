@@ -17,7 +17,7 @@ Plano retroativo: documenta o design já entregue, sem trabalho novo.
 - **Domínio**: `Category`, `Color`, `ICategoryRepository`. Campos e regras em [categoria](../../dominio/categoria.md).
 - **Aplicação**: casos de uso Create, Update, Delete e List, com `IO/Categories/`.
 - **Infraestrutura**: `CategoryConfiguration`, `CategoryRepository`, FK `Transactions.CategoryId` com `ON DELETE RESTRICT`.
-- **API**: `GET`, `POST`, `PUT` e `DELETE` em `api/categories` (o `GET` por id saiu em `085573b`). Convenções e erros em [api.md](../../api.md).
+- **API**: `GET`, `POST`, `PUT` e `DELETE` em `api/categories`. Convenções e erros em [api.md](../../api.md).
 
 ## Decisões
 

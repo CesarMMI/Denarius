@@ -28,7 +28,6 @@ Registrar, listar, editar e excluir transações financeiras, cada uma ligada a 
 - **FR-005**: O sistema DEVE rejeitar uma transação que referencie uma categoria inexistente, explicando o que está errado.
 - **FR-006**: O sistema DEVE remover os espaços nas pontas da descrição e tratar uma descrição em branco ou só com espaços como ausência de descrição, em vez de rejeitá-la.
 - **FR-007**: O sistema DEVE rejeitar uma descrição com mais de 255 caracteres, explicando o que está errado.
-- **FR-008**: ~~Ver os detalhes de uma transação específica.~~ Retirado em `085573b`: `GET /api/transactions/{id}` não existe mais, porque o front edita a partir dos dados da lista. O número fica reservado.
 - **FR-009**: O sistema DEVE permitir ver a lista completa das transações registradas.
 - **FR-010**: O sistema DEVE permitir editar descrição, data, valor e/ou categoria a qualquer momento, com a mesma validação da criação.
 - **FR-011**: O sistema DEVE permitir excluir uma transação de forma definitiva, sem restrição baseada em outros dados.
