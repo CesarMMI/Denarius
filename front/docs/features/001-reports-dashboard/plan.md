@@ -1,109 +1,44 @@
-# Plano de implementação: Painel de relatórios
+# Plano: Painel de relatórios
 
-**Branch**: `001-reports-dashboard` | **Data**: 2026-10-03 | **Spec**: [spec.md](./spec.md)
+**Spec**: [spec.md](./spec.md) · **Entregue em**: `257afad` · **Contrato consumido**: [back/docs/features/003-financial-reports/contracts/reports-api.yaml](../../../../back/docs/features/003-financial-reports/contracts/reports-api.yaml)
 
-**Entrada**: Especificação da feature em `/specs/001-reports-dashboard/spec.md`
+## Conferência com as regras
 
-## Resumo
+- Organização (F1): feature nova `src/app/reports/` com `pages/ components/ services/ types/ testing/`; URLs e parâmetros só em `services/reports.service.ts`; a `ReportsPage` é dona dos cinco `httpResource`s e os blocos são de apresentação (input `Resource`, output `retry`, sem HTTP). Peças compartilhadas vêm de `shared/` (`page-header`, `month-field`, `date-utils`).
+- Contrato (F2 e IV): consome `GET /api/reports/{summary,expensesByCategory,incomeVsExpense,cumulativeExpenses,transactions}` como o contrato define; `types/report.ts` o espelha. A mudança na API foi pedida junto e entregue antes no back, de forma aditiva.
+- Rotas (F2): `/reports` é nova, lazy a partir de `app.routes.ts`; nada é renomeado.
+- Banco (F3): nenhuma dependência de schema (a migration `AddTransactionDateIndex` do back só adiciona um índice).
+- Material (F4): `mat-card`, spinner, botões, tabela e ícones, tokens `--mat-sys-*`; cores dos gráficos resolvidas desses tokens para o esquema em uso. Código próprio: a grade CSS e o `report-card`.
+- Segurança (II): nomes de categoria interpolados com `{{ }}`, sem `innerHTML` nem `bypassSecurityTrust*`.
+- Performance (III): SC-005; o Chart.js só carrega com a rota (bundle inicial ~630 kB, aviso do budget em 700 kB); estilos de componente abaixo do budget de 4 kB.
+- Dependência nova: `ng2-charts@10.0.0` e `chart.js` 4.x, pedidos para a feature, adicionados por `ng add ng2-charts`; é a versão mais recente compatível com o Angular 21 (a 11.x exige o 22).
 
-Uma nova feature `reports/`, carregada sob demanda, com as pastas que as outras features usam. O `ReportsService` tem
-um método por relatório do backend, cada um devolvendo a requisição `{ url, params }` que um `httpResource` recebe. A
-`ReportsPage` é dona do signal do mês e dos cinco `httpResource`s, e dispõe os blocos numa grade CSS que ocupa a altura
-do conteúdo da sidenav. Cada bloco é um componente de apresentação que recebe o seu próprio `Resource` e emite
-`retry`: `summary-cards`, `expenses-by-category-chart`, `income-vs-expense-chart`, `cumulative-comparison-chart` e
-`transactions-list`. Um pequeno `report-card` dá a todos o mesmo card, título e estados de carregamento / vazio / erro
-com nova tentativa. Os gráficos usam ng2-charts (Chart.js), adicionado com `ng add ng2-charts` e provido na rota lazy,
-para que o bundle inicial não mude. As cores dos gráficos vêm dos tokens do tema do Material, resolvidas para o esquema
-de cores em uso: despesa `error`, receita `tertiary` (o verde do tema), "Outras" `outline`, linhas da comparação
-acumulada `primary`/`secondary` — veja pesquisa → Cores.
+## Mudanças
 
-## Contexto técnico
+- **Telas e componentes**: `reports/pages/reports-page` (mês + cinco `httpResource`s + grade) e, em `components/`, `report-card` (card, título e estados de carregamento/vazio/erro), `summary-cards`, `expenses-by-category-chart`, `income-vs-expense-chart`, `cumulative-comparison-chart` e `transactions-list`. `reports.routes.ts` provê `provideCharts(withDefaultRegisterables())`.
+- **Serviços e tipos**: `ReportsService` (um método por relatório, devolvendo `{ url, params }`), `ChartThemeService` (cores do tema por esquema de cores), `types/report.ts`.
+- **Fora de `reports/`**: link "Relatórios" por último na sidenav (`app.ts`); `toMonthKey` e `currentMonth` (São Paulo) em `shared/date-utils`; `?month=YYYY-MM` na página de transações (FR-013).
+- **`docs/design.md`**: registrar o painel (grade bento, cores dos gráficos, estados por bloco).
 
-**Linguagem/versão**: TypeScript 5.9 / Angular 21.2 (standalone, zoneless, signals)
+## Decisões
 
-**Dependências principais**: Angular Material / CDK 21.2; **ng2-charts 10.0.0** + **chart.js 4.x**, adicionados por
-`ng add ng2-charts` — o ng2-charts mais recente compatível com o Angular 21, já que o 11.x exige o Angular 22
+Detalhes e alternativas em [research.md](./research.md).
 
-**Armazenamento**: N/A (lê a API de relatórios do backend)
+- **Chart.js na rota lazy**: o provider sai do `app.config.ts` (onde o schematic o põe) para `reports.routes.ts`, para não pesar o bundle inicial.
+- **Um `httpResource` por bloco, na página**: cada bloco tem carregamento, erro e nova tentativa próprios (FR-008) sem HTTP em `components/` (F1).
+- **Cores**: despesa `error`, receita `tertiary`, "Outras" `outline`; linhas da comparação acumulada `primary`/`secondary`, decisão do dono no bug `chart-theme-teste-tokens-desatualizados` (FR-010).
+- **Rosca e lista**: a página reduz a cinco fatias e dez linhas o que a API devolve; o back não muda.
 
-**Testes**: Vitest + jsdom via `@angular/build:unit-test`; `HttpTestingController` para o service e a página;
-`resourceFromSnapshots` para os componentes dos blocos; uma diretiva fake `canvas[baseChart]` nos specs, para que o
-Chart.js nunca desenhe no jsdom
+## Testes previstos
 
-**Plataforma-alvo**: Navegadores de desktop (recolher a grade em telas estreitas é o único comportamento responsivo
-que a spec pede)
+Vitest com `HttpTestingController` para service e página, `resourceFromSnapshots` para os blocos e uma diretiva fake `canvas[baseChart]` (`testing/fake-chart.ts`) para o Chart.js não desenhar no jsdom. Um `*.spec.ts` ao lado de cada arquivo novo, mais `DateUtils` e o `app.spec.ts` (link novo):
 
-**Tipo de projeto**: web — a metade frontend de uma aplicação web de dois projetos; este plano cobre `front/`
+- Service e página: URLs e parâmetros por relatório; mês inicial, troca por seletor e botões, cada bloco carregado uma vez; "Tentar novamente" recarrega só o bloco (FR-001, FR-002, FR-008, SC-002, SC-003).
+- Cards: valores, setas e cores semânticas, taxa sem receitas, sem comparação (FR-003, FR-009).
+- Gráficos: no máximo cinco fatias e "Outras" (FR-004); doze meses com zeros (FR-005); séries da linha (FR-006); cores (FR-010, SC-004); tooltips em BRL.
+- Lista: dez linhas, ordem, título com a contagem, "Ver todas" com `?month=` (FR-007, FR-013).
+- Estados vazio, de carga e de erro de cada bloco; `ChartThemeService` nos dois esquemas.
 
-**Metas de desempenho**: O bundle inicial mantém o tamanho atual (~630 kB, aviso do budget em 700 kB): o Chart.js só
-carrega com a rota de relatórios (SC-005)
+## Verificação
 
-**Restrições**: `.specify/memory/constitution.md` (veja o Constitution Check); componentes do Material e tokens
-`--mat-sys-*` em primeiro lugar; estilos de componente abaixo do budget de 4 kB; `ng lint` e Prettier
-
-**Escala/escopo**: Uma rota, uma página, seis componentes de apresentação, um service de API, um service de tema dos
-gráficos, os tipos dos cinco relatórios
-
-## Constitution Check
-
-_PORTÃO: precisa passar antes da pesquisa da Fase 0. Conferir de novo após o design da Fase 1._
-
-| Princípio                                 | Status | Evidência                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| ----------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| I. Compatibilidade da API pública         | PASSA  | Consome `GET /api/reports/{summary,expensesByCategory,incomeVsExpense,cumulativeExpenses,transactions}` exatamente como `back/specs/003-financial-reports/contracts/reports-api.yaml` os define; `types/report.ts` espelha esse contrato. A mudança na API foi pedida pelo dono nesta mesma tarefa e é entregue antes em `back/`, sob a constituição do backend (aditiva). A nova rota `/reports` não renomeia nada.                                                                                                                                                                                          |
-| II. Respeito às fronteiras de serviço     | PASSA  | Tudo fica em `front/src/app/reports/`, com `pages/ components/ services/ types/ testing/`. URLs e parâmetros só em `services/reports.service.ts`; a `ReportsPage` é dona dos cinco `httpResource`s; os componentes dos blocos são de apresentação (um input `Resource` e um output `retry`, sem HTTP). As peças compartilhadas vêm de `shared/` (`page-header`, `month-field`, `date-utils`); nada interno de outra feature é importado. A feature é somente leitura, então, do padrão estabelecido, ela usa página + componentes + service + tipos + rotas e não tem filtros, formulário nem tabela de CRUD. |
-| III. Disciplina de rollback de migrations | PASSA  | Nenhuma dependência de esquema: a única migration do backend (`AddTransactionDateIndex`, com um `Down()` verificado) adiciona um índice, e a página funciona igual antes e depois dela.                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| IV. Verificação da suíte de testes        | PASSA  | Um `*.spec.ts` ao lado de cada arquivo novo (service, página, seis componentes, service de tema, acréscimos ao `DateUtils`) e o `app.spec.ts` atualizado; `npm test`, `npm run lint` e `npm run build` precisam passar, e o `dotnet test` para a metade `back/`.                                                                                                                                                                                                                                                                                                                                              |
-| Restrições de arquitetura                 | PASSA  | Cards, spinner, botões, tabela e ícones do Material, tokens `--mat-sys-*` para todas as cores (resolvidos para cores concretas no canvas). Recolher numa única coluna está no escopo porque a spec pede (FR-011). O Chart.js fica fora do bundle inicial (veja pesquisa → Onde o Chart.js é provido).                                                                                                                                                                                                                                                                                                         |
-
-Nenhuma violação — o Acompanhamento de complexidade não é necessário.
-
-_Conferido de novo após o design da Fase 1: sem mudança._
-
-## Estrutura do projeto
-
-### Documentação (desta feature)
-
-```text
-specs/001-reports-dashboard/
-├── plan.md              # Este arquivo (saída do comando /speckit-plan)
-├── research.md          # Saída da Fase 0 (comando /speckit-plan)
-├── data-model.md        # Saída da Fase 1 (comando /speckit-plan)
-├── quickstart.md        # Saída da Fase 1 (comando /speckit-plan)
-├── contracts/           # Saída da Fase 1 (comando /speckit-plan)
-│   └── reports-ui.md
-└── tasks.md             # Saída da Fase 2 (comando /speckit-tasks - NÃO é criado pelo /speckit-plan)
-```
-
-### Código-fonte (raiz do repositório)
-
-```text
-src/app/
-├── app.routes.ts                     # + /reports lazy
-├── app.ts / app.spec.ts              # + link "Relatórios" na sidenav (por último)
-├── shared/date-utils/                # + toMonthKey, currentMonth (São Paulo)
-└── reports/
-    ├── reports.routes.ts             # página + provideCharts(withDefaultRegisterables())
-    ├── types/report.ts               # os formatos dos cinco relatórios
-    ├── services/
-    │   ├── reports.service.ts        # uma requisição por endpoint
-    │   └── chart-theme.service.ts    # cores do tema para o canvas, por esquema de cores
-    ├── testing/
-    │   ├── report-fixtures.ts        # fixtures build*
-    │   └── fake-chart.ts             # substitui o canvas[baseChart] nos specs
-    ├── pages/reports-page/           # mês + 5 httpResources + grade bento
-    └── components/
-        ├── report-card/              # card, título, estados de carregamento/vazio/erro
-        ├── summary-cards/
-        ├── expenses-by-category-chart/
-        ├── income-vs-expense-chart/
-        ├── cumulative-comparison-chart/
-        └── transactions-list/
-```
-
-**Decisão de estrutura**: Uma pasta de feature como `categories/` e `transactions/`, com rota lazy a partir do
-`app.routes.ts`. Os specs ficam ao lado dos seus arquivos.
-
-## Acompanhamento de complexidade
-
-Não se aplica — o Constitution Check não apontou violações.
+`npx ng test --watch=false`, `npm run lint` e `npm run build` sem erro nem aviso de budget; o "Initial total" fica em ~630 kB. Manual, com a API de relatórios no ar e dados de vários meses (seed do quickstart do back): a página abre no mês atual com os cinco cards; barras com doze meses e meses vazios; linha do mês parando em hoje; "Mês anterior" recarrega cada bloco uma vez e "Ver todas" abre as transações filtradas; um mês sem dados mostra os estados vazios; com a API parada, cada bloco mostra seu erro e só o bloco tentado recarrega; em 1366×768 nada rola além da lista, abaixo de 1200 px a grade empilha, e o modo escuro redesenha os gráficos.
