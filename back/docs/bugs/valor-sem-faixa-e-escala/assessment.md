@@ -1,7 +1,7 @@
 # Avaliação do bug: a API não valida a faixa nem a escala do valor da transação
 
 - **Slug**: valor-sem-faixa-e-escala · **Projeto**: back · **Criada em**: 2026-10-09
-- **Origem**: desvio registrado em `front/specs/002-transacoes/research.md:336` e `spec.md:101,353`
+- **Origem**: desvio registrado em `front/docs/features/002-transacoes/research.md:336` e `spec.md:101,353`
 - **Veredito**: válido · **Severidade**: high
 
 ## Sintoma e reprodução

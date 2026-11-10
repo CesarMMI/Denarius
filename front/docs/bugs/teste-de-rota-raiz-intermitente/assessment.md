@@ -187,7 +187,7 @@ a margem (20 s contra o máximo observado de 2,7 s), sem um vermelho/verde deter
 - **Medição**: a ausência de falhas nas 6 execuções desta avaliação não contradiz o relato; o estouro depende da carga
   total da máquina, que aqui foi menor. Os tempos medidos (até 54% do limite) mostram que a margem é pequena.
 - **Escopo**: só o spec do front. Nenhum código de produção, contrato da API, dado ou segurança é afetado. As pastas
-  `front/specs/002-*` e `003-*` não são tocadas por esta avaliação; a pendência que a 003 registra (tasks.md:392,
+  `front/docs/features/002-*` e `003-*` não são tocadas por esta avaliação; a pendência que a 003 registra (tasks.md:392,
   plan.md:107) é atualizada pelo `/speckit-converge` da 003, e não por este bug.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-08)

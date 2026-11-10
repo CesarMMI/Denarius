@@ -26,7 +26,7 @@ formato e as datas inexistentes.
 
 ## Requisitos violados
 
-- `front/specs/002-transacoes/spec.md`: FR-014 (linhas 456-465), cenário 9 da História 2 (218-221),
+- `front/docs/features/002-transacoes/spec.md`: FR-014 (linhas 456-465), cenário 9 da História 2 (218-221),
   Casos-limite (367-374) e Esclarecimentos (26-30 e 96-100; o segundo classifica o desvio como violação do princípio II
   que bloqueia a entrega da 003; ver também 110-112 e 635-638).
 - `AGENTS.md` da raiz, princípio II (Segurança): o dado financeiro gravado difere do digitado, sem aviso.

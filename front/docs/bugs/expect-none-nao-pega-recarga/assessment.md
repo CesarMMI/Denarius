@@ -209,7 +209,7 @@ não `afterEach`), desfazer a quebra e conferir que volta a passar. Registrar os
 - **Fora deste bug**: o registro na skill do import por efeito do bug `teste-de-rota-raiz-intermitente` continua
   numa mudança separada.
 - **Escopo**: só specs e a skill do front. Nenhum código de produção, contrato da API, dado ou segurança é afetado.
-  Specs de features (`front/specs/*`) não são tocados.
+  Specs de features (`front/docs/features/*`) não são tocados.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-08)
 

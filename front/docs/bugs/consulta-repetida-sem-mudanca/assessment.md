@@ -24,11 +24,11 @@ escolher o mesmo mês refaz as cinco consultas. O esperado é nenhuma consulta e
 
 ## Requisitos violados
 
-- `front/specs/001-categorias/spec.md`: FR-023 (488-493), SC-006 (519-521) e Casos-limite (352-359). O
+- `front/docs/features/001-categorias/spec.md`: FR-023 (488-493), SC-006 (519-521) e Casos-limite (352-359). O
   FR-023 pede uma correção só, pelo fluxo de bugs, "começando por um teste que reproduza o caso do 'Nome'", e que valha
   também para transações e relatórios.
-- `front/specs/002-transacoes/spec.md`: FR-031 (551-558), SC-007 (592-596) e Casos-limite (338-346).
-- `front/specs/003-relatorios/spec.md`: não tem requisito equivalente explícito. O FR-002 (192-193) e a SC-002
+- `front/docs/features/002-transacoes/spec.md`: FR-031 (551-558), SC-007 (592-596) e Casos-limite (338-346).
+- `front/docs/features/003-relatorios/spec.md`: não tem requisito equivalente explícito. O FR-002 (192-193) e a SC-002
   (231) só pedem que escolher um mês atualize os cinco blocos. Vale o princípio III do `AGENTS.md` da raiz ("Nada de
   requisições, consultas ou cálculos repetidos sem necessidade"), e o próprio FR-023 da 002 estende a correção aos
   relatórios.
@@ -283,7 +283,7 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
 ## Perguntas em aberto
 
 - **P1 — Onde corrigir**: [NEEDS CLARIFICATION: comparar a consulta, o estado das páginas ou cada origem?]
-  Atenção: o FR-031 da 003 (`front/specs/002-transacoes/spec.md:557-558`, e também a sessão de esclarecimentos, linhas 70-72) diz que a correção fica "no menu de
+  Atenção: o FR-031 da 003 (`front/docs/features/002-transacoes/spec.md:557-558`, e também a sessão de esclarecimentos, linhas 70-72) diz que a correção fica "no menu de
   ordenação, no campo 'Mês' compartilhados e na busca", o que descreve (B). O FR-023 da 002 só pede uma correção
   única, pelo fluxo de bugs, sem dizer onde.
   - (A) Helper `distinctRequest` em `shared/`, envolvendo os 7 `httpResource` das três páginas. Compara a própria

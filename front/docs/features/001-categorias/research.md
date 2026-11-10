@@ -167,11 +167,11 @@ há, o item diz isso explicitamente.
 ## Contrato consumido
 
 - **Decisão**: A página consome só `GET/POST /api/categories` e `PUT/DELETE /api/categories/{id}` de
-  `back/specs/001-categorias/contracts/categories-api.yaml`; `types/category.ts` espelha os oito campos de
+  `back/docs/features/001-categorias/contracts/categories-api.yaml`; `types/category.ts` espelha os oito campos de
   `CategoryOutput`, e `CategoryInput` (`Pick<Category, 'name' | 'color'>`) espelha `Create/UpdateCategoryInput`.
 - **Justificativa**: Princípio IV e F2.
 - **Divergências**: o contrato declara `dateRef` como `format: date-time` (`categories-api.yaml:26-32`; o mesmo em
-  `back/specs/002-transacoes/contracts/transactions-api.yaml:27-33`), mas o front envia só a data
+  `back/docs/features/002-transacoes/contracts/transactions-api.yaml:27-33`), mas o front envia só a data
   (`YYYY-MM-DD`), e o back a aceita — o próprio teste do controller usa `dateRef=2026-09-01`
   (`back/tests/Denarius.WebAPI.Tests/Categories/CategoriesControllerTests.cs:211`). O usuário decidiu (D3) que é um
   desvio conhecido do back, só de documentação do contrato, a corrigir pelo fluxo de bugs no back, fora desta spec;
@@ -186,7 +186,7 @@ há, o item diz isso explicitamente.
   `MAT_DIALOG_DATA`. Em 2026-10-05, `npx ng test --watch=false` com os specs de `categories/`, `shared/` e
   `app.spec.ts` passou: 12 arquivos, 95 testes.
 - **Justificativa**: Princípio I e "Testes e verificação" do `front/AGENTS.md`.
-- **Cobertura por requisito**: está no [quickstart.md](./quickstart.md#1-validação-automatizada).
+- **Cobertura por requisito**: está nos testes previstos do `plan.md`.
 
 ## Decisões do usuário
 
@@ -289,7 +289,7 @@ da revisão independente; D11 a D16 em 2026-10-06, depois da revisão dos checkl
     coluna "Nome" (nem `table-layout: fixed` nem `max-width` em `categories-table.scss` ou nos estilos globais), então,
     com um nome de 100 caracteres, a coluna tende a crescer até caber o nome, e o cartão da lista rola na horizontal
     (`overflow: auto`, `categories-page.scss:14-17`); as reticências só aparecem se a largura do chip for limitada.
-    Deduzido do CSS, sem renderização; o quickstart manda conferir.
+    Deduzido do CSS, sem renderização; a verificação do `plan.md` manda conferir.
 - **D16 — Critério de "concluído" dos bug-fix que bloqueiam a entrega (2026-10-06).**
   - Decisão: o `front/bugs/<slug>/test.md` de cada bug com o resultado `verified`, o teste de reprodução e a suíte
     completa passando, e o `/speckit-converge` reavaliando contra o código os FR/SC afetados (FR-023 e SC-006; FR-020;

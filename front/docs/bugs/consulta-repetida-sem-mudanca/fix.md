@@ -26,8 +26,8 @@ referência, e o gráfico de comparação acumulada e a lista de transações n�
 | `front/src/app/transactions/pages/transactions-page/transactions-page.spec.ts` | testes adicionados | 4 testes de regressão |
 | `front/src/app/reports/pages/reports-page/reports-page.ts` | modificado | `{ equal: shallowEqual }` em `month` |
 | `front/src/app/reports/pages/reports-page/reports-page.spec.ts` | testes adicionados | 2 testes de regressão (consulta e referência do mês) |
-| `front/specs/001-categorias/spec.md` | modificado | notas "Desvio conhecido" do FR-023, da SC-006 e dos Casos-limite removidas |
-| `front/specs/002-transacoes/spec.md` | modificado | notas "Desvio conhecido" do FR-031, da SC-007 e dos Casos-limite removidas; frases do FR-031 e do esclarecimento sobre o lugar da correção ajustadas |
+| `front/docs/features/001-categorias/spec.md` | modificado | notas "Desvio conhecido" do FR-023, da SC-006 e dos Casos-limite removidas |
+| `front/docs/features/002-transacoes/spec.md` | modificado | notas "Desvio conhecido" do FR-031, da SC-007 e dos Casos-limite removidas; frases do FR-031 e do esclarecimento sobre o lugar da correção ajustadas |
 
 Nenhuma mudança no back, nos services, nos tipos, no contrato da API, no `sort-menu` nem no `month-field`.
 
@@ -97,12 +97,12 @@ Em `front/`:
 
 Só saíram ressalvas e a referência ao lugar da correção; nenhum requisito, critério ou cenário mudou.
 
-- `front/specs/001-categorias/spec.md`:
+- `front/docs/features/001-categorias/spec.md`:
   - Casos-limite: os itens "Escolher de novo a ordenação em uso, ou o mesmo mês…" e "No 'Nome', a lista não é
     consultada de novo…" ficaram só com a regra e a referência ao FR-023; saíram as notas "Desvio conhecido".
   - FR-023: saiu a nota "Desvio conhecido: hoje a consulta é refeita… e relatórios."
   - SC-006: saiu "(desvio conhecido: hoje gera; ver FR-023)".
-- `front/specs/002-transacoes/spec.md`:
+- `front/docs/features/002-transacoes/spec.md`:
   - Esclarecimento (Sessão, P sobre a ordenação e o mês repetidos): "O atual é um desvio conhecido… a corrigir… no menu
     de ordenação e no campo 'Mês' compartilhados…" passou a "O desvio, que contrariava o princípio III, foi corrigido
     uma só vez pelo fluxo de bugs do front (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec: a comparação

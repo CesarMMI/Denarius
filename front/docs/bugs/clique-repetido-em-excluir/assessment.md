@@ -24,10 +24,10 @@ restauração em andamento.
 
 ## Requisitos violados
 
-- `front/specs/001-categorias/spec.md`: FR-012 (428-435) e FR-013 (436-439), Casos-limite (333-337),
+- `front/docs/features/001-categorias/spec.md`: FR-012 (428-435) e FR-013 (436-439), Casos-limite (333-337),
   Esclarecimentos (83-91, que pedem a forma da correção a este assess e dizem que ela bloqueia a entrega da 002 e da
   003) e Premissas (526-527). A SC-004 (503-504) depende disso: hoje uma exclusão pode perder o "Desfazer".
-- `front/specs/002-transacoes/spec.md`: FR-020 (498-504, "a forma do retorno visual é definida no
+- `front/docs/features/002-transacoes/spec.md`: FR-020 (498-504, "a forma do retorno visual é definida no
   `/speckit-bug-assess` dessa correção"), FR-021 (505-506), Casos-limite (398-403), Esclarecimentos (105-115) e
   Premissas (638-642). A SC-004 (575-576) depende disso, como na 002.
 - `AGENTS.md` da raiz, princípio III: "Nada de requisições, consultas ou cálculos repetidos sem necessidade".

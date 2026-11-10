@@ -5,10 +5,10 @@
 Definida pelo backend, sem mudança por esta feature:
 
 - transações:
-  [`back/specs/002-transacoes/contracts/transactions-api.yaml`](../../../../back/specs/002-transacoes/contracts/transactions-api.yaml)
+  [`back/docs/features/002-transacoes/contracts/transactions-api.yaml`](../../../../../back/docs/features/002-transacoes/contracts/transactions-api.yaml)
   (versão 1.1.0);
 - categorias, só a lista:
-  [`back/specs/001-categorias/contracts/categories-api.yaml`](../../../../back/specs/001-categorias/contracts/categories-api.yaml)
+  [`back/docs/features/001-categorias/contracts/categories-api.yaml`](../../../../../back/docs/features/001-categorias/contracts/categories-api.yaml)
   (versão 1.0.0).
 
 Toda URL e todo parâmetro ficam nos services (`front/src/app/transactions/services/transactions.service.ts` e

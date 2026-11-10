@@ -25,12 +25,12 @@ formato das datas já estão em pt-BR.
 
 ## Requisitos violados
 
-- `front/specs/001-categorias/spec.md`: FR-020 (linhas 476-478), Casos-limite (340-342) e Esclarecimentos
+- `front/docs/features/001-categorias/spec.md`: FR-020 (linhas 476-478), Casos-limite (340-342) e Esclarecimentos
   (42-46 e 90-91, onde a correção bloqueia a entrega da 002 e da 003).
-- `front/specs/002-transacoes/spec.md`: FR-030 (540-544), Casos-limite (383-385) e Esclarecimentos (57-60,
+- `front/docs/features/002-transacoes/spec.md`: FR-030 (540-544), Casos-limite (383-385) e Esclarecimentos (57-60,
   110-121). O FR-030 diz que "o conjunto completo desses rótulos é definido no bug-fix desta correção"; esta avaliação
   propõe o conjunto (ver P2).
-- `front/specs/003-relatorios/spec.md`: não tem requisito equivalente. A FR-009 e a SC-004 tratam só da
+- `front/docs/features/003-relatorios/spec.md`: não tem requisito equivalente. A FR-009 e a SC-004 tratam só da
   formatação pt-BR de valores; o seletor de mês da página é o mesmo `MonthField`, então vale a regra de Idioma do
   `AGENTS.md` da raiz e a frase "vale para todos os calendários da aplicação" das specs 001 e 002.
 - `AGENTS.md` da raiz, seção Idioma: "textos exibidos ao usuário em português".

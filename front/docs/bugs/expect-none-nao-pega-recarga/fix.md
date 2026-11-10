@@ -23,7 +23,7 @@ arquivo, que confere com um predicado em `req.url`. No spec dos relatórios, a a
 | `front/.claude/skills/write-front-tests/references/recipes.md`                 | modificado | Helper `expectNoListRequest()` ao lado do `expectList()` e as linhas 328-329 trocadas por `expectNoListRequest();`                                                                         |
 | `front/.claude/skills/write-front-tests/SKILL.md`                              | modificado | Linha 41 cita o par `expectList`/`expectNoListRequest`; armadilha nova sobre string × query string e sobre o `expectNone` antes do `whenStable()`                                          |
 
-`front/specs/`, o código de produção e o import por efeito do bug `teste-de-rota-raiz-intermitente` não foram tocados.
+`front/docs/features/`, o código de produção e o import por efeito do bug `teste-de-rota-raiz-intermitente` não foram tocados.
 
 ## Destaques do diff
 

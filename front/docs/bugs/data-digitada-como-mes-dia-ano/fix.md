@@ -22,7 +22,7 @@ do `provideNativeDateAdapter()`.
 | `front/src/app/transactions/components/transaction-form/pt-br-date-adapter.spec.ts` | teste adicionado | 16 testes da classe isolada |
 | `front/src/app/transactions/components/transaction-form/transaction-form.ts` | modificado | `{ provide: DateAdapter, useClass: PtBrDateAdapter }` depois do `provideNativeDateAdapter()`; o `PtBrDatepickerIntl` continua |
 | `front/src/app/transactions/components/transaction-form/transaction-form.spec.ts` | testes adicionados | `describe('typing the date')`, 6 testes, com `LOCALE_ID` `pt-BR` |
-| `front/specs/002-transacoes/spec.md` | modificado | notas de desvio da data digitada removidas (ver abaixo) |
+| `front/docs/features/002-transacoes/spec.md` | modificado | notas de desvio da data digitada removidas (ver abaixo) |
 
 Nenhuma mudança no back, no contrato da API, nos services, nos tipos, nas rotas nem no `month-field` (que é `readonly`).
 Nenhuma dependência nova. O `parseFloat` do valor não foi tocado (outro bug).
@@ -113,7 +113,7 @@ Em `front/`:
 
 ## Specs ajustadas (P3 = A)
 
-`front/specs/002-transacoes/spec.md`:
+`front/docs/features/002-transacoes/spec.md`:
 
 - História 2, cenário 9: saiu "desvio conhecido: hoje "5/9/2026" é salva como 9 de maio, e "2026-09-24", como
   23/09/2026 no fuso do Brasil;"; ficou "(ver FR-014)".

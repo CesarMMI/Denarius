@@ -35,8 +35,8 @@ termina com sucesso.
 | `front/src/app/transactions/components/transactions-table/transactions-table.ts` | modificado | input `deleting` |
 | `front/src/app/transactions/components/transactions-table/transactions-table.html` | modificado | "Editar" e "Excluir" com `[disabled]`, `disabledInteractive` e guarda no clique; spinner no "Excluir" |
 | `front/src/app/transactions/components/transactions-table/transactions-table.spec.ts` | testes adicionados | 2 testes |
-| `front/specs/001-categorias/spec.md` | modificado | FR-012 com o prazo da P3; notas de desvio removidas (ver abaixo) |
-| `front/specs/002-transacoes/spec.md` | modificado | notas de desvio removidas; a FR-020 aponta para este bug (ver abaixo) |
+| `front/docs/features/001-categorias/spec.md` | modificado | FR-012 com o prazo da P3; notas de desvio removidas (ver abaixo) |
+| `front/docs/features/002-transacoes/spec.md` | modificado | notas de desvio removidas; a FR-020 aponta para este bug (ver abaixo) |
 
 Nenhuma mudança no back, no contrato da API, nos services, nos tipos nem nas rotas. Nenhuma dependência nova: o
 `MatProgressBarModule` é do Angular Material e entra só nos chunks sob demanda das duas páginas. O "Recarregar" do
@@ -151,7 +151,7 @@ Em `front/`:
 
 ## Specs ajustadas (P4 = A)
 
-- `front/specs/001-categorias/spec.md`:
+- `front/docs/features/001-categorias/spec.md`:
   - Casos-limite: o item do segundo clique ficou só com a regra e as referências (FR-012, FR-013); saiu a nota
     "Desvio conhecido: hoje nada indica … não pode mais ser desfeita.".
   - FR-012 (P3): "Durante uma exclusão, um novo clique no "Excluir" da mesma linha NÃO DEVE enviar outro pedido" passou
@@ -161,7 +161,7 @@ Em `front/`:
   - FR-013: saiu "Desvio conhecido: hoje nada indica a restauração em andamento (ver FR-012)."
   - Premissas: "o "Excluir" protegido contra clique repetido, com retorno visual na exclusão e na restauração
     (FR-012, FR-013)" passou a "(FR-012, FR-013, corrigido em `front/bugs/clique-repetido-em-excluir/`)".
-- `front/specs/002-transacoes/spec.md`:
+- `front/docs/features/002-transacoes/spec.md`:
   - Casos-limite: o item do "Excluir" de novo na mesma linha ficou só com a regra e a referência (FR-020); saiu a nota
     "Desvio conhecido, que contraria o princípio III … está em andamento.".
   - FR-020: a nota "Desvio conhecido: hoje um clique repetido … definida no `/speckit-bug-assess` dessa correção." foi

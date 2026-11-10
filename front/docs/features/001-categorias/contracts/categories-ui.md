@@ -3,7 +3,7 @@
 ## API consumida
 
 Definida pelo back em
-[`back/specs/001-categorias/contracts/categories-api.yaml`](../../../../back/specs/001-categorias/contracts/categories-api.yaml)
+[`back/docs/features/001-categorias/contracts/categories-api.yaml`](../../../../../back/docs/features/001-categorias/contracts/categories-api.yaml)
 (não copiada nem alterada aqui). Toda requisição passa pelo `CategoriesService`
 (`front/src/app/categories/services/categories.service.ts`); `{apiUrl}` vem de `src/environments/`.
 

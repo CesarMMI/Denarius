@@ -42,7 +42,7 @@ pendência de decisão do usuário.
   ordenação, então a primeira consulta já leva `orderBy=date&asc=false` (`transactions-page.ts:61`; teste em
   `transactions-page.spec.ts:146-149`). A lista não é paginada e chega inteira (premissa da spec).
 - **Justificativa**: Princípio III: filtros e ordenação acontecem na fonte dos dados. O backend já oferece todos os
-  parâmetros (`back/specs/002-transacoes/contracts/transactions-api.yaml:18-59`). Do lado do back, a API
+  parâmetros (`back/docs/features/002-transacoes/contracts/transactions-api.yaml:18-59`). Do lado do back, a API
   carrega todas as transações e filtra e ordena em memória (ver
   [Observação de desempenho fora do escopo do front](#observação-de-desempenho-fora-do-escopo-do-front)); para o front,
   a fonte dos dados é a API.
@@ -294,7 +294,7 @@ usuário](#decisões-do-usuário-2026-10-05)).
 
 - `dateRef`: o front envia uma data sem hora (`dateRef=2026-09-01`, `transactions.service.ts:22`), e o contrato declara
   `format: date-time` (`transactions-api.yaml:27-33`). A API aceita (o quickstart do backend usa o mesmo formato, em
-  `back/specs/002-transacoes/quickstart.md:62`), então não há defeito observável; a divergência é de
+  `back/docs/features/002-transacoes/quickstart.md:62`), então não há defeito observável; a divergência é de
   documentação. O `categories-api.yaml` tem a mesma declaração, e a 002 registra o mesmo ponto.
 - **Decisão (usuário, 2026-10-05)**: desvio conhecido do back, só de documentação do contrato (`transactions-api.yaml` e
   `categories-api.yaml`), corrigido pelo fluxo de bugs no back, fora desta spec. Não bloqueia esta feature e não vira
@@ -309,7 +309,7 @@ usuário](#decisões-do-usuário-2026-10-05)).
   `transactionCount`, `balance` e `canDelete` de cada categoria.
 - O `GET /api/transactions` carrega todas as transações e só depois filtra e ordena em memória
   (`back/src/Denarius.Application/UseCases/Transactions/List/ListTransactionsUseCase.cs:11`), postura já documentada
-  no plan do back (`back/specs/002-transacoes/plan.md:26` e `:53`). Para o front, a filtragem e a
+  no plan do back (`back/docs/features/002-transacoes/plan.md:26` e `:53`). Para o front, a filtragem e a
   ordenação acontecem na fonte dos dados, que é a API.
 
 O front consome os endpoints que o contrato oferece (princípio IV), então nada disso é violação do front. **Decisão
@@ -340,7 +340,7 @@ Referência para os `/speckit-bug-assess` que vão corrigi-los; esta feature nã
 | Dia escolhido no calendário do "Mês" não muda o filtro (FR-024, não reproduzido)                             | `shared/month-field/month-field.html:17` só trata `monthSelected`                                                                                                                                                     |
 | Calendários anunciados em inglês (FR-030): corrigido                                                         | Corrigido em `front/bugs/calendarios-em-ingles/`: `PtBrDatepickerIntl` (`shared/datepicker-intl/`) provido no `MonthField` e no `TransactionForm`                                                                     |
 | Consulta repetida com a mesma ordenação, o mesmo mês ou o mesmo texto (FR-031): corrigido                    | Corrigido em `front/bugs/consulta-repetida-sem-mudanca/`: `shallowEqual` (`shared/shallow-equal/`) no `equal` dos signals `filters` e `sort` de `transactions-page.ts`                                                |
-| `dateRef` declarado `date-time` no contrato do back (documentação)                                           | `back/specs/002-transacoes/contracts/transactions-api.yaml:27-33` e o `dateRef` de `back/specs/001-categorias/contracts/categories-api.yaml`                                                     |
+| `dateRef` declarado `date-time` no contrato do back (documentação)                                           | `back/docs/features/002-transacoes/contracts/transactions-api.yaml:27-33` e o `dateRef` de `back/docs/features/001-categorias/contracts/categories-api.yaml`                                                     |
 
 ## Decisões do usuário (2026-10-05)
 

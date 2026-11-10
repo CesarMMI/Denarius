@@ -18,7 +18,7 @@ arquivo, como nos outros specs. O `it`, as duas asserções e o timeout padrão 
 | ---------------------------------- | ---------- | ----------------------------------------------------------------------------------------- |
 | `front/src/app/app.routes.spec.ts` | modificado | Import estático (por efeito) da `transactions-page`, com comentário em inglês. Nada mais. |
 
-Nenhum código de produção mudou. `app.routes.ts`, `front/specs/` e a skill `write-front-tests` não foram tocados.
+Nenhum código de produção mudou. `app.routes.ts`, `front/docs/features/` e a skill `write-front-tests` não foram tocados.
 
 ## Destaques do diff
 

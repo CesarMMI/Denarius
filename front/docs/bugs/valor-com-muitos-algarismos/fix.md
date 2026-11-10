@@ -18,7 +18,7 @@ explica o limite. Valores maiores, inclusive os que só passam de 13 algarismos 
 |------|--------|-------|
 | `front/src/app/transactions/components/transaction-form/transaction-form.ts` | modificado | regex `\d+` → `\d{1,13}` e comentário |
 | `front/src/app/transactions/components/transaction-form/transaction-form.spec.ts` | testes adicionados | 6 testes no `describe('validating')` |
-| `front/specs/002-transacoes/spec.md` | modificado | notas de desvio do limite do valor removidas (ver abaixo) |
+| `front/docs/features/002-transacoes/spec.md` | modificado | notas de desvio do limite do valor removidas (ver abaixo) |
 
 Nenhuma mudança no back, no contrato da API, nos services, nos tipos, no template nem nas dependências. O
 `parseFloat` e a aceitação do zero não foram tocados (o zero continua aceito, outro desvio).
@@ -74,7 +74,7 @@ Em `front/`:
 
 ## Specs ajustadas (P2 = A)
 
-`front/specs/002-transacoes/spec.md`:
+`front/docs/features/002-transacoes/spec.md`:
 
 - História 2, cenário 5: "(desvio conhecido: hoje o zero e os valores com mais de 13 algarismos na parte inteira
   passam; ver FR-014)" passou a "(desvio conhecido: hoje o zero passa; ver FR-014)".
