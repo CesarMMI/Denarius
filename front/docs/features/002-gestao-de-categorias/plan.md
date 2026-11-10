@@ -39,7 +39,7 @@ Um `*.spec.ts` ao lado de cada arquivo de código (só `categories.routes.ts`, `
 
 ## Riscos
 
-- Desvios ainda abertos, cada um num fluxo de bugs próprio, sem bloquear: link da quantidade sem o mês (FR-004, `categories-table.html`); diálogo que fecha antes da resposta (FR-010, vale também para transações); dia escolhido no `month-field` que não muda o filtro (FR-016, campo compartilhado); regra de acentos da busca (FR-017, ver Dúvidas da spec); `dateRef` como `date-time` no contrato do back.
+- Desvios ainda abertos, cada um num fluxo de bugs próprio, sem bloquear: link da quantidade sem o mês (FR-004, `categories-table.html`); diálogo que fecha antes da resposta (FR-010, vale também para transações); dia escolhido no `month-field` que não muda o filtro (FR-016, campo compartilhado); `dateRef` como `date-time` no contrato do back.
 - Trabalho futuro, em ciclos próprios: remover `ColorsService.reload()`, sem uso em produção (`colors.service.ts:15`); mover `Category`, a fixture e a requisição da lista para `shared/` (exceção da F1 acima); uma feature de acessibilidade (pontos da spec). As correções no `shared/month-field` e essa refatoração mexem em peças desta página e precisam rodar os specs de `categories/`.
 
 ## Verificação

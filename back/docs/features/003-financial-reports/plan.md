@@ -17,7 +17,7 @@
 - **Infraestrutura**: as quatro consultas em `TransactionRepository` e a migration do índice em `Transactions.Date` (`timestamp with time zone`, dias à meia-noite UTC).
 - **API**: `ReportsController` em `api/reports` (`summary`, `expensesByCategory`, `incomeVsExpense`, `cumulativeExpenses`, `transactions`), descrito em `contracts/reports-api.yaml`. Contratos existentes inalterados (FR-017).
 - **Lançamentos futuros (2026-10-09)**: só dois casos de uso mudaram, sem consulta, migration nem DTO novos. `GetCumulativeExpenseComparisonUseCase.Accumulate` estende a série do mês atual até a última despesa do mês (considerando só as chaves do mês acumulado), e `GetMonthlySummaryUseCase.ProjectAsync` soma `TotalExpense − expenseToDate` à projeção. Só as descrições do contrato mudaram.
-- **Documentos vivos**: os relatórios ainda não constam em `docs/api.md` nem em `docs/dominio/`; esta spec é a fonte das regras.
+- **Documentos vivos**: as convenções e regras gerais dos relatórios (mês `yyyy-MM`, entrada "Outras", série de meses) estão em [`docs/api.md`](../../api.md); o detalhe de cada relatório está nesta spec.
 
 ## Decisões
 

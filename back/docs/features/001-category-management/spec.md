@@ -24,12 +24,12 @@ Criar, listar, editar e excluir categorias (nome e cor) e ver, em cada uma, quan
 - **FR-002**: O sistema DEVE rejeitar nome vazio, só com espaços ou com mais de 100 caracteres, explicando o erro.
 - **FR-003**: O sistema DEVE remover os espaços no início e no fim do nome.
 - **FR-004**: O sistema DEVE rejeitar uma cor que não seja um código de cor válido, explicando o erro.
-- **FR-005**: O sistema DEVE permitir ver os detalhes de uma categoria específica. Desvio: o endpoint de detalhe foi removido em `085573b` (sem chamadores; o front edita a partir da lista), e hoje os dados da categoria saem só pela lista (FR-006).
+- **FR-005**: ~~Ver os detalhes de uma categoria específica.~~ Retirado em `085573b`: `GET /api/categories/{id}` não existe mais, porque o front edita a partir dos dados da lista (FR-006). O número fica reservado.
 - **FR-006**: O sistema DEVE permitir ver a lista completa de categorias.
 - **FR-007**: O sistema DEVE permitir renomear e/ou mudar a cor a qualquer momento, com a mesma validação da criação.
 - **FR-008**: O sistema DEVE permitir excluir uma categoria sem transações.
 - **FR-009**: O sistema DEVE recusar a exclusão de uma categoria com uma ou mais transações, explicando o motivo.
-- **FR-010**: O sistema DEVE rejeitar, com resultado claro de "não encontrada", editar ou excluir (e, onde houver, ver) uma categoria inexistente.
+- **FR-010**: O sistema DEVE rejeitar, com resultado claro de "não encontrada", editar ou excluir uma categoria inexistente.
 - **FR-011**: Para cada categoria da lista, o sistema DEVE informar a quantidade de transações e o saldo (soma dos valores).
 - **FR-012**: O sistema DEVE permitir restringir quantidade e saldo a um único mês do calendário.
 - **FR-013**: O sistema DEVE permitir filtrar só as categorias com pelo menos uma transação, ou só as sem nenhuma.
