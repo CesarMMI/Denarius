@@ -10,20 +10,21 @@ Este fluxo vale para o `back/` ou o `front/`, um projeto por vez. Os `AGENTS.md`
 ## 1. Preparar
 
 1. **Projeto**: onde a feature acontece. Trabalho nos dois projetos faz o ciclo completo no back e depois no front, com uma spec em cada. O front só consome o que `back/docs/api.md` e o OpenAPI já oferecem: se faltar algo, a spec diz isso e o usuário aprova antes de o back mudar.
-2. **Número e nome**: o próximo `NNN` é o maior número em `<projeto>/docs/features/` mais 1, com o nome em kebab-case e sem acentos (`005-metas-de-orcamento`). Crie a branch `feat/<nome>`.
-3. **Tamanho**, confirmado com o usuário:
+2. **Feature existente**: leia os nomes e as specs em `<projeto>/docs/features/`. Se uma cobre claramente o assunto, trabalhe nela: edite o `spec.md`, o `plan.md`, o `research.md` e o `contracts/` dela, com requisitos, critérios e tarefas novos numerados em sequência, e **não crie pasta**. Só crie uma feature nova se o usuário pedir explicitamente ou se você avaliar que o assunto merece uma; nesse caso, confirme com o usuário antes de criar a pasta.
+3. **Número e nome** (só para uma feature nova): o próximo `NNN` é o maior número em `<projeto>/docs/features/` mais 1, com o nome em kebab-case e sem acentos (`005-metas-de-orcamento`). Crie a branch `feat/<nome>`.
+4. **Tamanho**, confirmado com o usuário:
    - **Pequena**: um só projeto, sem mudar contrato, dados nem segurança, e cabe numa tela, num endpoint ou numa regra.
    - **Grande**: o resto (contrato, dados, segurança, refatoração ampla ou mais de um projeto). Na dúvida, grande, ou pergunte.
 
 ## 2. Spec
 
-Copie `<projeto>/.claude/templates/spec.md` para `<projeto>/docs/features/NNN-nome/spec.md` e preencha. A spec diz o quê e por quê, sem implementação, com requisitos testáveis (`FR-001`) e critérios de sucesso mensuráveis (`SC-001`), incluindo metas de desempenho que importam ao usuário.
+Numa feature nova, copie `<projeto>/.claude/templates/spec.md` para `<projeto>/docs/features/NNN-nome/spec.md` e preencha. A spec diz o quê e por quê, sem implementação, com requisitos testáveis (`FR-001`) e critérios de sucesso mensuráveis (`SC-001`), incluindo metas de desempenho que importam ao usuário.
 
 Cada ambiguidade que muda escopo, comportamento, contrato, dados ou segurança vira `[NEEDS CLARIFICATION: …]` e vai ao usuário (no máximo 5 perguntas por vez, cada uma com as opções, as consequências e uma recomendação). Não decida sozinho. Apague o marcador ao resolver.
 
 ## 3. Plan e tarefas
 
-Copie `<projeto>/.claude/templates/plan.md` para `plan.md` na mesma pasta. Antes, leia os documentos vivos do projeto (`docs/dominio/` e `docs/api.md` no back, `docs/design.md` no front). O plan faz a conferência com as regras do projeto, registra as decisões e inclui as tarefas (`T001`):
+Numa feature nova, copie `<projeto>/.claude/templates/plan.md` para `plan.md` na mesma pasta. Antes, leia os documentos vivos do projeto (`docs/dominio/` e `docs/api.md` no back, `docs/design.md` no front). O plan faz a conferência com as regras do projeto, registra as decisões e inclui as tarefas (`T001`):
 
 - Os testes vêm antes da implementação que eles cobrem.
 - A última tarefa atualiza os documentos vivos com o que mudou de permanente (obrigatória).

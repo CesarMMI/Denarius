@@ -17,7 +17,7 @@ Este arquivo reúne as regras que valem para o repositório inteiro e o fluxo de
 | `.claude/skills/feature`, `.claude/skills/bug` | Os fluxos de trabalho, abaixo |
 | `<projeto>/.claude/skills/` | Skills específicas de cada projeto |
 | `<projeto>/.claude/templates/` | Templates de `spec.md`, `plan.md` e `bug.md` do projeto |
-| `<projeto>/docs/features/NNN-nome/` | `spec.md` e `plan.md` de cada feature, numeradas por projeto (mais `contracts/` e `research.md` quando preciso) |
+| `<projeto>/docs/features/NNN-nome/` | `spec.md` e `plan.md` de cada feature (um assunto, como categorias, transações ou relatórios), numeradas por projeto (mais `contracts/` e `research.md` quando preciso). Mudanças posteriores no mesmo assunto entram na mesma pasta |
 | `<projeto>/docs/bugs/<slug>.md` | Relatório de bug, no projeto da causa raiz |
 | `back/docs/dominio/<entidade>.md`, `back/docs/api.md`, `front/docs/design.md` | Documentos vivos: o estado atual do domínio, da API e da identidade visual. Descrevem o que vale hoje, e não o histórico de cada feature |
 
@@ -83,6 +83,7 @@ Toda mudança implementada por um agente segue o fluxo do seu tamanho. Na dúvid
 
 - Em cada portão, apresente um resumo do que foi produzido, os achados da revisão (resolvidos e pendentes), as decisões tomadas e os riscos, e espere a aprovação.
 - Trabalho que envolve os dois projetos faz o ciclo completo no back primeiro e depois no front, com uma spec em cada projeto.
+- **Nunca crie uma feature nova se já existe uma que claramente cobre o assunto.** Antes de começar, procure em `<projeto>/docs/features/`. Uma mudança num assunto já coberto (acrescentar um campo a um relatório, mudar a apresentação de uma lista que já tem feature) entra na `spec.md`, no `plan.md`, no `research.md` e no `contracts/` da feature existente, com requisitos, critérios e tarefas novos numerados em sequência; o fluxo e os portões do tamanho da mudança valem do mesmo jeito. Só se abre uma feature nova quando o usuário pedir explicitamente ou quando o agente avaliar que o assunto merece uma: nesse caso, o agente confirma com o usuário antes de criar a pasta.
 - Mudança permanente no domínio, na API ou na identidade visual atualiza o documento vivo correspondente: toda feature tem uma tarefa para isso no `plan.md`.
 - A entrega termina com a suíte de testes, o lint e o build do projeto afetado passando, e com um resumo para o usuário.
 
