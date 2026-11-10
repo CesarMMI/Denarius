@@ -1,55 +1,44 @@
-# Plano de implementação: Chip colorido e divisores por dia em "Transações do mês"
+# Plano: Chip colorido e divisores por dia em "Transações do mês"
 
-**Branch**: `main` | **Data**: 2026-11-07 | **Spec**: [spec.md](./spec.md)
+**Spec**: [spec.md](./spec.md) · **Entregue em**: `2171566` · **Contrato consumido**: `color` de `back/docs/features/004-cor-categoria-transacoes-mes/contracts/monthly-transactions-api.yaml` (obrigatório, não nulo, `#RRGGBB` em maiúsculas)
 
-## Resumo
+## Conferência com as regras
 
-Em `reports/components/transactions-list` (só apresentação, sem HTTP): a coluna de descrição passa a mostrar um
-`mat-chip` com `appMatChipColor` (a diretiva de `shared/mat-chip-color`, a mesma da tabela de Transações) em vez do
-texto e da linha com o nome da categoria; e as linhas seguidas do mesmo dia ganham a classe `same-date`, que tira o
-divisor, como em `transactions-table`. O tipo `MonthlyTransaction` ganha `color: string`, espelhando o contrato do
-back (back 004, concluída). Sem rota, serviço, dependência ou mudança no back. Ver [research.md](./research.md).
+- Organização (F1): só `reports/components/transactions-list` (apresentação, sem HTTP); reaproveita `shared/mat-chip-color`; não importa o interior de outra feature.
+- Contrato (F2 e IV): consome só o que o contrato oferece; o back entregou a mudança antes. O tipo espelha o contrato.
+- Rotas, banco, dependência: nenhuma mudança.
+- Material (F4): `mat-chip` e tokens `--mat-*`; CSS próprio só para o chip caber na coluna.
+- Segurança (II): a descrição, que vem do usuário, continua interpolada com `{{ }}`, sem `innerHTML` nem `bypassSecurityTrust*`; a cor só chega à diretiva.
+- Performance (III): sem requisição nova (SC-004); o conjunto de linhas "mesmo dia" é um `computed` sobre as 10 linhas exibidas.
 
-## Contexto técnico
+## Mudanças
 
-- **Stack**: Angular 21 (standalone, signals), Angular Material, Vitest (`npx ng test --watch=false`).
-- **Contrato consumido**: `back/specs/004-cor-categoria-transacoes-mes/contracts/monthly-transactions-api.yaml`: `color` obrigatório, não nulo, `#RRGGBB` em maiúsculas.
-- **Metas**: SC-004 (nenhuma requisição a mais) e SC-003 (sem rolagem horizontal; verificação visual, [quickstart.md](./quickstart.md)).
-- **Escopo**: só `front/`; a tabela de Transações e o back ficam como estão (FR-008).
+- `transactions-list.{ts,html,scss}`: `<mat-chip [appMatChipColor]="transaction.color">` com `description ?? categoryName` no lugar do texto e da linha da categoria; as linhas seguidas do mesmo dia ganham a classe `same-date`, que tira o divisor, como em `transactions-table`.
+- `reports/types/report.ts`: `MonthlyTransaction.color: string`.
+- `reports/testing/report-fixtures.ts`: `buildMonthlyTransaction` ganha `color: '#43A047'` por padrão.
+- `docs/design.md` não muda: o chip segue o padrão já documentado.
 
-## Constitution Check
+## Decisões
 
-| Regra | Situação |
-| --- | --- |
-| I. TDD | Testes primeiro em `transactions-list.spec.ts` e no fixture, vistos falhar antes do código; nenhum teste apagado ou enfraquecido (os de `column('description')` mudam de expectativa porque o requisito mudou: sem a linha da categoria; os demais seguem iguais) |
-| II. Segurança | O texto (descrição, vinda do usuário) continua interpolado com `{{ }}`, sem `innerHTML` nem `bypassSecurityTrust*`; a cor só chega à diretiva, que a lê como `#RRGGBB` e a transforma em tons |
-| III. Performance | Sem requisição nova (SC-004); o conjunto de linhas "mesmo dia" é um `computed` sobre as 10 linhas exibidas |
-| IV. Contrato | Consome só o que o contrato oferece (`color`); o back entregou a mudança antes (ciclo próprio) |
-| V. Escopo | Só o `transactions-list`, o tipo e o fixture; sem abstração nova (ver research: divisor) |
-| F1. Organização | Componente de apresentação, sem HTTP; reaproveita `shared/mat-chip-color`; sem importar o interior de outra feature |
-| F2. Contrato e rotas | Tipo espelha o contrato; nenhuma rota muda |
-| F3. Sem banco | Não se aplica |
-| F4. Material primeiro | `mat-chip` e tokens `--mat-*`; CSS próprio só para o chip caber na coluna |
+Detalhes e alternativas descartadas em [research.md](./research.md).
 
-Sem violações; sem Complexity Tracking.
+- **Chip**: reaproveitar `MatChipColor`, o mesmo visual da tabela de Transações; `description ?? categoryName` basta porque o back normaliza descrição em branco para `null`.
+- **Corte (FR-006)**: texto em `span.label` dentro do chip, com as regras de reticências no `.label`; o jsdom não mede layout, então o teste confere só a estrutura e o corte é verificação visual.
+- **Divisor (FR-005)**: `computed` `sameDate` sobre `latest()`, pelo `date.slice(0, 10)` (data exibida em UTC); a regra não é extraída para `shared/`, para não mexer em `transactions-table` (FR-008).
+- **Tipo**: `color: string` não nulo, como no contrato.
 
-## Testes (TDD, nesta ordem; viram as tasks de teste)
+## Testes previstos
 
-Em `transactions-list.spec.ts`, escritos e vistos falhar antes do código; o fixture ganha `color` primeiro:
+Em `transactions-list.spec.ts`, escritos antes do código e vistos falhar; o fixture ganha `color` primeiro.
 
-1. Chip por linha: cada descrição está num `mat-chip`; o texto é a descrição, ou o nome da categoria quando não há descrição.
-2. Sem a linha da categoria: nenhum elemento `.category` na coluna de descrição.
-3. Cor (SC-001): duas categorias de cores diferentes dão chips com estilo diferente, comparando o estilo do chip com o de uma instância de `MatChipColor` da mesma cor (a diretiva grava `--mat-chip-*` em `light-dark(...)`, não o `#RRGGBB`); duas linhas da mesma categoria têm o mesmo estilo.
-4. Divisor: `same-date` entre linhas do mesmo dia, inclusive com horários diferentes; ausente entre dias diferentes; uma única linha sem `same-date`; só considera as 10 linhas exibidas.
-5. Corte (FR-006): o texto vai num `span.label` dentro do chip (o elemento que recebe as regras de reticências); o efeito visual é do quickstart.
-6. Mantidos sem alteração: ordem da API, valores com sinal, título com contagem, limite de 10, link "Ver todas", estados vazio, de carga e de erro; os de `column('description')` mudam só porque a linha da categoria sai.
+1. Chip por linha: o texto é a descrição, ou o nome da categoria sem descrição.
+2. Nenhum elemento `.category` na coluna de descrição.
+3. Cor (SC-001): categorias diferentes dão estilos diferentes, comparando com uma instância de `MatChipColor` da mesma cor (a diretiva grava `--mat-chip-*` em `light-dark(...)`, não o `#RRGGBB`); mesma categoria, mesmo estilo.
+4. Divisor: `same-date` entre linhas do mesmo dia (inclusive com horários diferentes); ausente entre dias diferentes; uma linha sem `same-date`; só as 10 linhas exibidas.
+5. Corte: o texto está em `span.label` dentro do chip.
+6. Mantidos: ordem da API, valores com sinal, título com contagem, limite de 10, "Ver todas" e os estados vazio, de carga e de erro. Só os testes de `column('description')` mudam, porque a linha da categoria saiu.
 7. `reports-page.spec.ts` continua passando com o fixture novo.
 
-## Estrutura
+## Verificação
 
-```text
-front/specs/004-chip-e-divider-transacoes-do-mes/   plan.md, research.md, data-model.md, quickstart.md
-front/src/app/reports/types/report.ts                                  # MonthlyTransaction.color
-front/src/app/reports/testing/report-fixtures.ts                       # buildMonthlyTransaction com color
-front/src/app/reports/components/transactions-list/transactions-list.{ts,html,scss,spec.ts}
-```
+`npx ng test --watch=false`, `npm run lint` e `npm run build` sem erro nem estouro de budget. Visual, com a API no ar: chip na cor da categoria, sem a linha menor; divisor só entre dias; descrição de 255 caracteres cortada dentro do chip, sem rolagem horizontal (SC-003). SC-004: a aba de rede mostra as mesmas requisições de antes.
