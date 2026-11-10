@@ -1,43 +1,55 @@
-# Plano de implementação: Cor da categoria nas transações do mês
+# Plano: Cor da categoria nas transações do mês
 
-**Branch**: `main` | **Data**: 2026-11-07 | **Spec**: [spec.md](./spec.md)
+**Spec**: [spec.md](./spec.md) · **Entregue em**: `876417c` · **Contrato**: [contracts/monthly-transactions-api.yaml](./contracts/monthly-transactions-api.yaml)
 
-## Resumo
+## Conferência com as regras
 
-`GET /api/reports/transactions` passa a devolver, em cada item, o campo `color`: a cor atual da categoria da
-transação. A consulta que já junta a transação à categoria (`TransactionRepository.GetWithCategoryNameAsync`)
-passa a devolver a própria `Category` em vez de só o nome; o `MonthlyTransactionOutput` lê nome e cor dela. Sem
-consulta, migration, rota ou parâmetro novo. Contrato aditivo ([contracts/](./contracts/monthly-transactions-api.yaml)).
+- Camadas (B1): o repositório devolve a entidade, o Application monta o output, o WebAPI não muda.
+- Compatibilidade da API (B2): campo novo, obrigatório e não nulo, só na resposta. É aditivo e não pede rota nem versão nova.
+- Migrations (B3): nenhuma.
+- Segurança (II): sem entrada nova, sem segredo, sem SQL concatenado (LINQ); a cor não é dado sensível.
+- Performance (III): o `Join` com `Category` já existe e a cor vem da mesma linha, sem consulta por item. A meta é o SC-003.
 
-## Contexto técnico
+## Mudanças
 
-- **Linguagem e stack**: .NET 10, EF Core, PostgreSQL (como em `back/AGENTS.md`).
-- **Testes**: xUnit, NSubstitute; testes do repositório em PostgreSQL descartável (Testcontainers).
-- **Metas** (SC-003): uma consulta por requisição e tempo de resposta de até 110% do anterior com a mesma massa de dados.
-- **Escopo**: só `ReportsController` / `ListMonthlyTransactions`; `/transactions` e o front ficam como estão.
+- `ITransactionRepository.GetWithCategoryNameAsync` vira `GetWithCategoryAsync` e devolve `(Transaction, Category)` (`TransactionRepository.cs`).
+- `MonthlyTransactionOutput` ganha `Color`, lido de `Category.Color.HexCode`.
+- `ListMonthlyTransactionsUseCase` usa o método renomeado.
+- Contrato novo em `contracts/monthly-transactions-api.yaml`, só com a operação e o schema alterados, e `pattern: '^#[0-9A-F]{6}$'`.
 
-## Constitution Check
+## Decisões
 
-| Regra | Situação |
-| --- | --- |
-| I. TDD | Testes primeiro (use case, repositório, controller), vistos falhar antes do código. Nenhum teste é apagado ou enfraquecido; os de `ListMonthlyTransactionsUseCaseTests` só mudam a chamada renomeada do mock (`GetWithCategoryAsync`), o tipo do segundo item da tupla e o construtor do output, com as asserções de nome, tipo, valor e número de chamadas mantidas. O teste de repositório é novo (hoje o método só é coberto no use case, via mock): cor devolvida, cor atualizada depois da criação, nome e filtro de data como antes |
-| II. Segurança | Sem entrada nova, sem segredo, sem SQL concatenado (LINQ). A cor não é dado sensível |
-| III. Performance | O `Join` com `Category` já existe; a cor vem da mesma linha, sem consulta por item. Nada a medir além do SC-003, conferido no quickstart |
-| IV. Contrato | Campo novo, obrigatório e não nulo, só na resposta: aditivo (B2), que não pede rota nem versão de API nova (`back/AGENTS.md`, B2: "um campo opcional" e adições compatíveis). O front só o consome numa feature própria, depois desta |
-| V. Escopo | Só o back; menor mudança; segue o padrão de `SumExpensesByCategoryAsync`, que já devolve `Category` |
-| B1. Camadas | Repositório (Domain/Infrastructure) devolve a entidade; o Application monta o output; o WebAPI não muda |
-| B3. Migrations | Nenhuma migration |
+Detalhes e alternativas em [research.md](./research.md). Em resumo:
 
-Sem violações; sem Complexity Tracking.
+- **Origem da cor**: o repositório devolve a `Category` inteira, como `SumExpensesByCategoryAsync`; a cor sai atual a cada consulta. Se o SC-003 reprovar, a alternativa é devolver só nome e cor.
+- **Nulidade**: `color` é `string` não nula (toda transação tem categoria e a cor é obrigatória no value object).
+- **Contrato**: arquivo novo, para não reescrever o da 003 (FR-005).
 
-## Estrutura
+## Testes previstos
 
-```text
-back/specs/004-cor-categoria-transacoes-mes/  plan.md, research.md, data-model.md, quickstart.md, contracts/
-back/src/Denarius.Domain/Repositories/ITransactionRepository.cs                  # GetWithCategoryAsync -> (Transaction, Category)
-back/src/Denarius.Infrastructure/Repositories/TransactionRepository.cs
-back/src/Denarius.Application/IO/Reports/MonthlyTransactionOutput.cs              # + Color
-back/src/Denarius.Application/UseCases/Reports/ListMonthlyTransactions/ListMonthlyTransactionsUseCase.cs
-back/tests/{Application,Infrastructure,WebAPI}.Tests/...                          # ListMonthlyTransactions, TransactionRepository, ReportsController
-back/specs/003-financial-reports/contracts/reports-api.yaml                       # intocado (FR-005)
-```
+Escritos antes do código e vistos falhar: use case, repositório e controller.
+
+- Os testes de `ListMonthlyTransactionsUseCaseTests` só mudam a chamada renomeada do mock, o tipo do segundo item da tupla e o construtor do output; as asserções de nome, tipo, valor e número de chamadas ficam.
+- Teste novo no repositório (`TransactionRepositoryTests`): cor devolvida, cor atualizada depois da criação, nome e filtro de data como antes.
+
+## Verificação
+
+1. `dotnet test` com as quatro suítes verdes (exige o Docker, por causa do Testcontainers).
+2. Com a API no ar, `GET /api/reports/transactions?month=2026-11` traz `color` igual à da categoria em `GET /api/categories` (SC-001), e os campos antigos inalterados (SC-002).
+3. Mudar a cor de uma categoria e repetir a chamada traz a cor nova (FR-003).
+4. SC-003: com o log do EF em `Information`, a chamada mostra uma só consulta; o tempo fica em até 110% do de `main`.
+
+## Tarefas
+
+- [X] T001 [P] Teste novo em `TransactionRepositoryTests`: `GetWithCategoryAsync` devolve a cor, o nome e o filtro de data `[from, to)`, e a cor atual após `Category.Update` (FR-003)
+- [X] T002 [P] Ajustar `ListMonthlyTransactionsUseCaseTests` ao método renomeado e à tupla `(Transaction, Category)`, mantendo as asserções; acrescentar `Color` por item e mesma cor para a mesma categoria
+- [X] T003 [P] Ajustar `ReportsControllerTests` ao novo construtor do output; no teste de `?month=2026-09`, conferir que cada item serializa `color` como string, mantendo os campos antigos (FR-004)
+- [X] T004 Rodar `dotnet test` e ver T001 a T003 falharem; medir em `main` o tempo médio de 5 chamadas como linha de base do SC-003
+- [X] T005 Renomear o método em `ITransactionRepository` e mudar o retorno para `(Transaction, Category)`
+- [X] T006 Ajustar o `Join` em `TransactionRepository` para projetar a `Category`, mantendo `DatedBetween` e `AsNoTracking()`
+- [X] T007 `MonthlyTransactionOutput` recebe `(Transaction, Category)` e ganha `Color`
+- [X] T008 `ListMonthlyTransactionsUseCase` usa `GetWithCategoryAsync`, sem mudar a ordenação
+- [X] T009 `dotnet test` com as quatro suítes verdes, nenhum teste apagado ou enfraquecido
+- [X] T010 `dotnet build` sem erros nem avisos novos
+- [X] T011 Conferir a seção Verificação (itens 2 a 4) e registrar o resultado no resumo da entrega
+- [X] T012 Confirmar que o contrato da 003, `/transactions` e o `front/` ficaram intactos e que o contrato desta feature (versão 1.2.0) descreve o `color`
