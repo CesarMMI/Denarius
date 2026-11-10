@@ -1,318 +1,95 @@
-# Especificação da feature: Relatórios financeiros
+# Relatórios financeiros
 
-**Branch da feature**: `003-financial-reports`
+## Objetivo
 
-**Criada em**: 2026-10-03
+Dar ao painel de relatórios cinco relatórios somente leitura, um por necessidade, cada um sobre um mês do calendário: resumo mensal, despesas por categoria, receitas vs. despesas dos últimos meses, despesa diária acumulada contra a do mês anterior e transações do mês. Os totais saem do banco e as datas seguem o fuso America/Sao_Paulo.
 
-**Status**: Rascunho
+## Cenários
 
-**Entrada**: Descrição do usuário: "Relatórios financeiros para um painel de relatórios, um relatório
-por necessidade, cada um respondendo por um mês do calendário (`YYYY-MM`; o mês atual quando
-omitido; um mês inválido é rejeitado): (1) um resumo mensal — receita total, despesa total, saldo,
-taxa de poupança, uma projeção da despesa e do saldo no fim do mês e os totais do mês anterior com a
-variação percentual de cada um; (2) despesas por categoria com a participação de cada categoria, das
-maiores para as menores, com a cauda agrupada em 'Outras' quando houver mais de 8 categorias; (3)
-receitas vs. despesas dos últimos N meses (padrão 12, entre 1 e 24) como uma série contínua, com zeros
-nos meses sem movimentação; (4) a despesa diária acumulada do mês ao lado da do mês anterior, com o
-mês atual só até hoje; (5) todas as transações do mês, das mais recentes para as mais antigas, com o
-nome da categoria, o tipo e o valor. Dinheiro em decimais, datas no fuso horário America/Sao_Paulo,
-totais calculados pelo banco e índices em data e categoria onde faltarem."
+**Resumo mensal**
 
-**Alteração (2026-10-09)**: Pedido do usuário: "Mude a regra para contar lançamentos futuros. O mesmo vale para os
-indicadores nos cards, como taxa de poupança, caso se aplique algum ajuste." No mês atual, a série acumulada passa a ir
-até hoje ou até a última despesa do mês, o que vier depois, e a projeção soma ao ritmo até hoje a despesa já lançada
-para depois de hoje (decisões do usuário, 2026-10-09). Mudaram o FR-006, o FR-012 e o FR-013, os cenários 5, 9 e 10 da
-história 1, os cenários 2, 4 e 5 da história 4, as premissas da projeção e os SC-006 e SC-007. A receita, a despesa, o
-saldo e a taxa de poupança já contavam o mês inteiro e não mudaram.
+1. **Dado** um mês com 5.000,00 de receitas e 3.000,00 de despesas, **quando** o resumo é pedido, **então** ele traz receita 5.000,00, despesa 3.000,00, saldo 2.000,00 e taxa de poupança de 40%.
+2. **Dado** um mês só com despesas, **quando** o resumo é pedido, **então** a taxa de poupança é não aplicável, e não 0% nem erro.
+3. **Dado** que o mês anterior teve 4.000,00 de receitas e o selecionado tem 5.000,00, **quando** o resumo é pedido, **então** ele traz a receita anterior e um aumento de 25%. Se o mês anterior não teve despesas, a variação das despesas é não aplicável.
+4. **Dado** que hoje é dia 10 de um mês de 30 dias, com 900,00 gastos até hoje e nada lançado depois, **quando** o resumo do mês atual é pedido, **então** a despesa projetada é 2.700,00 e o saldo projetado é a receita menos 2.700,00.
+5. **Dado** o mesmo mês, mas com 300,00 lançados para o dia 20, **quando** o resumo é pedido, **então** a despesa projetada é 3.000,00 (900,00 ÷ 10 × 30 + 300,00).
+6. **Dado** um mês já terminado, ou o último dia do mês atual, **quando** o resumo é pedido, **então** a despesa e o saldo projetados são iguais aos reais. Num mês que ainda não começou, são zero.
+7. **Dado** que nenhum mês foi escolhido, **quando** o resumo é pedido, **então** ele cobre o mês atual em São Paulo.
 
-## Cenários de usuário e testes *(obrigatório)*
+**Despesas por categoria**
 
-### História de usuário 1 - Ver num relance como está o mês (Prioridade: P1)
+1. **Dado** 600,00 em Mercado, 300,00 em Lazer e 100,00 em Transporte, **quando** o relatório é pedido, **então** vêm nessa ordem, com participações de 60%, 30% e 10%, total de 1.000,00 e o nome e a cor de cada categoria.
+2. **Dado** despesas em dez categorias, **quando** o relatório é pedido, **então** as sete maiores aparecem e as outras três somam uma entrada final "Outras". Com exatamente oito categorias, as oito aparecem e não há "Outras".
+3. **Dado** um mês só com receitas, **quando** o relatório é pedido, **então** a lista vem vazia e o total é zero.
 
-Como alguém que acompanha as finanças pessoais, quero ver a receita, a despesa, o saldo e a taxa de
-poupança de um mês, como o mês deve fechar e como ele se compara com o mês anterior, para saber em
-poucos segundos se estou no caminho certo.
+**Receitas vs. despesas**
 
-**Por que esta prioridade**: É o destaque do painel e o único relatório que responde sozinho "como
-estou indo?". Todos os outros relatórios detalham o que este resume.
+1. **Dado** movimentações só em janeiro e março, **quando** são pedidos os três meses que terminam em março, **então** vêm janeiro, fevereiro (zerado) e março, em ordem cronológica.
+2. **Dado** que a quantidade não foi informada, **quando** a série é pedida, **então** ela cobre os doze meses que terminam no mês selecionado; quatro meses terminando em fevereiro começam em novembro do ano anterior.
+3. **Dado** uma quantidade menor que 1 ou maior que 24, **quando** a série é pedida, **então** a solicitação é rejeitada com uma explicação.
 
-**Teste independente**: Registrar receitas e despesas em dois meses consecutivos, pedir o resumo do
-segundo mês e confirmar todos os totais, a taxa de poupança, a projeção e a comparação com o
-primeiro mês — sem precisar de nenhum outro relatório.
+**Despesas acumuladas**
 
-**Cenários de aceitação**:
+1. **Dado** um mês passado com despesas nos dias 3 e 10, **quando** o acumulado é pedido, **então** há um valor por dia do mês, constante entre uma despesa e outra, e o último valor é a despesa total do mês.
+2. **Dado** que hoje é dia 15 e nada foi lançado depois, **quando** o acumulado do mês atual é pedido, **então** a série dele para no dia 15 e a do mês anterior cobre todos os dias dele.
+3. **Dado** que hoje é dia 9 de um mês de 31 dias, com despesas de 100,00 no dia 2, 50,00 no dia 7 e 30,00 no dia 15, **quando** o acumulado é pedido, **então** a série vai do dia 1 ao 15, vale 150,00 do dia 7 ao 14 e 180,00 no dia 15. Uma receita lançada depois do dia 15 não a estende.
+4. **Dado** que hoje é dia 9 e há uma despesa no último dia do mês, **quando** o acumulado é pedido, **então** a série cobre o mês inteiro.
+5. **Dado** que o mês selecionado é janeiro, **quando** o acumulado é pedido, **então** ele é comparado com dezembro do ano anterior, e cada mês informa quantos dias tem.
 
-1. **Dado que** um mês tem 5.000,00 de receitas e 3.000,00 de despesas, **Quando** o seu resumo é
-   pedido, **Então** ele mostra receita total 5.000,00, despesa total 3.000,00, saldo 2.000,00 e
-   taxa de poupança de 40%.
-2. **Dado que** um mês tem despesas, mas nenhuma receita, **Quando** o seu resumo é pedido,
-   **Então** a taxa de poupança é informada como não aplicável, e não como 0% ou como erro.
-3. **Dado que** o mês anterior teve 4.000,00 de receitas e o mês selecionado tem 5.000,00,
-   **Quando** o resumo é pedido, **Então** ele mostra a receita do mês anterior e um aumento de 25%.
-4. **Dado que** o mês anterior não teve despesas, **Quando** o resumo é pedido, **Então** a
-   variação das despesas é informada como não aplicável, e não como erro ou valor infinito.
-5. **Dado que** hoje é dia 10 de um mês de 30 dias, foram gastos 900,00 do dia 1º até hoje e não há
-   despesas lançadas para depois de hoje, **Quando** o resumo do mês atual é pedido, **Então** a
-   despesa projetada é 2.700,00 e o saldo projetado é a receita do mês menos 2.700,00.
-6. **Dado que** o mês já terminou, **Quando** o seu resumo é pedido, **Então** a despesa e o saldo
-   projetados são iguais à despesa e ao saldo reais.
-7. **Dado que** o mês ainda não começou, **Quando** o seu resumo é pedido, **Então** a despesa e o
-   saldo projetados são zero.
-8. **Dado que** nenhum mês foi escolhido, **Quando** o resumo é pedido, **Então** ele cobre o mês
-   atual no horário de São Paulo.
-9. **Dado que** hoje é dia 10 de um mês de 30 dias, foram gastos 900,00 do dia 1º até hoje e há
-   300,00 de despesas lançadas para o dia 20, **Quando** o resumo do mês atual é pedido, **Então** a
-   despesa projetada é 3.000,00 (900,00 ÷ 10 × 30 + 300,00) e o saldo projetado é a receita do mês
-   menos 3.000,00.
-10. **Dado que** hoje é o último dia do mês, **Quando** o resumo do mês atual é pedido, **Então** a
-    despesa e o saldo projetados são iguais à despesa e ao saldo do mês.
+**Transações do mês**
 
----
+1. **Dado** um mês com 30 transações, **quando** o relatório é pedido, **então** voltam as 30, sem paginação nem limite.
+2. **Dado** uma despesa de 50,00 em Mercado, **quando** o relatório é pedido, **então** ela traz o nome "Mercado", o tipo "saída" e o valor 50,00.
+3. **Dado** duas transações no mesmo dia, **quando** o relatório é pedido, **então** a registrada por último vem primeiro.
 
-### História de usuário 2 - Ver para onde foi o dinheiro (Prioridade: P2)
+**Casos-limite**
 
-Como alguém que revisa um mês, quero ver quanto gastei em cada categoria e que parte dos gastos do
-mês cada uma representa, das maiores para as menores, para saber onde cortar.
+- O mês é `YYYY-MM` (`2026-09`); `2026-9`, `2026-13`, `09-2026`, `2026-09-01` ou texto são rejeitados em todos os relatórios. Sem mês, vale o mês atual em São Paulo: às 22:00 de 30 de setembro lá ainda é setembro, mesmo que seja 1º de outubro em UTC.
+- A data de uma transação é um dia do calendário, e não um instante: 1º de setembro pertence a setembro em qualquer fuso.
+- Um mês sem transações devolve totais zerados, listas vazias e séries zeradas, nunca um erro.
+- A taxa de poupança sem receita e a variação a partir de um valor anterior zero são não aplicáveis (sem valor), nunca zero, infinito ou erro. A variação é medida pelo tamanho do valor anterior, então um saldo de −100,00 para 50,00 é um aumento de 150%.
+- Projeção do mês atual: o ritmo só conta despesas com data até hoje, e hoje conta como dia decorrido (no dia 1º, a despesa do dia vezes os dias do mês). Despesa lançada para depois de hoje no mesmo mês é tratada como certa: soma-se à projeção, fora do ritmo, sem contar duas vezes. Uma despesa única até hoje (o aluguel) entra no ritmo e é extrapolada; o usuário aceitou essa regra simples. No dia 1º, sem despesa até hoje, a projeção é só a soma das lançadas para depois. Despesas de meses seguintes não entram no mês atual, nem na série nem na projeção. Só a despesa é projetada; a receita do mês é tida como conhecida.
+- O mês anterior a janeiro é dezembro do ano anterior, no resumo e no acumulado; a série de meses atravessa a virada do ano do mesmo jeito.
+- Categorias com o mesmo gasto vêm em ordem alfabética. "Outras" vem sempre por último, mesmo que seu total passe o de categorias listadas.
+- Participações e variações são arredondadas para duas casas, então as participações podem não somar exatamente 100%.
+- Mês que ainda não começou não tem dia algum na série acumulada; mês passado tem todos. Quando o selecionado é o seguinte ao atual, a série dele fica vazia e a do mês anterior (o atual) segue o FR-013.
 
-**Por que esta prioridade**: É o primeiro detalhamento que qualquer pessoa pede depois do resumo. Só
-precisa das despesas do mês e das categorias que já existem.
+## Requisitos
 
-**Teste independente**: Registrar despesas em várias categorias num mesmo mês e confirmar o total de
-cada categoria, a sua participação nos gastos do mês, a ordem e o agrupamento em "Outras" quando há
-mais de oito categorias.
+- **FR-001**: Todo relatório DEVE aceitar um mês opcional no formato `YYYY-MM` e DEVE cobrir o mês atual no fuso America/Sao_Paulo quando nenhum for informado.
+- **FR-002**: Todo relatório DEVE rejeitar um mês que não seja um `YYYY-MM` válido, explicando o que está errado.
+- **FR-003**: O sistema DEVE tratar as datas das transações como dias do calendário: uma transação pertence ao mês e ao dia da sua data, nunca deslocada por fuso horário.
+- **FR-004**: O resumo mensal DEVE informar o mês, a receita total (entradas), a despesa total (saídas, como valor positivo) e o saldo (receita menos despesa).
+- **FR-005**: O resumo mensal DEVE informar a taxa de poupança como o saldo dividido pela receita total, em percentual, e DEVE informá-la como não aplicável quando o mês não tiver receita.
+- **FR-006**: O resumo mensal DEVE projetar a despesa e o saldo do fim do mês: para o mês atual, a despesa do dia 1º até hoje dividida pelos dias decorridos (incluindo hoje) vezes os dias do mês, mais a despesa com data depois de hoje no mesmo mês, arredondada para duas casas, e a receita do mês menos essa despesa; para um mês passado, os valores reais; para um mês futuro, zero.
+- **FR-007**: O resumo mensal DEVE informar a receita total, a despesa total e o saldo do mês anterior e a variação percentual de cada um para o mês selecionado, não aplicável quando o valor anterior for zero.
+- **FR-008**: O relatório de despesas por categoria DEVE listar, para o mês, cada categoria com despesas (identificador, nome, cor, valor gasto e participação na despesa total do mês), do maior valor para o menor, com a despesa total do mês.
+- **FR-009**: Quando mais de oito categorias tiverem despesas no mês, o relatório de despesas por categoria DEVE listar as sete maiores individualmente e somar as demais numa entrada final "Outras", sem identificador nem cor.
+- **FR-010**: O relatório de receitas vs. despesas DEVE devolver, em ordem cronológica, uma entrada por mês para a quantidade escolhida, terminando no mês selecionado, com receita, despesa e saldo, incluindo os meses sem movimentação, zerados.
+- **FR-011**: O relatório de receitas vs. despesas DEVE cobrir 12 meses por padrão e DEVE rejeitar uma quantidade menor que 1 ou maior que 24, explicando o que está errado.
+- **FR-012**: O relatório de despesas acumuladas DEVE devolver, para o mês selecionado e para o anterior, o total acumulado da despesa em cada dia, do dia 1º até onde o FR-013 manda a série parar, e a quantidade de dias de cada um dos dois meses.
+- **FR-013**: No relatório de despesas acumuladas, a série de um mês passado DEVE cobrir o mês inteiro; a do mês atual DEVE ir até o dia mais tarde entre hoje e a data da última despesa do mês, incluindo as lançadas para depois de hoje (receitas não a estendem); a de um mês que ainda não começou NÃO DEVE ter nenhum dia. A regra vale para a série do mês selecionado e para a do anterior.
+- **FR-014**: O relatório de transações do mês DEVE devolver todas as transações do mês, sem paginação nem limite, da data mais recente para a mais antiga (na mesma data, a registrada mais recentemente primeiro), cada uma com identificador, data, descrição, nome da categoria, tipo (entrada ou saída) e valor (positivo).
+- **FR-015**: Os valores monetários DEVEM ser decimais exatos; os valores projetados e os percentuais DEVEM ser arredondados para duas casas.
+- **FR-016**: Cada relatório DEVE trabalhar só com os meses que cobre, somando os valores onde estão armazenados, em vez de ler todo o histórico a cada solicitação.
+- **FR-017**: O comportamento existente de transações e de categorias e os seus contratos NÃO DEVEM mudar.
 
-**Cenários de aceitação**:
+## Regras de negócio e erros
 
-1. **Dado que** num mês foram gastos 600,00 em Mercado, 300,00 em Lazer e 100,00 em Transporte,
-   **Quando** as despesas por categoria são pedidas, **Então** elas vêm das maiores para as menores,
-   com participações de 60%, 30% e 10% e total de 1.000,00, cada uma com o nome e a cor da sua
-   categoria.
-2. **Dado que** um mês tem despesas em dez categorias, **Quando** as despesas por categoria são
-   pedidas, **Então** as sete maiores aparecem individualmente e as outras três são somadas numa
-   entrada final "Outras".
-3. **Dado que** um mês tem despesas em exatamente oito categorias, **Quando** as despesas por
-   categoria são pedidas, **Então** as oito aparecem e não há entrada "Outras".
-4. **Dado que** um mês tem receitas, mas nenhuma despesa, **Quando** as despesas por categoria são
-   pedidas, **Então** a lista vem vazia e o total é zero.
+- Entrada e saída seguem o sinal do valor da transação ([transação](../../dominio/transacao.md)); a despesa é informada como positiva. Moeda única implícita (BRL), uso single-tenant.
+- Percentuais na escala 0–100 (25,5 é 25,5%), com duas casas. A taxa de poupança (saldo ÷ receita × 100) pode ser negativa quando a despesa passa da receita.
+- Mês inválido e quantidade de meses fora de 1 a 24 respondem 400 (`ValidationProblemDetails`), sem executar o relatório.
 
----
+## Critérios de sucesso
 
-### História de usuário 3 - Acompanhar receitas vs. despesas ao longo dos meses (Prioridade: P3)
-
-Como alguém que planeja o futuro, quero ver receitas e despesas lado a lado nos últimos meses, para
-identificar tendências e os meses que deram errado.
-
-**Por que esta prioridade**: Uma visão de tendência só compensa depois de alguns meses de histórico,
-então vem depois dos relatórios centrados no mês.
-
-**Teste independente**: Registrar movimentações em alguns, mas não em todos, dos últimos doze meses
-e confirmar que a série tem exatamente doze meses em ordem cronológica, com zeros onde nada
-aconteceu.
-
-**Cenários de aceitação**:
-
-1. **Dado que** só há movimentações em janeiro e março, **Quando** são pedidos os três meses que
-   terminam em março, **Então** vêm janeiro, fevereiro e março, nessa ordem, com fevereiro zerado.
-2. **Dado que** nenhuma quantidade de meses foi escolhida, **Quando** a série é pedida, **Então**
-   ela cobre os doze meses que terminam no mês selecionado.
-3. **Dado que** a série termina em fevereiro, **Quando** são pedidos quatro meses, **Então** ela
-   começa em novembro do ano anterior.
-4. **Dado que** a quantidade de meses é menor que 1 ou maior que 24, **Quando** a série é pedida,
-   **Então** a solicitação é rejeitada com uma explicação.
-
----
-
-### História de usuário 4 - Comparar o ritmo de gastos deste mês com o do mês passado (Prioridade: P4)
-
-Como alguém que acompanha os gastos durante o mês, quero ver quanto eu já tinha gastado até cada dia
-do mês ao lado de quanto tinha gastado até o mesmo dia do mês passado, para saber cedo se estou
-gastando mais rápido que o normal.
-
-**Por que esta prioridade**: É um refinamento da projeção do resumo — útil durante o mês, mas o
-resumo já diz para onde o mês está indo.
-
-**Teste independente**: Registrar despesas em alguns dias de dois meses consecutivos e confirmar os
-dois totais acumulados dia a dia, onde eles param e a quantidade de dias de cada mês.
-
-**Cenários de aceitação**:
-
-1. **Dado que** um mês passado tem despesas nos dias 3 e 10, **Quando** os seus gastos acumulados
-   são pedidos, **Então** há um valor para cada dia do mês, que não muda entre uma despesa e outra,
-   e o último valor é a despesa total do mês.
-2. **Dado que** hoje é dia 15 e não há despesas lançadas para depois de hoje, **Quando** os gastos
-   acumulados do mês atual são pedidos, **Então** a série dele para no dia 15, enquanto a série do mês
-   anterior cobre todos os dias dele.
-3. **Dado que** o mês selecionado é janeiro, **Quando** os seus gastos acumulados são pedidos,
-   **Então** ele é comparado com dezembro do ano anterior, e cada mês informa quantos dias tem.
-4. **Dado que** hoje é dia 9 de um mês de 31 dias e há despesas de 100,00 no dia 2, 50,00 no dia 7 e
-   30,00 no dia 15, **Quando** os gastos acumulados do mês atual são pedidos, **Então** a série dele
-   tem os dias 1 a 15, vale 150,00 do dia 7 ao 14 e 180,00 no dia 15; uma receita lançada para
-   depois do dia 15 não estende a série.
-5. **Dado que** hoje é dia 9 e há uma despesa lançada para o último dia do mês, **Quando** os gastos
-   acumulados do mês atual são pedidos, **Então** a série dele cobre o mês inteiro.
-
----
-
-### História de usuário 5 - Listar tudo o que aconteceu no mês (Prioridade: P5)
-
-Como alguém que revisa um mês, quero ver todas as transações desse mês, das mais recentes para as
-mais antigas, com a categoria, se foi entrada ou saída e o valor, para conferir os detalhes por trás
-dos gráficos.
-
-**Por que esta prioridade**: A lista de transações existente já pode ser restrita a um mês; este
-relatório só junta o nome da categoria e o tipo de que o painel precisa.
-
-**Teste independente**: Registrar transações em dois meses e confirmar que só voltam as transações
-do mês selecionado — todas elas, das mais recentes para as mais antigas, com nome da categoria, tipo
-e valor.
-
-**Cenários de aceitação**:
-
-1. **Dado que** um mês tem 30 transações, **Quando** as transações do mês são pedidas, **Então**
-   voltam as 30, sem paginação nem limite.
-2. **Dado que** há uma despesa de 50,00 em Mercado, **Quando** as transações do mês são pedidas,
-   **Então** ela aparece com o nome de categoria "Mercado", o tipo "saída" e o valor 50,00.
-3. **Dado que** há duas transações no mesmo dia, **Quando** as transações do mês são pedidas,
-   **Então** a registrada por último vem primeiro.
-
----
-
-### Casos-limite
-
-- Um mês é escrito como ano com quatro dígitos e mês com dois (`2026-09`); qualquer outra coisa —
-  `2026-9`, `2026-13`, `09-2026`, `2026-09-01`, texto — é rejeitada com uma explicação, em todos os
-  relatórios.
-- Sem mês escolhido, todos os relatórios cobrem o mês atual no horário de São Paulo: às 22:00 de 30
-  de setembro em São Paulo ainda é setembro, mesmo que já seja 1º de outubro em UTC.
-- As datas das transações são dias do calendário, e não instantes no tempo: uma transação com data
-  de 1º de setembro sempre pertence a setembro, qualquer que seja o fuso horário.
-- Um mês sem nenhuma transação devolve totais zerados, listas vazias e séries zeradas — nunca um
-  erro.
-- A taxa de poupança sem receita e a variação percentual a partir de um valor anterior zero são
-  informadas como não aplicáveis (sem valor), nunca como zero, infinito ou erro.
-- A variação percentual a partir de um saldo anterior negativo é medida em relação ao tamanho desse
-  saldo, então um saldo que vai de −100,00 para 50,00 é um aumento de 150%.
-- No mês atual, o ritmo da projeção só conta as despesas com data até hoje, inclusive. Hoje conta
-  como dia decorrido, então no dia 1º o ritmo projeta a despesa do dia vezes os dias do mês. Uma
-  despesa lançada para depois de hoje no mesmo mês é tratada como certa: é somada à projeção inteira,
-  sem entrar no ritmo, e não é contada duas vezes. Uma despesa até hoje, mesmo que só aconteça uma vez
-  no mês (como o aluguel), entra no ritmo e é extrapolada; o usuário aceitou essa regra simples
-  (2026-10-09). No dia 1º, sem despesa até hoje, a projeção é só a soma das despesas lançadas para
-  depois.
-- Despesas lançadas para meses seguintes não entram no mês atual, nem na série acumulada nem na
-  projeção.
-- O mês anterior a janeiro é dezembro do ano anterior, tanto no resumo quanto na comparação
-  acumulada; uma série de meses atravessa a virada do ano do mesmo jeito.
-- Categorias com o mesmo gasto aparecem em ordem alfabética. "Outras" sempre vem por último, como a
-  cauda da lista, mesmo quando o seu total é maior que o de algumas das categorias listadas
-  individualmente.
-- As participações e as variações percentuais são arredondadas para duas casas decimais, então as
-  participações podem não somar exatamente 100%.
-- Na comparação acumulada, um mês que ainda não começou não tem nenhum dia na sua série; um mês
-  passado tem todos. A regra vale para as duas séries: quando o mês selecionado é o seguinte ao
-  atual, a série dele não tem nenhum dia, e a do mês anterior, que é o mês atual, segue o FR-013.
-
-## Requisitos *(obrigatório)*
-
-### Requisitos funcionais
-
-- **FR-001**: Todo relatório DEVE aceitar um mês opcional no formato `YYYY-MM` e DEVE cobrir o mês
-  atual no fuso horário America/Sao_Paulo quando nenhum for informado.
-- **FR-002**: Todo relatório DEVE rejeitar um mês que não seja um mês `YYYY-MM` válido, explicando o
-  que está errado.
-- **FR-003**: O sistema DEVE tratar as datas das transações como dias do calendário: uma transação
-  pertence ao mês e ao dia da sua data, nunca deslocada por um fuso horário.
-- **FR-004**: O resumo mensal DEVE informar o mês, a receita total (entradas), a despesa total
-  (saídas, como valor positivo) e o saldo (receita menos despesa).
-- **FR-005**: O resumo mensal DEVE informar a taxa de poupança como o saldo dividido pela receita
-  total, em percentual, e DEVE informá-la como não aplicável quando o mês não tiver receita.
-- **FR-006**: O resumo mensal DEVE projetar a despesa e o saldo do fim do mês: para o mês atual, a
-  despesa do dia 1º até hoje dividida pelos dias decorridos (incluindo hoje) vezes os dias do mês,
-  mais a despesa com data depois de hoje no mesmo mês, arredondada para duas casas decimais, e a
-  receita do mês menos essa despesa; para um mês passado, os valores reais; para um mês futuro,
-  zero.
-- **FR-007**: O resumo mensal DEVE informar a receita total, a despesa total e o saldo do mês
-  anterior e a variação percentual de cada um deles para o mês selecionado, informada como não
-  aplicável quando o valor anterior for zero.
-- **FR-008**: O relatório de despesas por categoria DEVE listar, para o mês, cada categoria com
-  despesas — identificador, nome, cor, valor gasto e participação na despesa total do mês —, do
-  maior valor para o menor, com a despesa total do mês.
-- **FR-009**: Quando mais de oito categorias tiverem despesas no mês, o relatório de despesas por
-  categoria DEVE listar as sete maiores individualmente e somar as demais numa entrada final
-  "Outras", sem identificador nem cor.
-- **FR-010**: O relatório de receitas vs. despesas DEVE devolver, em ordem cronológica, uma entrada
-  por mês para a quantidade de meses escolhida, terminando no mês selecionado — com receita,
-  despesa e saldo —, incluindo os meses sem movimentação, zerados.
-- **FR-011**: O relatório de receitas vs. despesas DEVE cobrir 12 meses por padrão e DEVE rejeitar uma
-  quantidade de meses menor que 1 ou maior que 24, explicando o que está errado.
-- **FR-012**: O relatório de despesas acumuladas DEVE devolver, para o mês selecionado e para o mês
-  anterior, o total acumulado da despesa em cada dia, do dia 1º até onde o FR-013 manda a série
-  parar, e a quantidade de dias de cada um dos dois meses.
-- **FR-013**: No relatório de despesas acumuladas, a série de um mês passado DEVE cobrir o mês
-  inteiro; a série do mês atual DEVE ir até o dia mais tarde entre hoje e a data da última despesa do
-  mês, incluindo as despesas lançadas para depois de hoje (receitas não a estendem); e a série de um
-  mês que ainda não começou NÃO DEVE ter nenhum dia. A regra vale tanto para a série do mês
-  selecionado quanto para a do mês anterior.
-- **FR-014**: O relatório de transações do mês DEVE devolver todas as transações do mês, sem
-  paginação nem limite, da data mais recente para a mais antiga (na mesma data, a registrada mais
-  recentemente primeiro), cada uma com identificador, data, descrição, nome da categoria, tipo
-  (entrada ou saída) e valor (como valor positivo).
-- **FR-015**: Os valores monetários DEVEM ser decimais exatos; os valores projetados e os
-  percentuais DEVEM ser arredondados para duas casas decimais.
-- **FR-016**: Cada relatório DEVE trabalhar só com os meses que cobre, somando os valores onde eles
-  estão armazenados, em vez de ler todo o histórico de transações a cada solicitação.
-- **FR-017**: O comportamento existente de transações e de categorias e os seus contratos NÃO
-  DEVEM mudar.
-
-### Entidades principais *(inclua se a feature envolver dados)*
-
-- **Mês do relatório**: O mês do calendário que um relatório cobre, no formato `YYYY-MM`; o padrão é
-  o mês atual em São Paulo.
-- **Resumo mensal**: A receita total, a despesa total, o saldo, a taxa de poupança, a despesa e o
-  saldo projetados de um mês, e os totais do mês anterior com a variação percentual de cada um.
-- **Despesa da categoria**: O gasto de uma categoria num mês — nome, cor, valor e participação — ou
-  a entrada "Outras", que agrupa as menores.
-- **Receita e despesa mensais**: A receita, a despesa e o saldo de um mês dentro de uma série de
-  meses.
-- **Despesa acumulada**: O total acumulado da despesa de um mês num dia desse mês.
-- **Transação do mês**: Uma transação como os relatórios a mostram — data, descrição, nome da
-  categoria, tipo e valor positivo.
-- **Transação** e **Categoria** *(existentes, de [[002-transaction-management]] e
-  [[001-category-management]])*: Os relatórios só as leem; o tipo de uma transação vem do sinal do
-  seu valor.
-
-## Critérios de sucesso *(obrigatório)*
-
-### Resultados mensuráveis
-
-- **SC-001**: O usuário consegue ver a receita, a despesa, o saldo, a taxa de poupança, a projeção e
-  a comparação com o mês anterior de um mês numa única solicitação.
+- **SC-001**: O usuário vê a receita, a despesa, o saldo, a taxa de poupança, a projeção e a comparação com o mês anterior de um mês numa única solicitação.
 - **SC-002**: Cada relatório responde em menos de um segundo com um histórico de 10.000 transações.
-- **SC-003**: 100% dos meses sem movimentação devolvem zeros ou listas vazias em vez de erros, e 100%
-  dos meses ou quantidades de meses inválidos são rejeitados com uma explicação.
-- **SC-004**: Um ano de receitas e despesas volta como exatamente 12 meses consecutivos, sem
-  lacunas, quaisquer que sejam os meses com movimentação.
-- **SC-005**: A soma dos valores do relatório de despesas por categoria é sempre igual à despesa
-  total dele e à despesa total do mês no resumo.
-- **SC-006**: Em 100% dos casos, o último valor da série acumulada do mês atual é igual à despesa
-  total do mês no resumo, inclusive com despesas lançadas para depois de hoje.
-- **SC-007**: No mês atual, a despesa projetada nunca é menor do que a despesa total já lançada no
-  mês.
+- **SC-003**: 100% dos meses sem movimentação devolvem zeros ou listas vazias em vez de erros, e 100% dos meses ou quantidades de meses inválidos são rejeitados com uma explicação.
+- **SC-004**: Um ano de receitas e despesas volta como exatamente 12 meses consecutivos, sem lacunas, quaisquer que sejam os meses com movimentação.
+- **SC-005**: A soma dos valores do relatório de despesas por categoria é sempre igual à despesa total dele e à despesa total do mês no resumo.
+- **SC-006**: Em 100% dos casos, o último valor da série acumulada do mês atual é igual à despesa total do mês no resumo, inclusive com despesas lançadas para depois de hoje.
+- **SC-007**: No mês atual, a despesa projetada nunca é menor do que a despesa total já lançada no mês.
 
-## Premissas
+## Fora de escopo
 
-- Entradas e saídas seguem o modelo existente: o sinal do valor da transação, sem tipo armazenado.
-  Os valores de despesa são informados como positivos, então o saldo é a receita menos a despesa.
-- Os percentuais estão na escala 0–100 (25,5 significa 25,5%), arredondados para duas casas
-  decimais; isso vale para a taxa de poupança (saldo ÷ receita × 100), as participações das
-  categorias e as variações percentuais.
-- A taxa de poupança não se aplica — é informada sem valor, e não como 0% — quando o mês não tem
-  receita, porque não há de onde poupar; ela pode ser negativa quando a despesa passa da receita.
-- A variação percentual é medida em relação ao tamanho do valor anterior, então o seu sinal sempre
-  diz se o valor subiu ou desceu.
-- Só a despesa é projetada; a receita do mês é considerada já conhecida, porque costuma entrar de
-  uma vez, e não diariamente.
-- O relatório de despesas por categoria mostra no máximo oito entradas: quando há mais de oito
-  categorias, sete mais "Outras".
-- Todos os valores estão numa única moeda implícita (BRL), como no resto da aplicação.
-- Uso single-tenant, como no resto da aplicação; quem pode ver os relatórios está fora do escopo.
+Quem pode ver os relatórios (a aplicação é single-tenant) e mudanças no comportamento ou nos contratos de transações e categorias.
