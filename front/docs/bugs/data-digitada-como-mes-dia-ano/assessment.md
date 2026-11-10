@@ -20,7 +20,7 @@
 
 O campo "Data" exibe dd/mm/aaaa, mas lê o texto digitado com as regras do `Date.parse` do navegador (formato
 americano mês/dia/ano e vários outros formatos soltos). A transação é salva, sem aviso, num dia diferente do digitado,
-e datas válidas em dia/mês/ano com o dia acima de 12 são recusadas. O esperado (FR-014 da 003) é ler só dia/mês/ano,
+e datas válidas em dia/mês/ano com o dia acima de 12 são recusadas. O esperado (FR-014 da 002) é ler só dia/mês/ano,
 com o ano em quatro algarismos e com ou sem zeros à esquerda, e recusar com "Informe uma data válida" qualquer outro
 formato e as datas inexistentes.
 
@@ -28,7 +28,7 @@ formato e as datas inexistentes.
 
 - `front/docs/features/002-transacoes/spec.md`: FR-014 (linhas 456-465), cenário 9 da História 2 (218-221),
   Casos-limite (367-374) e Esclarecimentos (26-30 e 96-100; o segundo classifica o desvio como violação do princípio II
-  que bloqueia a entrega da 003; ver também 110-112 e 635-638).
+  que bloqueia a entrega da 002; ver também 110-112 e 635-638).
 - `AGENTS.md` da raiz, princípio II (Segurança): o dado financeiro gravado difere do digitado, sem aviso.
 
 ## Reprodução
@@ -110,7 +110,7 @@ quando a leitura importa. O projeto usa o adapter nativo sem personalizar o `par
 leitura (regras do `Date.parse`, na prática mês/dia/ano) divergem. O relato preliminar está certo quanto à causa; um
 `MAT_DATE_LOCALE` explícito não mudaria nada, porque o `parse` não o consulta.
 
-**É bug, e não comportamento novo**: a FR-014 da 003 já exige a leitura dia/mês/ano e registra o atual como desvio
+**É bug, e não comportamento novo**: a FR-014 da 002 já exige a leitura dia/mês/ano e registra o atual como desvio
 conhecido, encaminhado ao fluxo de bugs.
 
 ## Correção proposta
@@ -138,7 +138,7 @@ fornecida no `TransactionForm`.**
 3. O `month-field` não muda: não aceita digitação.
 
 Segue o padrão já usado no projeto: o adapter e o `MatDatepickerIntl` são fornecidos no próprio componente (ver
-`front/bugs/calendarios-em-ingles/`). A classe fica em `transactions/`, ao lado do `transaction-form`, e não em
+`front/docs/bugs/calendarios-em-ingles/`). A classe fica em `transactions/`, ao lado do `transaction-form`, e não em
 `shared/`, porque hoje só o formulário de transação aceita data digitada: pela F1, só vai para `shared/` o que serve a
 mais de uma feature, e o princípio V desaconselha antecipar esse uso (decisão do usuário). Se outra feature precisar,
 a classe é movida para `shared/` nessa hora. No spec temporário, essa subclasse produziu exatamente o esperado:
@@ -227,7 +227,7 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
 - **Bundle**: uma classe pequena no chunk sob demanda de transações; efeito desprezível.
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em segurança além de impedir a
   gravação de uma data diferente da digitada (o que cumpre o princípio II).
-- **Specs (desvios conhecidos)**: depois da correção, deixam de valer na 003:
+- **Specs (desvios conhecidos)**: depois da correção, deixam de valer na 002:
   - o cenário 9 da História 2 (218-221): sai o parêntese "desvio conhecido: hoje '5/9/2026' é salva como 9 de maio…";
   - os Casos-limite (367-374): sai a parte "Desvio conhecido, que fere a integridade dos dados… diálogo fecha sem
     mostrá-la", ficando a regra esperada;
@@ -236,13 +236,13 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
   - as Premissas (597-598): "o formato da data" sai da lista de desvios conhecidos;
   - a lista de desvios das Premissas (~622-634: a data digitada é citada na 624, e a menção "corrigidos em" dos
     calendários está na 627) e a de bloqueios (635-638) registram a data digitada como corrigida em
-    `front/bugs/data-digitada-como-mes-dia-ano/`, como foi feito para os calendários e a consulta repetida.
+    `front/docs/bugs/data-digitada-como-mes-dia-ano/`, como foi feito para os calendários e a consulta repetida.
   - Os Esclarecimentos (26-30, 96-100 e 110-112) são histórico e ficam. Ver P3.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-07)
 
 A revisão independente não achou nada CRITICAL nem HIGH; os achados MEDIUM e LOW (o caso "05/10/0026" na reprodução e
-nos testes, a lista das recusas que já passam hoje e as linhas das Premissas da 003) foram corrigidos nesta versão. O
+nos testes, a lista das recusas que já passam hoje e as linhas das Premissas da 002) foram corrigidos nesta versão. O
 usuário aprovou o diagnóstico e decidiu:
 
 - **P1**: (A), a subclasse própria do `NativeDateAdapter`, sem dependência nova.
@@ -250,7 +250,7 @@ usuário aprovou o diagnóstico e decidiu:
   (`front/src/app/transactions/components/transaction-form/pt-br-date-adapter.ts` e `.spec.ts`), e não em `shared/`,
   porque pela F1 só vai para `shared/` o que serve a mais de uma feature (princípio V).
 - **P2**: (A), recusar os anos de 0000 a 0099.
-- **P3**: (A), as notas de desvio da 003 saem no próprio `/speckit-bug-fix`, com registro no `fix.md`.
+- **P3**: (A), as notas de desvio da 002 saem no próprio `/speckit-bug-fix`, com registro no `fix.md`.
 
 ## Perguntas (respondidas)
 
@@ -272,7 +272,7 @@ usuário aprovou o diagnóstico e decidiu:
     aceitaria.
   - **Recomendação**: (A). O caso não tem uso real em finanças pessoais, e recusar é mais seguro para a integridade
     dos dados; o bug-fix registra a decisão no `fix.md` e um teste a cobre.
-- **P3 — Specs 003**: [NEEDS CLARIFICATION: ajustar a spec no próprio bug-fix ou numa revisão à parte?]
+- **P3 — Specs 002**: [NEEDS CLARIFICATION: ajustar a spec no próprio bug-fix ou numa revisão à parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`, retirando as notas de desvio listadas em "Riscos e
     considerações" e mantendo os desvios do zero e dos valores grandes. Consequência: a spec deixa de descrever um
     desvio que não existe mais.

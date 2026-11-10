@@ -9,9 +9,9 @@
 
 Aplicada a combinação "P1 = A + grade `high`" do diagnóstico, conforme as decisões do dono no portão (2026-10-06):
 P1 = A (linhas da comparação acumulada em `primary`/`secondary`, como no código), P2 = B (grade volta a
-`surface-container-high`, o service muda) e P3 = A (os artefatos da 001 são realinhados aqui). O teste do
+`surface-container-high`, o service muda) e P3 = A (os artefatos da 003 são realinhados aqui). O teste do
 `ChartThemeService` passou a esperar `secondary` em `primaryVariant`, o service passou a ler `surface-container-high`
-na grade, e a spec, o research, o data-model e o quickstart da 001 passaram a descrever o mesmo par de cores.
+na grade, e a spec, o research, o data-model e o quickstart da 003 passaram a descrever o mesmo par de cores.
 
 ## Alterações
 
@@ -26,7 +26,7 @@ na grade, e a spec, o research, o data-model e o quickstart da 001 passaram a de
 | `front/docs/features/003-relatorios/plan.md`                  | modificado       | Resumo de cores (linha 17) cita as linhas da comparação acumulada. Ampliação pedida na revisão (R-01).                                                                            |
 
 Nada mudou em `cumulative-comparison-chart.*`, nos outros gráficos, nos fakes de `ChartColors`, em `categories/`,
-`transactions/`, `shared/`, nas specs 001/002 nem no back.
+`transactions/`, `shared/`, nas specs 001/003 nem no back.
 
 ## Destaques do diff
 
@@ -40,7 +40,7 @@ Nada mudou em `cumulative-comparison-chart.*`, nos outros gráficos, nos fakes d
 +			grid: this.resolve('surface-container-high'),
 ```
 
-Novo texto na spec da 001:
+Novo texto na spec da 003:
 
 - **Esclarecimentos, sessão 2026-10-06**: "P: Que cores usam as linhas da comparação acumulada? → R: O par da cor
   primária do tema: o mês atual em `primary` e o mês anterior em `secondary`, como foi entregue. Isso ressalva, só
@@ -57,7 +57,7 @@ Novo texto na spec da 001:
   primária do tema (`primary`), para em hoje, e a linha do mês anterior, na cor secundária (`secondary`), cobre o mês
   inteiro."
 
-Nos outros artefatos da 001:
+Nos outros artefatos da 003:
 
 - `research.md`, Cores: a decisão acrescenta "As linhas da comparação acumulada usam `primary` (mês atual) e
   `secondary` (mês anterior)" e mantém a grade em `surface-container-high`; a justificativa registra a escolha do dono
@@ -128,7 +128,7 @@ Todos os comandos rodados em `front/`.
 Nenhum. A combinação aplicada é a linha "A: `primary`/`secondary` | `high`" da tabela da correção proposta. A prova de
 mutação foi feita para `on-primary`, como pedido; a prova para o `grid` é o próprio ciclo vermelho → verde do passo 1.
 
-Registro sobre a `tasks.md` da 001: a T025 (concluída) diz que as linhas usam "`primary` e `on-primary`". Essa parte
+Registro sobre a `tasks.md` da 003: a T025 (concluída) diz que as linhas usam "`primary` e `on-primary`". Essa parte
 da T025 foi superada pela decisão de 2026-10-06 (linhas em `primary`/`secondary`). A tarefa não foi reescrita, por ser
 registro histórico de trabalho concluído.
 
@@ -150,6 +150,6 @@ Depois disso, `npx prettier --write` nos arquivos tocados (sem divergência).
   deficiência de visão de cores, só a legenda e o tooltip as distinguem. Risco aceito pelo dono na P1 = A.
 - Conferir na tela, nos temas claro e escuro, se a grade em `surface-container-high` continua legível; se ficar
   apagada demais, a alternativa registrada é `surface-container-highest` (nova decisão do dono).
-- Processo: a 001 entrou no `257afad` com a suíte vermelha, embora a T026 registre a suíte verde. Vale rodar a suíte
+- Processo: a 003 entrou no `257afad` com a suíte vermelha, embora a T026 registre a suíte verde. Vale rodar a suíte
   sobre o estado commitado na revisão do implement.
 - Próximo passo: `/speckit-bug-test project=front slug=chart-theme-teste-tokens-desatualizados`.

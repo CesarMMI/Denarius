@@ -13,7 +13,7 @@
 > a string com `urlWithParams`, então a chamada nunca casa com o GET da lista, que sempre leva parâmetros
 > (`?orderBy=…&asc=…`). Resultado: a asserção "não recarregou" passa mesmo quando a lista recarrega. Na prática, só o
 > `httpTesting.verify()` do `afterEach` pega a recarga, e a falha aparece fora do teste e às vezes derruba os
-> vizinhos. Os testes novos (C10, C11 da 003 e os bug-fix) já usam um predicado
+> vizinhos. Os testes novos (C10, C11 da 002 e os bug-fix) já usam um predicado
 > `(req) => req.method === 'GET' && req.url === baseUrl` ou o helper `expectNoListRequest`. A receita da skill
 > `write-front-tests` ensina o padrão errado.
 
@@ -115,7 +115,7 @@ O `HttpClientTestingBackend` compara a string com `request.urlWithParams` (confi
 Como o GET da lista sempre leva `orderBy`/`asc` (e o dos relatórios, `month`), a string `baseUrl` nunca casa e o
 `expectNone` passa sempre. O padrão veio da receita da skill `write-front-tests` (commit `94b5e64`), que mostra o
 `expectList()` com predicado, mas termina o exemplo com `expectNone(baseUrl)`. Os testes escritos depois disso para
-"não recarregou" (C10, C11 da 003 e as correções de bugs) já usam o predicado ou o helper `expectNoListRequest`, o que
+"não recarregou" (C10, C11 da 002 e as correções de bugs) já usam o predicado ou o helper `expectNoListRequest`, o que
 deixou os dois padrões convivendo no mesmo arquivo.
 
 Não é defeito do código de produção: na HEAD atual, nenhuma das recargas indevidas acontece (a suíte passa e o

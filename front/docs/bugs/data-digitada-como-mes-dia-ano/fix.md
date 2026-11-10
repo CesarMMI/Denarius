@@ -124,12 +124,12 @@ Em `front/`:
   falar só dos valores com 14 ou mais algarismos ("Os valores com 14 ou mais algarismos inteiros, gravados hoje
   diferentes do digitado, ferem a integridade dos dados … e bloqueiam a entrega desta feature; o zero, que a API
   recusa, não bloqueia."); acrescentada a frase "A leitura da data digitada como dia/mês/ano foi corrigida em
-  `front/bugs/data-digitada-como-mes-dia-ano/`.". Os desvios do zero e dos valores com 14 ou mais algarismos
+  `front/docs/bugs/data-digitada-como-mes-dia-ano/`.". Os desvios do zero e dos valores com 14 ou mais algarismos
   continuam.
 - Premissas (regras de negócio): "(FR-014, em que a recusa do zero, o limite do valor e o formato da data são desvios
   conhecidos)" passou a "(FR-014, em que a recusa do zero e o limite do valor são desvios conhecidos)".
 - Premissas (lista de desvios): "a data digitada, a recusa do zero e o limite do valor (FR-014)" passou a "a data
-  digitada (FR-014, corrigida em `front/bugs/data-digitada-como-mes-dia-ano/`), a recusa do zero e o limite do valor
+  digitada (FR-014, corrigida em `front/docs/bugs/data-digitada-como-mes-dia-ano/`), a recusa do zero e o limite do valor
   (FR-014)".
 - Ficaram como estavam: os Esclarecimentos (histórico) e a frase "Bloqueiam a entrega desta feature…" das Premissas,
   que ainda cita a data digitada entre os bloqueios, como foi feito no `clique-repetido-em-excluir`; o bloqueio se
@@ -147,7 +147,7 @@ Em `front/`:
 ## Pendências
 
 - Conferir num navegador a digitação, o `blur` e o Enter (no `/speckit-bug-test` ou à mão).
-- `plan.md`, `research.md`, `tasks.md` e checklists da 003 podem ainda citar o desvio como pendente; a reavaliar no
+- `plan.md`, `research.md`, `tasks.md` e checklists da 002 podem ainda citar o desvio como pendente; a reavaliar no
   `/speckit-converge` (FR-014, cenário 9 da História 2 e Casos-limite).
 - Os valores com 14 ou mais algarismos (`parseFloat`) e a recusa do zero seguem para a avaliação própria.
 - Próximo passo: `/speckit-bug-test project=front slug=data-digitada-como-mes-dia-ano`.

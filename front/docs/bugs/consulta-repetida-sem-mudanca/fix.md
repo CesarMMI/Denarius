@@ -105,30 +105,30 @@ Só saíram ressalvas e a referência ao lugar da correção; nenhum requisito, 
 - `front/docs/features/002-transacoes/spec.md`:
   - Esclarecimento (Sessão, P sobre a ordenação e o mês repetidos): "O atual é um desvio conhecido… a corrigir… no menu
     de ordenação e no campo 'Mês' compartilhados…" passou a "O desvio, que contrariava o princípio III, foi corrigido
-    uma só vez pelo fluxo de bugs do front (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec: a comparação
+    uma só vez pelo fluxo de bugs do front (`front/docs/bugs/consulta-repetida-sem-mudanca/`), fora desta spec: a comparação
     por conteúdo fica no estado de cada página (filtros e ordenação; nos relatórios, o mês), e não no menu de ordenação
     nem no campo 'Mês' compartilhados, e vale também para as páginas de categorias e de relatórios."
   - Casos-limite: os itens da ordenação/mês repetidos e da busca por descrição ficaram só com a regra e a referência ao
     FR-031; saíram as notas "Desvio conhecido".
   - FR-031: a nota "Desvio conhecido: … no menu de ordenação, no campo 'Mês' compartilhados e na busca … fica fora
     desta spec" deu lugar a "Esse comportamento foi corrigido pelo fluxo de bugs do front
-    (`front/bugs/consulta-repetida-sem-mudanca/`), fora desta spec, com uma comparação por conteúdo no estado da página
+    (`front/docs/bugs/consulta-repetida-sem-mudanca/`), fora desta spec, com uma comparação por conteúdo no estado da página
     (filtros e ordenação), e não no menu de ordenação nem no campo 'Mês' compartilhados; a mesma correção vale para as
     páginas de categorias (inclusive a busca por nome) e de relatórios."
   - SC-007: saiu "(desvio conhecido: hoje escolher de novo… ver FR-031)".
 - Por decisão do usuário (a lista inicial de seções era exemplo, não limite), saíram também as demais notas deste bug:
-  - 002, cenários de aceitação 5 e 9: saiu "(desvio conhecido: hoje a consulta é refeita; ver FR-023)";
-  - 002, requisito do menu de ordenação (linha ~469): "(desvio conhecido; ver FR-023)" passou a "(FR-023)";
-  - 003, cenário 8: saiu "(desvio conhecido: hoje a consulta é refeita e as linhas dão lugar ao indicador; ver
+  - 001, cenários de aceitação 5 e 9: saiu "(desvio conhecido: hoje a consulta é refeita; ver FR-023)";
+  - 001, requisito do menu de ordenação (linha ~469): "(desvio conhecido; ver FR-023)" passou a "(FR-023)";
+  - 002, cenário 8: saiu "(desvio conhecido: hoje a consulta é refeita e as linhas dão lugar ao indicador; ver
     FR-031)";
-  - 002, esclarecimento da ordenação/mês repetidos: "a corrigir… nos componentes compartilhados de ordenação e de mês"
+  - 001, esclarecimento da ordenação/mês repetidos: "a corrigir… nos componentes compartilhados de ordenação e de mês"
     passou a dizer que foi corrigido por este bug, com a comparação no estado de cada página, e não nos componentes
     compartilhados;
   - 001 e 002, Sessão 2026-10-05 (P do "Nome" e P da "Descrição"): "O atual é um desvio conhecido, deduzido do código e
     ainda não reproduzido…" passou a dizer que o desvio foi reproduzido num teste e corrigido por este bug, pela mesma
     comparação nos filtros da página.
-  - 003, Premissas: o parêntese "(FR-031, no menu de ordenação e no campo 'Mês' compartilhados com as mesmas páginas e
-    na busca, ainda a reproduzir)" passou a "(FR-031, corrigida em `front/bugs/consulta-repetida-sem-mudanca/` com uma
+  - 002, Premissas: o parêntese "(FR-031, no menu de ordenação e no campo 'Mês' compartilhados com as mesmas páginas e
+    na busca, ainda a reproduzir)" passou a "(FR-031, corrigida em `front/docs/bugs/consulta-repetida-sem-mudanca/` com uma
     comparação por conteúdo no estado de cada página, e não no menu de ordenação nem no campo 'Mês' compartilhados; vale
     também para as páginas de categorias e de relatórios)" (achado MEDIUM da revisão).
   O texto dos cenários, requisitos e critérios não mudou.

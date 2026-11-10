@@ -26,7 +26,7 @@ formato das datas já estão em pt-BR.
 ## Requisitos violados
 
 - `front/docs/features/001-categorias/spec.md`: FR-020 (linhas 476-478), Casos-limite (340-342) e Esclarecimentos
-  (42-46 e 90-91, onde a correção bloqueia a entrega da 002 e da 003).
+  (42-46 e 90-91, onde a correção bloqueia a entrega da 001 e da 002).
 - `front/docs/features/002-transacoes/spec.md`: FR-030 (540-544), Casos-limite (383-385) e Esclarecimentos (57-60,
   110-121). O FR-030 diz que "o conjunto completo desses rótulos é definido no bug-fix desta correção"; esta avaliação
   propõe o conjunto (ver P2).
@@ -201,17 +201,17 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
   (`reports-page.html:5,8`). As setas do calendário teriam os mesmos nomes, mas só existem dentro do calendário aberto,
   que é um diálogo com foco preso; não há ambiguidade para o leitor de tela.
 - **Bundle**: uma classe pequena num chunk sob demanda (as páginas são lazy); efeito desprezível no inicial.
-- **Relação com a data digitada**: o bug da data digitada lida como mês/dia/ano (FR-014 da 003), fora desta avaliação,
+- **Relação com a data digitada**: o bug da data digitada lida como mês/dia/ano (FR-014 da 002), fora desta avaliação,
   também passa pelo `provideNativeDateAdapter()` de `transaction-form.ts:35`, a mesma linha de `providers` que esta
   correção altera. Os dois bug-fixes mexem no mesmo trecho; não há dependência entre eles, só possível conflito de
   merge se correrem em paralelo.
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em segurança; nenhuma dependência
   nova.
-- **Specs**: depois da correção, as notas "Desvio conhecido" sobre os calendários em inglês deixam de valer: na 002, a
-  FR-020 (476-478) e os Casos-limite (340-342); na 003, a FR-030 (540-544, inclusive a frase de que o conjunto dos
+- **Specs**: depois da correção, as notas "Desvio conhecido" sobre os calendários em inglês deixam de valer: na 001, a
+  FR-020 (476-478) e os Casos-limite (340-342); na 002, a FR-030 (540-544, inclusive a frase de que o conjunto dos
   rótulos é definido no bug-fix) e os Casos-limite (383-385). Os Esclarecimentos são histórico e ficam. As listas de
-  desvios nas Premissas (002: 524-528; 003: 632-637) e a de bloqueios (003: 110-112, 643-646) citam o desvio como
-  pendente e podem dizer que ele foi corrigido em `front/bugs/calendarios-em-ingles/`, como foi feito para a consulta
+  desvios nas Premissas (001: 524-528; 002: 632-637) e a de bloqueios (002: 110-112, 643-646) citam o desvio como
+  pendente e podem dizer que ele foi corrigido em `front/docs/bugs/calendarios-em-ingles/`, como foi feito para a consulta
   repetida. Ver P3.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-07)
@@ -235,7 +235,7 @@ três perguntas abaixo:
     silêncio; os specs precisam repetir o provider.
   - **Recomendação**: (A). Segue o padrão já usado para o `DateAdapter`, é a menor mudança e não depende de uma regra
     implícita sobre qual import usar.
-- **P2 — Conjunto dos rótulos** (o FR-030 da 003 diz que ele é definido no bug-fix): [NEEDS CLARIFICATION: aprovar o
+- **P2 — Conjunto dos rótulos** (o FR-030 da 002 diz que ele é definido no bug-fix): [NEEDS CLARIFICATION: aprovar o
   conjunto abaixo ou ajustar?]
   - (A) Proposto: `calendarLabel` "Calendário"; `openCalendarLabel` "Abrir calendário"; `closeCalendarLabel` "Fechar
     calendário"; `prevMonthLabel` "Mês anterior"; `nextMonthLabel` "Próximo mês"; `prevYearLabel` "Ano anterior";
@@ -248,8 +248,8 @@ três perguntas abaixo:
   - **Recomendação**: (A), completo e literal, para não restar nenhum texto em inglês no serviço.
 - **P3 — Specs 001 e 002**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou numa revisão à parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`: saem as notas "Desvio conhecido" da FR-020 e dos
-    Casos-limite da 002, e da FR-030 e dos Casos-limite da 003; a frase do FR-030 sobre o conjunto passa a apontar
-    para `front/bugs/calendarios-em-ingles/`; as listas das Premissas e de bloqueios registram o desvio como
-    corrigido. Os requisitos em si não mudam: a frase "e vale para todos os calendários da aplicação" continua na FR-020 da 002 e na FR-030 da 003 quando a nota de desvio sair.
+    Casos-limite da 001, e da FR-030 e dos Casos-limite da 002; a frase do FR-030 sobre o conjunto passa a apontar
+    para `front/docs/bugs/calendarios-em-ingles/`; as listas das Premissas e de bloqueios registram o desvio como
+    corrigido. Os requisitos em si não mudam: a frase "e vale para todos os calendários da aplicação" continua na FR-020 da 001 e na FR-030 da 002 quando a nota de desvio sair.
   - (B) Deixar as specs como estão e só citá-las no `fix.md`; elas continuam descrevendo um desvio que não existe mais.
   - **Recomendação**: (A), como foi feito no bug `consulta-repetida-sem-mudanca` e como as próprias specs pedem.

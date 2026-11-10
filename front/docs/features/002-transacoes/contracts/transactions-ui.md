@@ -90,4 +90,4 @@ Os textos que o usuário vê estão na spec (FR-001 a FR-032). No diálogo, o "V
 só com ícone são "Recarregar", "Exibir filtros"/"Ocultar filtros", "Ordenar: <opção>", "Editar", "Excluir", "Limpar
 descrição", "Limpar tipo", "Limpar categoria" e "Limpar mês"; os do cabeçalho e das linhas também aparecem como dica, e
 os "Limpar …" ficam sem dica. Os nomes dos controles do calendário estão em português (`PtBrDatepickerIntl`, ver
-`front/bugs/calendarios-em-ingles/`).
+`front/docs/bugs/calendarios-em-ingles/`).

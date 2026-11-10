@@ -143,7 +143,7 @@ há, o item diz isso explicitamente.
   na visão de dias que não chega ao `value` (só o `monthSelected` o grava, `month-field.html:17`) e o calendário sem
   rótulos em português (nenhum `MatDatepickerIntl` é provido no código). **Atualização (2026-10-08)**: dos três, só
   o dia escolhido na visão de dias (FR-016) continua desvio; a consulta repetida e o calendário foram corrigidos em
-  `front/bugs/consulta-repetida-sem-mudanca/` e `front/bugs/calendarios-em-ingles/`.
+  `front/docs/bugs/consulta-repetida-sem-mudanca/` e `front/docs/bugs/calendarios-em-ingles/`.
 
 ## Lista, estados e link para transações
 
@@ -266,7 +266,7 @@ da revisão independente; D11 a D16 em 2026-10-06, depois da revisão dos checkl
   - Decisão: defeito, registrado na spec (FR-012, FR-013, Casos-limite e Esclarecimentos de 2026-10-06), a corrigir
     pelo fluxo de bugs do front; a forma da correção fica para o `/speckit-bug-assess`. Bloqueia a entrega desta
     feature e da 003, como a consulta repetida e o calendário em inglês (D10).
-  - Resolvido (2026-10-08): bug `front/bugs/clique-repetido-em-excluir/` `verified`, e o converge liberou a entrega.
+  - Resolvido (2026-10-08): bug `front/docs/bugs/clique-repetido-em-excluir/` `verified`, e o converge liberou a entrega.
 - **D12 — Exibição como texto: novo TC-10 (2026-10-06).**
   - Decisão: teste de caracterização em `categories-table.spec.ts`: um nome `<b>teste</b>` aparece literalmente no
     chip. Só os templates do projeto; o snack bar fica como garantia do Material, sem teste. Um exemplo entrou nos
@@ -291,6 +291,6 @@ da revisão independente; D11 a D16 em 2026-10-06, depois da revisão dos checkl
     (`overflow: auto`, `categories-page.scss:14-17`); as reticências só aparecem se a largura do chip for limitada.
     Deduzido do CSS, sem renderização; a verificação do `plan.md` manda conferir.
 - **D16 — Critério de "concluído" dos bug-fix que bloqueiam a entrega (2026-10-06).**
-  - Decisão: o `front/bugs/<slug>/test.md` de cada bug com o resultado `verified`, o teste de reprodução e a suíte
+  - Decisão: o `front/docs/bugs/<slug>/test.md` de cada bug com o resultado `verified`, o teste de reprodução e a suíte
     completa passando, e o `/speckit-converge` reavaliando contra o código os FR/SC afetados (FR-023 e SC-006; FR-020;
     FR-012 e FR-013). Registrado em "Dependências e riscos" do plan.

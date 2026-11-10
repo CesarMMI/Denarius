@@ -21,7 +21,7 @@
 `npx ng test --watch=false` termina com 1 teste falhando: `ChartThemeService > should read each color from its
 Material system token`. O teste espera `primaryVariant` = `on-primary` e `grid` = `surface-container-high`; o service
 devolve `secondary` e `surface-container-highest`. Os outros seis tokens batem. O esperado é a suíte verde, com o
-teste, o service e os artefatos da 001 descrevendo as mesmas cores.
+teste, o service e os artefatos da 003 descrevendo as mesmas cores.
 
 ## Reprodução
 
@@ -58,7 +58,7 @@ Código e testes:
   na variante", com os fakes `amber`/`brown`.
 - `cumulative-comparison-chart.ts:86-89` e `income-vs-expense-chart.ts:67-70`: os consumidores de `grid`.
 
-Artefatos da 001 (`front/docs/features/003-relatorios/`) que descrevem as cores das linhas e da grade:
+Artefatos da 003 (`front/docs/features/003-relatorios/`) que descrevem as cores das linhas e da grade:
 
 - `spec.md:135-136` (US5, AC1): "a linha do mês, em vermelho, para em hoje, e a linha do mês anterior, numa cor
   neutra, cobre o mês inteiro". A entrada da spec também pede "despesas em vermelho em todo lugar" (`spec.md:15`).
@@ -79,7 +79,7 @@ Artefatos da 001 (`front/docs/features/003-relatorios/`) que descrevem as cores 
 
 **O commit `0b008af` não é a causa.** Ele só altera `reports-page.scss` (4 linhas: as colunas e as áreas da grade da
 página). O service e o seu spec só aparecem num commit, `257afad` ("feat(front): add the reports dashboard"), e já
-nasceram divergentes nele (`git log -p` dos dois arquivos). A falha existe desde a entrega da 001, e não é regressão
+nasceram divergentes nele (`git log -p` dos dois arquivos). A falha existe desde a entrega da 003, e não é regressão
 de commit posterior.
 
 **A divergência tem três vias para as linhas da comparação acumulada:**
@@ -127,11 +127,11 @@ no código, e as duas opções são linhas finíssimas, com `highest` um pouco m
 1,39:1 contra 1,19:1 no escuro). Nenhum registro diz por que o código usa `highest`.
 
 **Conclusão.** O teste falha porque o service e o teste divergem desde o `257afad`. Nenhum dos dois coincide com a
-spec de registro da 001. Confiança alta em um ponto: `on-primary` (o que o teste espera) é inviável como cor de linha.
+spec de registro da 003. Confiança alta em um ponto: `on-primary` (o que o teste espera) é inviável como cor de linha.
 Qual par é o certo (`primary`/`secondary` ou `error`/`outline`) e qual token de grade usar são decisões do dono, sem
 evidência que decida sozinha: perguntas P1 e P2.
 
-**É bug, e não comportamento novo.** As cores fazem parte da 001, já entregue. O que falta é coerência entre a spec,
+**É bug, e não comportamento novo.** As cores fazem parte da 003, já entregue. O que falta é coerência entre a spec,
 o service e o teste. Se a resposta à P1 for (A), a spec de registro passa a descrever o que foi entregue. É um
 realinhamento de artefato, sem funcionalidade nova, mas muda requisito (FR-010), critério de sucesso (SC-004) e
 cenário (US5/AC1), além de um Esclarecimento já registrado (o que a P3 trata).
@@ -152,7 +152,7 @@ Resumo por combinação de respostas:
 | B: `error`/`outline` | qualquer | `cumulative-comparison-chart.ts` usa `colors.expense` / `colors.neutral`; `primary` e `primaryVariant` saem de `ChartColors` e do service (ficariam sem uso); `grid` conforme a P2 | `cumulative-comparison-chart.spec.ts` passa a esperar as cores de despesa e neutra; `chart-theme.service.spec.ts` e os fakes de `ChartColors` (4 specs) perdem os dois campos; `grid` conforme a P2 |
 | C: `primary`/`on-primary` | qualquer | service: `primaryVariant` → `on-primary`; `grid` conforme a P2 | nenhum, além do `grid` se P2 = `highest` |
 
-Artefatos da 001, conforme a P3:
+Artefatos da 003, conforme a P3:
 
 - Se P1 = A: no `spec.md`, o FR-010 e o SC-004 passam a excetuar as linhas da comparação acumulada do "mesmo
   vermelho"; o US5/AC1 passa a dizer `primary`/`secondary`; e o Esclarecimento de 2026-10-03 ("os gráficos e a lista
@@ -163,7 +163,7 @@ Artefatos da 001, conforme a P3:
 
 Arquivos que podem mudar: `chart-theme.service.ts` e `.spec.ts`, `cumulative-comparison-chart.ts` e `.spec.ts`, os
 fakes de `ChartColors` em `expenses-by-category-chart.spec.ts`, `income-vs-expense-chart.spec.ts` e
-`reports-page.spec.ts`, e os artefatos da 001 listados acima.
+`reports-page.spec.ts`, e os artefatos da 003 listados acima.
 
 **Teste de regressão previsto:**
 
@@ -184,17 +184,17 @@ fakes de `ChartColors` em `expenses-by-category-chart.spec.ts`, `income-vs-expen
   próximos. Em escala de cinza ou com deficiência de visão de cores, só a legenda e o tooltip as distinguem. O par
   `error`/`outline` tem diferença de luminância de 1,44:1 (claro) e 1,86:1 (escuro), além do matiz.
 - **Processo**: a T026 registra a suíte verde, mas o commit `257afad` já entrou com ela vermelha, e a troca do service
-  não deixou registro. A revisão da 001 não rodou a suíte sobre o estado commitado.
+  não deixou registro. A revisão da 003 não rodou a suíte sobre o estado commitado.
 - **Escopo**: só o front. Nenhum contrato da API, dado ou segurança é afetado.
 
 ## Perguntas em aberto
 
 - **P1 — Cores das linhas da comparação acumulada**: [NEEDS CLARIFICATION: qual par as linhas usam?]
-  - (A) Manter `primary`/`secondary`, como no código. Só o teste e os artefatos da 001 mudam, e a tela fica igual.
+  - (A) Manter `primary`/`secondary`, como no código. Só o teste e os artefatos da 003 mudam, e a tela fica igual.
     Mas essa opção reescreve um requisito obrigatório (FR-010), um critério de sucesso (SC-004), o cenário US5/AC1 e
     um Esclarecimento já registrado, e as duas linhas continuam com luminância idêntica.
   - (B) Voltar à spec: `error` no mês atual e `outline` no anterior. Mudam o componente, o service (os dois campos
-    saem), os fakes e a tela; os artefatos da 001 já descrevem isso. Desfaz a mudança que a T025 registra como do
+    saem), os fakes e a tela; os artefatos da 003 já descrevem isso. Desfaz a mudança que a T025 registra como do
     dono.
   - (C) `primary`/`on-primary`, como na T025 e no teste. Só o service muda, mas a linha do mês anterior fica
     invisível (1,11:1 no claro), o que viola o US5.
@@ -209,15 +209,15 @@ fakes de `ChartColors` em `expenses-by-category-chart.spec.ts`, `income-vs-expen
     divisórias da tabela.
   - **Recomendação**: (B). É a decisão escrita e coerente com a tabela, e nenhum registro justifica a troca. Prefira
     (A) se o dono achar a grade apagada demais na tela.
-- **P3 — Onde realinhar os artefatos da 001** (`spec.md` FR-010, SC-004, US5/AC1 e Esclarecimentos;
+- **P3 — Onde realinhar os artefatos da 003** (`spec.md` FR-010, SC-004, US5/AC1 e Esclarecimentos;
   `data-model.md:89`, `quickstart.md:35`; `research.md` em Cores e em Formas e marcas): [NEEDS CLARIFICATION: no
   bug-fix ou num ciclo à parte?]
   - (A) No próprio `/speckit-bug-fix`, registrado no `fix.md`. Se mudar requisito, critério de sucesso ou cenário
-    (P1 = A), a decisão tomada neste portão entra também numa nova entrada de Esclarecimentos da spec da 001, que
+    (P1 = A), a decisão tomada neste portão entra também numa nova entrada de Esclarecimentos da spec da 003, que
     ressalva a de 2026-10-03.
-  - (B) Num ciclo à parte (`/speckit-clarify` da 001 ou fluxo de features), com o bug-fix tocando só o teste e o
+  - (B) Num ciclo à parte (`/speckit-clarify` da 003 ou fluxo de features), com o bug-fix tocando só o teste e o
     service/componente.
   - **Recomendação**: (A). Com P1 = B e P2 = B, sobra pouco a realinhar (só o registro da T025 no `fix.md`). Com
     P1 = A, a decisão já foi tomada pelo dono neste portão, e um ciclo à parte só repetiria a pergunta e deixaria os
     artefatos divergentes até lá. Mas, por mexer em FR-010 e SC-004, a P1 = A é o caso em que (B) se justifica, se o
-    dono preferir que a mudança de requisito passe pelo `/speckit-clarify` e pelo `/speckit-analyze` da 001.
+    dono preferir que a mudança de requisito passe pelo `/speckit-clarify` e pelo `/speckit-analyze` da 003.

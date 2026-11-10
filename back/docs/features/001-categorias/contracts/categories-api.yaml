@@ -5,7 +5,7 @@ info:
     Contrato dos endpoints existentes de gestão de categorias, como implementados por
     Denarius.WebAPI.Controllers.CategoriesController. Documenta o comportamento entregue; não é uma proposta.
     A 1.1.0 (2026-10-09) define a regra da busca por nome, que antes dependia do banco e diferenciava maiúsculas,
-    minúsculas e acentos (back/bugs/busca-de-nome-diferencia-maiusculas).
+    minúsculas e acentos (back/docs/bugs/busca-de-nome-diferencia-maiusculas).
   version: "1.1.0"
 paths:
   /api/categories:

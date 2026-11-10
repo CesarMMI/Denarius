@@ -160,14 +160,14 @@ Em `front/`:
     andamento … (Esclarecimentos, 2026-10-06)."
   - FR-013: saiu "Desvio conhecido: hoje nada indica a restauração em andamento (ver FR-012)."
   - Premissas: "o "Excluir" protegido contra clique repetido, com retorno visual na exclusão e na restauração
-    (FR-012, FR-013)" passou a "(FR-012, FR-013, corrigido em `front/bugs/clique-repetido-em-excluir/`)".
+    (FR-012, FR-013)" passou a "(FR-012, FR-013, corrigido em `front/docs/bugs/clique-repetido-em-excluir/`)".
 - `front/docs/features/002-transacoes/spec.md`:
   - Casos-limite: o item do "Excluir" de novo na mesma linha ficou só com a regra e a referência (FR-020); saiu a nota
     "Desvio conhecido, que contraria o princípio III … está em andamento.".
   - FR-020: a nota "Desvio conhecido: hoje um clique repetido … definida no `/speckit-bug-assess` dessa correção." foi
-    trocada por "; a forma do retorno visual está em `front/bugs/clique-repetido-em-excluir/`.".
+    trocada por "; a forma do retorno visual está em `front/docs/bugs/clique-repetido-em-excluir/`.".
   - Premissas: "Também ficam fora o clique repetido em "Excluir" sem retorno visual (FR-020), pelo fluxo de bugs do
-    front;" passou a "… (FR-020, corrigido pelo fluxo de bugs do front em `front/bugs/clique-repetido-em-excluir/`);".
+    front;" passou a "… (FR-020, corrigido pelo fluxo de bugs do front em `front/docs/bugs/clique-repetido-em-excluir/`);".
     A frase "Bloqueiam a entrega desta feature…" continua como estava.
 - Ficaram como estavam: os Esclarecimentos (001 e 002), que são histórico, e as notas de outros desvios (diálogo
   aberto até a resposta, link da quantidade, mês do calendário, busca por nome etc.).
@@ -189,6 +189,6 @@ Em `front/`:
 - O "Recarregar" do cabeçalho ainda chama o `reload()` direto e é ignorado se a lista já carrega (comportamento de
   antes, fora do escopo).
 - `plan.md`, `research.md`, `tasks.md` e checklists das 001 e 002 podem ainda citar o desvio como pendente; a
-  reavaliar no `/speckit-converge` (critério de conclusão da avaliação: FR-012, FR-013 e SC-004 da 002; FR-020,
-  FR-021 e SC-004 da 003).
+  reavaliar no `/speckit-converge` (critério de conclusão da avaliação: FR-012, FR-013 e SC-004 da 001; FR-020,
+  FR-021 e SC-004 da 002).
 - Próximo passo: `/speckit-bug-test project=front slug=clique-repetido-em-excluir`.

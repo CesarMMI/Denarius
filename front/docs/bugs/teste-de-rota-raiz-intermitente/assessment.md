@@ -3,7 +3,7 @@
 - **Slug**: teste-de-rota-raiz-intermitente
 - **Projeto**: front
 - **Criada em**: 2026-10-08
-- **Origem**: texto colado (relato do orquestrador), com as menções em `front/bugs/consulta-repetida-sem-mudanca/fix.md`
+- **Origem**: texto colado (relato do orquestrador), com as menções em `front/docs/bugs/consulta-repetida-sem-mudanca/fix.md`
   (linhas 89-91 e 165-166) e `test.md` (linhas 26, 75-76 e 82)
 - **Veredito**: válido
 - **Severidade**: medium
@@ -16,7 +16,7 @@
 > suspeita é lentidão do import dinâmico sob a carga da suíte em paralelo.
 
 O `fix.md` do bug `consulta-repetida-sem-mudanca` registra o estouro em 1 de 3 execuções; o `test.md` do mesmo bug, uma
-execução sem o estouro. O `tasks.md` (linha 392) e o `plan.md` (linha 107) da 003 deixam a entrega pendente deste bug.
+execução sem o estouro. O `tasks.md` (linha 392) e o `plan.md` (linha 107) da 002 deixam a entrega pendente deste bug.
 
 ## Sintoma
 
@@ -143,7 +143,7 @@ import './transactions/pages/transactions-page/transactions-page';
   Tira o custo do `it`, mas o coloca num hook com timeout próprio (10 s por padrão). Melhora a margem, mas o custo
   continua cronometrado.
 - (D) Trocar o `loadComponent`/`loadChildren` real por um stub no teste. **Não recomendada**: o C3 existe para conferir
-  as rotas reais de `app.routes.ts` (T014 e `research.md:272` da 003), e um stub deixaria de executar o carregador
+  as rotas reais de `app.routes.ts` (T014 e `research.md:272` da 002), e um stub deixaria de executar o carregador
   real. Isso enfraquece o teste, o que o princípio I proíbe.
 - (E) Subir o `testTimeout` global ou reduzir os workers (via `runnerConfig`/`vitest.config`). **Não recomendada**:
   afeta a suíte inteira por causa de um teste, cria configuração nova e esconde os travamentos de `whenStable()` que
@@ -165,7 +165,7 @@ correção com um limite apertado e determinístico, em vez de confiar em N exec
 3. Voltar ao timeout padrão (remover o `300`) e registrar os números no `fix.md`. A redução para 300 ms não é
    commitada.
 4. Confirmar que o C3 ainda discrimina: trocar localmente o `redirectTo: 'transactions'` de `app.routes.ts` por
-   `'categories'` e ver o C3 falhar (`/categories` ≠ `/transactions`), como a 003 registrou na T014; desfazer.
+   `'categories'` e ver o C3 falhar (`/categories` ≠ `/transactions`), como a 002 registrou na T014; desfazer.
 5. No fim: `npx ng test --watch=false` (ao menos 3 vezes, anotando a duração do C3), `npm run lint` e
    `npm run build`.
 
@@ -187,8 +187,8 @@ a margem (20 s contra o máximo observado de 2,7 s), sem um vermelho/verde deter
 - **Medição**: a ausência de falhas nas 6 execuções desta avaliação não contradiz o relato; o estouro depende da carga
   total da máquina, que aqui foi menor. Os tempos medidos (até 54% do limite) mostram que a margem é pequena.
 - **Escopo**: só o spec do front. Nenhum código de produção, contrato da API, dado ou segurança é afetado. As pastas
-  `front/docs/features/002-*` e `003-*` não são tocadas por esta avaliação; a pendência que a 003 registra (tasks.md:392,
-  plan.md:107) é atualizada pelo `/speckit-converge` da 003, e não por este bug.
+  `front/docs/features/002-*` e `003-*` não são tocadas por esta avaliação; a pendência que a 002 registra (tasks.md:392,
+  plan.md:107) é atualizada pelo `/speckit-converge` da 002, e não por este bug.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-08)
 

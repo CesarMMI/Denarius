@@ -25,16 +25,16 @@ restauração em andamento.
 ## Requisitos violados
 
 - `front/docs/features/001-categorias/spec.md`: FR-012 (428-435) e FR-013 (436-439), Casos-limite (333-337),
-  Esclarecimentos (83-91, que pedem a forma da correção a este assess e dizem que ela bloqueia a entrega da 002 e da
-  003) e Premissas (526-527). A SC-004 (503-504) depende disso: hoje uma exclusão pode perder o "Desfazer".
+  Esclarecimentos (83-91, que pedem a forma da correção a este assess e dizem que ela bloqueia a entrega da 001 e da
+  002) e Premissas (526-527). A SC-004 (503-504) depende disso: hoje uma exclusão pode perder o "Desfazer".
 - `front/docs/features/002-transacoes/spec.md`: FR-020 (498-504, "a forma do retorno visual é definida no
   `/speckit-bug-assess` dessa correção"), FR-021 (505-506), Casos-limite (398-403), Esclarecimentos (105-115) e
-  Premissas (638-642). A SC-004 (575-576) depende disso, como na 002.
+  Premissas (638-642). A SC-004 (575-576) depende disso, como na 001.
 - `AGENTS.md` da raiz, princípio III: "Nada de requisições, consultas ou cálculos repetidos sem necessidade".
 
 ### O que as specs exigem, exatamente
 
-| Ponto | 002 (categorias) | 003 (transações) |
+| Ponto | 001 (categorias) | 002 (transações) |
 | --- | --- | --- |
 | Bloquear o segundo pedido | "Durante uma exclusão, um novo clique no 'Excluir' da mesma linha NÃO DEVE enviar outro pedido" (FR-012); "antes de a lista recarregar" (Casos-limite) | "Um novo 'Excluir' na mesma linha antes de a lista recarregar NÃO DEVE enviar outro pedido" (FR-020 e Casos-limite) |
 | Mostrar a exclusão em andamento | "a página DEVE mostrar que a exclusão está em andamento" (FR-012) | "a página DEVE mostrar que a exclusão, ou a restauração (FR-021), está em andamento" (FR-020) |
@@ -43,18 +43,18 @@ restauração em andamento.
 | Forma | delegada a este assess (Esclarecimentos, exemplo: "desabilitar o 'Excluir' da linha") | delegada a este assess (FR-020) |
 
 Outras linhas continuam livres: excluir outra linha durante uma exclusão é permitido, e a mensagem nova substitui a
-anterior (comportamento aceito nos Casos-limite das duas specs: 002, 345-346; 003, 391-393).
+anterior (comportamento aceito nos Casos-limite das duas specs: 001, 345-346; 002, 391-393).
 
-**Diferença de prazo (LOW conhecido).** A FR-012 da 002 limita o bloqueio a "durante uma exclusão" (até a resposta
-do `DELETE`), enquanto os Casos-limite da própria 002 e a FR-020 e os Casos-limite da 003 dizem "antes de a lista
+**Diferença de prazo (LOW conhecido).** A FR-012 da 001 limita o bloqueio a "durante uma exclusão" (até a resposta
+do `DELETE`), enquanto os Casos-limite da própria 001 e a FR-020 e os Casos-limite da 002 dizem "antes de a lista
 recarregar". A reprodução mostra que a janela mais danosa é justamente a de depois da resposta: o `DELETE` foi aceito,
 a mensagem com "Desfazer" está à vista, a lista ainda recarrega (as linhas continuam visíveis durante a recarga,
-Casos-limite 348-350 da 002 e 336 da 003), e um clique nessa hora envia o segundo pedido que apaga o "Desfazer". Um
-bloqueio só até a resposta, como diz a FR-012 da 002 ao pé da letra, não corrige o defeito descrito na própria 002.
-Proposta: valer nas duas páginas "até a linha sair da lista" (ver P3), e alinhar a redação da FR-012 da 002 no
+Casos-limite 348-350 da 001 e 336 da 002), e um clique nessa hora envia o segundo pedido que apaga o "Desfazer". Um
+bloqueio só até a resposta, como diz a FR-012 da 001 ao pé da letra, não corrige o defeito descrito na própria 001.
+Proposta: valer nas duas páginas "até a linha sair da lista" (ver P3), e alinhar a redação da FR-012 da 001 no
 bug-fix.
 
-A SC-004 também difere na redação ("com uma ação" na 002, "com um único clique" na 003), sem efeito neste bug.
+A SC-004 também difere na redação ("com uma ação" na 001, "com um único clique" na 002), sem efeito neste bug.
 
 ## Reprodução
 
@@ -147,7 +147,7 @@ como desvio conhecido, encaminhado ao fluxo de bugs.
 1. **Exclusão, por linha.** Cada página guarda os ids em exclusão num signal,
    `protected readonly deleting = signal<ReadonlySet<string>>(new Set())`:
    - em `delete()`, ignorar o pedido se o id já está no conjunto; senão, acrescentá-lo antes de assinar o `DELETE`;
-   - na recusa (`error`), tirar o id do conjunto, porque a lista não recarrega (FR-014 da 002, FR-022 da 003) e a linha
+   - na recusa (`error`), tirar o id do conjunto, porque a lista não recarrega (FR-014 da 001, FR-022 da 002) e a linha
      continua lá, de novo disponível;
    - no sucesso, manter o id: a linha sai da lista na recarga, e os ids são UUIDs que não voltam (a restauração cria
      um registro com id novo). Assim o bloqueio vale "até a linha sair da lista", inclusive durante a recarga; a
@@ -194,7 +194,7 @@ seria uma abstração para duas linhas (princípio V); ver P2. Só a recarga do 
   cedo do que hoje; e muda as chamadas ao `MatSnackBar` que os specs existentes verificam com
   `toHaveBeenCalledExactlyOnceWith` (`categories-page.spec.ts`, "when undoing fails"), o que obrigaria a alterar testes
   existentes.
-- (C) Só o bloqueio até a resposta do `DELETE` (FR-012 da 002 ao pé da letra). **Descartada**: a reprodução mostra que
+- (C) Só o bloqueio até a resposta do `DELETE` (FR-012 da 001 ao pé da letra). **Descartada**: a reprodução mostra que
   o clique depois do 204, com a recarga pendente, ainda apaga o "Desfazer".
 
 **Arquivos que devem mudar (preferida):**
@@ -256,21 +256,21 @@ procura qualquer `mat-progress-spinner`; os testes de carregamento que o usam n�
 afetados, mas os novos devem procurar o spinner dentro da linha.
 
 Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run build` em `front/`. Critério de conclusão
-(Esclarecimentos da 003, 110-115): o bug-fix só conta como concluído quando `front/bugs/clique-repetido-em-excluir/test.md`
+(Esclarecimentos da 002, 110-115): o bug-fix só conta como concluído quando `front/docs/bugs/clique-repetido-em-excluir/test.md`
 registra o resultado `verified`, os testes de reprodução e a suíte completa passam, e o `/speckit-converge` reavalia
-contra o código a FR-012, a FR-013 e a SC-004 da 002 e a FR-020, a FR-021 e a SC-004 da 003.
+contra o código a FR-012, a FR-013 e a SC-004 da 001 e a FR-020, a FR-021 e a SC-004 da 002.
 
 ## Riscos e considerações
 
 - **Conjunto que não é limpo no sucesso**: se um dia a API devolvesse o mesmo id (por exemplo, um "desfazer" real que
   restaure o registro), a linha restaurada nasceria bloqueada. Hoje não acontece (a restauração cria um id novo, FR-013
-  da 002 e FR-021 da 003). Se mudar, basta tirar o id do conjunto ao restaurar.
+  da 001 e FR-021 da 002). Se mudar, basta tirar o id do conjunto ao restaurar.
 - **Recarga que falha depois do 204**: a lista fica vazia com a mensagem de erro de carregamento; o id continua no
   conjunto, e no "Recarregar" a linha já não vem da API. Sem efeito.
 - **Acessibilidade**: o botão desabilitado com `disabledInteractive` continua focável e se anuncia indisponível; o
   spinner e a barra não são anunciados como mudança de estado, o que segue o comportamento atual aceito (anúncio dos
   estados fica para a feature de acessibilidade, Premissas das duas specs). O foco ainda se perde quando a linha sai
-  (desvio já aceito, 002 Casos-limite 379-380).
+  (desvio já aceito, 001 Casos-limite 379-380).
 - **Layout**: o spinner precisa caber no `matIconButton` (40 px) sem mudar a altura da linha; `diameter="20"`. O
   `mat-progress-bar` fica `position: sticky; top: 0` dentro do cartão `.table`, que rola (`overflow: auto`), para não
   rolar junto com a lista; fica nos budgets de estilo por componente.
@@ -282,25 +282,25 @@ contra o código a FR-012, a FR-013 e a SC-004 da 002 e a FR-020, a FR-021 e a S
   salvar gera um `PUT` que a API recusa (404); a mensagem de erro apaga o "Desfazer". As specs não exigem bloquear
   isso.
 - **Bundle**: `MatProgressBarModule` só nos chunks sob demanda das páginas; efeito desprezível no inicial.
-- **Relação com outros bugs**: o diálogo aberto até a resposta (FR-010 da 002, FR-016 da 003) também mexe no `save()`
+- **Relação com outros bugs**: o diálogo aberto até a resposta (FR-010 da 001, FR-016 da 002) também mexe no `save()`
   e no `openForm()` das mesmas páginas. Os dois bug-fixes tocam os mesmos arquivos; sem dependência entre eles, só
   possível conflito de merge se correrem em paralelo. A forma do "em andamento" escolhida aqui (spinner/barra do
   Material) pode servir de padrão para o "Salvar" em andamento daquele bug.
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em segurança.
 - **Specs** (notas "desvio conhecido" que saem junto com a correção):
-  - 002: a nota de desvio da FR-012 (432-435, "Desvio conhecido: hoje nada indica…" até "(Esclarecimentos,
+  - 001: a nota de desvio da FR-012 (432-435, "Desvio conhecido: hoje nada indica…" até "(Esclarecimentos,
     2026-10-06)") e a da FR-013 (439, "Desvio conhecido: hoje nada indica a restauração em andamento (ver FR-012)");
     a dos Casos-limite (334-337, de "Desvio conhecido" até "não pode mais ser desfeita"); e a lista das Premissas
-    (526-527) passa a dizer que o "Excluir" protegido foi corrigido em `front/bugs/clique-repetido-em-excluir/`. Se a
+    (526-527) passa a dizer que o "Excluir" protegido foi corrigido em `front/docs/bugs/clique-repetido-em-excluir/`. Se a
     P3 for aceita, a FR-012 troca "Durante uma exclusão" por "Do clique até a categoria sair da lista ou até a recusa
     da exclusão", sem mudar o resto.
-  - 003: a nota de desvio da FR-020 (500-504, de "Desvio conhecido" até "dessa correção"), substituída por uma
-    referência a `front/bugs/clique-repetido-em-excluir/` para a forma do retorno visual; a dos Casos-limite (399-403);
+  - 002: a nota de desvio da FR-020 (500-504, de "Desvio conhecido" até "dessa correção"), substituída por uma
+    referência a `front/docs/bugs/clique-repetido-em-excluir/` para a forma do retorno visual; a dos Casos-limite (399-403);
     e a frase das Premissas "Também ficam fora o clique repetido em 'Excluir' sem retorno visual (FR-020)" (638-639)
     passa a registrar o desvio como corrigido, como foi feito para a FR-031. A frase "Bloqueiam a entrega desta
     feature…" (641-642) **continua**: ela é a regra de quais desvios bloqueiam e de quando um bug-fix conta como
     concluído, e não uma nota de desvio.
-  - Os Esclarecimentos (002: 83-91; 003: 105-115) são histórico e ficam.
+  - Os Esclarecimentos (001: 83-91; 002: 105-115) são histórico e ficam.
 
 ## Decisões do usuário (portão do diagnóstico, 2026-10-07)
 
@@ -310,7 +310,7 @@ escolheu:
 
 - **P1**: (A), spinner no "Excluir" da linha durante a exclusão e `mat-progress-bar` no cartão durante a restauração.
 - **P2**: (A), o estado `deleting`/`restoring` em cada página; só a recarga do passo 4 vai para `shared/`.
-- **P3**: (A), bloqueio do clique até a linha sair da lista ou até a recusa, com a FR-012 da 002 alinhada.
+- **P3**: (A), bloqueio do clique até a linha sair da lista ou até a recusa, com a FR-012 da 001 alinhada.
 - **P4**: (A), as specs 001 e 002 são ajustadas no próprio `/speckit-bug-fix`, com registro no `fix.md`.
 - **P5**: (a), recarregar quando a carga em curso terminar, **só depois de sucesso** (`resolved`); num erro, a marca é
   descartada.
@@ -340,18 +340,18 @@ escolheu:
     para o que serve a mais de uma feature e vale a pena compartilhar.
 - **P3 — Prazo do bloqueio** (LOW conhecido): [NEEDS CLARIFICATION: até a resposta do `DELETE` ou até a linha sair da
   lista?]
-  - (A) Até a linha sair da lista (no sucesso) ou até a recusa chegar (na recusa), nas duas páginas, e a FR-012 da 002
-    é alinhada à FR-020 da 003 e aos Casos-limite das duas no bug-fix, com a redação "Do clique até a categoria sair
+  - (A) Até a linha sair da lista (no sucesso) ou até a recusa chegar (na recusa), nas duas páginas, e a FR-012 da 001
+    é alinhada à FR-020 da 002 e aos Casos-limite das duas no bug-fix, com a redação "Do clique até a categoria sair
     da lista ou até a recusa da exclusão, um novo clique no 'Excluir' da mesma linha NÃO DEVE enviar outro pedido". As
-    Premissas da 003 mantêm a frase "Bloqueiam a entrega…" (641-642). Consequências: cobre a janela da recarga, que a
+    Premissas da 002 mantêm a frase "Bloqueiam a entrega…" (641-642). Consequências: cobre a janela da recarga, que a
     reprodução mostrou ser a que apaga o "Desfazer"; depende da P5 para a linha sempre sair.
-  - (B) Só até a resposta do `DELETE`, como diz a FR-012 da 002. Consequências: mais curto, mas um clique durante a
-    recarga continua enviando um pedido inútil e apagando o "Desfazer"; contraria os Casos-limite da 002 e a FR-020 da
-    003.
+  - (B) Só até a resposta do `DELETE`, como diz a FR-012 da 001. Consequências: mais curto, mas um clique durante a
+    recarga continua enviando um pedido inútil e apagando o "Desfazer"; contraria os Casos-limite da 001 e a FR-020 da
+    002.
   - **Recomendação**: (A).
 - **P4 — Specs 001 e 002**: [NEEDS CLARIFICATION: ajustar as specs no próprio bug-fix ou numa revisão à parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`: saem as notas de desvio listadas em "Riscos e considerações";
-    a FR-020 da 003 aponta para este bug quanto à forma do retorno; a FR-012 da 002 ganha o prazo da P3; as Premissas
+    a FR-020 da 002 aponta para este bug quanto à forma do retorno; a FR-012 da 001 ganha o prazo da P3; as Premissas
     registram o desvio como corrigido. Os requisitos em si não mudam além do prazo.
   - (B) Deixar as specs e só citá-las no `fix.md`; elas continuam descrevendo um desvio que não existe mais.
   - **Recomendação**: (A), como nos bugs `consulta-repetida-sem-mudanca` e `calendarios-em-ingles`.
@@ -359,7 +359,7 @@ escolheu:
   a linha excluída saia da lista quando o `reload()` é descartado?]
   - (a) Se o `reload()` devolver `false`, recarregar quando a carga atual terminar (passo 4, em `shared/`, aplicado a
     toda recarga da lista nas duas páginas: exclusão, restauração e salvamento). Consequências: a lista exibida sempre
-    reflete o que a API aceitou, o mais fiel à FR-013 da 002 e à FR-020 da 003 ("recarregar a lista"); resolve também
+    reflete o que a API aceitou, o mais fiel à FR-013 da 001 e à FR-020 da 002 ("recarregar a lista"); resolve também
     a linha desatualizada de hoje; custa um `GET` a mais só quando a lista já carregava; um arquivo e um spec novos em
     `shared/`. Validada num spec temporário. A recarga pendente só sai quando a carga em curso termina com sucesso
     (`resolved`); num erro, a marca é descartada e vale o "Recarregar" do usuário. A marca é limpa antes do

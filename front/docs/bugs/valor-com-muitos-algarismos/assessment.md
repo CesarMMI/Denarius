@@ -19,14 +19,14 @@
 
 O campo "Valor" aceita qualquer quantidade de algarismos na parte inteira. A partir de 14 algarismos inteiros com
 centavos, o número enviado à API pode diferir do digitado, sem aviso: "99999999999999,99" é salvo como
-99.999.999.999.999,98. O esperado (FR-014 da 003) é recusar, com "Informe um valor válido" e o diálogo aberto, os
+99.999.999.999.999,98. O esperado (FR-014 da 002) é recusar, com "Informe um valor válido" e o diálogo aberto, os
 valores com mais de 13 algarismos na parte inteira (acima de R$ 9.999.999.999.999,99).
 
 ## Requisitos violados
 
 - `front/docs/features/002-transacoes/spec.md`: FR-014 (linhas 451-460), cenário 5 da História 2 (204-208),
   Casos-limite (350-360) e Esclarecimentos (31-34, 96-100 e 110-112; o segundo e o terceiro classificam o desvio como
-  violação do princípio II que bloqueia a entrega da 003).
+  violação do princípio II que bloqueia a entrega da 002).
 - `AGENTS.md` da raiz, princípio II (Segurança): o dado financeiro gravado difere do digitado, sem aviso.
 
 ## Reprodução
@@ -81,7 +81,7 @@ Passos manuais equivalentes:
   mudança de contrato, no back, fora deste bug. O back lê o número JSON como `decimal` (lê o texto, sem passar por
   double) e grava em `numeric(18,2)` (`TransactionConfiguration.cs:24`): até 16 algarismos inteiros. Acima disso a
   gravação falha com o erro inesperado; o domínio só recusa o zero (`Transaction.cs:60-63`). A falta de validação de
-  faixa e escala na API é desvio conhecido do back, registrado na 003, que não bloqueia esta feature.
+  faixa e escala na API é desvio conhecido do back, registrado na 002, que não bloqueia esta feature.
 - **Maior valor sem perda no front**: um double guarda exatamente qualquer número decimal de até 15 algarismos
   significativos, e o `JSON.stringify` devolve o mesmo texto. Com duas casas decimais, isso dá 13 algarismos inteiros:
   até 9.999.999.999.999,99, exatamente o limite da FR-014. Inteiros sem centavos seriam exatos até 2^53 − 1
@@ -185,16 +185,16 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
   significativos mesmo com cada transação dentro do limite, e então ser exibidas com arredondamento. É um caso fora
   deste bug (o formulário não grava nada diferente do digitado) e improvável em finanças pessoais.
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em dependências.
-- **Specs (desvios conhecidos)**: depois da correção, deixam de valer na 003 (ver P2):
+- **Specs (desvios conhecidos)**: depois da correção, deixam de valer na 002 (ver P2):
   - o cenário 5 da História 2 (207-208): o parêntese passa a citar só o zero ("hoje o zero passa; ver FR-014");
   - os Casos-limite (350-360): sai "Desvio conhecido: hoje o formulário não limita o valor." e a descrição dos valores
     com 14 ou mais algarismos salvos diferentes do digitado e de 10^16 aceito pelo formulário; ficam a regra esperada,
     o desvio do zero (que passa e a API recusa) e o desvio do back sobre faixa e escala;
   - a FR-014 (456-460): "hoje o formulário aceita o zero e valores de qualquer tamanho" passa a citar só o zero, e o
     trecho sobre os valores com 14 ou mais algarismos e o princípio II dá lugar à menção "o limite do valor foi
-    corrigido em `front/bugs/valor-com-muitos-algarismos/`";
+    corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`";
   - as Premissas (592-593): "em que a recusa do zero e o limite do valor são desvios conhecidos" passa a citar só o
-    zero; a lista de desvios (620) registra o limite do valor como corrigido em `front/bugs/valor-com-muitos-algarismos/`,
+    zero; a lista de desvios (620) registra o limite do valor como corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`,
     e a de bloqueios (633-634) segue o mesmo padrão adotado para a data digitada;
   - os Esclarecimentos (31-34, 96-100 e 110-112) são histórico e ficam.
 
@@ -206,7 +206,7 @@ foram corrigidos nesta versão. O usuário aprovou o diagnóstico e decidiu:
 
 - **P1**: (A), recusar os valores que passem de 13 algarismos inteiros, inclusive só por zeros à esquerda
   (`/^\d{1,13}([.,]\d{1,2})?$/`).
-- **P2**: (A), as notas de desvio da 003 saem no próprio `/speckit-bug-fix`, com registro no `fix.md`, mantendo as do
+- **P2**: (A), as notas de desvio da 002 saem no próprio `/speckit-bug-fix`, com registro no `fix.md`, mantendo as do
   zero e da validação de faixa e escala no back.
 
 ## Perguntas (respondidas)
@@ -218,7 +218,7 @@ foram corrigidos nesta versão. O usuário aprovou o diagnóstico e decidiu:
   - (B) Aceitar: ignorar os zeros à esquerda na contagem (`^0*\d{1,13}…`). Consequência: regex um pouco menos óbvia e
     mais um teste; nenhum ganho prático.
   - **Recomendação**: (A).
-- **P2 — Specs 003**: [NEEDS CLARIFICATION: ajustar a spec no próprio bug-fix ou numa revisão à parte?]
+- **P2 — Specs 002**: [NEEDS CLARIFICATION: ajustar a spec no próprio bug-fix ou numa revisão à parte?]
   - (A) No `/speckit-bug-fix`, com registro no `fix.md`, retirando as notas listadas em "Riscos e considerações" e
     mantendo o desvio do zero e o do back. Consequência: a spec deixa de descrever um desvio que não existe mais.
   - (B) Deixar a spec como está e só citá-la no `fix.md`.

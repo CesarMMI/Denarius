@@ -79,11 +79,11 @@ Em `front/`:
 ## Specs ajustadas (P3 = A)
 
 Só saíram as notas de desvio deste bug e a referência a ele; o texto e o sentido de requisitos, critérios e cenários
-não mudaram, e a frase "e vale para todos os calendários da aplicação" continua na FR-020 da 002 e na FR-030 da 003.
+não mudaram, e a frase "e vale para todos os calendários da aplicação" continua na FR-020 da 001 e na FR-030 da 002.
 
 - `front/docs/features/001-categorias/spec.md`:
   - Esclarecimento do calendário e das cores: "o atual é um desvio conhecido, a corrigir pelo fluxo de bugs do front,
-    fora desta spec" passou a "O desvio foi corrigido pelo fluxo de bugs do front (`front/bugs/calendarios-em-ingles/`),
+    fora desta spec" passou a "O desvio foi corrigido pelo fluxo de bugs do front (`front/docs/bugs/calendarios-em-ingles/`),
     fora desta spec".
   - Casos-limite: o item do calendário ficou só com a regra e a referência à FR-020; saiu a nota com "Open calendar",
     "Choose date", "Previous year", "Next year" e "Close calendar".
@@ -91,23 +91,23 @@ não mudaram, e a frase "e vale para todos os calendários da aplicação" conti
     front, fora desta spec,"; a frase ficou "… (por exemplo, "Abrir calendário"), e vale para todos os calendários da
     aplicação."
   - Premissas: "o calendário em português (FR-020)" passou a "(FR-020, corrigido em
-    `front/bugs/calendarios-em-ingles/`)".
+    `front/docs/bugs/calendarios-em-ingles/`)".
 - `front/docs/features/002-transacoes/spec.md`:
   - Esclarecimento dos calendários: "O atual é um desvio conhecido, corrigido pelo fluxo de bugs do front, fora desta
-    spec" passou a "O desvio foi corrigido pelo fluxo de bugs do front (`front/bugs/calendarios-em-ingles/`), fora
+    spec" passou a "O desvio foi corrigido pelo fluxo de bugs do front (`front/docs/bugs/calendarios-em-ingles/`), fora
     desta spec".
   - Casos-limite: o item dos botões de navegação ficou só com a regra e a referência à FR-030; saiu a nota com os
     rótulos em inglês.
   - FR-030: "o conjunto completo desses rótulos é definido no bug-fix desta correção. Desvio conhecido: … e vale para
     todos os calendários da aplicação. O desvio contraria a regra de idioma do `AGENTS.md` e bloqueia a entrega desta
     feature." passou a "…, e vale para todos os calendários da aplicação; o conjunto completo desses rótulos está em
-    `front/bugs/calendarios-em-ingles/`." A frase do bloqueio saiu com a nota; o bloqueio continua registrado nos
+    `front/docs/bugs/calendarios-em-ingles/`." A frase do bloqueio saiu com a nota; o bloqueio continua registrado nos
     Esclarecimentos e nas Premissas.
   - Premissas: "os calendários em português (FR-030)" passou a "(FR-030, corrigidos em
-    `front/bugs/calendarios-em-ingles/`)".
+    `front/docs/bugs/calendarios-em-ingles/`)".
 - Ficaram como estavam, como no bug `consulta-repetida-sem-mudanca`: as perguntas dos Esclarecimentos (que citam o
-  estado "hoje em inglês" na pergunta), as listas de bloqueios (003, Esclarecimentos e Premissas; 002, esclarecimento
-  dos bloqueios) e o esclarecimento da 003 que diz que o conjunto sai "do bug-fix da FR-030", que é histórico e
+  estado "hoje em inglês" na pergunta), as listas de bloqueios (002, Esclarecimentos e Premissas; 001, esclarecimento
+  dos bloqueios) e o esclarecimento da 002 que diz que o conjunto sai "do bug-fix da FR-030", que é histórico e
   continua certo. Nenhum cenário de aceitação citava este bug.
 - Notas de outros desvios (data digitada, dia de outro mês no "Mês" etc.) não foram tocadas.
 

@@ -17,7 +17,7 @@ do bug, mas pode levar a uma nova decisão sobre o token da grade.
 ## Verificações realizadas
 
 Todos os comandos rodados em `front/`, sobre a árvore de trabalho com a correção não commitada (diff em
-`chart-theme.service.ts`, `chart-theme.service.spec.ts` e nos artefatos da 001, como descrito no `fix.md`).
+`chart-theme.service.ts`, `chart-theme.service.spec.ts` e nos artefatos da 003, como descrito no `fix.md`).
 
 | Verificação | Comando / ação | Resultado | Observações |
 | --- | --- | --- | --- |
@@ -64,7 +64,7 @@ claro; 1,19:1 contra 1,39:1 no escuro, segundo o diagnóstico). Passos:
    aparecem e que a legenda e o tooltip as distinguem.
 
 Se a grade ficar apagada demais, a alternativa registrada é `surface-container-highest`, o que exige nova decisão do
-dono e um novo ajuste no service, no teste e no `research.md` da 001.
+dono e um novo ajuste no service, no teste e no `research.md` da 003.
 
 ## Riscos residuais
 
@@ -72,7 +72,7 @@ dono e um novo ajuste no service, no teste e no `research.md` da 001.
 - As duas linhas da comparação acumulada têm a mesma luminância (1,00:1 entre si); em escala de cinza ou com
   deficiência de visão de cores, só a legenda e o tooltip as distinguem. Risco aceito pelo dono na P1 = A.
 - A verificação rodou sobre a árvore de trabalho não commitada; o estado commitado deve ser conferido de novo depois
-  do commit (a 001 entrou no `257afad` com a suíte vermelha, como registrado no diagnóstico).
+  do commit (a 003 entrou no `257afad` com a suíte vermelha, como registrado no diagnóstico).
 
 ## Recomendação
 

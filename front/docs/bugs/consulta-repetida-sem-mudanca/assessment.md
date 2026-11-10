@@ -30,7 +30,7 @@ escolher o mesmo mês refaz as cinco consultas. O esperado é nenhuma consulta e
 - `front/docs/features/002-transacoes/spec.md`: FR-031 (551-558), SC-007 (592-596) e Casos-limite (338-346).
 - `front/docs/features/003-relatorios/spec.md`: não tem requisito equivalente explícito. O FR-002 (192-193) e a SC-002
   (231) só pedem que escolher um mês atualize os cinco blocos. Vale o princípio III do `AGENTS.md` da raiz ("Nada de
-  requisições, consultas ou cálculos repetidos sem necessidade"), e o próprio FR-023 da 002 estende a correção aos
+  requisições, consultas ou cálculos repetidos sem necessidade"), e o próprio FR-023 da 001 estende a correção aos
   relatórios.
 
 ## Reprodução
@@ -176,7 +176,7 @@ O que pesa a favor de (A):
 
 O que (A) não faz: o `month()` dos relatórios continua mudando de referência, então o gráfico de comparação
 acumulada e a lista de transações recalculam os seus `computed` (ver Riscos). E (A) contraria a redação do FR-031 da
-003 sobre o lugar da correção (ver P1).
+002 sobre o lugar da correção (ver P1).
 
 **Alternativas:**
 
@@ -184,7 +184,7 @@ acumulada e a lista de transações recalculam os seus `computed` (ver Riscos). 
   (comparando ano e mês); e, como o signal form sempre grava um objeto novo, as páginas de categorias e de transações
   ainda precisam de `signal<…Filters>(…, { equal })` com uma comparação rasa que trate `Date`. São quatro ou cinco
   pontos. Vantagens: os componentes compartilhados param de emitir valores sem mudança, o `month()` dos relatórios
-  deixa de mudar de referência (o gráfico e a lista não recalculam) e a correção fica onde o FR-031 da 003 diz.
+  deixa de mudar de referência (o gráfico e a lista não recalculam) e a correção fica onde o FR-031 da 002 diz.
   Desvantagem: cada caminho novo de gravação precisa da sua própria guarda.
 - (C) Igualdade nos `signal` das páginas: um comparador em `shared/` (igualdade rasa de objetos que compara `Date`
   pelo valor) e três `equal` (`filters` e `sort` em categorias e transações, `month` nos relatórios). O tamanho é
@@ -277,14 +277,14 @@ Verificação final: `npx ng test --watch=false`, `npm run lint` e `npm run buil
   essa proteção volta a ter o problema. Só (B) resolve isso, ao custo de mais pontos de mudança.
 - **Escopo**: só o front. Nenhuma mudança no back, no contrato da API, em dados ou em segurança. O efeito é menos
   requisições, coerente com o princípio III.
-- **Specs**: depois da correção, as notas de "Desvio conhecido" do FR-023, SC-006 e Casos-limite da 002, e do FR-031,
-  SC-007 e Casos-limite da 003, deixam de valer. Elas mesmas dizem que saem da spec quando o desvio for corrigido.
+- **Specs**: depois da correção, as notas de "Desvio conhecido" do FR-023, SC-006 e Casos-limite da 001, e do FR-031,
+  SC-007 e Casos-limite da 002, deixam de valer. Elas mesmas dizem que saem da spec quando o desvio for corrigido.
 
 ## Perguntas em aberto
 
 - **P1 — Onde corrigir**: [NEEDS CLARIFICATION: comparar a consulta, o estado das páginas ou cada origem?]
-  Atenção: o FR-031 da 003 (`front/docs/features/002-transacoes/spec.md:557-558`, e também a sessão de esclarecimentos, linhas 70-72) diz que a correção fica "no menu de
-  ordenação, no campo 'Mês' compartilhados e na busca", o que descreve (B). O FR-023 da 002 só pede uma correção
+  Atenção: o FR-031 da 002 (`front/docs/features/002-transacoes/spec.md:557-558`, e também a sessão de esclarecimentos, linhas 70-72) diz que a correção fica "no menu de
+  ordenação, no campo 'Mês' compartilhados e na busca", o que descreve (B). O FR-023 da 001 só pede uma correção
   única, pelo fluxo de bugs, sem dizer onde.
   - (A) Helper `distinctRequest` em `shared/`, envolvendo os 7 `httpResource` das três páginas. Compara a própria
     consulta e por isso cobre qualquer caminho de gravação, de hoje ou futuro. Consequências: o `month()` dos

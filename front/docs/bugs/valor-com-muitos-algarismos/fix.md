@@ -85,11 +85,11 @@ Em `front/`:
   API recusa, sem bloquear) e o desvio do back sobre a faixa e a escala.
 - FR-014: "hoje o formulário aceita o zero e valores de qualquer tamanho" passou a citar só o zero, com a nota de que
   ele não bloqueia; o trecho do princípio II sobre os valores com 14 ou mais algarismos deu lugar a "O limite do valor
-  foi corrigido em `front/bugs/valor-com-muitos-algarismos/`", junto da frase da data digitada.
+  foi corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`", junto da frase da data digitada.
 - Premissas (regras de negócio): "(FR-014, em que a recusa do zero e o limite do valor são desvios conhecidos)" passou
   a "(FR-014, em que a recusa do zero é um desvio conhecido)".
 - Premissas (lista de desvios): "a recusa do zero e o limite do valor (FR-014)" passou a "a recusa do zero (FR-014), o
-  limite do valor (FR-014, corrigido em `front/bugs/valor-com-muitos-algarismos/`)".
+  limite do valor (FR-014, corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`)".
 - Os parágrafos alterados foram requebrados em ~120 colunas.
 - Ficaram como estavam: os Esclarecimentos (histórico) e a frase "Bloqueiam a entrega desta feature…" das Premissas,
   que ainda cita os valores com 14 ou mais algarismos entre os bloqueios, como no `data-digitada-como-mes-dia-ano`; o
@@ -106,7 +106,7 @@ Em `front/`:
 ## Pendências
 
 - Conferir num navegador a digitação de "99999999999999,99" e de "9999999999999,99" (no `/speckit-bug-test` ou à mão).
-- `plan.md`, `research.md`, `tasks.md` e checklists da 003 podem ainda citar o desvio como pendente; a reavaliar no
+- `plan.md`, `research.md`, `tasks.md` e checklists da 002 podem ainda citar o desvio como pendente; a reavaliar no
   `/speckit-converge` (FR-014, cenário 5 da História 2 e Casos-limite).
 - A recusa do zero no formulário e a validação de faixa e escala na API seguem como desvios conhecidos, nos fluxos de
   bugs do front e do back.

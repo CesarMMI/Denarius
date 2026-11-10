@@ -50,7 +50,7 @@ pendência de decisão do usuário.
 - **Violação corrigida (princípio III)**: escolher de novo a ordenação, o mesmo mês ou o mesmo texto refazia a
   consulta, porque o `SortMenu` e o `MonthField` gravavam sempre um valor novo e o `httpResource` compara a requisição
   por referência. Decidido como defeito nos Esclarecimentos, sem exceção aprovada, bloqueava a entrega desta feature
-  (decisão do usuário, 2026-10-06). A correção (`front/bugs/consulta-repetida-sem-mudanca/`) compara o estado da
+  (decisão do usuário, 2026-10-06). A correção (`front/docs/bugs/consulta-repetida-sem-mudanca/`) compara o estado da
   página por conteúdo (`shared/shallow-equal`, `equal` dos signals `filters` e `sort`).
 
 ## Estados de carregamento, vazio e erro (FR-008, FR-009)
@@ -108,8 +108,8 @@ pendência de decisão do usuário.
   (FR-016; causa: `dialogRef.close(...)` em `submit()` de `transaction-form.ts`, antes de qualquer chamada); o padrão do valor
   aceita zero (FR-014, não bloqueia); o diálogo recebe uma cópia da lista de categorias no momento em que abre, vazia
   se elas ainda não chegaram ou se não há nenhuma (FR-019; `openForm()` em `transactions-page.ts`). Corrigidos: o limite de 13
-  algarismos inteiros no valor, que evita a alteração pelo `parseFloat` (`front/bugs/valor-com-muitos-algarismos/`), e
-  a data digitada lida como dia/mês/ano pelo `PtBrDateAdapter` (`front/bugs/data-digitada-como-mes-dia-ano/`).
+  algarismos inteiros no valor, que evita a alteração pelo `parseFloat` (`front/docs/bugs/valor-com-muitos-algarismos/`), e
+  a data digitada lida como dia/mês/ano pelo `PtBrDateAdapter` (`front/docs/bugs/data-digitada-como-mes-dia-ano/`).
 
 ## Filtros (FR-023 a FR-026)
 
@@ -124,7 +124,7 @@ pendência de decisão do usuário.
 - **Alternativas consideradas**: Destruir e limpar os filtros ao ocultar — contrário à FR-023, decidida como requisito.
 - **Desvios conhecidos ligados a esta decisão**: dia escolhido na visão de dias do "Mês" muda o texto do campo sem
   mudar o filtro (FR-024; `shared/month-field/month-field.html:17` só trata `monthSelected`; deduzido, não
-  reproduzido). Corrigidos: os calendários, em português desde `front/bugs/calendarios-em-ingles/`
+  reproduzido). Corrigidos: os calendários, em português desde `front/docs/bugs/calendarios-em-ingles/`
   (`PtBrDatepickerIntl`, FR-030), e a consulta repetida (ver acima).
 
 ## Ordenação (FR-027)
@@ -176,7 +176,7 @@ pendência de decisão do usuário.
   contra o engano.
 - **Desvio corrigido (princípio III; bloqueava a entrega, decisão do usuário, 2026-10-06)**: "Excluir" não tinha
   proteção contra clique repetido nem retorno visual; o segundo `DELETE` era inútil, a API o recusava com `404`, e o
-  erro tomava o lugar do snack bar com "Desfazer". Corrigido em `front/bugs/clique-repetido-em-excluir/`, decidido
+  erro tomava o lugar do snack bar com "Desfazer". Corrigido em `front/docs/bugs/clique-repetido-em-excluir/`, decidido
   também para a 002: o `delete()` ignora a linha já em exclusão, que mostra um spinner, e a restauração mostra uma
   barra de progresso.
 
@@ -329,17 +329,17 @@ Referência para os `/speckit-bug-assess` que vão corrigi-los; esta feature nã
 
 | Desvio (spec)                                                                                                | Onde está no código hoje                                                                                                                                                                                              |
 | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data digitada lida como mês/dia/ano ou ISO em UTC (FR-014; princípio II): corrigido                          | Corrigido em `front/bugs/data-digitada-como-mes-dia-ano/`: o `PtBrDateAdapter` (`transaction-form/pt-br-date-adapter.ts`) lê só dia/mês/ano, com o ano em quatro algarismos, e recusa o resto e as datas inexistentes |
-| Zero aceito (FR-014; não bloqueia); mais de 13 algarismos inteiros: corrigido                                | O zero continua aceito pelo padrão `Validators.pattern(/^\d{1,13}([.,]\d{1,2})?$/)` em `transaction-form.ts`; o limite de 13 algarismos inteiros foi corrigido em `front/bugs/valor-com-muitos-algarismos/`           |
-| Valores com 14 ou mais algarismos inteiros gravados diferentes do digitado (FR-014; princípio II): corrigido | Corrigido em `front/bugs/valor-com-muitos-algarismos/`: o padrão do valor recusa mais de 13 algarismos inteiros, e o `parseFloat` fica exato até 9.999.999.999.999,99                                                 |
-| "Excluir" sem proteção contra clique repetido nem retorno visual (FR-020; princípio III): corrigido          | Corrigido em `front/bugs/clique-repetido-em-excluir/`: `delete()` em `transactions-page.ts` ignora o id já em `deleting`; a linha mostra um spinner no "Excluir", e a restauração, uma `mat-progress-bar`             |
-| API sem validação de faixa e de escala do valor (back; princípio II): corrigido                              | Corrigido em `back/bugs/valor-sem-faixa-e-escala/` (`3de4d9c`): `Transaction.ValidateValue` recusa com `400` mais de duas casas decimais e módulo acima de `Transaction.ValueMaxAbsolute`                             |
+| Data digitada lida como mês/dia/ano ou ISO em UTC (FR-014; princípio II): corrigido                          | Corrigido em `front/docs/bugs/data-digitada-como-mes-dia-ano/`: o `PtBrDateAdapter` (`transaction-form/pt-br-date-adapter.ts`) lê só dia/mês/ano, com o ano em quatro algarismos, e recusa o resto e as datas inexistentes |
+| Zero aceito (FR-014; não bloqueia); mais de 13 algarismos inteiros: corrigido                                | O zero continua aceito pelo padrão `Validators.pattern(/^\d{1,13}([.,]\d{1,2})?$/)` em `transaction-form.ts`; o limite de 13 algarismos inteiros foi corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`           |
+| Valores com 14 ou mais algarismos inteiros gravados diferentes do digitado (FR-014; princípio II): corrigido | Corrigido em `front/docs/bugs/valor-com-muitos-algarismos/`: o padrão do valor recusa mais de 13 algarismos inteiros, e o `parseFloat` fica exato até 9.999.999.999.999,99                                                 |
+| "Excluir" sem proteção contra clique repetido nem retorno visual (FR-020; princípio III): corrigido          | Corrigido em `front/docs/bugs/clique-repetido-em-excluir/`: `delete()` em `transactions-page.ts` ignora o id já em `deleting`; a linha mostra um spinner no "Excluir", e a restauração, uma `mat-progress-bar`             |
+| API sem validação de faixa e de escala do valor (back; princípio II): corrigido                              | Corrigido em `back/docs/bugs/valor-sem-faixa-e-escala/` (`3de4d9c`): `Transaction.ValidateValue` recusa com `400` mais de duas casas decimais e módulo acima de `Transaction.ValueMaxAbsolute`                             |
 | Diálogo fecha antes da resposta da API (FR-016)                                                              | `dialogRef.close(...)` em `submit()` de `transaction-form.ts`; chamada à API em `openForm()` de `transactions-page.ts`                                                                                                |
 | Sem aviso da transação salva fora dos filtros (FR-017)                                                       | `save()` em `transactions-page.ts`                                                                                                                                                                                    |
 | "Nova transação" sem categorias (FR-019)                                                                     | `openForm()` só trata `categories.error()` em `transactions-page.ts`; o botão não tem `disabled` (`transactions-page.html:18`)                                                                                        |
 | Dia escolhido no calendário do "Mês" não muda o filtro (FR-024, não reproduzido)                             | `shared/month-field/month-field.html:17` só trata `monthSelected`                                                                                                                                                     |
-| Calendários anunciados em inglês (FR-030): corrigido                                                         | Corrigido em `front/bugs/calendarios-em-ingles/`: `PtBrDatepickerIntl` (`shared/datepicker-intl/`) provido no `MonthField` e no `TransactionForm`                                                                     |
-| Consulta repetida com a mesma ordenação, o mesmo mês ou o mesmo texto (FR-031): corrigido                    | Corrigido em `front/bugs/consulta-repetida-sem-mudanca/`: `shallowEqual` (`shared/shallow-equal/`) no `equal` dos signals `filters` e `sort` de `transactions-page.ts`                                                |
+| Calendários anunciados em inglês (FR-030): corrigido                                                         | Corrigido em `front/docs/bugs/calendarios-em-ingles/`: `PtBrDatepickerIntl` (`shared/datepicker-intl/`) provido no `MonthField` e no `TransactionForm`                                                                     |
+| Consulta repetida com a mesma ordenação, o mesmo mês ou o mesmo texto (FR-031): corrigido                    | Corrigido em `front/docs/bugs/consulta-repetida-sem-mudanca/`: `shallowEqual` (`shared/shallow-equal/`) no `equal` dos signals `filters` e `sort` de `transactions-page.ts`                                                |
 | `dateRef` declarado `date-time` no contrato do back (documentação)                                           | `back/docs/features/002-transacoes/contracts/transactions-api.yaml:27-33` e o `dateRef` de `back/docs/features/001-categorias/contracts/categories-api.yaml`                                                     |
 
 ## Decisões do usuário (2026-10-05)
@@ -360,7 +360,7 @@ As pendências levantadas na primeira versão deste plano foram decididas assim.
 - **Governança (2026-10-06)**: as violações conhecidas sem exceção aprovada bloqueiam a entrega: a consulta repetida
   (III, FR-031), o clique repetido em "Excluir" (III, FR-020), os calendários em inglês (Idioma, FR-030), a data
   digitada (II, FR-014) e os valores com 14 ou mais algarismos (II, FR-014). A feature só é dada como entregue, no fim
-  do `/speckit-converge`, depois desses cinco bug-fix, cada um concluído quando o `front/bugs/<slug>/test.md` registra
+  do `/speckit-converge`, depois desses cinco bug-fix, cada um concluído quando o `front/docs/bugs/<slug>/test.md` registra
   `verified`, o teste de reprodução e a suíte completa passam e o `/speckit-converge` reavalia contra o código os FR/SC
   afetados. O implement dos testes pode rodar antes, com a suíte completa verde. Se a reprodução de um desvio deduzido
   do código não o confirmar, o requisito continua e a nota de desvio sai da spec. Os cinco bug-fix foram concluídos e
@@ -369,7 +369,7 @@ As pendências levantadas na primeira versão deste plano foram decididas assim.
   porque a API o recusa com `400` (continua defeito, sem bloquear).
 - **Validação do valor no back (2026-10-06)**: desvio conhecido do back, como o `dateRef`, corrigido pelo fluxo de bugs
   do back (validar faixa e escala com `400`); não bloqueia esta feature. Corrigido em 2026-10-09, em
-  `back/bugs/valor-sem-faixa-e-escala/`.
+  `back/docs/bugs/valor-sem-faixa-e-escala/`.
 - **Exibição como texto (2026-10-06)**: a SC-008 passa a listar os snack bars, cuja garantia vem do Material, sem teste
   novo; o C13 continua só com os templates do projeto.
 - **Acessibilidade (2026-10-06)**: o comportamento atual, apoiado no Material, fica nas Premissas da spec; as melhorias

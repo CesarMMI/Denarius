@@ -67,7 +67,7 @@ Application bundle generation complete.
   bug).
 - A recusa do zero no formulário e a validação de faixa e escala na API seguem como desvios conhecidos, nos fluxos de
   bugs do front e do back.
-- `plan.md`, `research.md`, `tasks.md` e checklists da 003 podem ainda citar o desvio como pendente; ficam para o
+- `plan.md`, `research.md`, `tasks.md` e checklists da 002 podem ainda citar o desvio como pendente; ficam para o
   `/speckit-converge`.
 
 ## Recomendação

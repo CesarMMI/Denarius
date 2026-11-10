@@ -6,7 +6,7 @@ info:
     Denarius.WebAPI.Controllers.TransactionsController. Documenta o comportamento entregue; não é
     uma proposta. A 1.1.0 (2026-09-24) adicionou os parâmetros de query opcionais do List (mudança aditiva).
     A 1.2.0 (2026-10-09) documenta a faixa e a escala do valor na criação e na edição, que antes
-    respondiam 500 ou gravavam um valor diferente do enviado (back/bugs/valor-sem-faixa-e-escala).
+    respondiam 500 ou gravavam um valor diferente do enviado (back/docs/bugs/valor-sem-faixa-e-escala).
     A 1.3.0 (alteração de 2026-10-11 da feature 002) faz a busca por descrição ignorar também os acentos e fixa a ordem alfabética das
     descrições e dos nomes de categoria no português do Brasil, igual em qualquer ambiente. Os parâmetros, as
     respostas e o formato não mudam (mudança compatível: nenhum consumidor precisa mudar).

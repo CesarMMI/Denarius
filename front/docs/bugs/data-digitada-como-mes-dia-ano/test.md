@@ -73,7 +73,7 @@ Application bundle generation complete.
   componente em jsdom/Node.
 - A suíte rodou só no fuso do Brasil (o da máquina e o do `TZ`); outros fusos não foram exercitados. A leitura usa
   `new Date(ano, mês, dia)` local, sem conversão UTC, o que reduz esse risco.
-- `plan.md`, `research.md`, `tasks.md` e checklists da 003 podem ainda citar o desvio como pendente; ficam para o
+- `plan.md`, `research.md`, `tasks.md` e checklists da 002 podem ainda citar o desvio como pendente; ficam para o
   `/speckit-converge`.
 - Os valores com 14 ou mais algarismos (`parseFloat`) e a recusa do zero seguem para avaliação própria (fora deste bug).
 

@@ -348,4 +348,4 @@ import { routes } from './app.routes';
 import './transactions/pages/transactions-page/transactions-page';
 ```
 
-Without it, the first `loadComponent` imports the page and its dependencies inside the test and, under the load of the full suite, can exceed the 5 s timeout (`front/bugs/teste-de-rota-raiz-intermitente/`).
+Without it, the first `loadComponent` imports the page and its dependencies inside the test and, under the load of the full suite, can exceed the 5 s timeout (`front/docs/bugs/teste-de-rota-raiz-intermitente/`).
